@@ -10,6 +10,7 @@
             margin: 0;
             padding: 0;
             height: 100%;
+            overflow: hidden; /* Prevent scrollbars caused by fixed button potentially overlapping */
         }
 
         /* Iframe styles */
@@ -18,35 +19,39 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: calc(100% - 50px); /* Adjust height to make room for the button */
+            height: 100%; /* Allow iframe to take full height */
             border: none;
         }
 
         /* Save button styles */
         #saveButton {
-            position: fixed;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
+            position: fixed; /* Keeps button in place during scroll */
+            top: 20px;      /* Distance from the top edge */
+            right: 20px;     /* Distance from the right edge */
+            /* removed bottom and left positioning */
+            /* removed transform: translateX(-50%); */
             padding: 10px 20px;
             background-color: #4CAF50;
             color: white;
             border: none;
             cursor: pointer;
             border-radius: 5px;
-            z-index: 1000; /* Ensure it's on top */
+            z-index: 1000; /* Ensure it's on top of the iframe */
         }
     </style>
 </head>
 <body>
-    <!-- Full-page Jotform -->
     <iframe id="jotformFrame" src="https://form.jotform.com/250894684022057" title="Jotform"></iframe>
 
-    <!-- Save Button -->
     <button id="saveButton">Save</button>
 
     <script>
+        // Your existing JavaScript for the save button functionality
         document.getElementById('saveButton').addEventListener('click', function() {
+            // NOTE: This script currently saves static placeholder text.
+            // To save actual form data, you would need to interact with the
+            // Jotform iframe, which might be restricted by cross-origin policies
+            // unless you have control over the Jotform form itself to post messages.
             const content = `
                 {enterA}
                 {enterThe}
@@ -59,7 +64,10 @@
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
             link.download = 'saved_content.txt';
+            document.body.appendChild(link); // Required for Firefox
             link.click();
+            document.body.removeChild(link); // Clean up
+            URL.revokeObjectURL(link.href); // Free up memory
         });
     </script>
 </body>
