@@ -3,22 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Full-Page iFrame</title>
+    <title>Full-Page Jotform</title>
     <style>
-        /* Remove default margins and padding from the body */
-        body {
+        /* Remove default margins and padding */
+        body, html {
             margin: 0;
             padding: 0;
+            height: 100%;
         }
 
-        /* Style the iframe to cover the entire viewport */
+        /* Make iframe take up the entire page */
         iframe {
-            position: fixed; /* Ensures it stays in place */
+            position: absolute;
             top: 0;
             left: 0;
-            width: 100vw; /* Full width of the viewport */
-            height: 100vh; /* Full height of the viewport */
-            border: none; /* Removes default iframe border */
+            width: 100%;
+            height: 100%;
+            border: none; /* Remove border */
         }
     </style>
 </head>
