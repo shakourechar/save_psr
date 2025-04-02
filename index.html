@@ -3,55 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Full-Page Jotform with Save</title>
+    <title>Full-Page Jotform with Save (Troubleshooting)</title>
     <style>
         /* Reset default styles */
         body, html {
             margin: 0;
             padding: 0;
             height: 100%;
-            overflow: hidden; /* Prevent scrollbars caused by fixed button potentially overlapping */
+            /* Ensure no accidental overflow settings are hiding things */
+            overflow: visible; 
+        }
+
+        /* Container for the iframe */
+        .iframe-container {
+            position: absolute; /* Take up space like the iframe */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* Explicitly set a low z-index for the iframe's container */
+            z-index: 1; 
         }
 
         /* Iframe styles */
         #jotformFrame {
-            position: absolute;
-            top: 0;
-            left: 0;
+            display: block; /* Good practice for iframes */
             width: 100%;
-            height: 100%; /* Allow iframe to take full height */
+            height: 100%;
             border: none;
         }
 
         /* Save button styles */
         #saveButton {
-            position: fixed; /* Keeps button in place during scroll */
-            top: 20px;      /* Distance from the top edge */
-            right: 20px;     /* Distance from the right edge */
-            /* removed bottom and left positioning */
-            /* removed transform: translateX(-50%); */
+            position: fixed;   /* Position relative to the viewport */
+            top: 20px;         /* Distance from the top */
+            right: 20px;        /* Distance from the right */
             padding: 10px 20px;
             background-color: #4CAF50;
             color: white;
-            border: none;
+            border: 3px solid red; /* TEMPORARY: Make highly visible for debugging */
             cursor: pointer;
             border-radius: 5px;
-            z-index: 1000; /* Ensure it's on top of the iframe */
+            /* Use an extremely high z-index just in case */
+            z-index: 99999;   
         }
     </style>
 </head>
 <body>
-    <iframe id="jotformFrame" src="https://form.jotform.com/250894684022057" title="Jotform"></iframe>
+    <div class="iframe-container">
+        <iframe id="jotformFrame" src="https://form.jotform.com/250894684022057" title="Jotform"></iframe>
+    </div>
 
     <button id="saveButton">Save</button>
 
     <script>
         // Your existing JavaScript for the save button functionality
         document.getElementById('saveButton').addEventListener('click', function() {
-            // NOTE: This script currently saves static placeholder text.
-            // To save actual form data, you would need to interact with the
-            // Jotform iframe, which might be restricted by cross-origin policies
-            // unless you have control over the Jotform form itself to post messages.
             const content = `
                 {enterA}
                 {enterThe}
@@ -59,15 +66,14 @@
                 {monthlyExpense}
                 {monthlyExpense18}
             `;
-
             const blob = new Blob([content], { type: 'text/plain' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
             link.download = 'saved_content.txt';
-            document.body.appendChild(link); // Required for Firefox
+            document.body.appendChild(link); 
             link.click();
-            document.body.removeChild(link); // Clean up
-            URL.revokeObjectURL(link.href); // Free up memory
+            document.body.removeChild(link); 
+            URL.revokeObjectURL(link.href); 
         });
     </script>
 </body>
