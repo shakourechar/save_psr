@@ -1,80 +1,148 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Full-Page Jotform with Save (Troubleshooting)</title>
-    <style>
-        /* Reset default styles */
-        body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            /* Ensure no accidental overflow settings are hiding things */
-            overflow: visible; 
-        }
-
-        /* Container for the iframe */
-        .iframe-container {
-            position: absolute; /* Take up space like the iframe */
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            /* Explicitly set a low z-index for the iframe's container */
-            z-index: 1; 
-        }
-
-        /* Iframe styles */
-        #jotformFrame {
-            display: block; /* Good practice for iframes */
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
-        /* Save button styles */
-        #saveButton {
-            position: fixed;   /* Position relative to the viewport */
-            top: 20px;         /* Distance from the top */
-            right: 20px;        /* Distance from the right */
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            border: 3px solid red; /* TEMPORARY: Make highly visible for debugging */
-            cursor: pointer;
-            border-radius: 5px;
-            /* Use an extremely high z-index just in case */
-            z-index: 99999;   
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Dynamic Financial Report</title>
+  <!-- Inline CSS for basic styling -->
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #f5f5f5;
+    }
+    .container {
+      max-width: 1200px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    h1, h2 {
+      margin: 0.5em 0;
+    }
+    p {
+      line-height: 1.6;
+    }
+    .chart {
+      margin: 20px 0;
+    }
+  </style>
+  <!-- Plotly.js from CDN for visualization -->
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
 <body>
-    <div class="iframe-container">
-        <iframe id="jotformFrame" src="https://form.jotform.com/250894684022057" title="Jotform"></iframe>
-    </div>
+  <div class="container">
+    <header>
+      <h1>Dynamic Financial Report</h1>
+      <p>Data synced from your JotForm submission</p>
+    </header>
 
-    <button id="saveButton">Save</button>
+    <section id="report">
+      <h2>Financial Overview</h2>
+      <div id="financial-summary">
+        <!-- Report text will be updated here -->
+      </div>
+    </section>
 
-    <script>
-        // Your existing JavaScript for the save button functionality
-        document.getElementById('saveButton').addEventListener('click', function() {
-            const content = `
-                {enterA}
-                {enterThe}
-                {enterThe9}
-                {monthlyExpense}
-                {monthlyExpense18}
-            `;
-            const blob = new Blob([content], { type: 'text/plain' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = 'saved_content.txt';
-            document.body.appendChild(link); 
-            link.click();
-            document.body.removeChild(link); 
-            URL.revokeObjectURL(link.href); 
-        });
-    </script>
+    <section id="charts">
+      <h2>Visualizations</h2>
+      <!-- Chart containers -->
+      <div id="incomeChart" class="chart" style="width:100%;height:400px;"></div>
+      <div id="expensesChart" class="chart" style="width:100%;height:400px;"></div>
+    </section>
+  </div>
+
+  <!-- JavaScript to fetch data and render dynamic content -->
+  <script>
+    // Sample fallback data (in case the fetch fails)
+    const sampleData = {
+      "monthlyIncome": 3650,
+      "housing": 950,
+      "transportation": 220,
+      "food": 400,
+      "utilities": 150,
+      "subscriptions": 50,
+      "personalCare": 100,
+      "otherExpenses": 200,
+      "totalExpenses": 2070
+    };
+
+    // Fetch dynamic JSON data from your API endpoint
+    async function fetchData() {
+      try {
+        // Change '/api/latest' to your endpoint URL if needed.
+        const response = await fetch('/api/latest');
+        if (!response.ok) throw new Error("Network error");
+        return await response.json();
+      } catch (error) {
+        console.error("Fetch error:", error);
+        return sampleData;
+      }
+    }
+
+    // Update text content of the financial summary section
+    function updateReport(data) {
+      const summaryDiv = document.getElementById('financial-summary');
+      summaryDiv.innerHTML = `
+        <p><strong>Total Monthly Income:</strong> $${data.monthlyIncome}</p>
+        <p><strong>Total Monthly Expenses:</strong> $${data.totalExpenses}</p>
+      `;
+    }
+
+    // Draw charts using Plotly.js
+    function drawCharts(data) {
+      // Pie chart for Income vs Expenses
+      const incomeExpensesData = [{
+        values: [data.monthlyIncome, data.totalExpenses],
+        labels: ['Income', 'Expenses'],
+        type: 'pie',
+        textinfo: 'label+percent',
+        insidetextorientation: 'radial'
+      }];
+      const incomeExpensesLayout = {
+        title: 'Income vs Expenses'
+      };
+      Plotly.newPlot('incomeChart', incomeExpensesData, incomeExpensesLayout);
+
+      // Bar chart for Expenses Breakdown
+      const expenseCategories = ['Housing', 'Transportation', 'Food', 'Utilities', 'Subscriptions', 'Personal Care', 'Other'];
+      const expenseValues = [
+        data.housing, 
+        data.transportation, 
+        data.food, 
+        data.utilities, 
+        data.subscriptions, 
+        data.personalCare, 
+        data.otherExpenses
+      ];
+      const expensesData = [{
+        x: expenseCategories,
+        y: expenseValues,
+        type: 'bar',
+        marker: {color: '#ce9e62'}
+      }];
+      const expensesLayout = {
+        title: 'Expenses Breakdown',
+        xaxis: { title: 'Category' },
+        yaxis: { title: 'Amount ($)' }
+      };
+      Plotly.newPlot('expensesChart', expensesData, expensesLayout);
+    }
+
+    // Main function to initialize the dynamic report
+    async function init() {
+      const data = await fetchData();
+      updateReport(data);
+      drawCharts(data);
+    }
+
+    // Initialize the report when the page loads
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
 </body>
 </html>
