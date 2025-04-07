@@ -1,148 +1,620 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Dynamic Financial Report</title>
-  <!-- Inline CSS for basic styling -->
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-      background-color: #f5f5f5;
-    }
-    .container {
-      max-width: 1200px;
-      margin: auto;
-      background: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    header {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    h1, h2 {
-      margin: 0.5em 0;
-    }
-    p {
-      line-height: 1.6;
-    }
-    .chart {
-      margin: 20px 0;
-    }
-  </style>
-  <!-- Plotly.js from CDN for visualization -->
-  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="Financial Health Assessment Report" />
+    <meta property="og:description" content="Comprehensive analysis of your current financial status with personalized recommendations" />
+    <title>Financial Health Assessment Report</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:wght@400;600;700&family=Inter:wght@300;400;500;600&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+
+    <script src="https://cdn.tailwindcss.com?plugins=aspect-ratio"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        // Configure Tailwind colors
+        tailwind.config = {
+            corePlugins: { container: false },
+            theme: {
+                extend: {
+                    colors: {
+                        gold: '#ce9e62',
+                        rust: '#c1432e',
+                        blue: '#4b6777',
+                        black: '#2c2c2c',
+                        success: '#2d5a27',
+                        warning: '#a65d57',
+                        info: '#354f5f',
+                        error: '#842029',
+                        paper: '#ffffff',
+                        subtle: '#f8f9fa',
+                        silver: '#e9ecef',
+                        midgray: '#dee2e6',
+                        secondary: '#495057',
+                        muted: '#6c757d'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Styles (Supplementing Tailwind) */
+        *, *::before, *::after { box-sizing: border-box; }
+        html { -webkit-print-color-adjust: exact; }
+        html, body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; color: #2c2c2c; background: linear-gradient(to bottom, #f8f9fa 0%, #ffffff 500px) no-repeat; background-color: #ffffff; scroll-behavior: smooth; }
+        h1, h2 { font-family: 'Fraunces', serif; font-weight: 700; line-height: 1.2; }
+        h1 { font-size: 2.5rem; }
+        h2 { font-size: 2rem; font-weight: 600; }
+        h3, h4 { font-family: 'DM Sans', sans-serif; font-weight: 600; }
+        h3 { font-size: 1.5rem; line-height: 1.3; }
+        h4 { font-size: 1.25rem; line-height: 1.4; }
+
+        .card { background-color: white; border-radius: 0.5rem; padding: 1.5rem; position: relative; margin-bottom: 1.5rem; }
+        .card:after { content: ''; border-radius: 0.5rem; position: absolute; top: 0; left: 0; right: 0; bottom: 0; box-shadow: 0 4px 6px -1px rgba(44, 44, 44, 0.1); z-index: -1; }
+
+        .metric-number { font-family: 'Fraunces', serif; font-weight: 700; font-size: 2rem; }
+        .metric-label { font-family: 'DM Sans', sans-serif; font-size: 1rem; color: #495057; }
+
+        .star-rating { display: inline-flex; align-items: center; }
+        .star-rating i { color: #dee2e6; font-size: 1.25rem; margin-right: 0.1rem; }
+        .star-rating i.filled { color: #ce9e62; }
+         .star-rating i.half-filled::before { content: "\eb96"; position: absolute; color: #ce9e62; width: 50%; overflow: hidden; }
+         .star-rating i.half-filled { position: relative; color: #dee2e6; }
+
+        .progress-bar { height: 0.5rem; background-color: #e9ecef; border-radius: 9999px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; border-radius: 9999px; transition: width 0.5s ease-in-out; }
+        .progress-bar-fill.good { background-color: #ce9e62; }
+        .progress-bar-fill.warning { background-color: #a65d57; }
+        .progress-bar-fill.danger { background-color: #c1432e; }
+        .progress-bar-fill.neutral { background-color: #4b6777; }
+
+        .section-header { border-bottom: 1px solid #dee2e6; margin-bottom: 1.5rem; padding-bottom: 0.5rem; }
+
+        .gauge-container { position: relative; width: 120px; height: 120px; margin: 0 auto; }
+        .gauge-value { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Fraunces', serif; font-weight: 700; font-size: 1.5rem; text-align: center; }
+        .gauge-value .unit { font-size: 0.9rem; font-weight: 400; display: block; margin-top: -4px; }
+
+        .recommendation-item { display: flex; gap: 1rem; padding: 0.75rem 0; border-bottom: 1px solid #e9ecef; }
+        .recommendation-item:last-child { border-bottom: none; }
+        .recommendation-number { display: flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; background-color: #4b6777; color: white; border-radius: 50%; font-family: 'DM Sans', sans-serif; font-weight: 600; flex-shrink: 0; }
+
+        .strength-item, .weakness-item { display: flex; gap: 0.75rem; padding: 0.5rem 0; align-items: flex-start; }
+        .strength-item i { color: #ce9e62; flex-shrink: 0; margin-top: 0.25rem; }
+        .weakness-item i { color: #c1432e; flex-shrink: 0; margin-top: 0.25rem; }
+
+        .data-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        .data-table th { background-color: #f8f9fa; text-align: left; padding: 0.75rem 1rem; font-family: 'DM Sans', sans-serif; font-weight: 600; border-bottom: 1px solid #dee2e6; }
+        .data-table td { padding: 0.75rem 1rem; border-bottom: 1px solid #dee2e6; }
+        .data-table tr:nth-child(even) { background-color: #f8f9fa; }
+
+        #loadingMessage, #errorMessage { text-align: center; padding: 2rem; font-size: 1.1rem; color: #495057; }
+        #errorMessage { color: #c1432e; font-weight: bold; }
+
+        /* Style for collapsible sections (if added later) */
+        .collapsible-header { cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
+        .collapsible-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+        .collapsible-content.open { max-height: 2000px; /* Adjust as needed */ }
+    </style>
 </head>
-<body>
-  <div class="container">
-    <header>
-      <h1>Dynamic Financial Report</h1>
-      <p>Data synced from your JotForm submission</p>
-    </header>
+<body class="min-h-screen">
+    <div class="max-w-[1280px] mx-auto px-6 py-8">
 
-    <section id="report">
-      <h2>Financial Overview</h2>
-      <div id="financial-summary">
-        <!-- Report text will be updated here -->
-      </div>
-    </section>
+        <div id="loadingMessage">Loading Financial Assessment Report...</div>
+        <div id="errorMessage" style="display: none;"></div>
 
-    <section id="charts">
-      <h2>Visualizations</h2>
-      <!-- Chart containers -->
-      <div id="incomeChart" class="chart" style="width:100%;height:400px;"></div>
-      <div id="expensesChart" class="chart" style="width:100%;height:400px;"></div>
-    </section>
-  </div>
+        <div id="reportContent" style="display: none;">
 
-  <!-- JavaScript to fetch data and render dynamic content -->
-  <script>
-    // Sample fallback data (in case the fetch fails)
-    const sampleData = {
-      "monthlyIncome": 3650,
-      "housing": 950,
-      "transportation": 220,
-      "food": 400,
-      "utilities": 150,
-      "subscriptions": 50,
-      "personalCare": 100,
-      "otherExpenses": 200,
-      "totalExpenses": 2070
-    };
+            <header class="mb-8">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-2">
+                    <h1 class="flex items-center gap-3 mb-2 sm:mb-0">
+                        <i class="ti ti-chart-pie text-gold text-4xl"></i>
+                        Financial Health Assessment
+                    </h1>
+                    <div class="text-left sm:text-right text-secondary">
+                        <div id="reportDate">Report Date</div>
+                        <div id="userName">User Name</div>
+                    </div>
+                </div>
+                <p class="text-lg text-secondary mb-4">A comprehensive analysis of your current financial status with personalized recommendations.</p>
+            </header>
 
-    // Fetch dynamic JSON data from your API endpoint
-    async function fetchData() {
-      try {
-        // Change '/api/latest' to your endpoint URL if needed.
-        const response = await fetch('/api/latest');
-        if (!response.ok) throw new Error("Network error");
-        return await response.json();
-      } catch (error) {
-        console.error("Fetch error:", error);
-        return sampleData;
-      }
-    }
+            <section class="mb-12">
+                <div class="card">
+                    <div class="flex flex-col md:flex-row items-center gap-6">
+                        <div class="flex-1">
+                            <h2 class="mb-4">Overall Financial Health</h2>
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="star-rating" id="overallRatingStars"></div>
+                                <span class="text-xl font-bold" id="overallScoreValue">0.0/5.0</span>
+                            </div>
+                            <p class="text-lg" id="overallAssessmentText">Assessment summary loading...</p>
+                        </div>
+                        <div class="w-48 h-48 relative flex-shrink-0">
+                            <canvas id="overallGauge"></canvas>
+                            <div class="absolute inset-0 flex items-center justify-center flex-col">
+                                <div class="text-3xl font-bold font-['Fraunces']" id="overallGaugeScore">0.0</div>
+                                <div class="text-sm text-secondary">out of 5.0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-    // Update text content of the financial summary section
-    function updateReport(data) {
-      const summaryDiv = document.getElementById('financial-summary');
-      summaryDiv.innerHTML = `
-        <p><strong>Total Monthly Income:</strong> $${data.monthlyIncome}</p>
-        <p><strong>Total Monthly Expenses:</strong> $${data.totalExpenses}</p>
-      `;
-    }
+            <section class="mb-12">
+                <h2 class="section-header flex items-center gap-2">
+                    <i class="ti ti-dashboard text-blue"></i> Key Financial Metrics
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="card">
+                        <div class="flex justify-between items-start mb-3"> <h3 class="m-0">Income</h3> <i class="ti ti-coin text-2xl text-gold"></i> </div>
+                        <div class="metric-number mb-1" id="totalMonthlyIncome">$0/mo</div>
+                        <div class="text-secondary mb-3" id="totalAnnualIncome">$0/year</div>
+                        <div class="flex items-center gap-2"> <div class="star-rating" id="incomeRatingStars"></div> <span id="incomeRatingValue">N/A</span> </div>
+                    </div>
+                    <div class="card">
+                        <div class="flex justify-between items-start mb-3"> <h3 class="m-0">Expenses</h3> <i class="ti ti-receipt text-2xl text-blue"></i> </div>
+                        <div class="metric-number mb-1" id="totalMonthlyExpenses">$0/mo</div>
+                        <div class="text-secondary mb-3" id="totalAnnualExpenses">$0/year</div>
+                        <div class="flex items-center gap-2"> <div class="star-rating" id="expensesRatingStars"></div> <span id="expensesRatingValue">N/A</span> </div>
+                    </div>
+                    <div class="card">
+                        <div class="flex justify-between items-start mb-3"> <h3 class="m-0">Savings</h3> <i class="ti ti-piggy-bank text-2xl text-gold"></i> </div>
+                        <div class="metric-number mb-1" id="monthlySavingsContribution">$0/mo</div>
+                        <div class="text-secondary mb-3" id="totalSavingsReported">Total: $0</div>
+                        <div class="flex items-center gap-2"> <div class="star-rating" id="savingsRatingStars"></div> <span id="savingsRatingValue">N/A</span> </div>
+                    </div>
+                    <div class="card">
+                        <div class="flex justify-between items-start mb-3"> <h3 class="m-0">Debt</h3> <i class="ti ti-credit-card text-2xl text-rust"></i> </div>
+                        <div class="metric-number mb-1" id="totalDebtCalculated">$0</div>
+                        <div class="text-secondary mb-3" id="minMonthlyDebtPayments">Monthly Min: $0</div>
+                        <div class="flex items-center gap-2"> <div class="star-rating" id="debtRatingStars"></div> <span id="debtRatingValue">N/A</span> </div>
+                    </div>
+                    <div class="card">
+                        <div class="flex justify-between items-start mb-3"> <h3 class="m-0">Net Worth</h3> <i class="ti ti-scale text-2xl text-blue" id="netWorthIcon"></i> </div>
+                        <div class="metric-number mb-1" id="calculatedNetWorth">$0</div>
+                        <div class="text-secondary mb-3" id="netWorthStatus">Calculating...</div>
+                        <div class="flex items-center gap-2"> <div class="star-rating" id="netWorthRatingStars"></div> <span id="netWorthRatingValue">N/A</span> </div>
+                    </div>
+                     <div class="card hidden md:block lg:hidden"> </div>
+                </div>
+            </section>
 
-    // Draw charts using Plotly.js
-    function drawCharts(data) {
-      // Pie chart for Income vs Expenses
-      const incomeExpensesData = [{
-        values: [data.monthlyIncome, data.totalExpenses],
-        labels: ['Income', 'Expenses'],
-        type: 'pie',
-        textinfo: 'label+percent',
-        insidetextorientation: 'radial'
-      }];
-      const incomeExpensesLayout = {
-        title: 'Income vs Expenses'
-      };
-      Plotly.newPlot('incomeChart', incomeExpensesData, incomeExpensesLayout);
+            <section class="mb-12">
+                <h2 class="section-header flex items-center gap-2"> <i class="ti ti-chart-bar text-blue"></i> Key Financial Ratios </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="card">
+                        <h3 class="mb-3">Debt-to-Income</h3>
+                        <div class="metric-number mb-2" id="dtiRatioPercent">0%</div>
+                        <div class="progress-bar mb-3">
+                            <div class="progress-bar-fill good" id="dtiProgressBar" style="width: 0%;"></div>
+                        </div>
+                        <div class="text-sm"> <span class="font-semibold" id="dtiAssessmentLabel">...</span>: <span id="dtiAssessmentText">Loading...</span> </div>
+                    </div>
+                    <div class="card">
+                        <h3 class="mb-3">Savings Rate</h3>
+                        <div class="gauge-container mb-4">
+                            <canvas id="savingsGauge"></canvas>
+                            <div class="gauge-value"><span id="savingsRatePercent">0</span><span class="unit">%</span></div>
+                        </div>
+                        <div class="text-sm text-center"> <span class="font-semibold" id="savingsRateAssessmentLabel">...</span>: <span id="savingsRateAssessmentText">Loading...</span> </div>
+                    </div>
+                    <div class="card">
+                        <h3 class="mb-3">Emergency Fund</h3>
+                        <div class="gauge-container mb-4">
+                            <canvas id="emergencyFundGauge"></canvas>
+                            <div class="gauge-value"><span id="emergencyFundCoverageMonths">0</span><span class="unit">mo</span></div>
+                        </div>
+                        <div class="text-sm text-center"> <span class="font-semibold" id="emergencyFundAssessmentLabel">...</span>: <span id="emergencyFundAssessmentText">Loading...</span> </div>
+                    </div>
+                </div>
+            </section>
 
-      // Bar chart for Expenses Breakdown
-      const expenseCategories = ['Housing', 'Transportation', 'Food', 'Utilities', 'Subscriptions', 'Personal Care', 'Other'];
-      const expenseValues = [
-        data.housing, 
-        data.transportation, 
-        data.food, 
-        data.utilities, 
-        data.subscriptions, 
-        data.personalCare, 
-        data.otherExpenses
-      ];
-      const expensesData = [{
-        x: expenseCategories,
-        y: expenseValues,
-        type: 'bar',
-        marker: {color: '#ce9e62'}
-      }];
-      const expensesLayout = {
-        title: 'Expenses Breakdown',
-        xaxis: { title: 'Category' },
-        yaxis: { title: 'Amount ($)' }
-      };
-      Plotly.newPlot('expensesChart', expensesData, expensesLayout);
-    }
+            <section class="mb-12">
+                <h2 class="section-header flex items-center gap-2"> <i class="ti ti-list-check text-blue"></i> Strengths & Weaknesses </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="card border-l-4 border-gold">
+                        <h3 class="mb-4 flex items-center gap-2"> <i class="ti ti-thumb-up text-gold"></i> Financial Strengths </h3>
+                        <div id="strengthsList"> <p class="text-muted">Loading...</p> </div>
+                    </div>
+                    <div class="card border-l-4 border-rust">
+                        <h3 class="mb-4 flex items-center gap-2"> <i class="ti ti-alert-triangle text-rust"></i> Areas for Improvement </h3>
+                        <div id="weaknessesList"> <p class="text-muted">Loading...</p> </div>
+                    </div>
+                </div>
+            </section>
 
-    // Main function to initialize the dynamic report
-    async function init() {
-      const data = await fetchData();
-      updateReport(data);
-      drawCharts(data);
-    }
+            <section class="mb-12">
+                <h2 class="section-header flex items-center gap-2"> <i class="ti ti-bulb text-gold"></i> Personalized Recommendations </h2>
+                <div class="card">
+                    <div id="recommendationsList"> <p class="text-muted">Loading...</p> </div>
+                </div>
+            </section>
 
-    // Initialize the report when the page loads
-    document.addEventListener('DOMContentLoaded', init);
-  </script>
+            <section class="mb-12">
+                 <h2 class="section-header flex items-center gap-2">
+                     <i class="ti ti-clipboard-data text-blue"></i> Detailed Inputs & Visuals
+                 </h2>
+                 <div class="card">
+                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                             <h3 class="mb-4">Expense Breakdown (User Input)</h3>
+                             <div class="overflow-x-auto">
+                                <table class="data-table" id="expensesTable">
+                                     <thead> <tr><th>Category</th><th>Monthly ($)</th></tr> </thead>
+                                     <tbody id="expensesTableBody"> <tr><td colspan="2">Loading...</td></tr> </tbody>
+                                     <tfoot> <tr class="font-bold"><td>Total Input Expenses</td><td id="totalInputExpenses">$0</td></tr> </tfoot>
+                                 </table>
+                             </div>
+                         </div>
+                         <div style="min-height: 300px;"> <h3 class="mb-4">Expense Chart</h3>
+                             <canvas id="expensesPieChart"></canvas>
+                         </div>
+                         </div>
+                 </div>
+             </section>
+
+            <footer class="bg-subtle p-6 rounded-lg text-secondary text-sm mt-12">
+                <p class="mb-2">This financial health assessment is based on the information provided and general financial principles. It is not intended as professional financial advice. Please consult with a financial advisor for personalized guidance.</p>
+                <p class="mb-0">Report generated on <span id="footerReportDate">...</span>.</p>
+            </footer>
+        </div> </div> <script>
+        // Global Chart instances
+        let chartInstances = {};
+
+        // --- Helper Functions ---
+        function setText(id, text) {
+            const element = document.getElementById(id);
+            if (element) element.textContent = text ?? '';
+            else console.warn(`Element ID '${id}' not found for setText.`);
+        }
+
+        function setHtml(id, html) {
+            const element = document.getElementById(id);
+            if (element) element.innerHTML = html ?? '';
+            else console.warn(`Element ID '${id}' not found for setHtml.`);
+        }
+
+        function formatCurrency(value, hideZeroCents = false) {
+            const number = Number(value);
+            if (isNaN(number)) return '$0.00';
+            const options = { style: 'currency', currency: 'USD' };
+            if (hideZeroCents && number % 1 === 0) {
+                options.minimumFractionDigits = 0;
+                options.maximumFractionDigits = 0;
+            }
+            return number.toLocaleString('en-US', options);
+        }
+
+        function formatPercent(value, decimals = 1) {
+            const number = Number(value);
+            if (isNaN(number)) return '0%';
+            return `${number.toFixed(decimals)}%`;
+        }
+
+        function formatMonths(value) {
+             const number = Number(value);
+             if (isNaN(number)) return '0 mo';
+             return `${number.toFixed(2)} mo`; // Use 2 decimal places for months
+        }
+
+        // --- Star Rating Function ---
+        function renderStarRating(containerId, ratingValue) {
+            const container = document.getElementById(containerId);
+             const rating = Number(ratingValue);
+
+            if (!container || isNaN(rating)) {
+                 console.warn(`Star rating container ID '${containerId}' not found or invalid rating.`);
+                 if(container) container.innerHTML = '<i class="ti ti-star text-midgray"></i>'.repeat(5); // Show empty stars if container exists but rating invalid
+                 return;
+            }
+
+            container.innerHTML = ''; // Clear existing stars
+            for (let i = 1; i <= 5; i++) {
+                const star = document.createElement('i');
+                star.classList.add('ti'); // Base icon class
+
+                 const floorRating = Math.floor(rating);
+                 const ceilRating = Math.ceil(rating);
+                 const decimalPart = rating % 1;
+
+                if (i <= floorRating) { // Full star
+                    star.classList.add('ti-star-filled', 'filled');
+                 } else if (i === ceilRating && decimalPart >= 0.25 && decimalPart < 0.75) { // Half star (visual approx)
+                     star.classList.add('ti-star-half-filled', 'half-filled');
+                 } else if (i === ceilRating && decimalPart >= 0.75) { // Treat as full star
+                    star.classList.add('ti-star-filled', 'filled');
+                } else { // Empty star
+                    star.classList.add('ti-star');
+                }
+                container.appendChild(star);
+            }
+        }
+
+         // --- List Population Function ---
+         function populateList(listId, items, type) {
+            const container = document.getElementById(listId);
+            if (!container) { console.warn(`List container ID '${listId}' not found.`); return; }
+            container.innerHTML = ''; // Clear
+
+            if (!Array.isArray(items) || items.length === 0) {
+                container.innerHTML = '<p class="text-muted italic">None provided.</p>';
+                return;
+            }
+
+            items.forEach((item, index) => {
+                let element = document.createElement('div');
+                let textContent = '';
+                let itemClass = '';
+                let iconClass = '';
+
+                if (type === 'recommendation') {
+                    textContent = item?.text ?? item ?? ''; // Handle object or string array
+                    itemClass = 'recommendation-item';
+                    element.innerHTML = `
+                        <div class="recommendation-number">${item?.id ?? index + 1}</div>
+                        <div>${textContent}</div>`;
+                } else {
+                    textContent = item ?? '';
+                    if (type === 'strength') {
+                        itemClass = 'strength-item';
+                        iconClass = 'ti ti-circle-check text-xl';
+                    } else if (type === 'weakness') {
+                        itemClass = 'weakness-item';
+                        iconClass = 'ti ti-alert-circle text-xl';
+                    }
+                    element.className = itemClass;
+                    element.innerHTML = `<i class="${iconClass}"></i><div>${textContent}</div>`;
+                }
+                if (textContent.trim()) { // Only add if there is text
+                     container.appendChild(element);
+                }
+            });
+        }
+
+
+         // --- Table Population Function ---
+         function populateExpenseInputTable(expensesData = {}) {
+            const tableBody = document.getElementById('expensesTableBody');
+            if (!tableBody) return;
+            tableBody.innerHTML = ''; // Clear
+
+            const categories = [
+                { key: 'housing', label: 'Housing' },
+                { key: 'utilities', label: 'Utilities' },
+                { key: 'transportation', label: 'Transportation' },
+                { key: 'foodAndEssentials', label: 'Food/Essentials' },
+                { key: 'insurance', label: 'Insurance' },
+                { key: 'medical', label: 'Medical' },
+                { key: 'childOrElderCare', label: 'Child/Elder Care' },
+                { key: 'subscriptions', label: 'Subscriptions' },
+                { key: 'otherMonthlyExpenses', label: 'Other Expenses' }
+            ];
+
+            let totalInputExpenses = 0;
+            let hasEntries = false;
+            categories.forEach(cat => {
+                 const amount = parseFloat(expensesData[cat.key] || 0);
+                 if (amount > 0) { // Only show non-zero inputs
+                     hasEntries = true;
+                     const row = `<tr><td>${cat.label}</td><td>${formatCurrency(amount)}</td></tr>`;
+                     tableBody.innerHTML += row;
+                 }
+                 totalInputExpenses += amount;
+            });
+
+            if (!hasEntries) {
+                tableBody.innerHTML = '<tr><td colspan="2" class="text-muted italic">No expense details provided.</td></tr>';
+            }
+
+            setText('totalInputExpenses', formatCurrency(totalInputExpenses));
+            return totalInputExpenses; // Return sum for potential use
+        }
+
+
+        // --- Chart Initialization/Update Function ---
+        function initOrUpdateChart(canvasId, chartConfig) {
+             const canvas = document.getElementById(canvasId);
+             if (!canvas) { console.warn(`Canvas ID '${canvasId}' not found.`); return; }
+             const ctx = canvas.getContext('2d');
+
+             if (chartInstances[canvasId]) {
+                 chartInstances[canvasId].destroy(); // Destroy previous chart
+             }
+             chartInstances[canvasId] = new Chart(ctx, chartConfig); // Create new chart
+        }
+
+        function setupAllCharts(data) {
+            const calc = data.aiCalculations || {};
+            const analysis = data.aiAnalysisAndRecommendations || {};
+            const input = data.userInput || {};
+
+             // Overall Gauge
+             initOrUpdateChart('overallGauge', {
+                 type: 'doughnut',
+                 data: { datasets: [{ data: [analysis.overallHealth?.score || 0, Math.max(0, 5 - (analysis.overallHealth?.score || 0))], backgroundColor: ['#ce9e62', '#e9ecef'], borderWidth: 0 }] },
+                 options: { cutout: '75%', responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false }, tooltip: { enabled: false } } }
+             });
+
+             // Savings Rate Gauge
+             initOrUpdateChart('savingsGauge', {
+                 type: 'doughnut',
+                 data: { datasets: [{ data: [calc.ratios?.savingsRatePercent || 0, Math.max(0, 100 - (calc.ratios?.savingsRatePercent || 0))], backgroundColor: ['#ce9e62', '#e9ecef'], borderWidth: 0 }] },
+                 options: { cutout: '75%', responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false }, tooltip: { enabled: false } } }
+             });
+
+             // Emergency Fund Gauge
+             initOrUpdateChart('emergencyFundGauge', {
+                 type: 'doughnut',
+                 data: (() => {
+                     const months = calc.emergencyFundAnalysis?.emergencyFundMonths || 0;
+                     const target = 6; // Target 6 months
+                     return { datasets: [{ data: [months, Math.max(0, target - months)], backgroundColor: ['#ce9e62', '#e9ecef'], borderWidth: 0 }] }
+                 })(),
+                 options: { cutout: '75%', responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false }, tooltip: { enabled: false } } }
+             });
+
+             // Expenses Pie Chart
+             const expenseInputData = input.monthlyExpenses || {};
+             const expenseLabels = ['Housing', 'Utilities', 'Transportation', 'Food/Essentials', 'Insurance', 'Medical', 'Care', 'Subscriptions', 'Other'];
+             const expenseValues = [
+                 parseFloat(expenseInputData.housing || 0),
+                 parseFloat(expenseInputData.utilities || 0),
+                 parseFloat(expenseInputData.transportation || 0),
+                 parseFloat(expenseInputData.foodAndEssentials || 0),
+                 parseFloat(expenseInputData.insurance || 0),
+                 parseFloat(expenseInputData.medical || 0),
+                 parseFloat(expenseInputData.childOrElderCare || 0),
+                 parseFloat(expenseInputData.subscriptions || 0),
+                 parseFloat(expenseInputData.otherMonthlyExpenses || 0)
+             ];
+             // Filter out zero values and their labels for the pie chart
+             const filteredExpenseData = expenseValues.map((value, index) => ({ label: expenseLabels[index], value: value }))
+                                                    .filter(item => item.value > 0);
+
+             initOrUpdateChart('expensesPieChart', {
+                  type: 'pie',
+                  data: {
+                      labels: filteredExpenseData.map(item => item.label),
+                      datasets: [{
+                          data: filteredExpenseData.map(item => item.value),
+                          backgroundColor: ['#ce9e62', '#4b6777', '#c1432e', '#354f5f', '#6c757d', '#a65d57', '#2d5a27', '#842029', '#495057'].slice(0, filteredExpenseData.length),
+                          borderWidth: 1, borderColor: '#ffffff'
+                      }]
+                  },
+                  options: {
+                      responsive: true, maintainAspectRatio: false,
+                      plugins: {
+                         legend: { position: 'right', labels: { font: { family: 'Inter' } } },
+                         tooltip: {
+                             callbacks: { label: ctx => `${ctx.label}: ${formatCurrency(ctx.raw)} (${((ctx.raw / (ctx.chart.getDatasetMeta(0).total || 1)) * 100).toFixed(1)}%)` }
+                         }
+                      }
+                  }
+             });
+             // Add other charts (Savings breakdown, Debt breakdown) here if needed, using similar logic
+        }
+
+
+        // --- Main Data Fetching and Rendering Function ---
+        async function fetchDataAndRender() {
+            const loadingMessage = document.getElementById('loadingMessage');
+            const errorMessage = document.getElementById('errorMessage');
+            const reportContent = document.getElementById('reportContent');
+            const dataFile = 'psr.json'; // Fetch the agreed-upon filename
+
+            try {
+                loadingMessage.style.display = 'block';
+                errorMessage.style.display = 'none';
+                reportContent.style.display = 'none';
+
+                const response = await fetch(dataFile); // Fetch the JSON file
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}. Could not load ${dataFile}`);
+                }
+                const data = await response.json(); // Parse the JSON
+
+                // --- Start Populating ---
+                const reportDateStr = data.reportMetadata?.reportGeneratedTimestamp ? new Date(data.reportMetadata.reportGeneratedTimestamp).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Date N/A';
+                setText('reportDate', reportDateStr);
+                setText('footerReportDate', reportDateStr);
+                setText('userName', data.userInput?.personalInfo?.userName || 'User');
+
+                // Overall Summary
+                const overallScore = data.aiAnalysisAndRecommendations?.overallHealth?.score ?? 0;
+                setText('overallScoreValue', `${Number(overallScore).toFixed(1)}/5.0`);
+                setText('overallGaugeScore', Number(overallScore).toFixed(1));
+                setText('overallAssessmentText', data.aiAnalysisAndRecommendations?.overallHealth?.assessmentSummary || 'Assessment not available.');
+                renderStarRating('overallRatingStars', overallScore);
+
+                // Key Metrics
+                setText('totalMonthlyIncome', formatCurrency(data.aiCalculations?.incomeSummary?.totalMonthlyIncome));
+                setText('totalAnnualIncome', formatCurrency(data.aiCalculations?.incomeSummary?.totalAnnualIncome));
+                renderStarRating('incomeRatingStars', data.aiAnalysisAndRecommendations?.metricRatings?.incomeScore);
+                setText('incomeRatingValue', `${Number(data.aiAnalysisAndRecommendations?.metricRatings?.incomeScore || 0).toFixed(1)}/5.0`);
+
+                setText('totalMonthlyExpenses', formatCurrency(data.aiCalculations?.expenseSummary?.totalMonthlyExpenses));
+                setText('totalAnnualExpenses', formatCurrency(data.aiCalculations?.expenseSummary?.totalAnnualExpenses));
+                renderStarRating('expensesRatingStars', data.aiAnalysisAndRecommendations?.metricRatings?.expensesScore);
+                setText('expensesRatingValue', `${Number(data.aiAnalysisAndRecommendations?.metricRatings?.expensesScore || 0).toFixed(1)}/5.0`);
+
+                setText('monthlySavingsContribution', formatCurrency(data.aiCalculations?.savingsSummary?.monthlySavingsContribution) + '/mo');
+                setText('totalSavingsReported', 'Total: ' + formatCurrency(data.aiCalculations?.savingsSummary?.totalSavingsReported));
+                renderStarRating('savingsRatingStars', data.aiAnalysisAndRecommendations?.metricRatings?.savingsScore);
+                setText('savingsRatingValue', `${Number(data.aiAnalysisAndRecommendations?.metricRatings?.savingsScore || 0).toFixed(1)}/5.0`);
+
+                setText('totalDebtCalculated', formatCurrency(data.aiCalculations?.debtSummary?.totalDebtCalculated));
+                setText('minMonthlyDebtPayments', 'Monthly Min: ' + formatCurrency(data.userInput?.debtsAndLiabilities?.totalMinimumMonthlyDebtPayments));
+                renderStarRating('debtRatingStars', data.aiAnalysisAndRecommendations?.metricRatings?.debtScore);
+                setText('debtRatingValue', `${Number(data.aiAnalysisAndRecommendations?.metricRatings?.debtScore || 0).toFixed(1)}/5.0`);
+
+                const netWorthVal = data.aiCalculations?.netWorth?.calculatedNetWorth ?? 0;
+                setText('calculatedNetWorth', formatCurrency(netWorthVal));
+                setText('netWorthStatus', data.aiCalculations?.netWorth?.netWorthStatus || 'Status unknown');
+                const netWorthIcon = document.getElementById('netWorthIcon');
+                 if (netWorthIcon) netWorthIcon.style.color = netWorthVal < 0 ? '#c1432e' : '#4b6777';
+                renderStarRating('netWorthRatingStars', data.aiAnalysisAndRecommendations?.metricRatings?.netWorthScore);
+                setText('netWorthRatingValue', `${Number(data.aiAnalysisAndRecommendations?.metricRatings?.netWorthScore || 0).toFixed(1)}/5.0`);
+
+
+                // Ratios
+                const dti = data.aiCalculations?.ratios?.debtToIncomePercent ?? 0;
+                setText('dtiRatioPercent', formatPercent(dti));
+                const dtiBar = document.getElementById('dtiProgressBar');
+                if (dtiBar) {
+                    dtiBar.style.width = `${Math.min(100, dti)}%`;
+                    dtiBar.className = 'progress-bar-fill '; // Reset
+                    if (dti <= 28) dtiBar.classList.add('good');
+                    else if (dti <= 36) dtiBar.classList.add('warning');
+                    else dtiBar.classList.add('danger');
+                }
+                setText('dtiAssessmentLabel', data.aiAnalysisAndRecommendations?.ratioAssessments?.dtiAssessmentLabel || '');
+                setText('dtiAssessmentText', `Your debt-to-income ratio is ${formatPercent(dti)}.`); // Simple text
+
+                const savingsRate = data.aiCalculations?.ratios?.savingsRatePercent ?? 0;
+                setText('savingsRatePercent', savingsRate.toFixed(0));
+                setText('savingsRateAssessmentLabel', data.aiAnalysisAndRecommendations?.ratioAssessments?.savingsRateAssessmentLabel || '');
+                setText('savingsRateAssessmentText', `Your savings rate is ${formatPercent(savingsRate)}.`);
+
+                const emFundMonths = data.aiCalculations?.emergencyFundAnalysis?.emergencyFundMonths ?? 0;
+                setText('emergencyFundCoverageMonths', emFundMonths.toFixed(1)); // Display 1 decimal for gauge text
+                setText('emergencyFundAssessmentLabel', data.aiAnalysisAndRecommendations?.ratioAssessments?.emergencyFundAssessmentLabel || '');
+                setText('emergencyFundAssessmentText', `Your fund covers ${formatMonths(emFundMonths)}.`);
+
+                // Strengths, Weaknesses, Recommendations
+                populateList('strengthsList', data.aiAnalysisAndRecommendations?.strengths, 'strength');
+                populateList('weaknessesList', data.aiAnalysisAndRecommendations?.areasForImprovement, 'weakness');
+                populateList('recommendationsList', data.aiAnalysisAndRecommendations?.recommendations, 'recommendation');
+
+                 // Populate Expense Input Table
+                 populateExpenseInputTable(data.userInput?.monthlyExpenses);
+
+                // Setup/Update Charts
+                setupAllCharts(data);
+
+                // Show content, hide loading
+                reportContent.style.display = 'block';
+                loadingMessage.style.display = 'none';
+
+            } catch (error) {
+                console.error('Error fetching or rendering report:', error);
+                errorMessage.textContent = `Failed to load report data: ${error.message}. Please try refreshing the page or check if the 'psr.json' file exists and is accessible.`;
+                errorMessage.style.display = 'block';
+                loadingMessage.style.display = 'none';
+                reportContent.style.display = 'none';
+            }
+        }
+
+        // --- Initial Load ---
+        document.addEventListener('DOMContentLoaded', fetchDataAndRender);
+
+    </script>
+
 </body>
 </html>
