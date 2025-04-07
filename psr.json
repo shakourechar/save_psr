@@ -1,0 +1,98 @@
+{
+  "reportMetadata": {
+    "reportGeneratedTimestamp": "2025-04-07T01:10:00.126Z",
+    "jotformSubmissionId": null
+  },
+  "userInput": {
+    "personalInfo": {
+      "userName": "N/A",
+      "age": 0
+    },
+    "incomeSources": {
+      "mainMonthlyIncome": 0,
+      "secondaryMonthlyIncome": 0,
+      "otherMonthlyIncome": 0
+    },
+    "savingsAndAssets": {
+      "emergencyFundBalance": 0,
+      "currentGeneralSavings": 0,
+      "retirementFundBalance": 0
+    },
+    "monthlyExpenses": {
+      "housing": 0,
+      "utilities": 0,
+      "transportation": 0,
+      "foodAndEssentials": 0,
+      "insurance": 0,
+      "medical": 0,
+      "childOrElderCare": 0,
+      "subscriptions": 0,
+      "estimatedTaxRatePercent": "0%",
+      "otherMonthlyExpenses": 0
+    },
+    "debtsAndLiabilities": {
+      "totalDebtAmount": 110000,
+      "totalMinimumMonthlyDebtPayments": 180
+    },
+    "toolsAndGoals": {
+      "financialToolsUsed": "",
+      "financialChallenges": "",
+      "financialObjective1": "",
+      "financialObjective2": "",
+      "financialObjective3": ""
+    }
+  },
+  "aiCalculations": {
+    "incomeSummary": {
+      "totalMonthlyIncome": 0,
+      "totalAnnualIncome": 0
+    },
+    "expenseSummary": {
+      "totalMonthlyExpenses": 0,
+      "totalAnnualExpenses": 0
+    },
+    "savingsSummary": {
+      "totalSavingsReported": 0,
+      "monthlySavingsContribution": "-180.00"
+    },
+    "debtSummary": {
+      "totalDebtCalculated": 110000
+    },
+    "netWorth": {
+      "calculatedNetWorth": "-110000.00",
+      "netWorthStatus": "Liabilities exceed assets"
+    },
+    "ratios": {
+      "debtToIncomePercent": "0.0",
+      "savingsRatePercent": "0.0"
+    },
+    "emergencyFundAnalysis": {
+      "emergencyFundMonths": "0.00"
+    }
+  },
+  "aiAnalysisAndRecommendations": {
+    "overallHealth": {
+      "score": 3.7,
+      "ratingOutOf": 5,
+      "assessmentSummary": "Analysis not provided."
+    },
+    "metricRatings": {
+      "incomeScore": 4,
+      "expensesScore": 4,
+      "savingsScore": 4,
+      "debtScore": 3,
+      "netWorthScore": 2
+    },
+    "ratioAssessments": {
+      "dtiAssessmentLabel": "Excellent",
+      "savingsRateAssessmentLabel": "Excellent",
+      "emergencyFundAssessmentLabel": "Good"
+    },
+    "recommendations": [
+      {
+        "id": 1,
+        "text": "Recommendations not provided."
+      }
+    ]
+  }
+}
