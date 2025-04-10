@@ -219,7 +219,6 @@
 
        <div class="grid-container">
             <div class="card">
-                {/* Stray comment removed */}
                 <h3>Recommendations</h3>
                 <div class="card-content">
                     <ul id="recommendationsList"><li>No recommendations loaded.</li></ul>
@@ -234,8 +233,7 @@
             </div>
        </div>
 
-      <div class="grid-container"> {/* Stray comment removed */}
-         <div class="card" id="debtsCard">
+      <div class="grid-container"> <div class="card" id="debtsCard">
               <h3>Debt Overview</h3>
               <div class="card-content">
                   <table id="debtsTable">
@@ -286,25 +284,22 @@
 
     function renderCharts(data) {
          try {
-            const income = data?.userInput?.income || {};
-            const expenses = data?.userInput?.expenses || {};
+            const income = data?.userInput?.income || {}; const expenses = data?.userInput?.expenses || {};
             const incomeValues = [ getSafe(() => Number(income.mainJobIncome), 0), getSafe(() => Number(income.secondJob), 0), getSafe(() => Number(income.otherIncome), 0) ];
             const incomeLabels = ['Main Job', 'Second Job', 'Other'];
             const filteredIncomeValues = []; const filteredIncomeLabels = [];
             incomeValues.forEach((v, i) => { if (v > 0) { filteredIncomeValues.push(v); filteredIncomeLabels.push(incomeLabels[i]); }});
             const incomeChartData = [{ values: filteredIncomeValues, labels: filteredIncomeLabels, type: 'pie', hole: .4, hoverinfo: 'label+percent+value', textinfo: 'value', textfont_size: 12, marker: { colors: ['#4CAF50', '#8BC34A', '#CDDC39'] } }];
-            // Adjusted legend position
             const incomeLayout = { title: 'Income Sources', showlegend: true, height: 350, margin: { l: 20, r: 20, t: 40, b: 50 }, legend: { orientation: "h", yanchor: "bottom", y: -0.2, xanchor: 'center', x: 0.5 } };
-            Plotly.newPlot('incomeChart', incomeChartData, incomeLayout, plotlyConfig);
+            Plotly.newPlot('incomeChart', incomeChartData, incomeLayout, plotlyConfig); // Use config
 
             const expenseLabels = ['Housing', 'Utilities', 'Transportation', 'Groceries/Essentials', 'Insurance', 'Medical', 'Care', 'Subscriptions', 'Taxes'];
             const expenseValuesRaw = [ getSafe(() => Number(expenses.housing), 0), getSafe(() => Number(expenses.utilities), 0), getSafe(() => Number(expenses.transportation), 0), getSafe(() => Number(expenses.groceriesEssentials), 0), getSafe(() => Number(expenses.insurance), 0), getSafe(() => Number(expenses.medical), 0), getSafe(() => Number(expenses.care), 0), getSafe(() => Number(expenses.subscriptions), 0), getSafe(() => Number(expenses.taxes), 0) ];
             const filteredExpenseValues = []; const filteredExpenseLabels = [];
             expenseValuesRaw.forEach((v, i) => { if (v > 0) { filteredExpenseValues.push(v); filteredExpenseLabels.push(expenseLabels[i]); }});
             const expenseChartData = [{ values: filteredExpenseValues, labels: filteredExpenseLabels, type: 'pie', hole: .4, hoverinfo: 'label+percent+value', textinfo: 'value', textfont_size: 12, marker: { colors: ['#F44336', '#E91E63', '#9C27B0', '#673AB7', '#3F51B5', '#2196F3', '#03A9F4', '#00BCD4', '#009688'] } }];
-             // Adjusted legend position
             const expenseLayout = { title: 'Expense Categories', showlegend: true, height: 350, margin: { l: 20, r: 20, t: 40, b: 50 }, legend: { orientation: "h", yanchor: "bottom", y: -0.2, xanchor: 'center', x: 0.5 } };
-            Plotly.newPlot('expenseChart', expenseChartData, expenseLayout, plotlyConfig);
+            Plotly.newPlot('expenseChart', expenseChartData, expenseLayout, plotlyConfig); // Use config
         } catch (chartError) { console.error("Error rendering charts:", chartError); errorMessage.textContent = `Error displaying charts: ${chartError.message}. Please check the data format.`; errorMessage.style.display = 'block'; }
     }
 
@@ -320,15 +315,15 @@
         if (recommendationsList) {
             recommendationsList.innerHTML = ''; // Clear previous items
             const recommendationsText = getSafe(() => aiOutput.recommendations, '');
-            // console.log("Raw recommendations:", recommendationsText); // Debugging line
             if (recommendationsText && recommendationsText !== 'N/A') {
-                const items = recommendationsText.split('\\n') // Ensure using escaped newline
+                 // IMPORTANT: Check if using escaped newlines '\n' or literal newlines
+                 // Adjust split accordingly. Assuming JSON has '\\n'
+                const items = recommendationsText.split('\\n')
                     .map(item => item.trim())
                     .filter(item => item.length > 0)
-                    .map(item => item.replace(/^[\*\-\d\.]+\s*/, '')); // Remove list markers
+                    .map(item => item.replace(/^[\*\-\d\.]+\s*/, ''));
 
-                // console.log("Parsed items:", items); // Debugging line
-                if (items.length > 0 && !(items.length === 1 && items[0] === '')) { // Check if not just empty strings
+                if (items.length > 0 && !(items.length === 1 && items[0] === '')) {
                     items.forEach(itemText => {
                         const li = document.createElement('li');
                         li.textContent = itemText;
@@ -340,11 +335,8 @@
             } else {
                 recommendationsList.innerHTML = '<li>No recommendations available.</li>';
             }
-        } else {
-             console.error("Recommendations list element not found");
-        }
+        } else { console.error("Recommendations list element not found"); }
     }
-
 
     function initModals(data) { window.onclick = function(event) { const modals = document.getElementsByClassName('modal'); for (let i = 0; i < modals.length; i++) { if (event.target == modals[i]) { modals[i].style.display = "none";}} } }
     function openModal(modalId) { const modal = document.getElementById(modalId); if (modal) modal.style.display = "block"; }
