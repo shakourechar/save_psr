@@ -24,17 +24,17 @@
       "emergency": 8000,
       "savings": 15000,
       "retirement": 50000,
-      "emergencyFundTarget": 15000, // New: Target for emergency fund
-      "monthlySavingsGoal": 600     // New: User's intended total monthly savings (e.g., retirement + general + emergency)
+      "emergencyFundTarget": 15000,
+      "monthlySavingsGoal": 600
     },
     "financials": {
       "financialTools": "Spreadsheet Budget, Bank App",
       "challenges": "Saving consistently, high housing costs",
       "upcomingPurchase": "New computer (~$1500)",
-      "purchaseGoalTarget": 1500, // New: Target amount for the purchase goal
-      "purchaseGoalSaved": 450     // New: Amount saved specifically for this goal
+      "purchaseGoalTarget": 1500,
+      "purchaseGoalSaved": 450
     },
-    "debts": [ // New Array for Debts
+    "debts": [
       {
         "type": "Credit Card A",
         "balance": 4500,
