@@ -1,7 +1,7 @@
 {
   "userInput": {
     "personalInfo": {
-      "userName": "Test User",
+      "userName": "Test User Enhanced",
       "age": 42
     },
     "income": {
@@ -23,17 +23,41 @@
     "savings": {
       "emergency": 8000,
       "savings": 15000,
-      "retirement": 50000
+      "retirement": 50000,
+      "emergencyFundTarget": 15000, // New: Target for emergency fund
+      "monthlySavingsGoal": 600     // New: User's intended total monthly savings (e.g., retirement + general + emergency)
     },
     "financials": {
       "financialTools": "Spreadsheet Budget, Bank App",
       "challenges": "Saving consistently, high housing costs",
-      "upcomingPurchase": "New computer (~$1500) in 6 months"
-    }
+      "upcomingPurchase": "New computer (~$1500)",
+      "purchaseGoalTarget": 1500, // New: Target amount for the purchase goal
+      "purchaseGoalSaved": 450     // New: Amount saved specifically for this goal
+    },
+    "debts": [ // New Array for Debts
+      {
+        "type": "Credit Card A",
+        "balance": 4500,
+        "interestRate": 19.9,
+        "minPayment": 150
+      },
+      {
+        "type": "Student Loan",
+        "balance": 22000,
+        "interestRate": 5.5,
+        "minPayment": 250
+      },
+      {
+        "type": "Car Loan",
+        "balance": 8000,
+        "interestRate": 4.0,
+        "minPayment": 300
+      }
+    ]
   },
   "aiOutput": {
-    "analysis": "Monthly net flow is positive at $800 ($5050 income - $4250 expenses). Emergency savings cover roughly 2.5 months of core expenses (approx. $3200/month needed). Retirement savings are substantial. Focus should be on increasing non-retirement savings and potentially optimizing expense categories.",
-    "recommendations": "1. **Define Savings Goal:** Allocate a portion of the $800 net flow towards the computer purchase ($250/month needed for 6 months).\n2. **Expense Review:** Check subscriptions and grocery costs for potential savings.\n3. **Emergency Fund Top-up:** Consider adding $100-$150/month to emergency savings towards a 3-month goal (~$9600).\n4. **Consistency:** Automate savings transfers if possible.",
-    "userProgress": "- **2025-04-09:** Sample data loaded for testing."
+    "analysis": "Monthly net flow is positive at $800 ($5050 income - $4250 expenses). Emergency savings are at 53% of the $15k target. Debt-to-Income ratio is moderate. The primary focus areas are boosting emergency savings and managing credit card debt.",
+    "recommendations": "1. **Credit Card Debt:** Prioritize paying down the high-interest credit card. Consider allocating extra funds beyond the minimum payment.\\n2. **Emergency Fund:** Continue contributions to reach the $15k target.\\n3. **Computer Goal:** $450 saved towards $1500 goal. Maintain savings plan.\\n4. **Review Expenses:** Double-check subscription and grocery spending for potential optimizations.",
+    "userProgress": "- **2025-04-10:** Added debt information and savings goals."
   }
 }
