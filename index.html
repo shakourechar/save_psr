@@ -11,18 +11,19 @@
   <style>
     body {
       font-family: 'Inter', sans-serif;
-      background-color: #f5f5f5;
+      background-color: #f5f5f5; /* Light gray background */
       margin: 0;
       padding: 0;
     }
     h1, h2, h3, h4 {
       font-family: 'EB Garamond', serif;
+      color: #333; /* Darker text color */
     }
     .container {
       max-width: 1200px;
       margin: 20px auto;
       padding: 20px;
-      background: #ffffff;
+      background: #ffffff; /* White background for container */
       border-radius: 8px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
@@ -30,530 +31,367 @@
       display: flex;
       align-items: center;
       margin-bottom: 20px;
-      flex-wrap: wrap; /* Allow wrapping on small screens */
+      flex-wrap: wrap; /* Allow wrapping on smaller screens */
     }
     header img {
-      width: 64px; /* Adjust size as needed */
-      height: auto; /* Maintain aspect ratio */
-      margin-right: 20px;
-      margin-bottom: 10px; /* Add margin for smaller screens */
+      height: 60px; /* Adjust logo height */
+      margin-right: 15px;
     }
-     header div h1 {
-       margin: 0;
-       font-size: 1.8rem; /* Adjust size */
-       color: #333;
+    header h1 {
+      color: #2E7D32; /* Primary brand color */
+      margin: 0;
+      flex-grow: 1; /* Allow title to take available space */
+    }
+     #saveButton {
+       margin-left: auto; /* Push button to the right */
+       padding: 8px 16px;
+       background-color: #4CAF50; /* Green background */
+       color: white;
+       border: none;
+       border-radius: 4px;
+       cursor: pointer;
+       font-size: 0.9em;
+       transition: background-color 0.3s ease;
      }
-     header div h2 {
-        margin: 0;
-        font-size: 1.1rem; /* Adjust size */
-        color: #555;
-        font-family: 'Inter', sans-serif; /* Use body font for subtitle */
-        font-weight: 400;
+     #saveButton:hover {
+       background-color: #388E3C; /* Darker green on hover */
      }
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
+    }
     .card {
-      background: #ffffff;
-      border-radius: 8px;
-      padding: 20px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      cursor: pointer; /* Keep pointer for modal */
-      transition: box-shadow 0.2s ease-in-out;
+      background: #fff;
+      padding: 15px;
+      border-radius: 6px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
-    .card:hover {
-      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-    }
-    .card-title {
-      font-size: 1.3rem; /* Slightly smaller title */
+    .card h3 {
+      margin-top: 0;
+      color: #4CAF50; /* Green headings for cards */
+      border-bottom: 1px solid #eee;
+      padding-bottom: 5px;
       margin-bottom: 10px;
-      color: #4b6777; /* Use a theme color */
     }
-    .metric-number {
-      font-size: 1.8rem; /* Slightly smaller metric */
-      font-weight: bold;
-      margin-bottom: 5px;
-      color: #2c2c2c;
-    }
-     .metric-desc { /* Style for description text */
-         font-size: 0.9rem;
-         color: #6c757d; /* Muted color */
-     }
-    .chart-card {
-      background: #ffffff;
-      border-radius: 8px;
-      padding: 20px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    /* Modal styles */
     .modal {
-      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.6); /* Darker background */
-      display: none; justify-content: center; align-items: center;
-      z-index: 1000; /* Ensure it's on top */
-      backdrop-filter: blur(3px); /* Optional blur effect */
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.6); /* Darker overlay */
+      padding-top: 60px;
     }
     .modal-content {
-      background: #fff; padding: 30px; border-radius: 8px;
-      max-width: 500px; width: 90%; position: relative;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      background-color: #fefefe;
+      margin: 5% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      max-width: 700px;
+      border-radius: 8px;
     }
-    .modal-close {
-      position: absolute; top: 10px; right: 15px; cursor: pointer;
-      font-size: 1.5rem; font-weight: bold; color: #aaa;
-      line-height: 1;
+    .close-button {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
     }
-     .modal-close:hover { color: #333; }
-    .save-button {
-      background: #4b6777; /* Theme color */
-      color: #fff; padding: 10px 20px; border: none;
-      border-radius: 4px; cursor: pointer; font-size: 1rem;
-      margin-top: 20px; display: block; /* Make it block level */
-      width: fit-content; /* Fit content width */
-      margin-left: auto; margin-right: auto; /* Center button */
+    .close-button:hover,
+    .close-button:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
     }
-    .save-button:hover { background: #3a506b; /* Darker shade */ }
-     /* Utility for list styling */
-     ul { list-style: disc; padding-left: 20px; margin-top: 5px;}
-     li { margin-bottom: 5px; }
-     #errorMessage { color: #c1432e; font-weight: bold; text-align: center; padding: 20px; }
-     #loadingMessage { text-align: center; padding: 20px; font-size: 1.1em; color: #6c757d;}
+    #loadingMessage, #errorMessage {
+      text-align: center;
+      padding: 20px;
+      font-size: 1.2em;
+      color: #555;
+    }
+     #errorMessage {
+         color: #D32F2F; /* Red color for errors */
+         display: none; /* Hidden by default */
+     }
+     #mainContent {
+         display: none; /* Hidden until data loads */
+     }
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      header h1 {
+          margin-top: 10px;
+      }
+      #saveButton {
+          margin-left: 0; /* Align left on small screens */
+          margin-top: 10px;
+      }
+      .grid-container {
+         grid-template-columns: 1fr; /* Stack cards vertically */
+      }
+    }
   </style>
 </head>
 <body>
+
+  <script id="embeddedPsrData" type="application/json">
+    /* MAKE_COM_JSON_PLACEHOLDER */
+  </script>
+
   <div class="container">
     <header>
-      <img src="SWN_Logo-2.jpg" alt="SmartWealth Navigator Logo">
-      <div>
-        <h1>SmartWealth Navigator</h1>
-        <h2>Financial Health Dashboard</h2>
-      </div>
+      <h1>Financial Health Dashboard</h1>
+       <button id="saveButton">Save Full Report Data (JSON)</button>
     </header>
 
-    <div id="loadingMessage">Loading report data...</div>
-    <div id="errorMessage" style="display: none;"></div>
+    <div id="loadingMessage">Loading your financial report...</div>
+     <div id="errorMessage"></div>
 
-    <div id="mainContent" style="display: none;">
-
-      <section id="financial-overview" class="mb-8">
-        <div class="card" data-metric="overview"> <h2 class="card-title">Financial Overview</h2>
-          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            <div class="card" data-metric="income">
-              <h3 class="card-title">Income</h3>
-              <div class="metric-number" id="incomeValue">$0/mo</div>
-              <p class="metric-desc" id="incomeDesc">$0/year</p>
-            </div>
-            <div class="card" data-metric="expenses">
-              <h3 class="card-title">Expenses</h3>
-              <div class="metric-number" id="expensesValue">$0/mo</div>
-              <p class="metric-desc" id="expensesDesc">$0/year</p>
-            </div>
-            <div class="card" data-metric="savings">
-              <h3 class="card-title">Savings</h3>
-              <div class="metric-number" id="savingsValue">$0</div>
-              <p class="metric-desc" id="savingsDesc">Total Reported</p>
-            </div>
-            <div class="card" data-metric="debt">
-              <h3 class="card-title">Debt</h3>
-              <div class="metric-number" id="debtValue">$0</div>
-              <p class="metric-desc" id="debtDesc">Monthly Min: $0</p>
-            </div>
-            <div class="card" data-metric="networth">
-              <h3 class="card-title">Net Worth</h3>
-              <div class="metric-number" id="netWorthValue">$0</div>
-              <p class="metric-desc" id="netWorthDesc">...</p>
-            </div>
-          </div>
+     <div id="mainContent">
+      <div class="grid-container">
+        <div class="card">
+          <h3>Quick Summary</h3>
+          <p><strong>User:</strong> <span id="userName">N/A</span></p>
+          <p><strong>Age:</strong> <span id="age">N/A</span></p>
+          <p><strong>Total Monthly Income:</strong> <span id="totalIncome">N/A</span></p>
+          <p><strong>Total Monthly Expenses:</strong> <span id="totalExpenses">N/A</span></p>
+          <p><strong>Monthly Net Flow:</strong> <span id="netFlow">N/A</span></p>
         </div>
-      </section>
-
-      <section id="chartsSection" class="mb-8">
-         <h2 class="card-title mb-4 pl-1">Visualizations</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div class="chart-card" data-metric="expensesChart">
-            <h3 class="card-title">Expenses Breakdown</h3>
-            <canvas id="expensesBreakdownChart" style="width:100%; height:300px;"></canvas>
-          </div>
-          <div class="chart-card" data-metric="debtIncomeChart">
-            <h3 class="card-title">Debt Payments vs Income</h3>
-             <p class="metric-desc mb-2">Ratio: <span id="dtiRatioValue" class="font-semibold">0%</span></p>
-            <canvas id="debtIncomeChart" style="width:100%; height:270px;"></canvas>
-          </div>
-          <div class="chart-card" data-metric="emergencySavingsChart">
-            <h3 class="card-title">Emergency Savings</h3>
-             <p class="metric-desc mb-2">Coverage: <span id="emergencyMonthsValue" class="font-semibold">0 months</span> (Goal: 6 months)</p>
-            <canvas id="emergencySavingsChart" style="width:100%; height:270px;"></canvas>
-          </div>
+        <div class="card">
+          <h3>Savings Overview</h3>
+          <p><strong>Emergency Savings:</strong> <span id="emergencySavings">N/A</span></p>
+          <p><strong>Current General Savings:</strong> <span id="currentSavings">N/A</span></p>
+          <p><strong>Retirement Fund:</strong> <span id="retirementFund">N/A</span></p>
         </div>
-      </section>
+      </div>
 
-      <section id="analysisSection" class="mb-8">
-         <h2 class="card-title mb-4 pl-1">Analysis & Recommendations</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div class="card" data-metric="analysis">
-            <h3 class="card-title">Strengths & Weaknesses</h3>
-            <div id="strengthsList"> <h4>Strengths</h4> <p class="text-gray-500 italic">Loading...</p> </div>
-            <div id="weaknessesList" class="mt-4"> <h4>Weaknesses</h4> <p class="text-gray-500 italic">Loading...</p> </div>
-          </div>
-          <div class="card" data-metric="recommendations">
-            <h3 class="card-title">Personalized Recommendations</h3>
-            <div id="recommendationsList"> <p class="text-gray-500 italic">Loading...</p> </div>
-          </div>
+      <div class="grid-container">
+        <div class="card">
+          <h3>Income Breakdown</h3>
+          <div id="incomeChart" style="width:100%;height:300px;"></div>
         </div>
-      </section>
+        <div class="card">
+          <h3>Expense Breakdown</h3>
+          <div id="expenseChart" style="width:100%;height:300px;"></div>
+        </div>
+      </div>
 
-      <button id="saveButton" class="save-button">Save Full Report Data (JSON)</button>
-    </div> </div> <div id="modal" class="modal">
+       <div class="card" style="margin-bottom: 20px;">
+            <h3>Financial Tools & Challenges</h3>
+            <p><strong>Current Financial Tools:</strong> <span id="financialTools">N/A</span></p>
+            <p><strong>Reported Challenges:</strong> <span id="challenges">N/A</span></p>
+            <p><strong>Upcoming Purchase Goals:</strong> <span id="purchaseGoals">N/A</span></p>
+       </div>
+
+      <div class="card">
+        <h3>AI Analysis & Recommendations</h3>
+        <div id="aiAnalysis" style="white-space: pre-wrap; margin-bottom: 15px;">N/A</div>
+        <button onclick="openModal('recommendationsModal')" class="text-blue-600 hover:underline">View Recommendations</button>
+        <button onclick="openModal('progressModal')" class="text-blue-600 hover:underline ml-4">View Progress History</button>
+      </div>
+     </div> </div><div id="recommendationsModal" class="modal">
     <div class="modal-content">
-      <span id="modalClose" class="modal-close">&times;</span>
-      <h3 id="modalTitle" class="card-title">Metric Details</h3>
-      <p id="modalContent">Definition and summary grading will appear here.</p>
-       <div id="modalDetails" class="mt-4 text-sm text-gray-700"></div>
+      <span class="close-button" onclick="closeModal('recommendationsModal')">&times;</span>
+      <h2>Recommendations</h2>
+      <div id="recommendationsContent" style="white-space: pre-wrap;"></div>
+    </div>
+  </div>
+
+  <div id="progressModal" class="modal">
+    <div class="modal-content">
+      <span class="close-button" onclick="closeModal('progressModal')">&times;</span>
+      <h2>User Progress History</h2>
+      <div id="progressContent" style="white-space: pre-wrap;"></div>
     </div>
   </div>
 
   <script>
-    let fetchedReportData = {}; // Store fetched data globally for save button
+    // Global variable to store fetched data for the save button
+    let fetchedReportData = {};
 
-    // Helper function to format currency
-    function formatCurrency(value) {
-        const number = Number(value);
-        if (isNaN(number)) return '$0'; // Simpler default for cards
-        // Format without cents if it's a whole number for cleaner look in cards
-        const options = { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 };
-        if (number % 1 !== 0) { // Add cents if not a whole number
-             options.minimumFractionDigits = 2;
-             options.maximumFractionDigits = 2;
-        }
-        return number.toLocaleString('en-US', options);
-    }
-     function formatCurrencyWithCents(value) {
-         const number = Number(value);
-         if (isNaN(number)) return '$0.00';
-         return number.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
-     }
-    function formatPercent(value, decimals = 1) {
-        const number = Number(value);
-        if (isNaN(number)) return '0%';
-        return `${number.toFixed(decimals)}%`;
-    }
-     function formatMonths(value) {
-         const number = Number(value);
-         if (isNaN(number)) return '0 mo';
-         return `${number.toFixed(2)} mo`;
-     }
-
-    // Fetch dynamic JSON data from the static file
-    async function fetchData() {
-      const dataFile = 'psr.json'; // The file Pipedream creates
-      const loadingMsg = document.getElementById('loadingMessage');
-      const errorMsg = document.getElementById('errorMessage');
-      const mainContent = document.getElementById('mainContent');
-
-      loadingMsg.style.display = 'block';
-      errorMsg.style.display = 'none';
-      mainContent.style.display = 'none';
-
+    // Function to safely get nested properties
+    function getSafe(fn, defaultVal) {
       try {
-        const response = await fetch(dataFile);
-        if (!response.ok) {
-          throw new Error(`Network response was not ok (${response.status}). Could not load ${dataFile}.`);
-        }
-        const data = await response.json();
-        fetchedReportData = data; // Store data globally
-        loadingMsg.style.display = 'none';
-        mainContent.style.display = 'block';
-        return data;
-      } catch (error) {
-        console.error("Fetch error:", error);
-        errorMsg.textContent = `Failed to load report data: ${error.message}`;
-        errorMsg.style.display = 'block';
-        loadingMsg.style.display = 'none';
-        return null; // Return null to indicate failure
+        const value = fn();
+        return (value === null || value === undefined) ? defaultVal : value;
+      } catch (e) {
+        return defaultVal;
       }
     }
 
-    // Update text content of the financial overview section
+    // Function to format numbers as currency
+    function formatCurrency(value) {
+      const number = Number(value);
+      if (isNaN(number)) return 'N/A';
+      return number.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+    }
+
+    // Function to update the text content of elements
+    function updateElementText(id, value, formatter) {
+      const element = document.getElementById(id);
+      if (element) {
+        element.textContent = formatter ? formatter(value) : (value || 'N/A');
+      } else {
+          console.warn(`Element with ID ${id} not found.`);
+      }
+    }
+
+    // Function to calculate totals
+    function calculateTotals(data) {
+        const income = data?.userInput?.income || {};
+        const expenses = data?.userInput?.expenses || {};
+
+        const totalIncome = (Number(income.mainJobIncome || 0) + Number(income.secondJob || 0) + Number(income.otherIncome || 0));
+        const totalExpenses = (
+            Number(expenses.housing || 0) + Number(expenses.utilities || 0) +
+            Number(expenses.transportation || 0) + Number(expenses.groceriesEssentials || 0) +
+            Number(expenses.insurance || 0) + Number(expenses.medical || 0) +
+            Number(expenses.care || 0) + Number(expenses.subscriptions || 0) +
+            Number(expenses.taxes || 0)
+        );
+        const netFlow = totalIncome - totalExpenses;
+
+        return { totalIncome, totalExpenses, netFlow };
+    }
+
+
+    // Function to update the main report sections
     function updateReport(data) {
-      if (!data || !data.aiCalculations || !data.userInput) return; // Basic check
+        const personalInfo = data?.userInput?.personalInfo || {};
+        const savings = data?.userInput?.savings || {};
+        const financials = data?.userInput?.financials || {};
+        const totals = calculateTotals(data);
 
-      const incomeData = data.aiCalculations.incomeSummary || {};
-      const expenseData = data.aiCalculations.expenseSummary || {};
-      const savingsData = data.aiCalculations.savingsSummary || {};
-      const debtData = data.aiCalculations.debtSummary || {};
-      const netWorthData = data.aiCalculations.netWorth || {};
-      const debtInput = data.userInput.debtsAndLiabilities || {};
+        updateElementText('userName', personalInfo.userName);
+        updateElementText('age', personalInfo.age);
+        updateElementText('totalIncome', totals.totalIncome, formatCurrency);
+        updateElementText('totalExpenses', totals.totalExpenses, formatCurrency);
+        updateElementText('netFlow', totals.netFlow, formatCurrency);
 
-      document.getElementById('incomeValue').innerText = formatCurrency(incomeData.totalMonthlyIncome) + '/mo';
-      document.getElementById('incomeDesc').innerText = formatCurrency(incomeData.totalAnnualIncome) + '/year';
-      document.getElementById('expensesValue').innerText = formatCurrency(expenseData.totalMonthlyExpenses) + '/mo';
-      document.getElementById('expensesDesc').innerText = formatCurrency(expenseData.totalAnnualExpenses) + '/year';
-      document.getElementById('savingsValue').innerText = formatCurrency(savingsData.totalSavingsReported);
-      document.getElementById('debtValue').innerText = formatCurrency(debtData.totalDebtCalculated);
-      document.getElementById('debtDesc').innerText = `Monthly Min: ${formatCurrency(debtInput.totalMinimumMonthlyDebtPayments)}`;
-      document.getElementById('netWorthValue').innerText = formatCurrency(netWorthData.calculatedNetWorth);
-      document.getElementById('netWorthDesc').innerText = netWorthData.netWorthStatus || '...';
+        updateElementText('emergencySavings', savings.emergency, formatCurrency);
+        updateElementText('currentSavings', savings.savings, formatCurrency);
+        updateElementText('retirementFund', savings.retirement, formatCurrency);
+
+        updateElementText('financialTools', financials.financialTools);
+        updateElementText('challenges', financials.challenges);
+        updateElementText('purchaseGoals', financials.upcomingPurchase);
+
+        updateElementText('aiAnalysis', data?.aiOutput?.analysis);
     }
 
-    // Render charts using Plotly.js
+    // Function to render Plotly charts
     function renderCharts(data) {
-       if (!data || !data.aiCalculations || !data.userInput) return; // Basic check
+      const income = data?.userInput?.income || {};
+      const expenses = data?.userInput?.expenses || {};
 
-       const calc = data.aiCalculations || {};
-       const input = data.userInput || {};
-       const analysis = data.aiAnalysisAndRecommendations || {}; // For potential future use
+      // Income Chart
+      const incomeData = [{
+        values: [
+            getSafe(() => Number(income.mainJobIncome), 0),
+            getSafe(() => Number(income.secondJob), 0),
+            getSafe(() => Number(income.otherIncome), 0)
+        ],
+        labels: ['Main Job', 'Second Job', 'Other'],
+        type: 'pie',
+        hole: .4,
+        hoverinfo: 'label+percent',
+        textinfo: 'value',
+        textfont_size: 14,
+        marker: { colors: ['#4CAF50', '#8BC34A', '#CDDC39'] } // Shades of green/yellow
+      }];
+      const incomeLayout = {
+        title: 'Income Sources',
+        showlegend: true,
+        height: 300,
+        margin: { l: 20, r: 20, t: 40, b: 20 } // Adjust margins
+      };
+      Plotly.newPlot('incomeChart', incomeData, incomeLayout, {responsive: true});
 
-
-        try {
-            // --- Expenses Breakdown Pie Chart ---
-            const expenseInputData = input.monthlyExpenses || {};
-            const expenseCategories = ['Housing', 'Utilities', 'Transportation', 'Food/Essentials', 'Insurance', 'Medical', 'Care', 'Subscriptions', 'Other'];
-            const expenseValues = [
-                 parseFloat(expenseInputData.housing || 0),
-                 parseFloat(expenseInputData.utilities || 0),
-                 parseFloat(expenseInputData.transportation || 0),
-                 parseFloat(expenseInputData.foodAndEssentials || 0),
-                 parseFloat(expenseInputData.insurance || 0),
-                 parseFloat(expenseInputData.medical || 0),
-                 parseFloat(expenseInputData.childOrElderCare || 0),
-                 parseFloat(expenseInputData.subscriptions || 0),
-                 parseFloat(expenseInputData.otherMonthlyExpenses || 0)
-             ];
-            const filteredExpenses = expenseValues.map((value, index) => ({ label: expenseCategories[index], value: value }))
-                                                  .filter(item => item.value > 0);
-
-            if (document.getElementById('expensesBreakdownChart') && filteredExpenses.length > 0) {
-                 const expensesChartData = [{
-                   values: filteredExpenses.map(item => item.value),
-                   labels: filteredExpenses.map(item => item.label),
-                   type: 'pie',
-                   textinfo: 'percent', // Show percentage on slices
-                   hoverinfo: 'label+value',
-                   insidetextorientation: 'radial',
-                   marker: { colors: ['#ce9e62', '#4b6777', '#c1432e', '#354f5f', '#6c757d', '#a65d57', '#2d5a27', '#842029', '#495057'] } // Use theme colors
-                 }];
-                 const expensesLayout = {
-                     // title: 'Expenses Breakdown', // Title is in card
-                     showlegend: true,
-                     legend: { x: 0.5, y: -0.1, orientation: "h", xanchor: 'center' }, // Legend below chart
-                     margin: { l: 20, r: 20, t: 30, b: 40 }, // Adjust margins
-                     height: 300
-                 };
-                 Plotly.newPlot('expensesBreakdownChart', expensesChartData, expensesLayout, {responsive: true});
-            } else if (document.getElementById('expensesBreakdownChart')) {
-                 document.getElementById('expensesBreakdownChart').innerHTML = '<p class="text-center text-gray-500 italic">No expense data for chart.</p>';
-            }
-
-            // --- Debt Payments vs Income Pie Chart ---
-             // Note: A pie chart isn't the best for DTI ratio, but keeping user's structure for now.
-             const monthlyDebtPayment = input.debtsAndLiabilities?.totalMinimumMonthlyDebtPayments ?? 0;
-             const monthlyIncome = calc.incomeSummary?.totalMonthlyIncome ?? 0;
-             const remainingIncome = Math.max(0, monthlyIncome - monthlyDebtPayment);
-             document.getElementById('dtiRatioValue').innerText = formatPercent(calc.ratios?.debtToIncomePercent);
-
-             if (document.getElementById('debtIncomeChart') && monthlyIncome > 0) {
-                 const debtIncomeChartData = [{
-                   values: [monthlyDebtPayment, remainingIncome],
-                   labels: ['Debt Payments', 'Remaining Income'],
-                   type: 'pie',
-                   textinfo: 'percent',
-                   hoverinfo: 'label+value',
-                   insidetextorientation: 'radial',
-                   marker: { colors: ['#c1432e', '#4b6777'] } // rust, blue
-                 }];
-                 const debtIncomeLayout = {
-                     // title: 'Debt Payments vs Income', // Title is in card
-                     showlegend: true,
-                     legend: { x: 0.5, y: -0.1, orientation: "h", xanchor: 'center' },
-                     margin: { l: 20, r: 20, t: 30, b: 40 },
-                     height: 270 // Reduced height to fit text above
-                 };
-                 Plotly.newPlot('debtIncomeChart', debtIncomeChartData, debtIncomeLayout, {responsive: true});
-              } else if (document.getElementById('debtIncomeChart')) {
-                  document.getElementById('debtIncomeChart').innerHTML = '<p class="text-center text-gray-500 italic">Income data needed for chart.</p>';
-             }
-
-            // --- Emergency Savings Ratio Pie Chart ---
-             const emergencyMonths = calc.emergencyFundAnalysis?.emergencyFundMonths ?? 0;
-             const goalMonths = 6; // Target goal
-             const remainingToGoal = Math.max(0, goalMonths - emergencyMonths);
-              document.getElementById('emergencyMonthsValue').innerText = formatMonths(emergencyMonths);
-
-
-             if (document.getElementById('emergencySavingsChart')) {
-                  const emergencySavingsData = [{
-                      values: [emergencyMonths, remainingToGoal],
-                      labels: ['Coverage (Months)', 'Remaining to Goal'],
-                      type: 'pie',
-                      textinfo: 'value', // Show months directly
-                      hoverinfo: 'label+value',
-                      texttemplate: '%{value:.1f} mo', // Format text on slice
-                      insidetextorientation: 'radial',
-                      marker: { colors: ['#ce9e62', '#e9ecef'] } // gold, silver
-                  }];
-                  const emergencySavingsLayout = {
-                      // title: 'Emergency Savings Coverage', // Title is in card
-                      showlegend: true,
-                      legend: { x: 0.5, y: -0.1, orientation: "h", xanchor: 'center' },
-                      margin: { l: 20, r: 20, t: 30, b: 40 },
-                      height: 270 // Reduced height to fit text above
-                  };
-                  Plotly.newPlot('emergencySavingsChart', emergencySavingsData, emergencySavingsLayout, {responsive: true});
-            }
-
-        } catch (error) {
-             console.error("Error rendering charts:", error);
-             // Optionally display error message in chart areas
-             document.getElementById('expensesBreakdownChart').innerHTML = '<p class="text-red-600">Error loading chart.</p>';
-             document.getElementById('debtIncomeChart').innerHTML = '<p class="text-red-600">Error loading chart.</p>';
-             document.getElementById('emergencySavingsChart').innerHTML = '<p class="text-red-600">Error loading chart.</p>';
-        }
+      // Expense Chart
+      const expenseValues = [
+          getSafe(() => Number(expenses.housing), 0), getSafe(() => Number(expenses.utilities), 0),
+          getSafe(() => Number(expenses.transportation), 0), getSafe(() => Number(expenses.groceriesEssentials), 0),
+          getSafe(() => Number(expenses.insurance), 0), getSafe(() => Number(expenses.medical), 0),
+          getSafe(() => Number(expenses.care), 0), getSafe(() => Number(expenses.subscriptions), 0),
+          getSafe(() => Number(expenses.taxes), 0)
+      ];
+      const expenseLabels = [
+          'Housing', 'Utilities', 'Transportation', 'Groceries/Essentials',
+          'Insurance', 'Medical', 'Child/Elder Care', 'Subscriptions', 'Taxes'
+      ];
+      const expenseData = [{
+        values: expenseValues,
+        labels: expenseLabels,
+        type: 'pie',
+        hole: .4,
+        hoverinfo: 'label+percent',
+        textinfo: 'value',
+        textfont_size: 14,
+        marker: { colors: ['#F44336', '#E91E63', '#9C27B0', '#673AB7', '#3F51B5', '#2196F3', '#03A9F4', '#00BCD4', '#009688'] } // Various colors
+      }];
+      const expenseLayout = {
+        title: 'Expense Categories',
+        showlegend: true,
+        height: 300,
+        margin: { l: 20, r: 20, t: 40, b: 20 } // Adjust margins
+      };
+      Plotly.newPlot('expenseChart', expenseData, expenseLayout, {responsive: true});
     }
 
-    // Update Strengths, Weaknesses, and Recommendations Lists
+    // Function to update AI Analysis and potentially other text areas
     function updateAnalysis(data) {
-       if (!data || !data.aiAnalysisAndRecommendations) return;
-
-       const analysis = data.aiAnalysisAndRecommendations;
-
-       const renderList = (elementId, title, items) => {
-            const container = document.getElementById(elementId);
-            if (!container) return;
-            let listHtml = `<h4>${title}</h4>`;
-            if (items && items.length > 0) {
-                 listHtml += '<ul>' + items.map(item => `<li>${item?.text || item}</li>`).join('') + '</ul>'; // Handle object array for recommendations
-            } else {
-                 listHtml += '<p class="text-gray-500 italic">None provided.</p>';
-            }
-            container.innerHTML = listHtml;
-       };
-
-       renderList('strengthsList', 'Strengths', analysis.strengths);
-       renderList('weaknessesList', 'Weaknesses', analysis.areasForImprovement);
-       renderList('recommendationsList', 'Recommendations', analysis.recommendations);
+        const aiOutput = data?.aiOutput || {};
+        updateElementText('aiAnalysis', aiOutput.analysis);
+        // Update modal content here too, if not done by initModals
+        updateElementText('recommendationsContent', aiOutput.recommendations);
+        updateElementText('progressContent', aiOutput.userProgress);
     }
 
-    // Initialize modals: when a card is clicked, show metric details
+
+    // Functions to handle modals
+    function openModal(modalId) {
+      const modal = document.getElementById(modalId);
+      if (modal) modal.style.display = "block";
+    }
+
+    function closeModal(modalId) {
+       const modal = document.getElementById(modalId);
+      if (modal) modal.style.display = "none";
+    }
+
+    // Function to initialize modal content (could be expanded)
     function initModals(data) {
-      const modal = document.getElementById('modal');
-      const modalTitle = document.getElementById('modalTitle');
-      const modalContent = document.getElementById('modalContent');
-      const modalDetails = document.getElementById('modalDetails');
-      const modalClose = document.getElementById('modalClose');
+        const aiOutput = data?.aiOutput || {};
+        updateElementText('recommendationsContent', aiOutput.recommendations);
+        updateElementText('progressContent', aiOutput.userProgress);
 
-      if(!modal || !modalClose) return; // Ensure modal elements exist
-
-      document.querySelectorAll('.card[data-metric], .chart-card[data-metric]').forEach(card => {
-        card.addEventListener('click', (e) => {
-          // Prevent triggering if click is on interactive element inside card (future proofing)
-           if (e.target.closest('button, a')) return;
-
-          const metric = card.getAttribute('data-metric');
-          let title = "", content = "", detailsHtml = "";
-
-          // Basic definitions - these could be enhanced or pulled from JSON data too
-          switch(metric) {
-            case 'income':
-              title = "Income Details";
-              content = "Total monthly and annual income reported.";
-              if(data?.aiCalculations?.incomeSummary) {
-                 detailsHtml = `
-                     <p><strong>Monthly:</strong> ${formatCurrencyWithCents(data.aiCalculations.incomeSummary.totalMonthlyIncome)}</p>
-                     <p><strong>Annual:</strong> ${formatCurrencyWithCents(data.aiCalculations.incomeSummary.totalAnnualIncome)}</p>
-                     <p><em>(Based on calculated figures)</em></p>
-                 `;
-              }
-              break;
-             case 'expenses':
-               title = "Expenses Details";
-               content = "Total monthly and annual expenses calculated or reported.";
-               if (data?.aiCalculations?.expenseSummary) {
-                   detailsHtml = `
-                     <p><strong>Monthly:</strong> ${formatCurrencyWithCents(data.aiCalculations.expenseSummary.totalMonthlyExpenses)}</p>
-                     <p><strong>Annual:</strong> ${formatCurrencyWithCents(data.aiCalculations.expenseSummary.totalAnnualExpenses)}</p>
-                     <p><em>(Based on calculated figures)</em></p>
-                 `;
-               }
-               break;
-             case 'savings':
-               title = "Savings Details";
-               content = "Total reported savings balance.";
-                if (data?.aiCalculations?.savingsSummary) {
-                   detailsHtml = `<p><strong>Total Balance:</strong> ${formatCurrencyWithCents(data.aiCalculations.savingsSummary.totalSavingsReported)}</p>`;
-                }
-               break;
-             case 'debt':
-               title = "Debt Details";
-               content = "Total calculated or reported debt and minimum monthly payments.";
-                if (data?.aiCalculations?.debtSummary || data?.userInput?.debtsAndLiabilities) {
-                    detailsHtml = `
-                     <p><strong>Total Debt:</strong> ${formatCurrencyWithCents(data.aiCalculations?.debtSummary?.totalDebtCalculated)}</p>
-                     <p><strong>Min. Monthly Payments:</strong> ${formatCurrencyWithCents(data.userInput?.debtsAndLiabilities?.totalMinimumMonthlyDebtPayments)}</p>
-                     `;
-                }
-               break;
-             case 'networth':
-               title = "Net Worth Details";
-               content = "Calculated as total assets minus total liabilities.";
-                if (data?.aiCalculations?.netWorth) {
-                   detailsHtml = `
-                     <p><strong>Calculated Value:</strong> ${formatCurrencyWithCents(data.aiCalculations.netWorth.calculatedNetWorth)}</p>
-                     <p><strong>Status:</strong> ${data.aiCalculations.netWorth.netWorthStatus || 'N/A'}</p>
-                     `;
-               }
-               break;
-             case 'expensesChart':
-               title = "Expenses Breakdown";
-               content = "Distribution of monthly expenses across categories based on input.";
-               // Could potentially list top categories here from data
-               break;
-             case 'debtIncomeChart':
-               title = "Debt-to-Income (DTI) Ratio";
-               content = "Percentage of gross monthly income used for minimum monthly debt payments.";
-                if (data?.aiCalculations?.ratios) {
-                     detailsHtml = `<p><strong>Calculated DTI:</strong> ${formatPercent(data.aiCalculations.ratios.debtToIncomePercent)}</p>`;
-                     // Add assessment text here too if available
-                     if(data.aiAnalysisAndRecommendations?.ratioAssessments?.dtiAssessmentLabel) {
-                         detailsHtml += `<p><strong>Assessment:</strong> ${data.aiAnalysisAndRecommendations.ratioAssessments.dtiAssessmentLabel}</p>`;
-                     }
-                }
-               break;
-             case 'emergencySavingsChart':
-               title = "Emergency Savings Coverage";
-               content = "Number of months essential expenses can be covered by reported savings (goal typically 3-6 months).";
-               if (data?.aiCalculations?.emergencyFundAnalysis) {
-                   detailsHtml = `<p><strong>Calculated Coverage:</strong> ${formatMonths(data.aiCalculations.emergencyFundAnalysis.emergencyFundMonths)}</p>`;
-                   // Add assessment text here too if available
-                    if(data.aiAnalysisAndRecommendations?.ratioAssessments?.emergencyFundAssessmentLabel) {
-                        detailsHtml += `<p><strong>Assessment:</strong> ${data.aiAnalysisAndRecommendations.ratioAssessments.emergencyFundAssessmentLabel}</p>`;
-                    }
-               }
-               break;
-              case 'analysis':
-                 title = "Strengths & Weaknesses";
-                 content = "Summary generated based on financial data.";
-                 break;
-              case 'recommendations':
-                 title = "Personalized Recommendations";
-                 content = "Actionable steps based on financial assessment.";
-                 break;
-            default:
-              title = "Details";
-              content = "Information relating to this section.";
-          }
-          modalTitle.innerText = title;
-          modalContent.innerText = content;
-          modalDetails.innerHTML = detailsHtml; // Add specific data to modal
-          modal.style.display = 'flex';
-        });
-      });
-
-      modalClose.addEventListener('click', () => { modal.style.display = 'none'; });
-      window.addEventListener('click', (event) => { if (event.target === modal) { modal.style.display = 'none'; } });
+      // Close modal if clicked outside the content area
+      window.onclick = function(event) {
+        const modals = document.getElementsByClassName('modal');
+        for (let i = 0; i < modals.length; i++) {
+             if (event.target == modals[i]) {
+               modals[i].style.display = "none";
+             }
+        }
+      }
     }
 
-    // Initialize Save button to download the *fetched* JSON data locally
+    // Function to initialize the Save JSON button
     function initSaveButton() {
-      document.getElementById('saveButton').addEventListener('click', () => {
+      const saveButton = document.getElementById('saveButton');
+      if (!saveButton) {
+          console.error("Save button not found.");
+          return;
+      }
+      saveButton.addEventListener('click', () => {
         // Use the globally stored fetchedReportData
         if (!fetchedReportData || Object.keys(fetchedReportData).length === 0) {
              alert("No report data available to save.");
@@ -563,7 +401,7 @@
         const a = document.createElement('a');
         a.href = dataStr;
         // Try to get username for filename, fallback to 'user'
-        const filenameUser = fetchedReportData?.userInput?.personalInfo?.userName?.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'user';
+        const filenameUser = getSafe(() => fetchedReportData.userInput.personalInfo.userName.replace(/[^a-z0-9]/gi, '_').toLowerCase(), 'user');
         a.download = `financial_report_${filenameUser}_${new Date().toISOString().slice(0,10)}.json`;
         document.body.appendChild(a);
         a.click();
@@ -571,16 +409,51 @@
       });
     }
 
-    // Main initialization function: fetch data and update dashboard
-    async function init() {
-      const data = await fetchData();
-      // Only proceed if data was successfully fetched
+    // Main initialization function: parse embedded data and update dashboard
+    function init() {
+      let data = null;
+      const loadingMessage = document.getElementById('loadingMessage');
+      const errorMessage = document.getElementById('errorMessage');
+      const mainContent = document.getElementById('mainContent');
+
+      try {
+        const dataElement = document.getElementById('embeddedPsrData');
+        // Check if the placeholder is still present or if the element is missing/empty
+        if (dataElement && dataElement.textContent.trim() && dataElement.textContent.trim() !== '/* MAKE_COM_JSON_PLACEHOLDER */') {
+           data = JSON.parse(dataElement.textContent);
+           fetchedReportData = data; // Store globally for save button
+        } else {
+           console.error("Embedded PSR data not found or is placeholder.");
+           errorMessage.textContent = 'Could not load report data embedded in the file. Placeholder content found.';
+           errorMessage.style.display = 'block';
+           loadingMessage.style.display = 'none';
+           return; // Stop if no data
+        }
+      } catch (error) {
+         console.error("Error parsing embedded JSON:", error);
+         errorMessage.textContent = `Failed to parse embedded report data: ${error.message}`;
+         errorMessage.style.display = 'block';
+         loadingMessage.style.display = 'none';
+         return; // Stop on error
+      }
+
+       // Hide loading, show content (if data parsed successfully)
+      loadingMessage.style.display = 'none';
+
+      // Only proceed if data was successfully parsed
       if (data) {
+          mainContent.style.display = 'block'; // Show main content area
           updateReport(data);
           renderCharts(data);
           updateAnalysis(data);
-          initModals(data); // Pass data to modals if they need dynamic content
-          initSaveButton(); // Initialize save button after data is available
+          initModals(data);
+          initSaveButton();
+      } else {
+           // Ensure error message is shown if data somehow becomes null after checks
+            if (errorMessage.style.display !== 'block') {
+                errorMessage.textContent = 'Report data is missing or invalid.';
+                errorMessage.style.display = 'block';
+            }
       }
     }
 
