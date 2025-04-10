@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SmartWealth Navigator - Enhanced Financial Dashboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@700&display=swap" rel="stylesheet"> {/* Added bold weight */}
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
@@ -15,12 +15,11 @@
       margin: 0;
       padding: 0;
     }
-    /* Updated Header Styles */
     h1, h2, h3, h4 {
       font-family: 'EB Garamond', serif;
       color: #333;
-      font-size: 1.2em; /* Increased font size */
-      font-weight: bold; /* Added bold */
+      font-size: 1.2em;
+      font-weight: bold;
     }
     .container {
       max-width: 1200px;
@@ -37,24 +36,22 @@
       flex-wrap: wrap;
     }
     header img {
-      /* Updated logo size and added border-radius */
-      height: 84px; /* 40% larger than 60px */
+      height: 84px;
       margin-right: 15px;
-      border-radius: 8px; /* Added border radius */
+      border-radius: 8px;
       object-fit: contain;
     }
-    header h1 { /* Specific style for main title */
+    header h1 {
       color: #2E7D32;
       margin: 0;
       flex-grow: 1;
-      font-size: 1.5em; /* Make main title slightly larger */
+      font-size: 1.5em;
     }
-    .card h3 { /* Card titles keep specific color */
+    .card h3 {
         color: #4CAF50;
         border-bottom: 1px solid #eee;
         padding-bottom: 5px;
         margin-bottom: 10px;
-        /* Font size/weight inherited from h1-h4 rule */
     }
     #saveButton, #uploadButton {
        margin-left: 10px;
@@ -66,7 +63,7 @@
        cursor: pointer;
        font-size: 0.9em;
        transition: background-color 0.3s ease;
-       font-family: 'Inter', sans-serif; /* Ensure buttons use Inter font */
+       font-family: 'Inter', sans-serif;
      }
      #uploadButton { background-color: #0288D1; }
      #saveButton:hover { background-color: #388E3C; }
@@ -95,16 +92,9 @@
     .ratio-value { display: inline-block; margin-bottom: 4px; font-size: 0.95em;}
     .ratio-bar-container { background-color: #e0e0e0; border-radius: 4px; overflow: hidden; height: 10px; width: 100%; }
     .ratio-bar { height: 100%; width: 0%; transition: width 0.5s ease-in-out; }
-    /* Specific Ratio Bar Colors (Example Thresholds) */
-    .ratio-bar.savings-rate { background-color: #d32f2f; } /* Default Red */
-    .ratio-bar.savings-rate.ok { background-color: #ffc107; } /* Yellow */
-    .ratio-bar.savings-rate.good { background-color: #4CAF50; } /* Green */
-    .ratio-bar.emergency-coverage { background-color: #d32f2f; }
-    .ratio-bar.emergency-coverage.ok { background-color: #ffc107; }
-    .ratio-bar.emergency-coverage.good { background-color: #4CAF50; }
-    .ratio-bar.dti-ratio { background-color: #4CAF50; } /* Default Green (Low is good) */
-    .ratio-bar.dti-ratio.warning { background-color: #ffc107; } /* Yellow */
-    .ratio-bar.dti-ratio.high { background-color: #d32f2f; } /* Red */
+    .ratio-bar.savings-rate { background-color: #d32f2f; } .ratio-bar.savings-rate.ok { background-color: #ffc107; } .ratio-bar.savings-rate.good { background-color: #4CAF50; }
+    .ratio-bar.emergency-coverage { background-color: #d32f2f; } .ratio-bar.emergency-coverage.ok { background-color: #ffc107; } .ratio-bar.emergency-coverage.good { background-color: #4CAF50; }
+    .ratio-bar.dti-ratio { background-color: #4CAF50; } .ratio-bar.dti-ratio.warning { background-color: #ffc107; } .ratio-bar.dti-ratio.high { background-color: #d32f2f; }
 
     /* Debt Table Styles */
     #debtsTable { width: 100%; margin-top: 10px; border-collapse: collapse; }
@@ -119,7 +109,7 @@
 
     /* Recommendations List Styles */
     #recommendationsList { list-style: disc; padding-left: 20px; margin-top: 10px; }
-    #recommendationsList li { margin-bottom: 8px; line-height: 1.5; font-family: 'Inter', sans-serif; font-size: 0.95em; /* Ensure list uses Inter font */ }
+    #recommendationsList li { margin-bottom: 8px; line-height: 1.5; font-family: 'Inter', sans-serif; font-size: 0.95em; }
 
     /* Modals */
     .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); padding-top: 60px; }
@@ -229,7 +219,7 @@
 
        <div class="grid-container">
             <div class="card">
-                {/* Removed stray comment */}
+                {/* Stray comment removed */}
                 <h3>Recommendations</h3>
                 <div class="card-content">
                     <ul id="recommendationsList"><li>No recommendations loaded.</li></ul>
@@ -244,7 +234,7 @@
             </div>
        </div>
 
-      <div class="grid-container"> {/* Removed stray comment */}
+      <div class="grid-container"> {/* Stray comment removed */}
          <div class="card" id="debtsCard">
               <h3>Debt Overview</h3>
               <div class="card-content">
@@ -278,24 +268,46 @@
     const plotlyConfig = { displaylogo: false, modeBarButtonsToRemove: ['sendDataToCloud', 'select2d', 'lasso2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d', 'resetScale2d', 'hoverClosestPie'] };
 
     // --- Helper Functions ---
-    function getSafe(fn, defaultVal = 'N/A') { /* ... Same ... */ try { const value = fn(); return (value === null || value === undefined || value === '') ? defaultVal : value; } catch (e) { return defaultVal; } }
-    function formatCurrency(value, hideNA = false) { /* ... Same ... */ const number = Number(value); if (isNaN(number)) return hideNA ? '' : 'N/A'; return number.toLocaleString('en-US', { style: 'currency', currency: 'USD' }); }
-    function formatPercent(value, decimals = 1) { /* ... Same ... */ const number = Number(value); if (isNaN(number) || !isFinite(number)) return 'N/A'; return number.toLocaleString(undefined, { style: 'percent', minimumFractionDigits: decimals, maximumFractionDigits: decimals }); }
-    function updateElementText(id, value, formatter) { /* ... Same ... */ const element = document.getElementById(id); if (element) { element.textContent = formatter ? formatter(value) : (value || 'N/A'); } }
-    function updateElementHTML(id, value) { /* ... Same ... */ const element = document.getElementById(id); if (element) element.innerHTML = value; }
+    function getSafe(fn, defaultVal = 'N/A') { try { const value = fn(); return (value === null || value === undefined || value === '') ? defaultVal : value; } catch (e) { return defaultVal; } }
+    function formatCurrency(value, hideNA = false) { const number = Number(value); if (isNaN(number)) return hideNA ? '' : 'N/A'; return number.toLocaleString('en-US', { style: 'currency', currency: 'USD' }); }
+    function formatPercent(value, decimals = 1) { const number = Number(value); if (isNaN(number) || !isFinite(number)) return 'N/A'; return number.toLocaleString(undefined, { style: 'percent', minimumFractionDigits: decimals, maximumFractionDigits: decimals }); }
+    function updateElementText(id, value, formatter) { const element = document.getElementById(id); if (element) { element.textContent = formatter ? formatter(value) : (value || 'N/A'); } }
+    function updateElementHTML(id, value) { const element = document.getElementById(id); if (element) element.innerHTML = value; }
 
     // --- Calculation Functions ---
-    function calculateTotals(data) { /* ... Same ... */ const income = data?.userInput?.income || {}; const expenses = data?.userInput?.expenses || {}; const totalIncome = (Number(getSafe(() => income.mainJobIncome, 0)) + Number(getSafe(() => income.secondJob, 0)) + Number(getSafe(() => income.otherIncome, 0))); const coreExpensesList = ['housing', 'utilities', 'transportation', 'groceriesEssentials', 'insurance', 'medical', 'care', 'taxes']; let totalExpenses = 0; let monthlyCoreExpenses = 0; for (const key in expenses) { const expenseValue = Number(getSafe(() => expenses[key], 0)); totalExpenses += expenseValue; if (coreExpensesList.includes(key)) { monthlyCoreExpenses += expenseValue; } } const netFlow = totalIncome - totalExpenses; return { totalIncome, totalExpenses, netFlow, monthlyCoreExpenses }; }
-    function calculateRatios(data, totals) { /* ... Same ... */ const debts = getSafe(() => data.userInput.debts, []); const savings = data?.userInput?.savings || {}; const emergencySavings = Number(getSafe(() => savings.emergency, 0)); const monthlySavingsGoal = Number(getSafe(() => savings.monthlySavingsGoal, 0)); let totalMinPayments = 0; if (Array.isArray(debts)) { debts.forEach(debt => { totalMinPayments += Number(getSafe(() => debt.minPayment, 0)); }); } const dtiRatio = (totals.totalIncome > 0) ? (totalMinPayments / totals.totalIncome) : 0; const emergencyCoverage = (totals.monthlyCoreExpenses > 0) ? (emergencySavings / totals.monthlyCoreExpenses) : 0; const savingsRate = (totals.totalIncome > 0) ? (monthlySavingsGoal / totals.totalIncome) : 0; return { dtiRatio, emergencyCoverage, savingsRate, totalMinPayments }; }
+    function calculateTotals(data) { const income = data?.userInput?.income || {}; const expenses = data?.userInput?.expenses || {}; const totalIncome = (Number(getSafe(() => income.mainJobIncome, 0)) + Number(getSafe(() => income.secondJob, 0)) + Number(getSafe(() => income.otherIncome, 0))); const coreExpensesList = ['housing', 'utilities', 'transportation', 'groceriesEssentials', 'insurance', 'medical', 'care', 'taxes']; let totalExpenses = 0; let monthlyCoreExpenses = 0; for (const key in expenses) { const expenseValue = Number(getSafe(() => expenses[key], 0)); totalExpenses += expenseValue; if (coreExpensesList.includes(key)) { monthlyCoreExpenses += expenseValue; } } const netFlow = totalIncome - totalExpenses; return { totalIncome, totalExpenses, netFlow, monthlyCoreExpenses }; }
+    function calculateRatios(data, totals) { const debts = getSafe(() => data.userInput.debts, []); const savings = data?.userInput?.savings || {}; const emergencySavings = Number(getSafe(() => savings.emergency, 0)); const monthlySavingsGoal = Number(getSafe(() => savings.monthlySavingsGoal, 0)); let totalMinPayments = 0; if (Array.isArray(debts)) { debts.forEach(debt => { totalMinPayments += Number(getSafe(() => debt.minPayment, 0)); }); } const dtiRatio = (totals.totalIncome > 0) ? (totalMinPayments / totals.totalIncome) : 0; const emergencyCoverage = (totals.monthlyCoreExpenses > 0) ? (emergencySavings / totals.monthlyCoreExpenses) : 0; const savingsRate = (totals.totalIncome > 0) ? (monthlySavingsGoal / totals.totalIncome) : 0; return { dtiRatio, emergencyCoverage, savingsRate, totalMinPayments }; }
 
     // --- Display Update Functions ---
-    function updateReportBasics(data, totals) { /* ... Same ... */ const personalInfo = data?.userInput?.personalInfo || {}; const savings = data?.userInput?.savings || {}; const financials = data?.userInput?.financials || {}; updateElementText('userName', personalInfo.userName); updateElementText('age', personalInfo.age); updateElementText('totalIncome', totals.totalIncome, formatCurrency); updateElementText('totalExpenses', totals.totalExpenses, formatCurrency); updateElementText('netFlow', totals.netFlow, formatCurrency); updateElementText('emergencySavings', savings.emergency, formatCurrency); updateElementText('currentSavings', savings.savings, formatCurrency); updateElementText('retirementFund', savings.retirement, formatCurrency); updateElementText('financialTools', financials.financialTools); updateElementText('challenges', financials.challenges); updateElementText('purchaseGoals', financials.upcomingPurchase); }
-    function updateRatiosDisplay(ratios) { /* ... Same ... */ const savingsRateValue = ratios.savingsRate; const savingsRatePercent = savingsRateValue * 100; updateElementText('savingsRateValue', savingsRateValue, val => formatPercent(val)); const srBar = document.getElementById('savingsRateBar'); if (srBar) { srBar.style.width = `${Math.min(100, savingsRatePercent)}%`; srBar.className = 'ratio-bar savings-rate'; if (savingsRateValue >= 0.15) srBar.classList.add('good'); else if (savingsRateValue >= 0.05) srBar.classList.add('ok'); } const emergencyCoverageValue = ratios.emergencyCoverage; updateElementText('emergencyCoverageValue', emergencyCoverageValue, val => `${Number(val || 0).toFixed(1)} months`); const ecBar = document.getElementById('emergencyCoverageBar'); if (ecBar) { const ecPercent = Math.min(100, (emergencyCoverageValue / 6) * 100); ecBar.style.width = `${ecPercent}%`; ecBar.className = 'ratio-bar emergency-coverage'; if (emergencyCoverageValue >= 3) ecBar.classList.add('good'); else if (emergencyCoverageValue >= 1) ecBar.classList.add('ok'); } const dtiRatioValue = ratios.dtiRatio; const dtiPercent = dtiRatioValue * 100; updateElementText('dtiRatioValue', dtiRatioValue, val => formatPercent(val)); const dtiBar = document.getElementById('dtiRatioBar'); if (dtiBar) { dtiBar.style.width = `${Math.min(100, dtiPercent)}%`; dtiBar.className = 'ratio-bar dti-ratio'; if (dtiRatioValue > 0.43) dtiBar.classList.add('high'); else if (dtiRatioValue >= 0.36) dtiBar.classList.add('warning'); } }
-    function updateGoalsDisplay(data) { /* ... Same ... */ const savings = data?.userInput?.savings || {}; const financials = data?.userInput?.financials || {}; const emergencyCurrent = Number(getSafe(() => savings.emergency, 0)); const emergencyTarget = Number(getSafe(() => savings.emergencyFundTarget, 0)); const purchaseCurrent = Number(getSafe(() => financials.purchaseGoalSaved, 0)); const purchaseTarget = Number(getSafe(() => financials.purchaseGoalTarget, 0)); const purchaseName = getSafe(() => financials.upcomingPurchase, 'Purchase Goal'); const emergencyGoalDiv = document.getElementById('emergencyGoalDisplay'); const purchaseGoalDiv = document.getElementById('purchaseGoalDisplay'); const emergencyProgressBar = document.getElementById('emergencyProgressBar'); const purchaseProgressBar = document.getElementById('purchaseProgressBar'); const purchaseGoalNameSpan = document.getElementById('purchaseGoalName'); if (emergencyGoalDiv && emergencyProgressBar) { if (emergencyTarget > 0) { const percent = Math.min(100, Math.max(0, (emergencyCurrent / emergencyTarget) * 100)); emergencyGoalDiv.querySelector('.goal-status').textContent = `${formatCurrency(emergencyCurrent)} / ${formatCurrency(emergencyTarget)} (${formatPercent(percent/100, 0)})`; emergencyProgressBar.style.width = `${percent}%`; emergencyProgressBar.textContent = `${formatPercent(percent/100, 0)}`; emergencyGoalDiv.style.display = 'block'; } else { emergencyGoalDiv.style.display = 'none'; } } if (purchaseGoalDiv && purchaseProgressBar && purchaseGoalNameSpan) { purchaseGoalNameSpan.textContent = purchaseName.split('(')[0].trim(); if (purchaseTarget > 0) { const percent = Math.min(100, Math.max(0, (purchaseCurrent / purchaseTarget) * 100)); purchaseGoalDiv.querySelector('.goal-status').textContent = `${formatCurrency(purchaseCurrent)} / ${formatCurrency(purchaseTarget)} (${formatPercent(percent/100, 0)})`; purchaseProgressBar.style.width = `${percent}%`; purchaseProgressBar.textContent = `${formatPercent(percent/100, 0)}`; purchaseGoalDiv.style.display = 'block'; } else { purchaseGoalDiv.style.display = 'none'; } } }
-    function updateDebtsDisplay(data, ratios) { /* ... Same ... */ const debts = getSafe(() => data.userInput.debts, null); const debtsTableBody = document.querySelector("#debtsTable tbody"); const debtsCard = document.getElementById('debtsCard'); if (!debtsTableBody || !debtsCard) return; if (Array.isArray(debts) && debts.length > 0) { debtsCard.style.display = 'flex'; debtsTableBody.innerHTML = ''; let totalBalance = 0; debts.forEach(debt => { const balance = Number(getSafe(() => debt.balance, 0)); totalBalance += balance; const row = debtsTableBody.insertRow(); row.insertCell().textContent = getSafe(() => debt.type); row.insertCell().textContent = formatCurrency(balance); row.cells[1].classList.add('balance-col'); row.insertCell().textContent = getSafe(() => debt.interestRate, 'N/A'); row.insertCell().textContent = formatCurrency(getSafe(() => debt.minPayment, 0)); }); updateElementText('totalDebtBalance', totalBalance, formatCurrency); updateElementText('totalMinPayments', ratios.totalMinPayments, formatCurrency); } else { debtsTableBody.innerHTML = '<tr><td colspan="4">No debt data provided.</td></tr>'; updateElementText('totalDebtBalance', 0, formatCurrency); updateElementText('totalMinPayments', 0, formatCurrency); } }
-    function renderCharts(data) { /* ... Same, includes plotlyConfig ... */ try { const income = data?.userInput?.income || {}; const expenses = data?.userInput?.expenses || {}; const incomeValues = [ getSafe(() => Number(income.mainJobIncome), 0), getSafe(() => Number(income.secondJob), 0), getSafe(() => Number(income.otherIncome), 0) ]; const incomeLabels = ['Main Job', 'Second Job', 'Other']; const filteredIncomeValues = []; const filteredIncomeLabels = []; incomeValues.forEach((v, i) => { if (v > 0) { filteredIncomeValues.push(v); filteredIncomeLabels.push(incomeLabels[i]); }}); const incomeChartData = [{ values: filteredIncomeValues, labels: filteredIncomeLabels, type: 'pie', hole: .4, hoverinfo: 'label+percent+value', textinfo: 'value', textfont_size: 12, marker: { colors: ['#4CAF50', '#8BC34A', '#CDDC39'] } }]; const incomeLayout = { title: 'Income Sources', showlegend: true, height: 300, margin: { l: 20, r: 20, t: 40, b: 20 } }; Plotly.newPlot('incomeChart', incomeChartData, incomeLayout, plotlyConfig); const expenseLabels = ['Housing', 'Utilities', 'Transportation', 'Groceries/Essentials', 'Insurance', 'Medical', 'Care', 'Subscriptions', 'Taxes']; const expenseValuesRaw = [ getSafe(() => Number(expenses.housing), 0), getSafe(() => Number(expenses.utilities), 0), getSafe(() => Number(expenses.transportation), 0), getSafe(() => Number(expenses.groceriesEssentials), 0), getSafe(() => Number(expenses.insurance), 0), getSafe(() => Number(expenses.medical), 0), getSafe(() => Number(expenses.care), 0), getSafe(() => Number(expenses.subscriptions), 0), getSafe(() => Number(expenses.taxes), 0) ]; const filteredExpenseValues = []; const filteredExpenseLabels = []; expenseValuesRaw.forEach((v, i) => { if (v > 0) { filteredExpenseValues.push(v); filteredExpenseLabels.push(expenseLabels[i]); }}); const expenseChartData = [{ values: filteredExpenseValues, labels: filteredExpenseLabels, type: 'pie', hole: .4, hoverinfo: 'label+percent+value', textinfo: 'value', textfont_size: 12, marker: { colors: ['#F44336', '#E91E63', '#9C27B0', '#673AB7', '#3F51B5', '#2196F3', '#03A9F4', '#00BCD4', '#009688'] } }]; const expenseLayout = { title: 'Expense Categories', showlegend: true, height: 300, margin: { l: 20, r: 20, t: 40, b: 20 } }; Plotly.newPlot('expenseChart', expenseChartData, expenseLayout, plotlyConfig); } catch (chartError) { console.error("Error rendering charts:", chartError); errorMessage.textContent = `Error displaying charts: ${chartError.message}. Please check the data format.`; errorMessage.style.display = 'block'; } }
+    function updateReportBasics(data, totals) { const personalInfo = data?.userInput?.personalInfo || {}; const savings = data?.userInput?.savings || {}; const financials = data?.userInput?.financials || {}; updateElementText('userName', personalInfo.userName); updateElementText('age', personalInfo.age); updateElementText('totalIncome', totals.totalIncome, formatCurrency); updateElementText('totalExpenses', totals.totalExpenses, formatCurrency); updateElementText('netFlow', totals.netFlow, formatCurrency); updateElementText('emergencySavings', savings.emergency, formatCurrency); updateElementText('currentSavings', savings.savings, formatCurrency); updateElementText('retirementFund', savings.retirement, formatCurrency); updateElementText('financialTools', financials.financialTools); updateElementText('challenges', financials.challenges); updateElementText('purchaseGoals', financials.upcomingPurchase); }
+    function updateRatiosDisplay(ratios) { const savingsRateValue = ratios.savingsRate; const savingsRatePercent = savingsRateValue * 100; updateElementText('savingsRateValue', savingsRateValue, val => formatPercent(val)); const srBar = document.getElementById('savingsRateBar'); if (srBar) { srBar.style.width = `${Math.min(100, savingsRatePercent)}%`; srBar.className = 'ratio-bar savings-rate'; if (savingsRateValue >= 0.15) srBar.classList.add('good'); else if (savingsRateValue >= 0.05) srBar.classList.add('ok'); } const emergencyCoverageValue = ratios.emergencyCoverage; updateElementText('emergencyCoverageValue', emergencyCoverageValue, val => `${Number(val || 0).toFixed(1)} months`); const ecBar = document.getElementById('emergencyCoverageBar'); if (ecBar) { const ecPercent = Math.min(100, (emergencyCoverageValue / 6) * 100); ecBar.style.width = `${ecPercent}%`; ecBar.className = 'ratio-bar emergency-coverage'; if (emergencyCoverageValue >= 3) ecBar.classList.add('good'); else if (emergencyCoverageValue >= 1) ecBar.classList.add('ok'); } const dtiRatioValue = ratios.dtiRatio; const dtiPercent = dtiRatioValue * 100; updateElementText('dtiRatioValue', dtiRatioValue, val => formatPercent(val)); const dtiBar = document.getElementById('dtiRatioBar'); if (dtiBar) { dtiBar.style.width = `${Math.min(100, dtiPercent)}%`; dtiBar.className = 'ratio-bar dti-ratio'; if (dtiRatioValue > 0.43) dtiBar.classList.add('high'); else if (dtiRatioValue >= 0.36) dtiBar.classList.add('warning'); } }
+    function updateGoalsDisplay(data) { const savings = data?.userInput?.savings || {}; const financials = data?.userInput?.financials || {}; const emergencyCurrent = Number(getSafe(() => savings.emergency, 0)); const emergencyTarget = Number(getSafe(() => savings.emergencyFundTarget, 0)); const purchaseCurrent = Number(getSafe(() => financials.purchaseGoalSaved, 0)); const purchaseTarget = Number(getSafe(() => financials.purchaseGoalTarget, 0)); const purchaseName = getSafe(() => financials.upcomingPurchase, 'Purchase Goal'); const emergencyGoalDiv = document.getElementById('emergencyGoalDisplay'); const purchaseGoalDiv = document.getElementById('purchaseGoalDisplay'); const emergencyProgressBar = document.getElementById('emergencyProgressBar'); const purchaseProgressBar = document.getElementById('purchaseProgressBar'); const purchaseGoalNameSpan = document.getElementById('purchaseGoalName'); if (emergencyGoalDiv && emergencyProgressBar) { if (emergencyTarget > 0) { const percent = Math.min(100, Math.max(0, (emergencyCurrent / emergencyTarget) * 100)); emergencyGoalDiv.querySelector('.goal-status').textContent = `${formatCurrency(emergencyCurrent)} / ${formatCurrency(emergencyTarget)} (${formatPercent(percent/100, 0)})`; emergencyProgressBar.style.width = `${percent}%`; emergencyProgressBar.textContent = `${formatPercent(percent/100, 0)}`; emergencyGoalDiv.style.display = 'block'; } else { emergencyGoalDiv.style.display = 'none'; } } if (purchaseGoalDiv && purchaseProgressBar && purchaseGoalNameSpan) { purchaseGoalNameSpan.textContent = purchaseName.split('(')[0].trim(); if (purchaseTarget > 0) { const percent = Math.min(100, Math.max(0, (purchaseCurrent / purchaseTarget) * 100)); purchaseGoalDiv.querySelector('.goal-status').textContent = `${formatCurrency(purchaseCurrent)} / ${formatCurrency(purchaseTarget)} (${formatPercent(percent/100, 0)})`; purchaseProgressBar.style.width = `${percent}%`; purchaseProgressBar.textContent = `${formatPercent(percent/100, 0)}`; purchaseGoalDiv.style.display = 'block'; } else { purchaseGoalDiv.style.display = 'none'; } } }
+    function updateDebtsDisplay(data, ratios) { const debts = getSafe(() => data.userInput.debts, null); const debtsTableBody = document.querySelector("#debtsTable tbody"); const debtsCard = document.getElementById('debtsCard'); if (!debtsTableBody || !debtsCard) return; if (Array.isArray(debts) && debts.length > 0) { debtsCard.style.display = 'flex'; debtsTableBody.innerHTML = ''; let totalBalance = 0; debts.forEach(debt => { const balance = Number(getSafe(() => debt.balance, 0)); totalBalance += balance; const row = debtsTableBody.insertRow(); row.insertCell().textContent = getSafe(() => debt.type); row.insertCell().textContent = formatCurrency(balance); row.cells[1].classList.add('balance-col'); row.insertCell().textContent = getSafe(() => debt.interestRate, 'N/A'); row.insertCell().textContent = formatCurrency(getSafe(() => debt.minPayment, 0)); }); updateElementText('totalDebtBalance', totalBalance, formatCurrency); updateElementText('totalMinPayments', ratios.totalMinPayments, formatCurrency); } else { debtsTableBody.innerHTML = '<tr><td colspan="4">No debt data provided.</td></tr>'; updateElementText('totalDebtBalance', 0, formatCurrency); updateElementText('totalMinPayments', 0, formatCurrency); } }
 
-    // Updated function for Recommendations List
+    function renderCharts(data) {
+         try {
+            const income = data?.userInput?.income || {};
+            const expenses = data?.userInput?.expenses || {};
+            const incomeValues = [ getSafe(() => Number(income.mainJobIncome), 0), getSafe(() => Number(income.secondJob), 0), getSafe(() => Number(income.otherIncome), 0) ];
+            const incomeLabels = ['Main Job', 'Second Job', 'Other'];
+            const filteredIncomeValues = []; const filteredIncomeLabels = [];
+            incomeValues.forEach((v, i) => { if (v > 0) { filteredIncomeValues.push(v); filteredIncomeLabels.push(incomeLabels[i]); }});
+            const incomeChartData = [{ values: filteredIncomeValues, labels: filteredIncomeLabels, type: 'pie', hole: .4, hoverinfo: 'label+percent+value', textinfo: 'value', textfont_size: 12, marker: { colors: ['#4CAF50', '#8BC34A', '#CDDC39'] } }];
+            // Adjusted legend position
+            const incomeLayout = { title: 'Income Sources', showlegend: true, height: 350, margin: { l: 20, r: 20, t: 40, b: 50 }, legend: { orientation: "h", yanchor: "bottom", y: -0.2, xanchor: 'center', x: 0.5 } };
+            Plotly.newPlot('incomeChart', incomeChartData, incomeLayout, plotlyConfig);
+
+            const expenseLabels = ['Housing', 'Utilities', 'Transportation', 'Groceries/Essentials', 'Insurance', 'Medical', 'Care', 'Subscriptions', 'Taxes'];
+            const expenseValuesRaw = [ getSafe(() => Number(expenses.housing), 0), getSafe(() => Number(expenses.utilities), 0), getSafe(() => Number(expenses.transportation), 0), getSafe(() => Number(expenses.groceriesEssentials), 0), getSafe(() => Number(expenses.insurance), 0), getSafe(() => Number(expenses.medical), 0), getSafe(() => Number(expenses.care), 0), getSafe(() => Number(expenses.subscriptions), 0), getSafe(() => Number(expenses.taxes), 0) ];
+            const filteredExpenseValues = []; const filteredExpenseLabels = [];
+            expenseValuesRaw.forEach((v, i) => { if (v > 0) { filteredExpenseValues.push(v); filteredExpenseLabels.push(expenseLabels[i]); }});
+            const expenseChartData = [{ values: filteredExpenseValues, labels: filteredExpenseLabels, type: 'pie', hole: .4, hoverinfo: 'label+percent+value', textinfo: 'value', textfont_size: 12, marker: { colors: ['#F44336', '#E91E63', '#9C27B0', '#673AB7', '#3F51B5', '#2196F3', '#03A9F4', '#00BCD4', '#009688'] } }];
+             // Adjusted legend position
+            const expenseLayout = { title: 'Expense Categories', showlegend: true, height: 350, margin: { l: 20, r: 20, t: 40, b: 50 }, legend: { orientation: "h", yanchor: "bottom", y: -0.2, xanchor: 'center', x: 0.5 } };
+            Plotly.newPlot('expenseChart', expenseChartData, expenseLayout, plotlyConfig);
+        } catch (chartError) { console.error("Error rendering charts:", chartError); errorMessage.textContent = `Error displaying charts: ${chartError.message}. Please check the data format.`; errorMessage.style.display = 'block'; }
+    }
+
     function updateUIDisplayFromAI(data) {
         const aiOutput = data?.aiOutput || {};
         const recommendationsList = document.getElementById('recommendationsList');
@@ -308,20 +320,22 @@
         if (recommendationsList) {
             recommendationsList.innerHTML = ''; // Clear previous items
             const recommendationsText = getSafe(() => aiOutput.recommendations, '');
+            // console.log("Raw recommendations:", recommendationsText); // Debugging line
             if (recommendationsText && recommendationsText !== 'N/A') {
-                const items = recommendationsText.split('\n')
+                const items = recommendationsText.split('\\n') // Ensure using escaped newline
                     .map(item => item.trim())
                     .filter(item => item.length > 0)
                     .map(item => item.replace(/^[\*\-\d\.]+\s*/, '')); // Remove list markers
 
-                if (items.length > 0) {
+                // console.log("Parsed items:", items); // Debugging line
+                if (items.length > 0 && !(items.length === 1 && items[0] === '')) { // Check if not just empty strings
                     items.forEach(itemText => {
                         const li = document.createElement('li');
                         li.textContent = itemText;
                         recommendationsList.appendChild(li);
                     });
                 } else {
-                     recommendationsList.innerHTML = '<li>No recommendations available.</li>';
+                     recommendationsList.innerHTML = '<li>No specific recommendations available.</li>';
                 }
             } else {
                 recommendationsList.innerHTML = '<li>No recommendations available.</li>';
@@ -331,14 +345,15 @@
         }
     }
 
-    function initModals(data) { /* ... Same ... */ window.onclick = function(event) { const modals = document.getElementsByClassName('modal'); for (let i = 0; i < modals.length; i++) { if (event.target == modals[i]) { modals[i].style.display = "none";}} } }
-    function openModal(modalId) { /* ... Same ... */ const modal = document.getElementById(modalId); if (modal) modal.style.display = "block"; }
-    function closeModal(modalId) { /* ... Same ... */ const modal = document.getElementById(modalId); if (modal) modal.style.display = "none"; }
-    function initSaveButton() { /* ... Same ... */ const saveButton = document.getElementById('saveButton'); if(!saveButton) return; saveButton.addEventListener('click', () => { if (!fetchedReportData || Object.keys(fetchedReportData).length === 0) { alert("No report data available to save."); return; } try { const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(fetchedReportData, null, 2)); const a = document.createElement('a'); a.href = dataStr; const filenameUser = getSafe(() => fetchedReportData.userInput.personalInfo.userName.replace(/[^a-z0-9]/gi, '_').toLowerCase(), 'user'); a.download = `financial_report_${filenameUser}_${new Date().toISOString().slice(0,10)}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); } catch (saveError) { console.error("Error creating save data:", saveError); alert(`Error saving file: ${saveError.message}`); } }); }
-    function initUploadButton() { /* ... Same ... */ const uploadButton = document.getElementById('uploadButton'); const fileInput = document.getElementById('fileInput'); if (!uploadButton || !fileInput) { console.error("Upload button or file input not found."); return; } uploadButton.addEventListener('click', () => { fileInput.click(); }); fileInput.addEventListener('change', handleFileUpload); }
-    function handleFileUpload(event) { /* ... Same ... */ const file = event.target.files[0]; if (!file) return; loadingMessage.style.display = 'block'; errorMessage.style.display = 'none'; initialMessage.style.display = 'none'; mainContent.style.display = 'none'; const reader = new FileReader(); reader.onload = function(e) { let uploadedData = null; try { uploadedData = JSON.parse(e.target.result); if (typeof uploadedData !== 'object' || uploadedData === null) { throw new Error("Invalid file content. Expected a JSON object."); } fetchedReportData = uploadedData; processAndDisplayData(fetchedReportData); } catch (error) { console.error("Error parsing uploaded JSON or invalid format:", error); errorMessage.textContent = `Error loading file: ${error.message}. Please ensure it's a valid JSON file.`; errorMessage.style.display = 'block'; loadingMessage.style.display = 'none'; mainContent.style.display = 'none'; initialMessage.style.display = 'block'; fetchedReportData = {}; } finally { event.target.value = null; } }; reader.onerror = function(e) { console.error("FileReader error:", e); errorMessage.textContent = `Error reading file: ${e.target.error}`; errorMessage.style.display = 'block'; loadingMessage.style.display = 'none'; mainContent.style.display = 'none'; initialMessage.style.display = 'block'; fetchedReportData = {}; }; reader.readAsText(file); }
-    function processAndDisplayData(data) { /* ... Same ... */ try { const totals = calculateTotals(data); const ratios = calculateRatios(data, totals); updateReportBasics(data, totals); updateRatiosDisplay(ratios); updateGoalsDisplay(data); updateDebtsDisplay(data, ratios); renderCharts(data); updateUIDisplayFromAI(data); initModals(data); loadingMessage.style.display = 'none'; errorMessage.style.display = 'none'; initialMessage.style.display = 'none'; mainContent.style.display = 'block'; } catch(processingError) { console.error("Error processing data:", processingError); errorMessage.textContent = `Error displaying data: ${processingError.message}.`; errorMessage.style.display = 'block'; loadingMessage.style.display = 'none'; mainContent.style.display = 'none'; initialMessage.style.display = 'block'; fetchedReportData = {}; } }
-    function init() { /* ... Same ... */ let data = null; const dataElement = document.getElementById('embeddedPsrData'); errorMessage.textContent = ''; errorMessage.style.display = 'none'; try { if (dataElement && dataElement.textContent.trim() && dataElement.textContent.trim() !== '/* MAKE_COM_JSON_PLACEHOLDER */') { data = JSON.parse(dataElement.textContent); fetchedReportData = data; } } catch (error) { console.error("Error parsing embedded JSON on initial load:", error); errorMessage.textContent = `Failed to parse initially embedded report data: ${error.message}`; errorMessage.style.display = 'block'; } loadingMessage.style.display = 'none'; initSaveButton(); initUploadButton(); initModals({}); if (data) { processAndDisplayData(data); } else { mainContent.style.display = 'none'; initialMessage.style.display = 'block'; } }
+
+    function initModals(data) { window.onclick = function(event) { const modals = document.getElementsByClassName('modal'); for (let i = 0; i < modals.length; i++) { if (event.target == modals[i]) { modals[i].style.display = "none";}} } }
+    function openModal(modalId) { const modal = document.getElementById(modalId); if (modal) modal.style.display = "block"; }
+    function closeModal(modalId) { const modal = document.getElementById(modalId); if (modal) modal.style.display = "none"; }
+    function initSaveButton() { const saveButton = document.getElementById('saveButton'); if(!saveButton) return; saveButton.addEventListener('click', () => { if (!fetchedReportData || Object.keys(fetchedReportData).length === 0) { alert("No report data available to save."); return; } try { const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(fetchedReportData, null, 2)); const a = document.createElement('a'); a.href = dataStr; const filenameUser = getSafe(() => fetchedReportData.userInput.personalInfo.userName.replace(/[^a-z0-9]/gi, '_').toLowerCase(), 'user'); a.download = `financial_report_${filenameUser}_${new Date().toISOString().slice(0,10)}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); } catch (saveError) { console.error("Error creating save data:", saveError); alert(`Error saving file: ${saveError.message}`); } }); }
+    function initUploadButton() { const uploadButton = document.getElementById('uploadButton'); const fileInput = document.getElementById('fileInput'); if (!uploadButton || !fileInput) { console.error("Upload button or file input not found."); return; } uploadButton.addEventListener('click', () => { fileInput.click(); }); fileInput.addEventListener('change', handleFileUpload); }
+    function handleFileUpload(event) { const file = event.target.files[0]; if (!file) return; loadingMessage.style.display = 'block'; errorMessage.style.display = 'none'; initialMessage.style.display = 'none'; mainContent.style.display = 'none'; const reader = new FileReader(); reader.onload = function(e) { let uploadedData = null; try { uploadedData = JSON.parse(e.target.result); if (typeof uploadedData !== 'object' || uploadedData === null) { throw new Error("Invalid file content. Expected a JSON object."); } fetchedReportData = uploadedData; processAndDisplayData(fetchedReportData); } catch (error) { console.error("Error parsing uploaded JSON or invalid format:", error); errorMessage.textContent = `Error loading file: ${error.message}. Please ensure it's a valid JSON file.`; errorMessage.style.display = 'block'; loadingMessage.style.display = 'none'; mainContent.style.display = 'none'; initialMessage.style.display = 'block'; fetchedReportData = {}; } finally { event.target.value = null; } }; reader.onerror = function(e) { console.error("FileReader error:", e); errorMessage.textContent = `Error reading file: ${e.target.error}`; errorMessage.style.display = 'block'; loadingMessage.style.display = 'none'; mainContent.style.display = 'none'; initialMessage.style.display = 'block'; fetchedReportData = {}; }; reader.readAsText(file); }
+    function processAndDisplayData(data) { try { const totals = calculateTotals(data); const ratios = calculateRatios(data, totals); updateReportBasics(data, totals); updateRatiosDisplay(ratios); updateGoalsDisplay(data); updateDebtsDisplay(data, ratios); renderCharts(data); updateUIDisplayFromAI(data); initModals(data); loadingMessage.style.display = 'none'; errorMessage.style.display = 'none'; initialMessage.style.display = 'none'; mainContent.style.display = 'block'; } catch(processingError) { console.error("Error processing data:", processingError); errorMessage.textContent = `Error displaying data: ${processingError.message}.`; errorMessage.style.display = 'block'; loadingMessage.style.display = 'none'; mainContent.style.display = 'none'; initialMessage.style.display = 'block'; fetchedReportData = {}; } }
+    function init() { let data = null; const dataElement = document.getElementById('embeddedPsrData'); errorMessage.textContent = ''; errorMessage.style.display = 'none'; try { if (dataElement && dataElement.textContent.trim() && dataElement.textContent.trim() !== '/* MAKE_COM_JSON_PLACEHOLDER */') { data = JSON.parse(dataElement.textContent); fetchedReportData = data; } } catch (error) { console.error("Error parsing embedded JSON on initial load:", error); errorMessage.textContent = `Failed to parse initially embedded report data: ${error.message}`; errorMessage.style.display = 'block'; } loadingMessage.style.display = 'none'; initSaveButton(); initUploadButton(); initModals({}); if (data) { processAndDisplayData(data); } else { mainContent.style.display = 'none'; initialMessage.style.display = 'block'; } }
 
     // Run init when the DOM is fully loaded
     document.addEventListener('DOMContentLoaded', init);
