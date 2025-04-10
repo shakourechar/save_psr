@@ -57,7 +57,7 @@
   },
   "aiOutput": {
     "analysis": "Monthly net flow is positive at $800 ($5050 income - $4250 expenses). Emergency savings are at 53% of the $15k target. Debt-to-Income ratio is moderate. The primary focus areas are boosting emergency savings and managing credit card debt.",
-    "recommendations": "1. **Credit Card Debt:** Prioritize paying down the high-interest credit card. Consider allocating extra funds beyond the minimum payment.\n2. **Emergency Fund:** Continue contributions to reach the $15k target.\n3. **Computer Goal:** $450 saved towards $1500 goal. Maintain savings plan.\n4. **Review Expenses:** Double-check subscription and grocery spending for potential optimizations.",
+    "recommendations": "1. **Credit Card Debt:** Prioritize paying down the high-interest credit card. Consider allocating extra funds beyond the minimum payment.\\n2. **Emergency Fund:** Continue contributions to reach the $15k target.\\n3. **Computer Goal:** $450 saved towards $1500 goal. Maintain savings plan.\\n4. **Review Expenses:** Double-check subscription and grocery spending for potential optimizations.",
     "userProgress": "- **2025-04-10:** Added debt information and savings goals."
   }
 }
