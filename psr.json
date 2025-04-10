@@ -1,98 +1,63 @@
 {
-  "reportMetadata": {
-    "reportGeneratedTimestamp": "2025-04-07T04:26:15.368Z",
-    "jotformSubmissionId": null
-  },
   "userInput": {
     "personalInfo": {
-      "userName": "N/A",
-      "age": 0
+      "userName": "Test User Enhanced",
+      "age": 42
     },
-    "incomeSources": {
-      "mainMonthlyIncome": 0,
-      "secondaryMonthlyIncome": 0,
-      "otherMonthlyIncome": 0
+    "income": {
+      "mainJobIncome": 5000,
+      "secondJob": 0,
+      "otherIncome": 50
     },
-    "savingsAndAssets": {
-      "emergencyFundBalance": 0,
-      "currentGeneralSavings": 0,
-      "retirementFundBalance": 0
+    "expenses": {
+      "housing": 1800,
+      "utilities": 300,
+      "transportation": 250,
+      "groceriesEssentials": 600,
+      "insurance": 220,
+      "medical": 80,
+      "care": 150,
+      "subscriptions": 50,
+      "taxes": 700
     },
-    "monthlyExpenses": {
-      "housing": 0,
-      "utilities": 0,
-      "transportation": 0,
-      "foodAndEssentials": 0,
-      "insurance": 0,
-      "medical": 0,
-      "childOrElderCare": 0,
-      "subscriptions": 0,
-      "estimatedTaxRatePercent": "0%",
-      "otherMonthlyExpenses": 0
+    "savings": {
+      "emergency": 8000,
+      "savings": 15000,
+      "retirement": 50000,
+      "emergencyFundTarget": 15000, // New: Target for emergency fund
+      "monthlySavingsGoal": 600     // New: User's intended total monthly savings (e.g., retirement + general + emergency)
     },
-    "debtsAndLiabilities": {
-      "totalDebtAmount": 110000,
-      "totalMinimumMonthlyDebtPayments": 180
+    "financials": {
+      "financialTools": "Spreadsheet Budget, Bank App",
+      "challenges": "Saving consistently, high housing costs",
+      "upcomingPurchase": "New computer (~$1500)",
+      "purchaseGoalTarget": 1500, // New: Target amount for the purchase goal
+      "purchaseGoalSaved": 450     // New: Amount saved specifically for this goal
     },
-    "toolsAndGoals": {
-      "financialToolsUsed": "",
-      "financialChallenges": "",
-      "financialObjective1": "",
-      "financialObjective2": "",
-      "financialObjective3": ""
-    }
-  },
-  "aiCalculations": {
-    "incomeSummary": {
-      "totalMonthlyIncome": 0,
-      "totalAnnualIncome": 0
-    },
-    "expenseSummary": {
-      "totalMonthlyExpenses": 0,
-      "totalAnnualExpenses": 0
-    },
-    "savingsSummary": {
-      "totalSavingsReported": 0,
-      "monthlySavingsContribution": "-180.00"
-    },
-    "debtSummary": {
-      "totalDebtCalculated": 110000
-    },
-    "netWorth": {
-      "calculatedNetWorth": "-110000.00",
-      "netWorthStatus": "Liabilities exceed assets"
-    },
-    "ratios": {
-      "debtToIncomePercent": "0.0",
-      "savingsRatePercent": "0.0"
-    },
-    "emergencyFundAnalysis": {
-      "emergencyFundMonths": "0.00"
-    }
-  },
-  "aiAnalysisAndRecommendations": {
-    "overallHealth": {
-      "score": 3.7,
-      "ratingOutOf": 5,
-      "assessmentSummary": "Analysis not provided."
-    },
-    "metricRatings": {
-      "incomeScore": 4,
-      "expensesScore": 4,
-      "savingsScore": 4,
-      "debtScore": 3,
-      "netWorthScore": 2
-    },
-    "ratioAssessments": {
-      "dtiAssessmentLabel": "Excellent",
-      "savingsRateAssessmentLabel": "Excellent",
-      "emergencyFundAssessmentLabel": "Good"
-    },
-    "recommendations": [
+    "debts": [ // New Array for Debts
       {
-        "id": 1,
-        "text": "Recommendations not provided."
+        "type": "Credit Card A",
+        "balance": 4500,
+        "interestRate": 19.9,
+        "minPayment": 150
+      },
+      {
+        "type": "Student Loan",
+        "balance": 22000,
+        "interestRate": 5.5,
+        "minPayment": 250
+      },
+      {
+        "type": "Car Loan",
+        "balance": 8000,
+        "interestRate": 4.0,
+        "minPayment": 300
       }
     ]
+  },
+  "aiOutput": {
+    "analysis": "Monthly net flow is positive at $800 ($5050 income - $4250 expenses). Emergency savings are at 53% of the $15k target. Debt-to-Income ratio is moderate. The primary focus areas are boosting emergency savings and managing credit card debt.",
+    "recommendations": "1. **Credit Card Debt:** Prioritize paying down the high-interest credit card. Consider allocating extra funds beyond the minimum payment.\n2. **Emergency Fund:** Continue contributions to reach the $15k target.\n3. **Computer Goal:** $450 saved towards $1500 goal. Maintain savings plan.\n4. **Review Expenses:** Double-check subscription and grocery spending for potential optimizations.",
+    "userProgress": "- **2025-04-10:** Added debt information and savings goals."
   }
 }
