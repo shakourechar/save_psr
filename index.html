@@ -84,8 +84,9 @@
       flex-direction: column;
       min-height: 150px;
     }
-     .chart-card { /* Specific class for chart cards if needed */
+     .chart-card {
          min-height: 400px; /* Ensure chart cards have enough height */
+         overflow: hidden; /* Prevent potential overflow issues */
      }
     .card-content { flex-grow: 1; }
 
@@ -210,15 +211,15 @@
       </div>
 
       <div class="grid-container">
-        <div class="card chart-card"> {/* Added class */}
+        <div class="card chart-card">
           <h3>Income Breakdown</h3>
-          {/* Removed stray comment from here */}
-          <div id="incomeChart" style="width:100%; flex-grow: 1;"></div> {/* Use flex-grow */}
+          {/* Stray comment removed */}
+          <div id="incomeChart" style="width:100%; flex-grow: 1;"></div>
         </div>
-        <div class="card chart-card"> {/* Added class */}
+        <div class="card chart-card">
           <h3>Expense Breakdown</h3>
-           {/* Removed stray comment from here */}
-          <div id="expenseChart" style="width:100%; flex-grow: 1;"></div> {/* Use flex-grow */}
+           {/* Stray comment removed */}
+          <div id="expenseChart" style="width:100%; flex-grow: 1;"></div>
         </div>
       </div>
 
@@ -297,13 +298,14 @@
             incomeValues.forEach((v, i) => { if (v > 0) { filteredIncomeValues.push(v); filteredIncomeLabels.push(incomeLabels[i]); }});
             const incomeChartData = [{
                 values: filteredIncomeValues, labels: filteredIncomeLabels, type: 'pie', hole: .4,
-                hoverinfo: 'label+percent+value', textinfo: 'value', textfont_size: 12,
+                hoverinfo: 'label+percent+value', textinfo: 'value',
+                textfont_size: 10, // Reduced font size
                 marker: { colors: ['#4CAF50', '#8BC34A', '#CDDC39'] },
-                domain: { y: [0.20, 1] } // Increased domain gap
+                domain: { y: [0.25, 1] } // Increased domain gap further
             }];
             const incomeLayout = {
-                title: 'Income Sources', showlegend: true, height: 380, // Increased height
-                margin: { l: 20, r: 20, t: 40, b: 80 }, // Increased bottom margin
+                title: 'Income Sources', showlegend: true, height: 380, // Keep increased height
+                margin: { l: 20, r: 20, t: 40, b: 80 }, // Keep increased bottom margin
                 legend: { orientation: "h", yanchor: "bottom", y: -0.2, xanchor: 'center', x: 0.5 }
             };
             Plotly.newPlot('incomeChart', incomeChartData, incomeLayout, plotlyConfig);
@@ -314,13 +316,14 @@
             expenseValuesRaw.forEach((v, i) => { if (v > 0) { filteredExpenseValues.push(v); filteredExpenseLabels.push(expenseLabels[i]); }});
             const expenseChartData = [{
                 values: filteredExpenseValues, labels: filteredExpenseLabels, type: 'pie', hole: .4,
-                hoverinfo: 'label+percent+value', textinfo: 'value', textfont_size: 12, // Keep text inside for now
+                hoverinfo: 'label+percent+value', textinfo: 'value',
+                textfont_size: 10, // Reduced font size
                 marker: { colors: ['#F44336', '#E91E63', '#9C27B0', '#673AB7', '#3F51B5', '#2196F3', '#03A9F4', '#00BCD4', '#009688'] },
-                domain: { y: [0.20, 1] } // Increased domain gap
+                domain: { y: [0.25, 1] } // Increased domain gap further
              }];
             const expenseLayout = {
-                title: 'Expense Categories', showlegend: true, height: 380, // Increased height
-                margin: { l: 20, r: 20, t: 40, b: 80 }, // Increased bottom margin
+                title: 'Expense Categories', showlegend: true, height: 380, // Keep increased height
+                margin: { l: 20, r: 20, t: 40, b: 80 }, // Keep increased bottom margin
                 legend: { orientation: "h", yanchor: "bottom", y: -0.2, xanchor: 'center', x: 0.5 }
             };
             Plotly.newPlot('expenseChart', expenseChartData, expenseLayout, plotlyConfig);
@@ -340,7 +343,7 @@
             recommendationsList.innerHTML = ''; // Clear previous items
             const recommendationsText = getSafe(() => aiOutput.recommendations, '');
             if (recommendationsText && recommendationsText !== 'N/A') {
-                const items = recommendationsText.split('\\n') // Ensure splitting by escaped newline
+                const items = recommendationsText.split('\\n')
                     .map(item => item.trim())
                     .filter(item => item.length > 0)
                     .map(item => item.replace(/^[\*\-\d\.]+\s*/, ''));
