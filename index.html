@@ -133,10 +133,7 @@
   </style>
 </head>
 <body>
-
-  <script id="embeddedPsrData" type="application/json">
-    /* MAKE_COM_JSON_PLACEHOLDER */
-  </script>
+  <pre id="embeddedPsrData" style="display: none;">/* MAKE_COM_JSON_PLACEHOLDER */</pre>
 
   <div class="container">
     <header>
@@ -371,6 +368,29 @@
     function processAndDisplayData(data) { try { const totals = calculateTotals(data); const ratios = calculateRatios(data, totals); updateReportBasics(data, totals); updateRatiosDisplay(ratios); updateGoalsDisplay(data); updateDebtsDisplay(data, ratios); renderCharts(data); updateUIDisplayFromAI(data); initModals(data); loadingMessage.style.display = 'none'; errorMessage.style.display = 'none'; initialMessage.style.display = 'none'; mainContent.style.display = 'block'; } catch(processingError) { console.error("Error processing data:", processingError); errorMessage.textContent = `Error displaying data: ${processingError.message}.`; errorMessage.style.display = 'block'; loadingMessage.style.display = 'none'; mainContent.style.display = 'none'; initialMessage.style.display = 'block'; fetchedReportData = {}; } }
     function init() { let data = null; const dataElement = document.getElementById('embeddedPsrData'); errorMessage.textContent = ''; errorMessage.style.display = 'none'; try { if (dataElement && dataElement.textContent.trim() && dataElement.textContent.trim() !== '/* MAKE_COM_JSON_PLACEHOLDER */') { data = JSON.parse(dataElement.textContent); fetchedReportData = data; } } catch (error) { console.error("Error parsing embedded JSON on initial load:", error); errorMessage.textContent = `Failed to parse initially embedded report data: ${error.message}`; errorMessage.style.display = 'block'; } loadingMessage.style.display = 'none'; initSaveButton(); initUploadButton(); initModals({}); if (data) { processAndDisplayData(data); } else { mainContent.style.display = 'none'; initialMessage.style.display = 'block'; } }
 
+// --- Auto-load PSR JSON from URL if provided ---
+(function tryAutoLoadFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  const encoded = params.get('data');
+  if (!encoded) return;
+
+  try {
+    const json = atob(decodeURIComponent(encoded));
+    const parsed = JSON.parse(json);
+    const dataContainer = document.getElementById('embeddedPsrData');
+    if (dataContainer) {
+      dataContainer.textContent = JSON.stringify(parsed);
+    }
+  } catch (err) {
+    console.error("Error parsing JSON from URL:", err);
+    const errorMessage = document.getElementById("errorMessage");
+    if (errorMessage) {
+      errorMessage.textContent = `Error parsing URL-based data: ${err.message}`;
+      errorMessage.style.display = 'block';
+    }
+  }
+})();
+  
     // Run init when the DOM is fully loaded
     document.addEventListener('DOMContentLoaded', init);
 </script>
