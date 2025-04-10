@@ -33,7 +33,7 @@
   },
   "aiOutput": {
     "analysis": "Monthly net flow is positive at $800 ($5050 income - $4250 expenses). Emergency savings cover roughly 2.5 months of core expenses (approx. $3200/month needed). Retirement savings are substantial. Focus should be on increasing non-retirement savings and potentially optimizing expense categories.",
-    "recommendations": "1. **Define Savings Goal:** Allocate a portion of the $800 net flow towards the computer purchase ($250/month needed for 6 months).\n2. **Expense Review:** Check subscriptions and grocery costs for potential savings.\n3. **Emergency Fund Top-up:** Consider adding $100-$150/month to emergency savings towards a 3-month goal (~$9600).\n4. **Consistency:** Automate savings transfers if possible.",
-    "userProgress": "-\ **2025-04-09:** Sample data loaded for testing."
+    "recommendations": "1. **Define Savings Goal:** Allocate a portion of the $800 net flow towards the computer purchase ($250/month needed for 6 months).\\n2. **Expense Review:** Check subscriptions and grocery costs for potential savings.\\n3. **Emergency Fund Top-up:** Consider adding $100-$150/month to emergency savings towards a 3-month goal (~$9600).\\n4. **Consistency:** Automate savings transfers if possible.",
+    "userProgress": "- **2025-04-09:** Sample data loaded for testing."
   }
 }
