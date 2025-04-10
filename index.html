@@ -84,6 +84,9 @@
       flex-direction: column;
       min-height: 150px;
     }
+     .chart-card { /* Specific class for chart cards if needed */
+         min-height: 400px; /* Ensure chart cards have enough height */
+     }
     .card-content { flex-grow: 1; }
 
     /* Ratio Bar Styles */
@@ -207,13 +210,15 @@
       </div>
 
       <div class="grid-container">
-        <div class="card">
+        <div class="card chart-card"> {/* Added class */}
           <h3>Income Breakdown</h3>
-          <div id="incomeChart" style="width:100%;min-height:350px;"></div> {/* Increased min-height slightly */}
+          {/* Removed stray comment from here */}
+          <div id="incomeChart" style="width:100%; flex-grow: 1;"></div> {/* Use flex-grow */}
         </div>
-        <div class="card">
+        <div class="card chart-card"> {/* Added class */}
           <h3>Expense Breakdown</h3>
-          <div id="expenseChart" style="width:100%;min-height:350px;"></div> {/* Increased min-height slightly */}
+           {/* Removed stray comment from here */}
+          <div id="expenseChart" style="width:100%; flex-grow: 1;"></div> {/* Use flex-grow */}
         </div>
       </div>
 
@@ -290,18 +295,16 @@
             const incomeLabels = ['Main Job', 'Second Job', 'Other'];
             const filteredIncomeValues = []; const filteredIncomeLabels = [];
             incomeValues.forEach((v, i) => { if (v > 0) { filteredIncomeValues.push(v); filteredIncomeLabels.push(incomeLabels[i]); }});
-            // Define trace with domain
             const incomeChartData = [{
                 values: filteredIncomeValues, labels: filteredIncomeLabels, type: 'pie', hole: .4,
                 hoverinfo: 'label+percent+value', textinfo: 'value', textfont_size: 12,
                 marker: { colors: ['#4CAF50', '#8BC34A', '#CDDC39'] },
-                domain: { y: [0.15, 1] } // Reserve bottom 15% vertically
+                domain: { y: [0.20, 1] } // Increased domain gap
             }];
-            // Define layout with updated margin
             const incomeLayout = {
-                title: 'Income Sources', showlegend: true, height: 350,
-                margin: { l: 20, r: 20, t: 40, b: 70 }, // Increased bottom margin
-                legend: { orientation: "h", yanchor: "bottom", y: -0.2, xanchor: 'center', x: 0.5 } // Legend below
+                title: 'Income Sources', showlegend: true, height: 380, // Increased height
+                margin: { l: 20, r: 20, t: 40, b: 80 }, // Increased bottom margin
+                legend: { orientation: "h", yanchor: "bottom", y: -0.2, xanchor: 'center', x: 0.5 }
             };
             Plotly.newPlot('incomeChart', incomeChartData, incomeLayout, plotlyConfig);
 
@@ -309,18 +312,16 @@
             const expenseValuesRaw = [ getSafe(() => Number(expenses.housing), 0), getSafe(() => Number(expenses.utilities), 0), getSafe(() => Number(expenses.transportation), 0), getSafe(() => Number(expenses.groceriesEssentials), 0), getSafe(() => Number(expenses.insurance), 0), getSafe(() => Number(expenses.medical), 0), getSafe(() => Number(expenses.care), 0), getSafe(() => Number(expenses.subscriptions), 0), getSafe(() => Number(expenses.taxes), 0) ];
             const filteredExpenseValues = []; const filteredExpenseLabels = [];
             expenseValuesRaw.forEach((v, i) => { if (v > 0) { filteredExpenseValues.push(v); filteredExpenseLabels.push(expenseLabels[i]); }});
-            // Define trace with domain
             const expenseChartData = [{
                 values: filteredExpenseValues, labels: filteredExpenseLabels, type: 'pie', hole: .4,
-                hoverinfo: 'label+percent+value', textinfo: 'value', textfont_size: 12,
+                hoverinfo: 'label+percent+value', textinfo: 'value', textfont_size: 12, // Keep text inside for now
                 marker: { colors: ['#F44336', '#E91E63', '#9C27B0', '#673AB7', '#3F51B5', '#2196F3', '#03A9F4', '#00BCD4', '#009688'] },
-                domain: { y: [0.15, 1] } // Reserve bottom 15% vertically
+                domain: { y: [0.20, 1] } // Increased domain gap
              }];
-             // Define layout with updated margin
             const expenseLayout = {
-                title: 'Expense Categories', showlegend: true, height: 350,
-                margin: { l: 20, r: 20, t: 40, b: 70 }, // Increased bottom margin
-                legend: { orientation: "h", yanchor: "bottom", y: -0.2, xanchor: 'center', x: 0.5 } // Legend below
+                title: 'Expense Categories', showlegend: true, height: 380, // Increased height
+                margin: { l: 20, r: 20, t: 40, b: 80 }, // Increased bottom margin
+                legend: { orientation: "h", yanchor: "bottom", y: -0.2, xanchor: 'center', x: 0.5 }
             };
             Plotly.newPlot('expenseChart', expenseChartData, expenseLayout, plotlyConfig);
         } catch (chartError) { console.error("Error rendering charts:", chartError); errorMessage.textContent = `Error displaying charts: ${chartError.message}. Please check the data format.`; errorMessage.style.display = 'block'; }
@@ -339,7 +340,7 @@
             recommendationsList.innerHTML = ''; // Clear previous items
             const recommendationsText = getSafe(() => aiOutput.recommendations, '');
             if (recommendationsText && recommendationsText !== 'N/A') {
-                const items = recommendationsText.split('\\n') // Split by escaped newline
+                const items = recommendationsText.split('\\n') // Ensure splitting by escaped newline
                     .map(item => item.trim())
                     .filter(item => item.length > 0)
                     .map(item => item.replace(/^[\*\-\d\.]+\s*/, ''));
