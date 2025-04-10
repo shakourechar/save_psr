@@ -42,8 +42,8 @@
       margin: 0;
       flex-grow: 1; /* Allow title to take available space */
     }
-     #saveButton {
-       margin-left: auto; /* Push button to the right */
+    #saveButton, #uploadButton {
+       margin-left: 10px; /* Spacing between buttons */
        padding: 8px 16px;
        background-color: #4CAF50; /* Green background */
        color: white;
@@ -53,8 +53,18 @@
        font-size: 0.9em;
        transition: background-color 0.3s ease;
      }
+     #uploadButton {
+         background-color: #0288D1; /* Blue background for upload */
+     }
      #saveButton:hover {
        background-color: #388E3C; /* Darker green on hover */
+     }
+     #uploadButton:hover {
+         background-color: #0277BD; /* Darker blue on hover */
+     }
+     /* Hide the actual file input */
+     #fileInput {
+         display: none;
      }
     .grid-container {
       display: grid;
@@ -118,6 +128,13 @@
          color: #D32F2F; /* Red color for errors */
          display: none; /* Hidden by default */
      }
+     #initialMessage {
+         text-align: center;
+         padding: 20px;
+         font-size: 1.1em;
+         color: #333;
+         display: none; /* Hidden by default */
+     }
      #mainContent {
          display: none; /* Hidden until data loads */
      }
@@ -130,7 +147,7 @@
       header h1 {
           margin-top: 10px;
       }
-      #saveButton {
+      #saveButton, #uploadButton {
           margin-left: 0; /* Align left on small screens */
           margin-top: 10px;
       }
@@ -149,13 +166,16 @@
   <div class="container">
     <header>
       <h1>Financial Health Dashboard</h1>
-       <button id="saveButton">Save Full Report Data (JSON)</button>
+      <input type="file" id="fileInput" accept=".json" style="display: none;">
+      <button id="uploadButton">Upload PSR File</button>
+      <button id="saveButton">Save Full Report Data (JSON)</button>
     </header>
 
-    <div id="loadingMessage">Loading your financial report...</div>
-     <div id="errorMessage"></div>
+    <div id="loadingMessage" style="display: none;">Loading your financial report...</div>
+    <div id="errorMessage"></div>
+    <div id="initialMessage">Upload a PSR JSON file or generate a new report to view your dashboard.</div>
 
-     <div id="mainContent">
+    <div id="mainContent">
       <div class="grid-container">
         <div class="card">
           <h3>Quick Summary</h3>
@@ -214,8 +234,12 @@
   </div>
 
   <script>
-    // Global variable to store fetched data for the save button
+    // Global variable to store fetched/uploaded data
     let fetchedReportData = {};
+    const loadingMessage = document.getElementById('loadingMessage');
+    const errorMessage = document.getElementById('errorMessage');
+    const mainContent = document.getElementById('mainContent');
+    const initialMessage = document.getElementById('initialMessage');
 
     // Function to safely get nested properties
     function getSafe(fn, defaultVal) {
@@ -248,17 +272,15 @@
     function calculateTotals(data) {
         const income = data?.userInput?.income || {};
         const expenses = data?.userInput?.expenses || {};
-
-        const totalIncome = (Number(income.mainJobIncome || 0) + Number(income.secondJob || 0) + Number(income.otherIncome || 0));
+        const totalIncome = (Number(getSafe(() => income.mainJobIncome, 0)) + Number(getSafe(() => income.secondJob, 0)) + Number(getSafe(() => income.otherIncome, 0)));
         const totalExpenses = (
-            Number(expenses.housing || 0) + Number(expenses.utilities || 0) +
-            Number(expenses.transportation || 0) + Number(expenses.groceriesEssentials || 0) +
-            Number(expenses.insurance || 0) + Number(expenses.medical || 0) +
-            Number(expenses.care || 0) + Number(expenses.subscriptions || 0) +
-            Number(expenses.taxes || 0)
+            Number(getSafe(() => expenses.housing, 0)) + Number(getSafe(() => expenses.utilities, 0)) +
+            Number(getSafe(() => expenses.transportation, 0)) + Number(getSafe(() => expenses.groceriesEssentials, 0)) +
+            Number(getSafe(() => expenses.insurance, 0)) + Number(getSafe(() => expenses.medical, 0)) +
+            Number(getSafe(() => expenses.care, 0)) + Number(getSafe(() => expenses.subscriptions, 0)) +
+            Number(getSafe(() => expenses.taxes, 0))
         );
         const netFlow = totalIncome - totalExpenses;
-
         return { totalIncome, totalExpenses, netFlow };
     }
 
@@ -275,82 +297,56 @@
         updateElementText('totalIncome', totals.totalIncome, formatCurrency);
         updateElementText('totalExpenses', totals.totalExpenses, formatCurrency);
         updateElementText('netFlow', totals.netFlow, formatCurrency);
-
         updateElementText('emergencySavings', savings.emergency, formatCurrency);
         updateElementText('currentSavings', savings.savings, formatCurrency);
         updateElementText('retirementFund', savings.retirement, formatCurrency);
-
         updateElementText('financialTools', financials.financialTools);
         updateElementText('challenges', financials.challenges);
         updateElementText('purchaseGoals', financials.upcomingPurchase);
-
         updateElementText('aiAnalysis', data?.aiOutput?.analysis);
     }
 
     // Function to render Plotly charts
     function renderCharts(data) {
-      const income = data?.userInput?.income || {};
-      const expenses = data?.userInput?.expenses || {};
+        try {
+            const income = data?.userInput?.income || {};
+            const expenses = data?.userInput?.expenses || {};
 
-      // Income Chart
-      const incomeData = [{
-        values: [
-            getSafe(() => Number(income.mainJobIncome), 0),
-            getSafe(() => Number(income.secondJob), 0),
-            getSafe(() => Number(income.otherIncome), 0)
-        ],
-        labels: ['Main Job', 'Second Job', 'Other'],
-        type: 'pie',
-        hole: .4,
-        hoverinfo: 'label+percent',
-        textinfo: 'value',
-        textfont_size: 14,
-        marker: { colors: ['#4CAF50', '#8BC34A', '#CDDC39'] } // Shades of green/yellow
-      }];
-      const incomeLayout = {
-        title: 'Income Sources',
-        showlegend: true,
-        height: 300,
-        margin: { l: 20, r: 20, t: 40, b: 20 } // Adjust margins
-      };
-      Plotly.newPlot('incomeChart', incomeData, incomeLayout, {responsive: true});
+            // Income Chart
+            const incomeValues = [
+                getSafe(() => Number(income.mainJobIncome), 0),
+                getSafe(() => Number(income.secondJob), 0),
+                getSafe(() => Number(income.otherIncome), 0)
+            ];
+            const incomeLabels = ['Main Job', 'Second Job', 'Other'];
+            const incomeChartData = [{ values: incomeValues, labels: incomeLabels, type: 'pie', hole: .4, hoverinfo: 'label+percent+value', textinfo: 'none', marker: { colors: ['#4CAF50', '#8BC34A', '#CDDC39'] } }];
+            const incomeLayout = { title: 'Income Sources', showlegend: true, height: 300, margin: { l: 20, r: 20, t: 40, b: 20 } };
+            Plotly.newPlot('incomeChart', incomeChartData, incomeLayout, {responsive: true});
 
-      // Expense Chart
-      const expenseValues = [
-          getSafe(() => Number(expenses.housing), 0), getSafe(() => Number(expenses.utilities), 0),
-          getSafe(() => Number(expenses.transportation), 0), getSafe(() => Number(expenses.groceriesEssentials), 0),
-          getSafe(() => Number(expenses.insurance), 0), getSafe(() => Number(expenses.medical), 0),
-          getSafe(() => Number(expenses.care), 0), getSafe(() => Number(expenses.subscriptions), 0),
-          getSafe(() => Number(expenses.taxes), 0)
-      ];
-      const expenseLabels = [
-          'Housing', 'Utilities', 'Transportation', 'Groceries/Essentials',
-          'Insurance', 'Medical', 'Child/Elder Care', 'Subscriptions', 'Taxes'
-      ];
-      const expenseData = [{
-        values: expenseValues,
-        labels: expenseLabels,
-        type: 'pie',
-        hole: .4,
-        hoverinfo: 'label+percent',
-        textinfo: 'value',
-        textfont_size: 14,
-        marker: { colors: ['#F44336', '#E91E63', '#9C27B0', '#673AB7', '#3F51B5', '#2196F3', '#03A9F4', '#00BCD4', '#009688'] } // Various colors
-      }];
-      const expenseLayout = {
-        title: 'Expense Categories',
-        showlegend: true,
-        height: 300,
-        margin: { l: 20, r: 20, t: 40, b: 20 } // Adjust margins
-      };
-      Plotly.newPlot('expenseChart', expenseData, expenseLayout, {responsive: true});
+            // Expense Chart
+            const expenseValues = [
+                getSafe(() => Number(expenses.housing), 0), getSafe(() => Number(expenses.utilities), 0),
+                getSafe(() => Number(expenses.transportation), 0), getSafe(() => Number(expenses.groceriesEssentials), 0),
+                getSafe(() => Number(expenses.insurance), 0), getSafe(() => Number(expenses.medical), 0),
+                getSafe(() => Number(expenses.care), 0), getSafe(() => Number(expenses.subscriptions), 0),
+                getSafe(() => Number(expenses.taxes), 0)
+            ];
+            const expenseLabels = ['Housing', 'Utilities', 'Transportation', 'Groceries/Essentials', 'Insurance', 'Medical', 'Care', 'Subscriptions', 'Taxes'];
+            const expenseChartData = [{ values: expenseValues, labels: expenseLabels, type: 'pie', hole: .4, hoverinfo: 'label+percent+value', textinfo: 'none', marker: { colors: ['#F44336', '#E91E63', '#9C27B0', '#673AB7', '#3F51B5', '#2196F3', '#03A9F4', '#00BCD4', '#009688'] } }];
+            const expenseLayout = { title: 'Expense Categories', showlegend: true, height: 300, margin: { l: 20, r: 20, t: 40, b: 20 } };
+            Plotly.newPlot('expenseChart', expenseChartData, expenseLayout, {responsive: true});
+        } catch (chartError) {
+            console.error("Error rendering charts:", chartError);
+            errorMessage.textContent = `Error displaying charts: ${chartError.message}. Please check the data format.`;
+            errorMessage.style.display = 'block';
+        }
     }
 
     // Function to update AI Analysis and potentially other text areas
     function updateAnalysis(data) {
         const aiOutput = data?.aiOutput || {};
         updateElementText('aiAnalysis', aiOutput.analysis);
-        // Update modal content here too, if not done by initModals
+        // Update modal content here too
         updateElementText('recommendationsContent', aiOutput.recommendations);
         updateElementText('progressContent', aiOutput.userProgress);
     }
@@ -367,7 +363,7 @@
       if (modal) modal.style.display = "none";
     }
 
-    // Function to initialize modal content (could be expanded)
+    // Function to initialize modal content (called after data is loaded)
     function initModals(data) {
         const aiOutput = data?.aiOutput || {};
         updateElementText('recommendationsContent', aiOutput.recommendations);
@@ -392,68 +388,150 @@
           return;
       }
       saveButton.addEventListener('click', () => {
-        // Use the globally stored fetchedReportData
         if (!fetchedReportData || Object.keys(fetchedReportData).length === 0) {
              alert("No report data available to save.");
              return;
         }
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(fetchedReportData, null, 2));
-        const a = document.createElement('a');
-        a.href = dataStr;
-        // Try to get username for filename, fallback to 'user'
-        const filenameUser = getSafe(() => fetchedReportData.userInput.personalInfo.userName.replace(/[^a-z0-9]/gi, '_').toLowerCase(), 'user');
-        a.download = `financial_report_${filenameUser}_${new Date().toISOString().slice(0,10)}.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+        try {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(fetchedReportData, null, 2));
+            const a = document.createElement('a');
+            a.href = dataStr;
+            const filenameUser = getSafe(() => fetchedReportData.userInput.personalInfo.userName.replace(/[^a-z0-9]/gi, '_').toLowerCase(), 'user');
+            a.download = `financial_report_${filenameUser}_${new Date().toISOString().slice(0,10)}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        } catch (saveError) {
+             console.error("Error creating save data:", saveError);
+             alert(`Error saving file: ${saveError.message}`);
+        }
       });
     }
 
-    // Main initialization function: parse embedded data and update dashboard
+    // Function to handle file upload
+    function handleFileUpload(event) {
+        const file = event.target.files[0];
+        if (!file) {
+            return; // No file selected
+        }
+
+        // Show loading message, hide errors/initial message
+        loadingMessage.style.display = 'block';
+        errorMessage.style.display = 'none';
+        initialMessage.style.display = 'none';
+        mainContent.style.display = 'none'; // Hide content while loading new file
+
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+            let uploadedData = null;
+            try {
+                uploadedData = JSON.parse(e.target.result);
+                // Basic validation: Check if it looks like our structure (optional but good)
+                if (!uploadedData.userInput || !uploadedData.aiOutput) {
+                   throw new Error("File does not seem to be a valid PSR JSON report.");
+                }
+
+                fetchedReportData = uploadedData; // Update global data
+
+                // Update dashboard with new data
+                updateReport(fetchedReportData);
+                renderCharts(fetchedReportData);
+                updateAnalysis(fetchedReportData);
+                initModals(fetchedReportData); // Re-init modals with new data
+
+                // Show content, hide loading
+                loadingMessage.style.display = 'none';
+                mainContent.style.display = 'block';
+                errorMessage.style.display = 'none'; // Ensure error is hidden on success
+
+            } catch (error) {
+                console.error("Error parsing uploaded JSON or invalid format:", error);
+                errorMessage.textContent = `Error loading file: ${error.message}. Please ensure it's a valid PSR JSON file.`;
+                errorMessage.style.display = 'block';
+                loadingMessage.style.display = 'none';
+                mainContent.style.display = 'none'; // Keep content hidden on error
+                initialMessage.style.display = 'block'; // Show initial message again
+                fetchedReportData = {}; // Clear data on error
+            } finally {
+                 // Reset the file input value to allow uploading the same file again if needed
+                 event.target.value = null;
+            }
+        };
+
+        reader.onerror = function(e) {
+            console.error("FileReader error:", e);
+            errorMessage.textContent = `Error reading file: ${e.target.error}`;
+            errorMessage.style.display = 'block';
+            loadingMessage.style.display = 'none';
+            mainContent.style.display = 'none';
+             initialMessage.style.display = 'block';
+             fetchedReportData = {}; // Clear data on error
+        };
+
+        reader.readAsText(file); // Read the file as text
+    }
+
+     // Function to initialize the Upload button and file input
+     function initUploadButton() {
+         const uploadButton = document.getElementById('uploadButton');
+         const fileInput = document.getElementById('fileInput');
+
+         if (!uploadButton || !fileInput) {
+             console.error("Upload button or file input not found.");
+             return;
+         }
+
+         uploadButton.addEventListener('click', () => {
+             fileInput.click(); // Trigger the hidden file input
+         });
+
+         fileInput.addEventListener('change', handleFileUpload);
+     }
+
+
+    // Main initialization function
     function init() {
       let data = null;
-      const loadingMessage = document.getElementById('loadingMessage');
-      const errorMessage = document.getElementById('errorMessage');
-      const mainContent = document.getElementById('mainContent');
+      const dataElement = document.getElementById('embeddedPsrData');
 
+      // Clear previous error messages on init
+      errorMessage.textContent = '';
+      errorMessage.style.display = 'none';
+
+      // Try to load embedded data first
       try {
-        const dataElement = document.getElementById('embeddedPsrData');
-        // Check if the placeholder is still present or if the element is missing/empty
         if (dataElement && dataElement.textContent.trim() && dataElement.textContent.trim() !== '/* MAKE_COM_JSON_PLACEHOLDER */') {
            data = JSON.parse(dataElement.textContent);
-           fetchedReportData = data; // Store globally for save button
-        } else {
-           console.error("Embedded PSR data not found or is placeholder.");
-           errorMessage.textContent = 'Could not load report data embedded in the file. Placeholder content found.';
-           errorMessage.style.display = 'block';
-           loadingMessage.style.display = 'none';
-           return; // Stop if no data
+           fetchedReportData = data; // Store globally
         }
       } catch (error) {
-         console.error("Error parsing embedded JSON:", error);
-         errorMessage.textContent = `Failed to parse embedded report data: ${error.message}`;
+         console.error("Error parsing embedded JSON on initial load:", error);
+         errorMessage.textContent = `Failed to parse initially embedded report data: ${error.message}`;
          errorMessage.style.display = 'block';
-         loadingMessage.style.display = 'none';
-         return; // Stop on error
+         // Don't return, allow page structure and buttons to load
       }
 
-       // Hide loading, show content (if data parsed successfully)
+      // Hide loading message initially
       loadingMessage.style.display = 'none';
 
-      // Only proceed if data was successfully parsed
+      // Initialize buttons regardless of initial data
+      initSaveButton();
+      initUploadButton();
+      initModals({}); // Init modals structure, content updated later if data loads
+
+      // If data was loaded successfully from embedding, update the dashboard
       if (data) {
           mainContent.style.display = 'block'; // Show main content area
+          initialMessage.style.display = 'none'; // Hide initial message
           updateReport(data);
           renderCharts(data);
           updateAnalysis(data);
-          initModals(data);
-          initSaveButton();
+          initModals(data); // Re-init modals with actual data
       } else {
-           // Ensure error message is shown if data somehow becomes null after checks
-            if (errorMessage.style.display !== 'block') {
-                errorMessage.textContent = 'Report data is missing or invalid.';
-                errorMessage.style.display = 'block';
-            }
+           // No embedded data or error parsing it, show initial message
+           mainContent.style.display = 'none'; // Keep content hidden
+           initialMessage.style.display = 'block';
       }
     }
 
