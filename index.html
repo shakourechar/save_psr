@@ -9,6 +9,90 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <style>
+
+    <div class="container">
+  <div class="card">
+    <h3>Ask SmartWealth AI</h3>
+    <div class="card-content">
+      <textarea id="chatInput" placeholder="Ask a question about your financial report..." rows="3" style="width: 100%; padding: 10px; font-size: 1em;"></textarea>
+      <button onclick="sendChatMessage()" style="margin-top: 10px; padding: 10px 20px; font-size: 1em; background-color: #2E7D32; color: white; border: none; border-radius: 4px;">Ask</button>
+      <div id="chatResponse" style="margin-top: 20px; white-space: pre-wrap; font-family: Inter, sans-serif; font-size: 0.95em;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ChatGPT Interface -->
+<div class="container">
+  <div class="card">
+    <h3>Ask SmartWealth AI</h3>
+    <div class="card-content">
+      <textarea id="chatInput" placeholder="Ask a question about your financial report..." rows="3" style="width: 100%; padding: 10px; font-size: 1em;"></textarea>
+
+      <!-- Optional API key input (for BYO Key users) -->
+      <input type="password" id="userApiKey" placeholder="Enter your OpenAI API key (if required)" style="margin-top:10px; width:100%; padding:8px;">
+
+      <button onclick="sendChatMessage()" style="margin-top: 10px; padding: 10px 20px; font-size: 1em; background-color: #2E7D32; color: white; border: none; border-radius: 4px;">Ask</button>
+
+      <div id="chatResponse" style="margin-top: 20px; white-space: pre-wrap; font-family: Inter, sans-serif; font-size: 0.95em;"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+async function sendChatMessage() {
+  const input = document.getElementById('chatInput').value;
+  const responseBox = document.getElementById('chatResponse');
+  const userInputKey = document.getElementById('userApiKey').value.trim();
+  responseBox.textContent = 'Thinking...';
+
+  try {
+    const psr = fetchedReportData?.userInput || {};
+    const plan = psr?.subscriptionPlan || '';
+    const embeddedKey = psr?.apiKey || '';
+    const apiKey = embeddedKey || userInputKey;
+
+    if (!apiKey) {
+      responseBox.textContent = '❌ No OpenAI API key provided. Please enter your key above or upgrade your plan.';
+      return;
+    }
+
+    const chatRequest = {
+      model: plan.includes('4o') ? "gpt-4o" : "gpt-3.5-turbo",
+      messages: [
+        {
+          role: "system",
+          content: "You are a financial assistant. Use the user's financial profile to provide helpful advice."
+        },
+        {
+          role: "user",
+          content: `Here is my financial profile:\n\n${JSON.stringify(psr, null, 2)}\n\nNow my question is: ${input}`
+        }
+      ]
+    };
+
+    const chatResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + apiKey
+      },
+      body: JSON.stringify(chatRequest)
+    });
+
+    const result = await chatResponse.json();
+
+    if (result.error) {
+      responseBox.textContent = `❌ API Error: ${result.error.message}`;
+    } else {
+      responseBox.textContent = result.choices?.[0]?.message?.content || "No response received.";
+    }
+
+  } catch (err) {
+    responseBox.textContent = `❌ Error: ${err.message}`;
+  }
+}
+</script>
+
     body {
       font-family: 'Inter', sans-serif;
       background-color: #f5f5f5;
