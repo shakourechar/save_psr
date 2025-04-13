@@ -500,13 +500,20 @@
         }
     }
 
-    // --- NEW ChatGPT Interface Function ---
+// --- NEW ChatGPT Interface Function (Uses Edge Function) ---
     async function sendChatMessage() {
       const inputElement = document.getElementById('chatInput');
       const input = inputElement.value.trim();
       const responseBox = document.getElementById('chatResponse');
-      const userInputKeyElement = document.getElementById('userApiKey');
-      const userInputKey = userInputKeyElement.value.trim();
+      // --- PASTE YOUR FUNCTION URL HERE ---
+      const edgeFunctionUrl = 'https://tfnwwpksieluzvxqdiiq.supabase.co/functions/v1/smooth-function'; // <-- Make sure this is your correct URL!
+      // ------------------------------------
+
+      if (!edgeFunctionUrl || edgeFunctionUrl.includes('PASTE_YOUR_SUPABASE_EDGE_FUNCTION_URL_HERE')) {
+          responseBox.textContent = '❌ Error: Edge Function URL not configured correctly in the script.';
+          console.error('Edge Function URL missing or incorrect!');
+          return;
+      }
 
       if (!input) {
         responseBox.textContent = 'Please enter a question.';
@@ -516,75 +523,53 @@
       responseBox.textContent = 'Thinking...'; // Provide feedback
 
       try {
-        // Ensure fetchedReportData and userInput exist before trying to access nested properties
-        const psr = fetchedReportData?.userInput || {};
-        const plan = psr?.subscriptionPlan || ''; // Optional: Get plan from data
-        const embeddedKey = psr?.apiKey || ''; // Optional: Get embedded key from data
-
-        // Determine which API key to use (embedded first, then user input)
-        const apiKey = embeddedKey || userInputKey;
-
-        if (!apiKey) {
-          responseBox.textContent = '❌ No OpenAI API key provided. Please enter your key above or ensure it is included in the report data.';
-          return;
-        }
-
-        // Construct the request payload
-        const chatRequest = {
-          model: plan.includes('4o') ? "gpt-4o" : "gpt-3.5-turbo", // Example model selection
-          messages: [
-            {
-              role: "system",
-              content: "You are SmartWealth AI, a helpful financial assistant. Use the provided financial profile context to answer the user's questions concisely and clearly. Focus on the data provided in the profile."
-            },
-            {
-              role: "user",
-              // Include profile data and the user's question
-              // Consider sending only essential parts of psr if it's very large
-              content: `Here is the financial profile:\n\n${JSON.stringify(psr, null, 2)}\n\nMy question is: ${input}`
-            }
-          ]
-          // Add other parameters like temperature, max_tokens if needed
+        // Prepare data to send to the Edge Function
+        const contextData = fetchedReportData?.userInput || {}; // Send user input context
+        const requestPayload = {
+          prompt: input,
+          context: contextData
         };
 
-        // Make the API call
-        const chatResponse = await fetch("https://api.openai.com/v1/chat/completions", {
-          method: "POST",
+        // Call your Supabase Edge Function
+        const response = await fetch(edgeFunctionUrl, {
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
-            // **SECURITY WARNING**: Key is exposed in client-side request
-            "Authorization": "Bearer " + apiKey
+            'Content-Type': 'application/json',
+            // No API key needed here!
           },
-          body: JSON.stringify(chatRequest)
+          body: JSON.stringify(requestPayload)
         });
 
-        // Process the response
-        if (!chatResponse.ok) {
-            // Handle HTTP errors (e.g., 401 Unauthorized, 429 Rate Limit)
-            const errorData = await chatResponse.json().catch(() => ({})); // Try to get error details
-            throw new Error(`API Error (${chatResponse.status}): ${errorData?.error?.message || chatResponse.statusText}`);
+        // Process the response from the Edge Function
+        const result = await response.json(); // Try to parse JSON response
+
+        if (!response.ok) {
+          // Handle errors returned from the Edge Function (like 500s) or OpenAI errors proxied back
+          throw new Error(`Error from proxy (${response.status}): ${result.error || response.statusText}`);
         }
 
-        const result = await chatResponse.json();
-
-        // Display the result or handle API-specific errors
+        // Display the successful OpenAI response
         if (result.error) {
-          responseBox.textContent = `❌ API Error: ${result.error.message}`;
+          // Handle errors structured within a successful (e.g., 200 OK) response from OpenAI if applicable
+           responseBox.textContent = `❌ API Error: ${result.error.message || result.error}`;
         } else if (result.choices && result.choices.length > 0) {
           responseBox.textContent = result.choices[0]?.message?.content.trim() || "No response content received.";
           inputElement.value = ''; // Clear input field on success
         } else {
-          responseBox.textContent = "Received an empty response from the AI.";
+          responseBox.textContent = "Received an empty or unexpected response format.";
+          console.warn("Unexpected response format:", result);
         }
 
       } catch (err) {
         console.error("Chat Error:", err); // Log the full error for debugging
-        responseBox.textContent = `❌ Error: ${err.message}`;
+        responseBox.textContent = `❌ Error: ${err.message}`; // Display error
       }
     }
+    // --- End of NEW sendChatMessage Function ---
 
 
     // --- Initialization ---
+    // (This init function and the following code are kept exactly as you provided)
     function init() {
         let data = null;
         const dataElement = document.getElementById('embeddedPsrData');
@@ -608,45 +593,58 @@
         initUploadButton();
         initModals({}); // Initialize modals regardless of data
 
+        // --- Modified Init Logic ---
         if (data) {
-            processAndDisplayData(data); // Process and display if data was loaded
+             // Data loaded from embedded <pre> tag
+             processAndDisplayData(data);
         } else {
-            // No initial data, hide main content and show initial message
-            mainContent.style.display = 'none';
-            chatInterfaceCard.style.display = 'none';
-            initialMessage.style.display = 'block';
+             // No embedded data, try loading from URL *before* deciding to show initial message
+             tryAutoLoadFromURL(); // Try URL load
+
+             // Re-check if data was loaded by tryAutoLoadFromURL
+              if (Object.keys(fetchedReportData).length > 0) {
+                  // Data was loaded from URL, process it
+                   processAndDisplayData(fetchedReportData);
+              } else {
+                 // Still no data after checking embedded and URL, hide main content and show initial message
+                 mainContent.style.display = 'none';
+                 // Ensure chat card is also hidden if no data
+                 if (chatInterfaceCard) chatInterfaceCard.style.display = 'none';
+                 initialMessage.style.display = 'block';
+              }
         }
+        // --- End of Modified Init Logic ---
     }
 
     // --- Auto-load PSR JSON from URL if provided ---
-    (function tryAutoLoadFromURL() {
-      const params = new URLSearchParams(window.location.search);
-      const encoded = params.get('data');
-      if (!encoded) return; // No data param, do nothing
+    // (This tryAutoLoadFromURL function is kept exactly as you provided,
+    // but it now directly modifies fetchedReportData)
+     function tryAutoLoadFromURL() { // Changed to a regular function to be called by init
+       const params = new URLSearchParams(window.location.search);
+       const encoded = params.get('data');
+       if (!encoded) return; // No data param, do nothing
 
-      try {
-        // Decode and parse the data
-        const json = atob(decodeURIComponent(encoded)); // Base64 decode
-        const parsed = JSON.parse(json);
-        const dataContainer = document.getElementById('embeddedPsrData');
-        if (dataContainer) {
-          // Store the parsed data in the <pre> tag for the init function to pick up
-          dataContainer.textContent = JSON.stringify(parsed);
-        }
-      } catch (err) {
-        console.error("Error parsing JSON from URL:", err);
-        const errorMsgElement = document.getElementById("errorMessage");
-        if (errorMsgElement) {
-          errorMsgElement.textContent = `Error parsing URL-based data: ${err.message}`;
-          errorMsgElement.style.display = 'block';
-        }
-        // Ensure main content remains hidden if URL parsing fails
-        const initialMsgElement = document.getElementById("initialMessage");
-         if(initialMsgElement) initialMsgElement.style.display = 'block';
-         if(mainContent) mainContent.style.display = 'none';
-         if(chatInterfaceCard) chatInterfaceCard.style.display = 'none';
-      }
-    })();
+       try {
+         // Decode and parse the data
+         const json = atob(decodeURIComponent(encoded)); // Base64 decode
+         const parsed = JSON.parse(json);
+         // Assign directly to global variable instead of putting in <pre>
+         fetchedReportData = parsed;
+       } catch (err) {
+         console.error("Error parsing JSON from URL:", err);
+         const errorMsgElement = document.getElementById("errorMessage");
+         if (errorMsgElement) {
+           errorMsgElement.textContent = `Error parsing URL-based data: ${err.message}`;
+           errorMsgElement.style.display = 'block';
+         }
+         // Ensure main content remains hidden if URL parsing fails
+         const initialMsgElement = document.getElementById("initialMessage");
+          if(initialMsgElement) initialMsgElement.style.display = 'block';
+          if(mainContent) mainContent.style.display = 'none';
+          if(chatInterfaceCard) chatInterfaceCard.style.display = 'none';
+          fetchedReportData = {}; // Clear data on error
+       }
+     }
 
     // Run init when the DOM is fully loaded
     document.addEventListener('DOMContentLoaded', init);
