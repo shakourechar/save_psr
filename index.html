@@ -123,7 +123,9 @@
     #loadingMessage, #errorMessage, #initialMessage { text-align: center; padding: 20px; font-size: 1.2em; color: #555; }
     #errorMessage { color: #D32F2F; display: none; }
     #initialMessage { font-size: 1.1em; color: #333; display: none; }
-    #mainContent { display: none; }
+    #mainContent { display: none; } /* Initially hidden */
+    #chatInterfaceCard { display: none; } /* Initially hidden */
+
     @media (max-width: 768px) {
       header { flex-direction: column; align-items: flex-start; }
       header h1 { margin-top: 10px; }
@@ -168,12 +170,12 @@
                     <span class="ratio-value" id="savingsRateValue">N/A</span>
                     <div class="ratio-bar-container"><div class="ratio-bar savings-rate" id="savingsRateBar"></div></div>
                 </div>
-                 <div class="ratio-item">
+                <div class="ratio-item">
                     <span class="ratio-label">Emergency Fund Coverage</span>
                      <span class="ratio-value" id="emergencyCoverageValue">N/A</span>
                      <div class="ratio-bar-container"><div class="ratio-bar emergency-coverage" id="emergencyCoverageBar"></div></div>
                 </div>
-                 <div class="ratio-item">
+                <div class="ratio-item">
                     <span class="ratio-label">Debt-to-Income (DTI)</span>
                      <span class="ratio-value" id="dtiRatioValue">N/A</span>
                      <div class="ratio-bar-container"><div class="ratio-bar dti-ratio" id="dtiRatioBar"></div></div>
@@ -200,7 +202,7 @@
                     <div class="progress-bar-container"><div class="progress-bar" id="emergencyProgressBar"></div></div>
                 </div>
                 <div id="purchaseGoalDisplay" style="margin-top: 15px;">
-                    <p><strong>Purchase Goal (<span id="purchaseGoalName">N/A</span>):</strong> <span class="goal-status">N/A</span></p>
+                     <p><strong>Purchase Goal (<span id="purchaseGoalName">N/A</span>):</strong> <span class="goal-status">N/A</span></p>
                      <div class="progress-bar-container"><div class="progress-bar" id="purchaseProgressBar"></div></div>
                 </div>
             </div>
@@ -223,7 +225,7 @@
                 <h3>Recommendations</h3>
                 <div class="card-content">
                     <ul id="recommendationsList"><li>No recommendations loaded.</li></ul>
-                </div>
+                 </div>
             </div>
            <div class="card">
                <h3>AI Analysis Summary</h3>
@@ -256,7 +258,26 @@
        </div>
        </div>
 
-     </div> </div><div id="progressModal" class="modal"> <div class="modal-content"> <span class="close-button" onclick="closeModal('progressModal')">&times;</span> <h2>User Progress History</h2> <div id="progressContent" style="white-space: pre-wrap;"></div> </div> </div>
+      <div class="grid-container" id="chatInterfaceCard">
+          <div class="card" style="grid-column: 1 / -1;"> <h3>Ask SmartWealth AI</h3>
+            <div class="card-content">
+              <textarea id="chatInput" placeholder="Ask a question about your financial report..." rows="3" style="width: 100%; padding: 10px; font-size: 1em; border: 1px solid #ccc; border-radius: 4px; margin-bottom: 10px; font-family: 'Inter', sans-serif;"></textarea>
+
+              <input type="password" id="userApiKey" placeholder="Enter your OpenAI API key (if required)" style="margin-bottom:10px; width:100%; padding:8px; border: 1px solid #ccc; border-radius: 4px;">
+
+              <button onclick="sendChatMessage()" style="margin-top: 0px; padding: 10px 20px; font-size: 1em; background-color: #2E7D32; color: white; border: none; border-radius: 4px; cursor: pointer;">Ask</button>
+
+              <div id="chatResponse" style="margin-top: 20px; padding: 15px; background-color: #f8f8f8; border: 1px solid #eee; border-radius: 4px; white-space: pre-wrap; font-family: Inter, sans-serif; font-size: 0.95em; min-height: 50px;"></div>
+            </div>
+          </div>
+      </div>
+      </div> </div> <div id="progressModal" class="modal">
+    <div class="modal-content">
+        <span class="close-button" onclick="closeModal('progressModal')">&times;</span>
+        <h2>User Progress History</h2>
+        <div id="progressContent" style="white-space: pre-wrap;"></div>
+    </div>
+  </div>
 
 <script>
     // --- Globals & Setup ---
@@ -265,6 +286,7 @@
     const errorMessage = document.getElementById('errorMessage');
     const mainContent = document.getElementById('mainContent');
     const initialMessage = document.getElementById('initialMessage');
+    const chatInterfaceCard = document.getElementById('chatInterfaceCard'); // Get chat interface card
     const plotlyConfig = { displaylogo: false, modeBarButtonsToRemove: ['sendDataToCloud', 'select2d', 'lasso2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d', 'resetScale2d', 'hoverClosestPie'] };
 
     // --- Helper Functions ---
@@ -294,13 +316,12 @@
             const incomeChartData = [{
                 values: filteredIncomeValues, labels: filteredIncomeLabels, type: 'pie', hole: .4,
                 hoverinfo: 'label+percent+value',
-                // textinfo removed to avoid cutoff
                 marker: { colors: ['#4CAF50', '#8BC34A', '#CDDC39'] },
-                domain: { y: [0.30, 1] } // Keep increased domain gap
+                domain: { y: [0.30, 1] }
             }];
             const incomeLayout = {
                 title: 'Income Sources', showlegend: true, height: 380,
-                margin: { l: 20, r: 20, t: 40, b: 100 }, // Keep increased bottom margin
+                margin: { l: 20, r: 20, t: 40, b: 100 },
                 legend: { orientation: "h", yanchor: "bottom", y: -0.2, xanchor: 'center', x: 0.5 }
             };
             Plotly.newPlot('incomeChart', incomeChartData, incomeLayout, plotlyConfig);
@@ -312,13 +333,12 @@
             const expenseChartData = [{
                 values: filteredExpenseValues, labels: filteredExpenseLabels, type: 'pie', hole: .4,
                 hoverinfo: 'label+percent+value',
-                 // textinfo removed to avoid cutoff
                 marker: { colors: ['#F44336', '#E91E63', '#9C27B0', '#673AB7', '#3F51B5', '#2196F3', '#03A9F4', '#00BCD4', '#009688'] },
-                domain: { y: [0.30, 1] } // Keep increased domain gap
+                domain: { y: [0.30, 1] }
              }];
             const expenseLayout = {
                 title: 'Expense Categories', showlegend: true, height: 380,
-                margin: { l: 20, r: 20, t: 40, b: 100 }, // Keep increased bottom margin
+                margin: { l: 20, r: 20, t: 40, b: 100 },
                 legend: { orientation: "h", yanchor: "bottom", y: -0.2, xanchor: 'center', x: 0.5 }
             };
             Plotly.newPlot('expenseChart', expenseChartData, expenseLayout, plotlyConfig);
@@ -330,7 +350,6 @@
         const recommendationsList = document.getElementById('recommendationsList');
         const analysisDiv = document.getElementById('aiAnalysis');
         const progressDiv = document.getElementById('progressContent');
-
         if(analysisDiv) { analysisDiv.textContent = getSafe(() => aiOutput.analysis, 'N/A'); }
         if(progressDiv) { progressDiv.textContent = getSafe(() => aiOutput.userProgress, 'N/A'); }
 
@@ -341,8 +360,7 @@
                 const items = recommendationsText.split('\\n')
                     .map(item => item.trim())
                     .filter(item => item.length > 0)
-                    .map(item => item.replace(/^[\*\-\d\.]+\s*/, ''));
-
+                    .map(item => item.replace(/^[\*\-\d\.]+\s*/, '')); // Remove leading list markers
                 if (items.length > 0 && !(items.length === 1 && items[0] === '')) {
                     items.forEach(itemText => {
                         const li = document.createElement('li');
@@ -358,39 +376,278 @@
         } else { console.error("Recommendations list element not found"); }
     }
 
-
-    function initModals(data) { window.onclick = function(event) { const modals = document.getElementsByClassName('modal'); for (let i = 0; i < modals.length; i++) { if (event.target == modals[i]) { modals[i].style.display = "none";}} } }
+    function initModals(data) {
+         // Close modal if clicked outside content
+         window.onclick = function(event) {
+             const modals = document.getElementsByClassName('modal');
+             for (let i = 0; i < modals.length; i++) {
+                 if (event.target == modals[i]) {
+                     modals[i].style.display = "none";
+                 }
+             }
+         }
+    }
     function openModal(modalId) { const modal = document.getElementById(modalId); if (modal) modal.style.display = "block"; }
     function closeModal(modalId) { const modal = document.getElementById(modalId); if (modal) modal.style.display = "none"; }
-    function initSaveButton() { const saveButton = document.getElementById('saveButton'); if(!saveButton) return; saveButton.addEventListener('click', () => { if (!fetchedReportData || Object.keys(fetchedReportData).length === 0) { alert("No report data available to save."); return; } try { const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(fetchedReportData, null, 2)); const a = document.createElement('a'); a.href = dataStr; const filenameUser = getSafe(() => fetchedReportData.userInput.personalInfo.userName.replace(/[^a-z0-9]/gi, '_').toLowerCase(), 'user'); a.download = `financial_report_${filenameUser}_${new Date().toISOString().slice(0,10)}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); } catch (saveError) { console.error("Error creating save data:", saveError); alert(`Error saving file: ${saveError.message}`); } }); }
-    function initUploadButton() { const uploadButton = document.getElementById('uploadButton'); const fileInput = document.getElementById('fileInput'); if (!uploadButton || !fileInput) { console.error("Upload button or file input not found."); return; } uploadButton.addEventListener('click', () => { fileInput.click(); }); fileInput.addEventListener('change', handleFileUpload); }
-    function handleFileUpload(event) { const file = event.target.files[0]; if (!file) return; loadingMessage.style.display = 'block'; errorMessage.style.display = 'none'; initialMessage.style.display = 'none'; mainContent.style.display = 'none'; const reader = new FileReader(); reader.onload = function(e) { let uploadedData = null; try { uploadedData = JSON.parse(e.target.result); if (typeof uploadedData !== 'object' || uploadedData === null) { throw new Error("Invalid file content. Expected a JSON object."); } fetchedReportData = uploadedData; processAndDisplayData(fetchedReportData); } catch (error) { console.error("Error parsing uploaded JSON or invalid format:", error); errorMessage.textContent = `Error loading file: ${error.message}. Please ensure it's a valid JSON file.`; errorMessage.style.display = 'block'; loadingMessage.style.display = 'none'; mainContent.style.display = 'none'; initialMessage.style.display = 'block'; fetchedReportData = {}; } finally { event.target.value = null; } }; reader.onerror = function(e) { console.error("FileReader error:", e); errorMessage.textContent = `Error reading file: ${e.target.error}`; errorMessage.style.display = 'block'; loadingMessage.style.display = 'none'; mainContent.style.display = 'none'; initialMessage.style.display = 'block'; fetchedReportData = {}; }; reader.readAsText(file); }
-    function processAndDisplayData(data) { try { const totals = calculateTotals(data); const ratios = calculateRatios(data, totals); updateReportBasics(data, totals); updateRatiosDisplay(ratios); updateGoalsDisplay(data); updateDebtsDisplay(data, ratios); renderCharts(data); updateUIDisplayFromAI(data); initModals(data); loadingMessage.style.display = 'none'; errorMessage.style.display = 'none'; initialMessage.style.display = 'none'; mainContent.style.display = 'block'; } catch(processingError) { console.error("Error processing data:", processingError); errorMessage.textContent = `Error displaying data: ${processingError.message}.`; errorMessage.style.display = 'block'; loadingMessage.style.display = 'none'; mainContent.style.display = 'none'; initialMessage.style.display = 'block'; fetchedReportData = {}; } }
-    function init() { let data = null; const dataElement = document.getElementById('embeddedPsrData'); errorMessage.textContent = ''; errorMessage.style.display = 'none'; try { if (dataElement && dataElement.textContent.trim() && dataElement.textContent.trim() !== '/* MAKE_COM_JSON_PLACEHOLDER */') { data = JSON.parse(dataElement.textContent); fetchedReportData = data; } } catch (error) { console.error("Error parsing embedded JSON on initial load:", error); errorMessage.textContent = `Failed to parse initially embedded report data: ${error.message}`; errorMessage.style.display = 'block'; } loadingMessage.style.display = 'none'; initSaveButton(); initUploadButton(); initModals({}); if (data) { processAndDisplayData(data); } else { mainContent.style.display = 'none'; initialMessage.style.display = 'block'; } }
 
-// --- Auto-load PSR JSON from URL if provided ---
-(function tryAutoLoadFromURL() {
-  const params = new URLSearchParams(window.location.search);
-  const encoded = params.get('data');
-  if (!encoded) return;
+    function initSaveButton() {
+        const saveButton = document.getElementById('saveButton');
+        if(!saveButton) return;
+        saveButton.addEventListener('click', () => {
+            if (!fetchedReportData || Object.keys(fetchedReportData).length === 0) {
+                alert("No report data available to save.");
+                return;
+            }
+            try {
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(fetchedReportData, null, 2));
+                const a = document.createElement('a');
+                a.href = dataStr;
+                const filenameUser = getSafe(() => fetchedReportData.userInput.personalInfo.userName.replace(/[^a-z0-9]/gi, '_').toLowerCase(), 'user');
+                a.download = `financial_report_${filenameUser}_${new Date().toISOString().slice(0,10)}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            } catch (saveError) {
+                console.error("Error creating save data:", saveError);
+                alert(`Error saving file: ${saveError.message}`);
+            }
+        });
+    }
 
-  try {
-    const json = atob(decodeURIComponent(encoded));
-    const parsed = JSON.parse(json);
-    const dataContainer = document.getElementById('embeddedPsrData');
-    if (dataContainer) {
-      dataContainer.textContent = JSON.stringify(parsed);
+    function initUploadButton() {
+        const uploadButton = document.getElementById('uploadButton');
+        const fileInput = document.getElementById('fileInput');
+        if (!uploadButton || !fileInput) {
+            console.error("Upload button or file input not found.");
+            return;
+        }
+        uploadButton.addEventListener('click', () => { fileInput.click(); });
+        fileInput.addEventListener('change', handleFileUpload);
     }
-  } catch (err) {
-    console.error("Error parsing JSON from URL:", err);
-    const errorMessage = document.getElementById("errorMessage");
-    if (errorMessage) {
-      errorMessage.textContent = `Error parsing URL-based data: ${err.message}`;
-      errorMessage.style.display = 'block';
+
+    function handleFileUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        loadingMessage.style.display = 'block';
+        errorMessage.style.display = 'none';
+        initialMessage.style.display = 'none';
+        mainContent.style.display = 'none';
+        chatInterfaceCard.style.display = 'none'; // Hide chat on new upload
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            let uploadedData = null;
+            try {
+                uploadedData = JSON.parse(e.target.result);
+                if (typeof uploadedData !== 'object' || uploadedData === null) {
+                    throw new Error("Invalid file content. Expected a JSON object.");
+                }
+                fetchedReportData = uploadedData;
+                processAndDisplayData(fetchedReportData);
+            } catch (error) {
+                console.error("Error parsing uploaded JSON or invalid format:", error);
+                errorMessage.textContent = `Error loading file: ${error.message}. Please ensure it's a valid JSON file.`;
+                errorMessage.style.display = 'block';
+                loadingMessage.style.display = 'none';
+                mainContent.style.display = 'none';
+                chatInterfaceCard.style.display = 'none';
+                initialMessage.style.display = 'block';
+                fetchedReportData = {}; // Clear data on error
+            } finally {
+                 event.target.value = null; // Reset file input
+            }
+        };
+        reader.onerror = function(e) {
+            console.error("FileReader error:", e);
+            errorMessage.textContent = `Error reading file: ${e.target.error}`;
+            errorMessage.style.display = 'block';
+            loadingMessage.style.display = 'none';
+            mainContent.style.display = 'none';
+            chatInterfaceCard.style.display = 'none';
+            initialMessage.style.display = 'block';
+            fetchedReportData = {}; // Clear data on error
+        };
+        reader.readAsText(file);
     }
-  }
-})();
-  
+
+    function processAndDisplayData(data) {
+        try {
+            const totals = calculateTotals(data);
+            const ratios = calculateRatios(data, totals);
+            updateReportBasics(data, totals);
+            updateRatiosDisplay(ratios);
+            updateGoalsDisplay(data);
+            updateDebtsDisplay(data, ratios);
+            renderCharts(data);
+            updateUIDisplayFromAI(data); // Assumes AI output is part of the loaded 'data'
+            initModals(data); // Initialize modals
+
+            // Hide loading/initial messages and show content
+            loadingMessage.style.display = 'none';
+            errorMessage.style.display = 'none';
+            initialMessage.style.display = 'none';
+            mainContent.style.display = 'block';
+            chatInterfaceCard.style.display = 'grid'; // Show chat interface card
+
+        } catch(processingError) {
+            console.error("Error processing data:", processingError);
+            errorMessage.textContent = `Error displaying data: ${processingError.message}.`;
+            errorMessage.style.display = 'block';
+            loadingMessage.style.display = 'none';
+            mainContent.style.display = 'none';
+            chatInterfaceCard.style.display = 'none'; // Hide chat on error
+            initialMessage.style.display = 'block';
+            fetchedReportData = {}; // Clear data on error
+        }
+    }
+
+    // --- NEW ChatGPT Interface Function ---
+    async function sendChatMessage() {
+      const inputElement = document.getElementById('chatInput');
+      const input = inputElement.value.trim();
+      const responseBox = document.getElementById('chatResponse');
+      const userInputKeyElement = document.getElementById('userApiKey');
+      const userInputKey = userInputKeyElement.value.trim();
+
+      if (!input) {
+        responseBox.textContent = 'Please enter a question.';
+        return;
+      }
+
+      responseBox.textContent = 'Thinking...'; // Provide feedback
+
+      try {
+        // Ensure fetchedReportData and userInput exist before trying to access nested properties
+        const psr = fetchedReportData?.userInput || {};
+        const plan = psr?.subscriptionPlan || ''; // Optional: Get plan from data
+        const embeddedKey = psr?.apiKey || ''; // Optional: Get embedded key from data
+
+        // Determine which API key to use (embedded first, then user input)
+        const apiKey = embeddedKey || userInputKey;
+
+        if (!apiKey) {
+          responseBox.textContent = '❌ No OpenAI API key provided. Please enter your key above or ensure it is included in the report data.';
+          return;
+        }
+
+        // Construct the request payload
+        const chatRequest = {
+          model: plan.includes('4o') ? "gpt-4o" : "gpt-3.5-turbo", // Example model selection
+          messages: [
+            {
+              role: "system",
+              content: "You are SmartWealth AI, a helpful financial assistant. Use the provided financial profile context to answer the user's questions concisely and clearly. Focus on the data provided in the profile."
+            },
+            {
+              role: "user",
+              // Include profile data and the user's question
+              // Consider sending only essential parts of psr if it's very large
+              content: `Here is the financial profile:\n\n${JSON.stringify(psr, null, 2)}\n\nMy question is: ${input}`
+            }
+          ]
+          // Add other parameters like temperature, max_tokens if needed
+        };
+
+        // Make the API call
+        const chatResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            // **SECURITY WARNING**: Key is exposed in client-side request
+            "Authorization": "Bearer " + apiKey
+          },
+          body: JSON.stringify(chatRequest)
+        });
+
+        // Process the response
+        if (!chatResponse.ok) {
+            // Handle HTTP errors (e.g., 401 Unauthorized, 429 Rate Limit)
+            const errorData = await chatResponse.json().catch(() => ({})); // Try to get error details
+            throw new Error(`API Error (${chatResponse.status}): ${errorData?.error?.message || chatResponse.statusText}`);
+        }
+
+        const result = await chatResponse.json();
+
+        // Display the result or handle API-specific errors
+        if (result.error) {
+          responseBox.textContent = `❌ API Error: ${result.error.message}`;
+        } else if (result.choices && result.choices.length > 0) {
+          responseBox.textContent = result.choices[0]?.message?.content.trim() || "No response content received.";
+          inputElement.value = ''; // Clear input field on success
+        } else {
+          responseBox.textContent = "Received an empty response from the AI.";
+        }
+
+      } catch (err) {
+        console.error("Chat Error:", err); // Log the full error for debugging
+        responseBox.textContent = `❌ Error: ${err.message}`;
+      }
+    }
+
+
+    // --- Initialization ---
+    function init() {
+        let data = null;
+        const dataElement = document.getElementById('embeddedPsrData');
+        errorMessage.textContent = ''; // Clear previous errors
+        errorMessage.style.display = 'none';
+
+        try {
+            // Check if embedded data exists and is not the placeholder
+            if (dataElement && dataElement.textContent.trim() && dataElement.textContent.trim() !== '/* MAKE_COM_JSON_PLACEHOLDER */') {
+                data = JSON.parse(dataElement.textContent);
+                fetchedReportData = data; // Store globally
+            }
+        } catch (error) {
+            console.error("Error parsing embedded JSON on initial load:", error);
+            errorMessage.textContent = `Failed to parse initially embedded report data: ${error.message}`;
+            errorMessage.style.display = 'block';
+        }
+
+        loadingMessage.style.display = 'none'; // Hide loading indicator
+        initSaveButton();
+        initUploadButton();
+        initModals({}); // Initialize modals regardless of data
+
+        if (data) {
+            processAndDisplayData(data); // Process and display if data was loaded
+        } else {
+            // No initial data, hide main content and show initial message
+            mainContent.style.display = 'none';
+            chatInterfaceCard.style.display = 'none';
+            initialMessage.style.display = 'block';
+        }
+    }
+
+    // --- Auto-load PSR JSON from URL if provided ---
+    (function tryAutoLoadFromURL() {
+      const params = new URLSearchParams(window.location.search);
+      const encoded = params.get('data');
+      if (!encoded) return; // No data param, do nothing
+
+      try {
+        // Decode and parse the data
+        const json = atob(decodeURIComponent(encoded)); // Base64 decode
+        const parsed = JSON.parse(json);
+        const dataContainer = document.getElementById('embeddedPsrData');
+        if (dataContainer) {
+          // Store the parsed data in the <pre> tag for the init function to pick up
+          dataContainer.textContent = JSON.stringify(parsed);
+        }
+      } catch (err) {
+        console.error("Error parsing JSON from URL:", err);
+        const errorMsgElement = document.getElementById("errorMessage");
+        if (errorMsgElement) {
+          errorMsgElement.textContent = `Error parsing URL-based data: ${err.message}`;
+          errorMsgElement.style.display = 'block';
+        }
+        // Ensure main content remains hidden if URL parsing fails
+        const initialMsgElement = document.getElementById("initialMessage");
+         if(initialMsgElement) initialMsgElement.style.display = 'block';
+         if(mainContent) mainContent.style.display = 'none';
+         if(chatInterfaceCard) chatInterfaceCard.style.display = 'none';
+      }
+    })();
+
     // Run init when the DOM is fully loaded
     document.addEventListener('DOMContentLoaded', init);
 </script>
