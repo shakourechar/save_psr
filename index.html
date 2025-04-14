@@ -624,6 +624,22 @@
        const encoded = params.get('data');
        if (!encoded) return; // No data param, do nothing
 
+           try {
+      const json = atob(decodeURIComponent(encoded));
+      const parsed = JSON.parse(json);
+      const dataContainer = document.getElementById('embeddedPsrData');
+      if (dataContainer) {
+        dataContainer.textContent = JSON.stringify(parsed);
+      }
+    } catch (err) {
+      console.error("Error parsing JSON from URL:", err);
+      const errorMessage = document.getElementById("errorMessage");
+      if (errorMessage) {
+        errorMessage.textContent = `Error parsing URL-based data: ${err.message}`;
+        errorMessage.style.display = 'block';
+      }
+    }
+
        try {
          // Decode and parse the data
          const json = atob(decodeURIComponent(encoded)); // Base64 decode
