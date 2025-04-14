@@ -366,10 +366,19 @@
     function initUploadButton() { const uploadButton = document.getElementById('uploadButton'); const fileInput = document.getElementById('fileInput'); if (!uploadButton || !fileInput) { console.error("Upload button or file input not found."); return; } uploadButton.addEventListener('click', () => { fileInput.click(); }); fileInput.addEventListener('change', handleFileUpload); }
     function handleFileUpload(event) { const file = event.target.files[0]; if (!file) return; loadingMessage.style.display = 'block'; errorMessage.style.display = 'none'; initialMessage.style.display = 'none'; mainContent.style.display = 'none'; const reader = new FileReader(); reader.onload = function(e) { let uploadedData = null; try { uploadedData = JSON.parse(e.target.result); if (typeof uploadedData !== 'object' || uploadedData === null) { throw new Error("Invalid file content. Expected a JSON object."); } fetchedReportData = uploadedData; processAndDisplayData(fetchedReportData); } catch (error) { console.error("Error parsing uploaded JSON or invalid format:", error); errorMessage.textContent = `Error loading file: ${error.message}. Please ensure it's a valid JSON file.`; errorMessage.style.display = 'block'; loadingMessage.style.display = 'none'; mainContent.style.display = 'none'; initialMessage.style.display = 'block'; fetchedReportData = {}; } finally { event.target.value = null; } }; reader.onerror = function(e) { console.error("FileReader error:", e); errorMessage.textContent = `Error reading file: ${e.target.error}`; errorMessage.style.display = 'block'; loadingMessage.style.display = 'none'; mainContent.style.display = 'none'; initialMessage.style.display = 'block'; fetchedReportData = {}; }; reader.readAsText(file); }
     function processAndDisplayData(data) { try { const totals = calculateTotals(data); const ratios = calculateRatios(data, totals); updateReportBasics(data, totals); updateRatiosDisplay(ratios); updateGoalsDisplay(data); updateDebtsDisplay(data, ratios); renderCharts(data); updateUIDisplayFromAI(data); initModals(data); loadingMessage.style.display = 'none'; errorMessage.style.display = 'none'; initialMessage.style.display = 'none'; mainContent.style.display = 'block'; } catch(processingError) { console.error("Error processing data:", processingError); errorMessage.textContent = `Error displaying data: ${processingError.message}.`; errorMessage.style.display = 'block'; loadingMessage.style.display = 'none'; mainContent.style.display = 'none'; initialMessage.style.display = 'block'; fetchedReportData = {}; } }
-    function init() { let data = null; const dataElement = document.getElementById('embeddedPsrData'); errorMessage.textContent = ''; errorMessage.style.display = 'none'; try { if (dataElement && dataElement.textContent.trim() && dataElement.textContent.trim() !== '/* MAKE_COM_JSON_PLACEHOLDER */') { data = JSON.parse(dataElement.textContent); fetchedReportData = data; } } catch (error) { console.error("Error parsing embedded JSON on initial load:", error); errorMessage.textContent = `Failed to parse initially embedded report data: ${error.message}`; errorMessage.style.display = 'block'; } loadingMessage.style.display = 'none'; initSaveButton(); initUploadButton(); initModals({}); if (data) { processAndDisplayData(data); } else { mainContent.style.display = 'none'; initialMessage.style.display = 'block'; } }
+    function init() { let data = null; const dataElement = document.getElementById('embeddedPsrData'); errorMessage.textContent = ''; errorMessage.style.display = 'none'; try { if (dataElement && dataElement.textContent.trim() && dataElement.textContent.trim() !== '/* MAKE_COM_JSON_PLACEHOLDER */') { data = JSON.parse(dataElement.textContent); fetchedReportData = data; } } catch (error) { console.error("Error parsing embedded JSON on initial load:", error); errorMessage.textContent = `Failed to parse initially embedded report data: ${error.message}`; errorMessage.style.display = 'block'; } loadingMessage.style.display = 'none'; initSaveButton(); initUploadButton(); initModals({}); if (data) {
+  processAndDisplayData(data);
+} else {
+  tryAutoLoadFromURL(); // Load from ?data param if available
+  if (Object.keys(fetchedReportData).length > 0) {
+    processAndDisplayData(fetchedReportData);
+  } else {
+    mainContent.style.display = 'none';
+    initialMessage.style.display = 'block';
+  }
+} }
 
 // --- Auto-load PSR JSON from URL if provided ---
-function tryAutoLoadFromURL() {
   const params = new URLSearchParams(window.location.search);
   const encoded = params.get('data');
   if (!encoded) return;
@@ -388,7 +397,6 @@ function tryAutoLoadFromURL() {
     }
   }
 }
-tryAutoLoadFromURL();
   
     // Run init when the DOM is fully loaded
     document.addEventListener('DOMContentLoaded', init);
