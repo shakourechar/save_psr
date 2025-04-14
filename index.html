@@ -48,27 +48,27 @@
       font-size: 1.5em;
     }
     .card h3 {
-        color: #4CAF50;
-        border-bottom: 1px solid #eee;
-        padding-bottom: 5px;
-        margin-bottom: 10px;
+      color: #4CAF50;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 5px;
+      margin-bottom: 10px;
     }
     #saveButton, #uploadButton {
-       margin-left: 10px;
-       padding: 8px 16px;
-       background-color: #4CAF50;
-       color: white;
-       border: none;
-       border-radius: 4px;
-       cursor: pointer;
-       font-size: 0.9em;
-       transition: background-color 0.3s ease;
-       font-family: 'Inter', sans-serif;
-     }
-     #uploadButton { background-color: #0288D1; }
-     #saveButton:hover { background-color: #388E3C; }
-     #uploadButton:hover { background-color: #0277BD; }
-     #fileInput { display: none; }
+      margin-left: 10px;
+      padding: 8px 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9em;
+      transition: background-color 0.3s ease;
+      font-family: 'Inter', sans-serif;
+    }
+    #uploadButton { background-color: #0288D1; }
+    #saveButton:hover { background-color: #388E3C; }
+    #uploadButton:hover { background-color: #0277BD; }
+    #fileInput { display: none; }
     .grid-container {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -84,37 +84,40 @@
       flex-direction: column;
       min-height: 150px;
     }
-     .chart-card {
-         min-height: 400px;
-         overflow: hidden;
-     }
-    .card-content { flex-grow: 1; }
-
+    .chart-card {
+      min-height: 400px;
+      overflow: hidden;
+    }
+    .card-content { 
+      flex-grow: 1; 
+    }
     /* Ratio Bar Styles */
     .ratio-item { margin-bottom: 10px; }
-    .ratio-label { display: block; font-weight: 500; margin-bottom: 2px; font-size: 0.95em;}
-    .ratio-value { display: inline-block; margin-bottom: 4px; font-size: 0.95em;}
+    .ratio-label { display: block; font-weight: 500; margin-bottom: 2px; font-size: 0.95em; }
+    .ratio-value { display: inline-block; margin-bottom: 4px; font-size: 0.95em; }
     .ratio-bar-container { background-color: #e0e0e0; border-radius: 4px; overflow: hidden; height: 10px; width: 100%; }
     .ratio-bar { height: 100%; width: 0%; transition: width 0.5s ease-in-out; }
-    .ratio-bar.savings-rate { background-color: #d32f2f; } .ratio-bar.savings-rate.ok { background-color: #ffc107; } .ratio-bar.savings-rate.good { background-color: #4CAF50; }
-    .ratio-bar.emergency-coverage { background-color: #d32f2f; } .ratio-bar.emergency-coverage.ok { background-color: #ffc107; } .ratio-bar.emergency-coverage.good { background-color: #4CAF50; }
-    .ratio-bar.dti-ratio { background-color: #4CAF50; } .ratio-bar.dti-ratio.warning { background-color: #ffc107; } .ratio-bar.dti-ratio.high { background-color: #d32f2f; }
-
+    .ratio-bar.savings-rate { background-color: #d32f2f; } 
+    .ratio-bar.savings-rate.ok { background-color: #ffc107; } 
+    .ratio-bar.savings-rate.good { background-color: #4CAF50; }
+    .ratio-bar.emergency-coverage { background-color: #d32f2f; } 
+    .ratio-bar.emergency-coverage.ok { background-color: #ffc107; } 
+    .ratio-bar.emergency-coverage.good { background-color: #4CAF50; }
+    .ratio-bar.dti-ratio { background-color: #4CAF50; } 
+    .ratio-bar.dti-ratio.warning { background-color: #ffc107; } 
+    .ratio-bar.dti-ratio.high { background-color: #d32f2f; }
     /* Debt Table Styles */
     #debtsTable { width: 100%; margin-top: 10px; border-collapse: collapse; }
     #debtsTable th, #debtsTable td { text-align: left; padding: 6px 4px; border-bottom: 1px solid #eee; font-size: 0.9em; }
     #debtsTable th { font-weight: 500; color: #555; }
     #debtsTable tr:last-child td { border-bottom: none; }
     #debtsTable .balance-col { text-align: right; }
-
     /* Progress Bar Styles */
     .progress-bar-container { background-color: #e0e0e0; border-radius: 4px; overflow: hidden; height: 18px; margin-top: 4px; margin-bottom: 8px; }
     .progress-bar { background-color: #4CAF50; height: 100%; width: 0%; transition: width 0.5s ease-in-out; text-align: center; color: white; font-size: 0.8em; line-height: 18px; }
-
     /* Recommendations List Styles */
     #recommendationsList { list-style: disc; padding-left: 20px; margin-top: 10px; }
     #recommendationsList li { margin-bottom: 8px; line-height: 1.5; font-family: 'Inter', sans-serif; font-size: 0.95em; }
-
     /* Modals */
     .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); padding-top: 60px; }
     .modal-content { background-color: #fefefe; margin: 5% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 700px; border-radius: 8px; }
@@ -123,10 +126,7 @@
     #loadingMessage, #errorMessage, #initialMessage { text-align: center; padding: 20px; font-size: 1.2em; color: #555; }
     #errorMessage { color: #D32F2F; display: none; }
     #initialMessage { font-size: 1.1em; color: #333; display: none; }
-    /* Hide main content and chat initially */
     #mainContent { display: none; }
-    #chatInterfaceCard { display: none; }
-
     @media (max-width: 768px) {
       header { flex-direction: column; align-items: flex-start; }
       header h1 { margin-top: 10px; }
@@ -137,21 +137,19 @@
 </head>
 <body>
   <pre id="embeddedPsrData" style="display: none;">/* MAKE_COM_JSON_PLACEHOLDER */</pre>
-
   <div class="container">
     <header>
-       <img src="https://static.wixstatic.com/media/c3283f_a9271d9818ba414994d98950da749489~mv2.jpg" alt="SmartWealth Navigator Logo" style="height: 84px; margin-right: 15px; border-radius: 8px; object-fit: contain;">
+      <img src="https://static.wixstatic.com/media/c3283f_a9271d9818ba414994d98950da749489~mv2.jpg" alt="SmartWealth Navigator Logo" style="height: 84px; margin-right: 15px; border-radius: 8px; object-fit: contain;">
       <h1>Enhanced Financial Dashboard</h1>
       <input type="file" id="fileInput" accept=".json" style="display: none;">
       <button id="uploadButton">Upload PSR</button>
       <button id="saveButton">Download PSR</button>
     </header>
-
     <div id="loadingMessage" style="display: none;">Loading your financial report...</div>
     <div id="errorMessage"></div>
-    <div id="initialMessage">Upload a PSR JSON file or provide data via URL parameter to view your dashboard.</div>
-
+    <div id="initialMessage">Upload a PSR JSON file or generate a new report to view your dashboard.</div>
     <div id="mainContent">
+      <!-- Dashboard content, cards, graphs, etc. -->
       <div class="grid-container">
         <div class="card">
           <h3>Quick Summary</h3>
@@ -164,52 +162,50 @@
           </div>
         </div>
         <div class="card" id="ratiosCard">
-            <h3>Key Financial Ratios</h3>
-            <div class="card-content">
-                <div class="ratio-item">
-                    <span class="ratio-label">Savings Rate</span>
-                    <span class="ratio-value" id="savingsRateValue">N/A</span>
-                    <div class="ratio-bar-container"><div class="ratio-bar savings-rate" id="savingsRateBar"></div></div>
-                </div>
-                 <div class="ratio-item">
-                    <span class="ratio-label">Emergency Fund Coverage</span>
-                     <span class="ratio-value" id="emergencyCoverageValue">N/A</span>
-                     <div class="ratio-bar-container"><div class="ratio-bar emergency-coverage" id="emergencyCoverageBar"></div></div>
-                </div>
-                 <div class="ratio-item">
-                    <span class="ratio-label">Debt-to-Income (DTI)</span>
-                     <span class="ratio-value" id="dtiRatioValue">N/A</span>
-                     <div class="ratio-bar-container"><div class="ratio-bar dti-ratio" id="dtiRatioBar"></div></div>
-                     <p style="font-size: 0.8em; color: #666;">(Using minimum debt payments)</p>
-                </div>
+          <h3>Key Financial Ratios</h3>
+          <div class="card-content">
+            <div class="ratio-item">
+              <span class="ratio-label">Savings Rate</span>
+              <span class="ratio-value" id="savingsRateValue">N/A</span>
+              <div class="ratio-bar-container"><div class="ratio-bar savings-rate" id="savingsRateBar"></div></div>
             </div>
+            <div class="ratio-item">
+              <span class="ratio-label">Emergency Fund Coverage</span>
+              <span class="ratio-value" id="emergencyCoverageValue">N/A</span>
+              <div class="ratio-bar-container"><div class="ratio-bar emergency-coverage" id="emergencyCoverageBar"></div></div>
+            </div>
+            <div class="ratio-item">
+              <span class="ratio-label">Debt-to-Income (DTI)</span>
+              <span class="ratio-value" id="dtiRatioValue">N/A</span>
+              <div class="ratio-bar-container"><div class="ratio-bar dti-ratio" id="dtiRatioBar"></div></div>
+              <p style="font-size: 0.8em; color: #666;">(Using minimum debt payments)</p>
+            </div>
+          </div>
         </div>
       </div>
-
       <div class="grid-container">
         <div class="card">
           <h3>Savings Overview</h3>
-           <div class="card-content">
-              <p><strong>Emergency Savings:</strong> <span id="emergencySavings">N/A</span></p>
-              <p><strong>General Savings:</strong> <span id="currentSavings">N/A</span></p>
-              <p><strong>Retirement Fund:</strong> <span id="retirementFund">N/A</span></p>
-            </div>
+          <div class="card-content">
+            <p><strong>Emergency Savings:</strong> <span id="emergencySavings">N/A</span></p>
+            <p><strong>General Savings:</strong> <span id="currentSavings">N/A</span></p>
+            <p><strong>Retirement Fund:</strong> <span id="retirementFund">N/A</span></p>
+          </div>
         </div>
         <div class="card" id="goalsCard">
-            <h3>Savings Goals Progress</h3>
-            <div class="card-content">
-                <div id="emergencyGoalDisplay">
-                    <p><strong>Emergency Fund Goal:</strong> <span class="goal-status">N/A</span></p>
-                    <div class="progress-bar-container"><div class="progress-bar" id="emergencyProgressBar"></div></div>
-                </div>
-                <div id="purchaseGoalDisplay" style="margin-top: 15px;">
-                    <p><strong>Purchase Goal (<span id="purchaseGoalName">N/A</span>):</strong> <span class="goal-status">N/A</span></p>
-                     <div class="progress-bar-container"><div class="progress-bar" id="purchaseProgressBar"></div></div>
-                </div>
+          <h3>Savings Goals Progress</h3>
+          <div class="card-content">
+            <div id="emergencyGoalDisplay">
+              <p><strong>Emergency Fund Goal:</strong> <span class="goal-status">N/A</span></p>
+              <div class="progress-bar-container"><div class="progress-bar" id="emergencyProgressBar"></div></div>
             </div>
+            <div id="purchaseGoalDisplay" style="margin-top: 15px;">
+              <p><strong>Purchase Goal (<span id="purchaseGoalName">N/A</span>):</strong> <span class="goal-status">N/A</span></p>
+              <div class="progress-bar-container"><div class="progress-bar" id="purchaseProgressBar"></div></div>
+            </div>
+          </div>
         </div>
       </div>
-
       <div class="grid-container">
         <div class="card chart-card">
           <h3>Income Breakdown</h3>
@@ -217,62 +213,52 @@
         </div>
         <div class="card chart-card">
           <h3>Expense Breakdown</h3>
-           <div id="expenseChart" style="width:100%; height: 100%;"></div>
+          <div id="expenseChart" style="width:100%; height: 100%;"></div>
         </div>
       </div>
-
-       <div class="grid-container">
-            <div class="card">
-                <h3>Recommendations</h3>
-                <div class="card-content">
-                    <ul id="recommendationsList"><li>No recommendations loaded.</li></ul>
-                </div>
-            </div>
-           <div class="card">
-               <h3>AI Analysis Summary</h3>
-               <div class="card-content">
-                  <div id="aiAnalysis" style="white-space: pre-wrap; margin-bottom: 15px;">N/A</div>
-                  <button onclick="openModal('progressModal')" class="text-blue-600 hover:underline ml-4">View Progress History</button>
-               </div>
-            </div>
-       </div>
-
       <div class="grid-container">
-         <div class="card" id="debtsCard">
-              <h3>Debt Overview</h3>
-              <div class="card-content">
-                  <table id="debtsTable">
-                      <thead><tr><th>Type</th><th>Balance</th><th>Rate (%)</th><th>Min. Payment</th></tr></thead>
-                      <tbody><tr><td colspan="4">No debt data available.</td></tr></tbody>
-                  </table>
-                  <p style="margin-top: 10px;"><strong>Total Debt Balance:</strong> <span id="totalDebtBalance">N/A</span></p>
-                  <p><strong>Total Min. Payments:</strong> <span id="totalMinPayments">N/A</span></p>
-              </div>
-         </div>
-         <div class="card">
-            <h3>Financial Tools & Challenges</h3>
-             <div class="card-content">
-                <p><strong>Current Financial Tools:</strong> <span id="financialTools">N/A</span></p>
-                <p><strong>Reported Challenges:</strong> <span id="challenges">N/A</span></p>
-                <p><strong>Upcoming Purchase Goal Detail:</strong> <span id="purchaseGoals">N/A</span></p>
-             </div>
-       </div>
-       </div>
-      <div class="grid-container" id="chatInterfaceCard">
-          <div class="card" style="grid-column: 1 / -1;">
-            <h3>Ask SmartWealth AI</h3>
-            <div class="card-content">
-              <textarea id="chatInput" placeholder="Ask a question about your financial report..." rows="3" style="width: 100%; padding: 10px; font-size: 1em; border: 1px solid #ccc; border-radius: 4px; margin-bottom: 10px; font-family: 'Inter', sans-serif;"></textarea>
-              <button onclick="sendChatMessage()" style="margin-top: 0px; padding: 10px 20px; font-size: 1em; background-color: #2E7D32; color: white; border: none; border-radius: 4px; cursor: pointer;">Ask</button>
-              <div id="chatResponse" style="margin-top: 20px; padding: 15px; background-color: #f8f8f8; border: 1px solid #eee; border-radius: 4px; white-space: pre-wrap; font-family: Inter, sans-serif; font-size: 0.95em; min-height: 50px;"></div>
-            </div>
+        <div class="card">
+          <h3>Recommendations</h3>
+          <div class="card-content">
+            <ul id="recommendationsList"><li>No recommendations loaded.</li></ul>
           </div>
+        </div>
+        <div class="card">
+          <h3>AI Analysis Summary</h3>
+          <div class="card-content">
+            <div id="aiAnalysis" style="white-space: pre-wrap; margin-bottom: 15px;">N/A</div>
+            <button onclick="openModal('progressModal')" class="text-blue-600 hover:underline ml-4">View Progress History</button>
+          </div>
+        </div>
       </div>
-      </div> </div> <div id="progressModal" class="modal">
+      <div class="grid-container" id="debtsCard">
+        <div class="card">
+          <h3>Debt Overview</h3>
+          <div class="card-content">
+            <table id="debtsTable">
+              <thead><tr><th>Type</th><th>Balance</th><th>Rate (%)</th><th>Min. Payment</th></tr></thead>
+              <tbody><tr><td colspan="4">No debt data available.</td></tr></tbody>
+            </table>
+            <p style="margin-top: 10px;"><strong>Total Debt Balance:</strong> <span id="totalDebtBalance">N/A</span></p>
+            <p><strong>Total Min. Payments:</strong> <span id="totalMinPayments">N/A</span></p>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Financial Tools & Challenges</h3>
+          <div class="card-content">
+            <p><strong>Current Financial Tools:</strong> <span id="financialTools">N/A</span></p>
+            <p><strong>Reported Challenges:</strong> <span id="challenges">N/A</span></p>
+            <p><strong>Upcoming Purchase Goal Detail:</strong> <span id="purchaseGoals">N/A</span></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="progressModal" class="modal">
     <div class="modal-content">
-        <span class="close-button" onclick="closeModal('progressModal')">&times;</span>
-        <h2>User Progress History</h2>
-        <div id="progressContent" style="white-space: pre-wrap;"></div>
+      <span class="close-button" onclick="closeModal('progressModal')">&times;</span>
+      <h2>User Progress History</h2>
+      <div id="progressContent" style="white-space: pre-wrap;"></div>
     </div>
   </div>
   <script>
@@ -282,277 +268,514 @@
     const errorMessage = document.getElementById('errorMessage');
     const mainContent = document.getElementById('mainContent');
     const initialMessage = document.getElementById('initialMessage');
-    const chatInterfaceCard = document.getElementById('chatInterfaceCard'); // Reference needed for showing/hiding
     const plotlyConfig = { displaylogo: false, modeBarButtonsToRemove: ['sendDataToCloud', 'select2d', 'lasso2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d', 'resetScale2d', 'hoverClosestPie'] };
 
     // --- Helper Functions ---
-    function getSafe(fn, defaultVal = 'N/A') { try { const value = fn(); return (value === null || value === undefined || value === '') ? defaultVal : value; } catch (e) { return defaultVal; } }
-    function formatCurrency(value, hideNA = false) { const number = Number(value); if (isNaN(number)) return hideNA ? '' : 'N/A'; return number.toLocaleString('en-US', { style: 'currency', currency: 'USD' }); }
-    function formatPercent(value, decimals = 1) { const number = Number(value); if (isNaN(number) || !isFinite(number)) return 'N/A'; return number.toLocaleString(undefined, { style: 'percent', minimumFractionDigits: decimals, maximumFractionDigits: decimals }); }
-    function updateElementText(id, value, formatter) { const element = document.getElementById(id); if (element) { element.textContent = formatter ? formatter(value) : (value || 'N/A'); } }
-    function updateElementHTML(id, value) { const element = document.getElementById(id); if (element) element.innerHTML = value; }
+    function getSafe(fn, defaultVal = 'N/A') { 
+      try { 
+        const value = fn(); 
+        return (value === null || value === undefined || value === '') ? defaultVal : value; 
+      } catch (e) { 
+        return defaultVal; 
+      } 
+    }
+    function formatCurrency(value, hideNA = false) { 
+      const number = Number(value); 
+      if (isNaN(number)) return hideNA ? '' : 'N/A'; 
+      return number.toLocaleString('en-US', { style: 'currency', currency: 'USD' }); 
+    }
+    function formatPercent(value, decimals = 1) { 
+      const number = Number(value); 
+      if (isNaN(number) || !isFinite(number)) return 'N/A'; 
+      return number.toLocaleString(undefined, { style: 'percent', minimumFractionDigits: decimals, maximumFractionDigits: decimals }); 
+    }
+    function updateElementText(id, value, formatter) { 
+      const element = document.getElementById(id); 
+      if (element) { 
+        element.textContent = formatter ? formatter(value) : (value || 'N/A'); 
+      } 
+    }
+    function updateElementHTML(id, value) { 
+      const element = document.getElementById(id); 
+      if (element) element.innerHTML = value; 
+    }
 
     // --- Calculation Functions ---
-    function calculateTotals(data) { const income = data?.userInput?.income || {}; const expenses = data?.userInput?.expenses || {}; const totalIncome = (Number(getSafe(() => income.mainJobIncome, 0)) + Number(getSafe(() => income.secondJob, 0)) + Number(getSafe(() => income.otherIncome, 0))); const coreExpensesList = ['housing', 'utilities', 'transportation', 'groceriesEssentials', 'insurance', 'medical', 'care', 'taxes']; let totalExpenses = 0; let monthlyCoreExpenses = 0; for (const key in expenses) { const expenseValue = Number(getSafe(() => expenses[key], 0)); totalExpenses += expenseValue; if (coreExpensesList.includes(key)) { monthlyCoreExpenses += expenseValue; } } const netFlow = totalIncome - totalExpenses; return { totalIncome, totalExpenses, netFlow, monthlyCoreExpenses }; }
-    function calculateRatios(data, totals) { const debts = getSafe(() => data.userInput.debts, []); const savings = data?.userInput?.savings || {}; const emergencySavings = Number(getSafe(() => savings.emergency, 0)); const monthlySavingsGoal = Number(getSafe(() => savings.monthlySavingsGoal, 0)); let totalMinPayments = 0; if (Array.isArray(debts)) { debts.forEach(debt => { totalMinPayments += Number(getSafe(() => debt.minPayment, 0)); }); } const dtiRatio = (totals.totalIncome > 0) ? (totalMinPayments / totals.totalIncome) : 0; const emergencyCoverage = (totals.monthlyCoreExpenses > 0) ? (emergencySavings / totals.monthlyCoreExpenses) : 0; const savingsRate = (totals.totalIncome > 0) ? (monthlySavingsGoal / totals.totalIncome) : 0; return { dtiRatio, emergencyCoverage, savingsRate, totalMinPayments }; }
+    function calculateTotals(data) { 
+      const income = data?.userInput?.income || {}; 
+      const expenses = data?.userInput?.expenses || {}; 
+      const totalIncome = (Number(getSafe(() => income.mainJobIncome, 0)) + Number(getSafe(() => income.secondJob, 0)) + Number(getSafe(() => income.otherIncome, 0))); 
+      const coreExpensesList = ['housing', 'utilities', 'transportation', 'groceriesEssentials', 'insurance', 'medical', 'care', 'taxes']; 
+      let totalExpenses = 0; 
+      let monthlyCoreExpenses = 0; 
+      for (const key in expenses) { 
+        const expenseValue = Number(getSafe(() => expenses[key], 0)); 
+        totalExpenses += expenseValue; 
+        if (coreExpensesList.includes(key)) { 
+          monthlyCoreExpenses += expenseValue; 
+        } 
+      } 
+      const netFlow = totalIncome - totalExpenses; 
+      return { totalIncome, totalExpenses, netFlow, monthlyCoreExpenses }; 
+    }
+    function calculateRatios(data, totals) { 
+      const debts = getSafe(() => data.userInput.debts, []); 
+      const savings = data?.userInput?.savings || {}; 
+      const emergencySavings = Number(getSafe(() => savings.emergency, 0)); 
+      const monthlySavingsGoal = Number(getSafe(() => savings.monthlySavingsGoal, 0)); 
+      let totalMinPayments = 0; 
+      if (Array.isArray(debts)) { 
+        debts.forEach(debt => { 
+          totalMinPayments += Number(getSafe(() => debt.minPayment, 0)); 
+        }); 
+      } 
+      const dtiRatio = (totals.totalIncome > 0) ? (totalMinPayments / totals.totalIncome) : 0; 
+      const emergencyCoverage = (totals.monthlyCoreExpenses > 0) ? (emergencySavings / totals.monthlyCoreExpenses) : 0; 
+      const savingsRate = (totals.totalIncome > 0) ? (monthlySavingsGoal / totals.totalIncome) : 0; 
+      return { dtiRatio, emergencyCoverage, savingsRate, totalMinPayments }; 
+    }
 
     // --- Display Update Functions ---
-    function updateReportBasics(data, totals) { const personalInfo = data?.userInput?.personalInfo || {}; const savings = data?.userInput?.savings || {}; const financials = data?.userInput?.financials || {}; updateElementText('userName', personalInfo.userName); updateElementText('age', personalInfo.age); updateElementText('totalIncome', totals.totalIncome, formatCurrency); updateElementText('totalExpenses', totals.totalExpenses, formatCurrency); updateElementText('netFlow', totals.netFlow, formatCurrency); updateElementText('emergencySavings', savings.emergency, formatCurrency); updateElementText('currentSavings', savings.savings, formatCurrency); updateElementText('retirementFund', savings.retirement, formatCurrency); updateElementText('financialTools', financials.financialTools); updateElementText('challenges', financials.challenges); updateElementText('purchaseGoals', financials.upcomingPurchase); }
-    function updateRatiosDisplay(ratios) { const savingsRateValue = ratios.savingsRate; const savingsRatePercent = savingsRateValue * 100; updateElementText('savingsRateValue', savingsRateValue, val => formatPercent(val)); const srBar = document.getElementById('savingsRateBar'); if (srBar) { srBar.style.width = `${Math.min(100, savingsRatePercent)}%`; srBar.className = 'ratio-bar savings-rate'; if (savingsRateValue >= 0.15) srBar.classList.add('good'); else if (savingsRateValue >= 0.05) srBar.classList.add('ok'); } const emergencyCoverageValue = ratios.emergencyCoverage; updateElementText('emergencyCoverageValue', emergencyCoverageValue, val => `${Number(val || 0).toFixed(1)} months`); const ecBar = document.getElementById('emergencyCoverageBar'); if (ecBar) { const ecPercent = Math.min(100, (emergencyCoverageValue / 6) * 100); ecBar.style.width = `${ecPercent}%`; ecBar.className = 'ratio-bar emergency-coverage'; if (emergencyCoverageValue >= 3) ecBar.classList.add('good'); else if (emergencyCoverageValue >= 1) ecBar.classList.add('ok'); } const dtiRatioValue = ratios.dtiRatio; const dtiPercent = dtiRatioValue * 100; updateElementText('dtiRatioValue', dtiRatioValue, val => formatPercent(val)); const dtiBar = document.getElementById('dtiRatioBar'); if (dtiBar) { dtiBar.style.width = `${Math.min(100, dtiPercent)}%`; dtiBar.className = 'ratio-bar dti-ratio'; if (dtiRatioValue > 0.43) dtiBar.classList.add('high'); else if (dtiRatioValue >= 0.36) dtiBar.classList.add('warning'); } }
-    function updateGoalsDisplay(data) { const savings = data?.userInput?.savings || {}; const financials = data?.userInput?.financials || {}; const emergencyCurrent = Number(getSafe(() => savings.emergency, 0)); const emergencyTarget = Number(getSafe(() => savings.emergencyFundTarget, 0)); const purchaseCurrent = Number(getSafe(() => financials.purchaseGoalSaved, 0)); const purchaseTarget = Number(getSafe(() => financials.purchaseGoalTarget, 0)); const purchaseName = getSafe(() => financials.upcomingPurchase, 'Purchase Goal'); const emergencyGoalDiv = document.getElementById('emergencyGoalDisplay'); const purchaseGoalDiv = document.getElementById('purchaseGoalDisplay'); const emergencyProgressBar = document.getElementById('emergencyProgressBar'); const purchaseProgressBar = document.getElementById('purchaseProgressBar'); const purchaseGoalNameSpan = document.getElementById('purchaseGoalName'); if (emergencyGoalDiv && emergencyProgressBar) { if (emergencyTarget > 0) { const percent = Math.min(100, Math.max(0, (emergencyCurrent / emergencyTarget) * 100)); emergencyGoalDiv.querySelector('.goal-status').textContent = `${formatCurrency(emergencyCurrent)} / ${formatCurrency(emergencyTarget)} (${formatPercent(percent/100, 0)})`; emergencyProgressBar.style.width = `${percent}%`; emergencyProgressBar.textContent = `${formatPercent(percent/100, 0)}`; emergencyGoalDiv.style.display = 'block'; } else { emergencyGoalDiv.style.display = 'none'; } } if (purchaseGoalDiv && purchaseProgressBar && purchaseGoalNameSpan) { purchaseGoalNameSpan.textContent = purchaseName.split('(')[0].trim(); if (purchaseTarget > 0) { const percent = Math.min(100, Math.max(0, (purchaseCurrent / purchaseTarget) * 100)); purchaseGoalDiv.querySelector('.goal-status').textContent = `${formatCurrency(purchaseCurrent)} / ${formatCurrency(purchaseTarget)} (${formatPercent(percent/100, 0)})`; purchaseProgressBar.style.width = `${percent}%`; purchaseProgressBar.textContent = `${formatPercent(percent/100, 0)}`; purchaseGoalDiv.style.display = 'block'; } else { purchaseGoalDiv.style.display = 'none'; } } }
-    function updateDebtsDisplay(data, ratios) { const debts = getSafe(() => data.userInput.debts, null); const debtsTableBody = document.querySelector("#debtsTable tbody"); const debtsCard = document.getElementById('debtsCard'); if (!debtsTableBody || !debtsCard) return; if (Array.isArray(debts) && debts.length > 0) { debtsCard.style.display = 'flex'; debtsTableBody.innerHTML = ''; let totalBalance = 0; debts.forEach(debt => { const balance = Number(getSafe(() => debt.balance, 0)); totalBalance += balance; const row = debtsTableBody.insertRow(); row.insertCell().textContent = getSafe(() => debt.type); row.insertCell().textContent = formatCurrency(balance); row.cells[1].classList.add('balance-col'); row.insertCell().textContent = getSafe(() => debt.interestRate, 'N/A'); row.insertCell().textContent = formatCurrency(getSafe(() => debt.minPayment, 0)); }); updateElementText('totalDebtBalance', totalBalance, formatCurrency); updateElementText('totalMinPayments', ratios.totalMinPayments, formatCurrency); } else { debtsTableBody.innerHTML = '<tr><td colspan="4">No debt data provided.</td></tr>'; updateElementText('totalDebtBalance', 0, formatCurrency); updateElementText('totalMinPayments', 0, formatCurrency); } }
-    function renderCharts(data) { try { const income = data?.userInput?.income || {}; const expenses = data?.userInput?.expenses || {}; const incomeValues = [ getSafe(() => Number(income.mainJobIncome), 0), getSafe(() => Number(income.secondJob), 0), getSafe(() => Number(income.otherIncome), 0) ]; const incomeLabels = ['Main Job', 'Second Job', 'Other']; const filteredIncomeValues = []; const filteredIncomeLabels = []; incomeValues.forEach((v, i) => { if (v > 0) { filteredIncomeValues.push(v); filteredIncomeLabels.push(incomeLabels[i]); }}); const incomeChartData = [{ values: filteredIncomeValues, labels: filteredIncomeLabels, type: 'pie', hole: .4, hoverinfo: 'label+percent+value', marker: { colors: ['#4CAF50', '#8BC34A', '#CDDC39'] }, domain: { y: [0.30, 1] } }]; const incomeLayout = { title: 'Income Sources', showlegend: true, height: 380, margin: { l: 20, r: 20, t: 40, b: 100 }, legend: { orientation: "h", yanchor: "bottom", y: -0.2, xanchor: 'center', x: 0.5 } }; Plotly.newPlot('incomeChart', incomeChartData, incomeLayout, plotlyConfig); const expenseLabels = ['Housing', 'Utilities', 'Transportation', 'Groceries/Essentials', 'Insurance', 'Medical', 'Care', 'Subscriptions', 'Taxes']; const expenseValuesRaw = [ getSafe(() => Number(expenses.housing), 0), getSafe(() => Number(expenses.utilities), 0), getSafe(() => Number(expenses.transportation), 0), getSafe(() => Number(expenses.groceriesEssentials), 0), getSafe(() => Number(expenses.insurance), 0), getSafe(() => Number(expenses.medical), 0), getSafe(() => Number(expenses.care), 0), getSafe(() => Number(expenses.subscriptions), 0), getSafe(() => Number(expenses.taxes), 0) ]; const filteredExpenseValues = []; const filteredExpenseLabels = []; expenseValuesRaw.forEach((v, i) => { if (v > 0) { filteredExpenseValues.push(v); filteredExpenseLabels.push(expenseLabels[i]); }}); const expenseChartData = [{ values: filteredExpenseValues, labels: filteredExpenseLabels, type: 'pie', hole: .4, hoverinfo: 'label+percent+value', marker: { colors: ['#F44336', '#E91E63', '#9C27B0', '#673AB7', '#3F51B5', '#2196F3', '#03A9F4', '#00BCD4', '#009688'] }, domain: { y: [0.30, 1] } }]; const expenseLayout = { title: 'Expense Categories', showlegend: true, height: 380, margin: { l: 20, r: 20, t: 40, b: 100 }, legend: { orientation: "h", yanchor: "bottom", y: -0.2, xanchor: 'center', x: 0.5 } }; Plotly.newPlot('expenseChart', expenseChartData, expenseLayout, plotlyConfig); } catch (chartError) { console.error("Error rendering charts:", chartError); errorMessage.textContent = `Error displaying charts: ${chartError.message}. Please check the data format.`; errorMessage.style.display = 'block'; } }
-    function updateUIDisplayFromAI(data) { const aiOutput = data?.aiOutput || {}; const recommendationsList = document.getElementById('recommendationsList'); const analysisDiv = document.getElementById('aiAnalysis'); const progressDiv = document.getElementById('progressContent'); if(analysisDiv) { analysisDiv.textContent = getSafe(() => aiOutput.analysis, 'N/A'); } if(progressDiv) { progressDiv.textContent = getSafe(() => aiOutput.userProgress, 'N/A'); } if (recommendationsList) { recommendationsList.innerHTML = ''; const recommendationsText = getSafe(() => aiOutput.recommendations, ''); if (recommendationsText && recommendationsText !== 'N/A') { const items = recommendationsText.split('\\n').map(item => item.trim()).filter(item => item.length > 0).map(item => item.replace(/^[\*\-\d\.]+\s*/, '')); if (items.length > 0 && !(items.length === 1 && items[0] === '')) { items.forEach(itemText => { const li = document.createElement('li'); li.textContent = itemText; recommendationsList.appendChild(li); }); } else { recommendationsList.innerHTML = '<li>No specific recommendations available.</li>'; } } else { recommendationsList.innerHTML = '<li>No recommendations available.</li>'; } } else { console.error("Recommendations list element not found"); } }
-
-    // --- Modal Functions ---
-    function initModals(data) { window.onclick = function(event) { const modals = document.getElementsByClassName('modal'); for (let i = 0; i < modals.length; i++) { if (event.target == modals[i]) { modals[i].style.display = "none"; } } } }
-    function openModal(modalId) { const modal = document.getElementById(modalId); if (modal) modal.style.display = "block"; }
-    function closeModal(modalId) { const modal = document.getElementById(modalId); if (modal) modal.style.display = "none"; }
-
-    // --- Button Initializers ---
-    function initSaveButton() { const saveButton = document.getElementById('saveButton'); if(!saveButton) return; saveButton.addEventListener('click', () => { if (!fetchedReportData || Object.keys(fetchedReportData).length === 0) { alert("No report data available to save."); return; } try { const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(fetchedReportData, null, 2)); const a = document.createElement('a'); a.href = dataStr; const filenameUser = getSafe(() => fetchedReportData.userInput.personalInfo.userName.replace(/[^a-z0-9]/gi, '_').toLowerCase(), 'user'); a.download = `financial_report_${filenameUser}_${new Date().toISOString().slice(0,10)}.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); } catch (saveError) { console.error("Error creating save data:", saveError); alert(`Error saving file: ${saveError.message}`); } }); }
-    function initUploadButton() { const uploadButton = document.getElementById('uploadButton'); const fileInput = document.getElementById('fileInput'); if (!uploadButton || !fileInput) { console.error("Upload button or file input not found."); return; } uploadButton.addEventListener('click', () => { fileInput.click(); }); fileInput.addEventListener('change', handleFileUpload); }
-
-    // --- File Handling & Processing ---
-    function handleFileUpload(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-        loadingMessage.style.display = 'block';
-        errorMessage.style.display = 'none';
-        initialMessage.style.display = 'none';
-        mainContent.style.display = 'none';
-        if (chatInterfaceCard) chatInterfaceCard.style.display = 'none'; // Check if exists before hiding
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            let uploadedData = null;
-            try {
-                uploadedData = JSON.parse(e.target.result);
-                if (typeof uploadedData !== 'object' || uploadedData === null) {
-                    throw new Error("Invalid file content. Expected a JSON object.");
-                }
-                fetchedReportData = uploadedData;
-                processAndDisplayData(fetchedReportData);
-            } catch (error) {
-                console.error("Error parsing uploaded JSON or invalid format:", error);
-                errorMessage.textContent = `Error loading file: ${error.message}. Please ensure it's a valid JSON file.`;
-                errorMessage.style.display = 'block';
-                loadingMessage.style.display = 'none';
-                mainContent.style.display = 'none';
-                if (chatInterfaceCard) chatInterfaceCard.style.display = 'none'; // Check if exists
-                initialMessage.style.display = 'block';
-                fetchedReportData = {};
-            } finally {
-                 event.target.value = null; // Reset file input
-            }
-        };
-        reader.onerror = function(e) {
-            console.error("FileReader error:", e);
-            errorMessage.textContent = `Error reading file: ${e.target.error}`;
-            errorMessage.style.display = 'block';
-            loadingMessage.style.display = 'none';
-            mainContent.style.display = 'none';
-            if (chatInterfaceCard) chatInterfaceCard.style.display = 'none'; // Check if exists
-            initialMessage.style.display = 'block';
-            fetchedReportData = {}; // Clear data on error
-        };
-        reader.readAsText(file);
+    function updateReportBasics(data, totals) { 
+      const personalInfo = data?.userInput?.personalInfo || {}; 
+      const savings = data?.userInput?.savings || {}; 
+      const financials = data?.userInput?.financials || {}; 
+      updateElementText('userName', personalInfo.userName); 
+      updateElementText('age', personalInfo.age); 
+      updateElementText('totalIncome', totals.totalIncome, formatCurrency); 
+      updateElementText('totalExpenses', totals.totalExpenses, formatCurrency); 
+      updateElementText('netFlow', totals.netFlow, formatCurrency); 
+      updateElementText('emergencySavings', savings.emergency, formatCurrency); 
+      updateElementText('currentSavings', savings.savings, formatCurrency); 
+      updateElementText('retirementFund', savings.retirement, formatCurrency); 
+      updateElementText('financialTools', financials.financialTools); 
+      updateElementText('challenges', financials.challenges); 
+      updateElementText('purchaseGoals', financials.upcomingPurchase); 
     }
-
-    function processAndDisplayData(data) {
-        if (!data || typeof data !== 'object') {
-             console.error("Invalid data passed to processAndDisplayData");
-             errorMessage.textContent = `Error: Invalid data format received.`;
-             errorMessage.style.display = 'block';
-             loadingMessage.style.display = 'none';
-             mainContent.style.display = 'none';
-             if (chatInterfaceCard) chatInterfaceCard.style.display = 'none'; // Check if exists
-             initialMessage.style.display = 'block';
-             fetchedReportData = {};
-             return;
-        }
-        try {
-            const totals = calculateTotals(data);
-            const ratios = calculateRatios(data, totals);
-            updateReportBasics(data, totals);
-            updateRatiosDisplay(ratios);
-            updateGoalsDisplay(data);
-            updateDebtsDisplay(data, ratios);
-            renderCharts(data);
-            updateUIDisplayFromAI(data);
-            initModals(data); // Initialize modals after data is processed
-
-            // Hide loading/initial messages and show content
-            loadingMessage.style.display = 'none';
-            errorMessage.style.display = 'none';
-            initialMessage.style.display = 'none';
-            mainContent.style.display = 'block';
-            if (chatInterfaceCard) { // Check if chat interface exists before showing
-                 chatInterfaceCard.style.display = 'grid'; // Or 'block' if preferred layout
-            }
-
-        } catch(processingError) {
-            console.error("Error processing data:", processingError);
-            errorMessage.textContent = `Error displaying data: ${processingError.message}. Check data structure.`;
-            errorMessage.style.display = 'block';
-            loadingMessage.style.display = 'none';
-            mainContent.style.display = 'none';
-            if (chatInterfaceCard) chatInterfaceCard.style.display = 'none'; // Check if exists
-            initialMessage.style.display = 'block';
-            fetchedReportData = {}; // Clear data on error
-        }
+    function updateRatiosDisplay(ratios) { 
+      const savingsRateValue = ratios.savingsRate; 
+      const savingsRatePercent = savingsRateValue * 100; 
+      updateElementText('savingsRateValue', savingsRateValue, val => formatPercent(val)); 
+      const srBar = document.getElementById('savingsRateBar'); 
+      if (srBar) { 
+        srBar.style.width = `${Math.min(100, savingsRatePercent)}%`; 
+        srBar.className = 'ratio-bar savings-rate'; 
+        if (savingsRateValue >= 0.15) srBar.classList.add('good'); 
+        else if (savingsRateValue >= 0.05) srBar.classList.add('ok'); 
+      } 
+      const emergencyCoverageValue = ratios.emergencyCoverage; 
+      updateElementText('emergencyCoverageValue', emergencyCoverageValue, val => `${Number(val || 0).toFixed(1)} months`); 
+      const ecBar = document.getElementById('emergencyCoverageBar'); 
+      if (ecBar) { 
+        const ecPercent = Math.min(100, (emergencyCoverageValue / 6) * 100); 
+        ecBar.style.width = `${ecPercent}%`; 
+        ecBar.className = 'ratio-bar emergency-coverage'; 
+        if (emergencyCoverageValue >= 3) ecBar.classList.add('good'); 
+        else if (emergencyCoverageValue >= 1) ecBar.classList.add('ok'); 
+      } 
+      const dtiRatioValue = ratios.dtiRatio; 
+      const dtiPercent = dtiRatioValue * 100; 
+      updateElementText('dtiRatioValue', dtiRatioValue, val => formatPercent(val)); 
+      const dtiBar = document.getElementById('dtiRatioBar'); 
+      if (dtiBar) { 
+        dtiBar.style.width = `${Math.min(100, dtiPercent)}%`; 
+        dtiBar.className = 'ratio-bar dti-ratio'; 
+        if (dtiRatioValue > 0.43) dtiBar.classList.add('high'); 
+        else if (dtiRatioValue >= 0.36) dtiBar.classList.add('warning'); 
+      } 
     }
-
-    // --- ChatGPT Interface Function (Uses Edge Function) ---
-    async function sendChatMessage() {
-      const inputElement = document.getElementById('chatInput');
-      const input = inputElement.value.trim();
-      const responseBox = document.getElementById('chatResponse');
-      // --- PASTE YOUR FUNCTION URL HERE ---
-      const edgeFunctionUrl = 'https://tfnwwpksieluzvxqdiiq.supabase.co/functions/v1/smooth-function'; // <-- Make sure this is your correct URL!
-      // ------------------------------------
-
-      if (!edgeFunctionUrl || edgeFunctionUrl.includes('PASTE_YOUR_SUPABASE_EDGE_FUNCTION_URL_HERE')) {
-          responseBox.textContent = '❌ Error: Edge Function URL not configured correctly in the script.';
-          console.error('Edge Function URL missing or incorrect!');
-          return;
-      }
-
-      if (!input) {
-        responseBox.textContent = 'Please enter a question.';
-        return;
-      }
-
-      responseBox.textContent = 'Thinking...'; // Provide feedback
-
+    function updateGoalsDisplay(data) { 
+      const savings = data?.userInput?.savings || {}; 
+      const financials = data?.userInput?.financials || {}; 
+      const emergencyCurrent = Number(getSafe(() => savings.emergency, 0)); 
+      const emergencyTarget = Number(getSafe(() => savings.emergencyFundTarget, 0)); 
+      const purchaseCurrent = Number(getSafe(() => financials.purchaseGoalSaved, 0)); 
+      const purchaseTarget = Number(getSafe(() => financials.purchaseGoalTarget, 0)); 
+      const purchaseName = getSafe(() => financials.upcomingPurchase, 'Purchase Goal'); 
+      const emergencyGoalDiv = document.getElementById('emergencyGoalDisplay'); 
+      const purchaseGoalDiv = document.getElementById('purchaseGoalDisplay'); 
+      const emergencyProgressBar = document.getElementById('emergencyProgressBar'); 
+      const purchaseProgressBar = document.getElementById('purchaseProgressBar'); 
+      const purchaseGoalNameSpan = document.getElementById('purchaseGoalName'); 
+      if (emergencyGoalDiv && emergencyProgressBar) { 
+        if (emergencyTarget > 0) { 
+          const percent = Math.min(100, Math.max(0, (emergencyCurrent / emergencyTarget) * 100)); 
+          emergencyGoalDiv.querySelector('.goal-status').textContent = `${formatCurrency(emergencyCurrent)} / ${formatCurrency(emergencyTarget)} (${formatPercent(percent/100, 0)})`; 
+          emergencyProgressBar.style.width = `${percent}%`; 
+          emergencyProgressBar.textContent = `${formatPercent(percent/100, 0)}`; 
+          emergencyGoalDiv.style.display = 'block'; 
+        } else { 
+          emergencyGoalDiv.style.display = 'none'; 
+        } 
+      } 
+      if (purchaseGoalDiv && purchaseProgressBar && purchaseGoalNameSpan) { 
+        purchaseGoalNameSpan.textContent = purchaseName.split('(')[0].trim(); 
+        if (purchaseTarget > 0) { 
+          const percent = Math.min(100, Math.max(0, (purchaseCurrent / purchaseTarget) * 100)); 
+          purchaseGoalDiv.querySelector('.goal-status').textContent = `${formatCurrency(purchaseCurrent)} / ${formatCurrency(purchaseTarget)} (${formatPercent(percent/100, 0)})`; 
+          purchaseProgressBar.style.width = `${percent}%`; 
+          purchaseProgressBar.textContent = `${formatPercent(percent/100, 0)}`; 
+          purchaseGoalDiv.style.display = 'block'; 
+        } else { 
+          purchaseGoalDiv.style.display = 'none'; 
+        } 
+      } 
+    }
+    function updateDebtsDisplay(data, ratios) { 
+      const debts = getSafe(() => data.userInput.debts, null); 
+      const debtsTableBody = document.querySelector("#debtsTable tbody"); 
+      const debtsCard = document.getElementById('debtsCard'); 
+      if (!debtsTableBody || !debtsCard) return; 
+      if (Array.isArray(debts) && debts.length > 0) { 
+        debtsCard.style.display = 'flex'; 
+        debtsTableBody.innerHTML = ''; 
+        let totalBalance = 0; 
+        debts.forEach(debt => { 
+          const balance = Number(getSafe(() => debt.balance, 0)); 
+          totalBalance += balance; 
+          const row = debtsTableBody.insertRow(); 
+          row.insertCell().textContent = getSafe(() => debt.type); 
+          row.insertCell().textContent = formatCurrency(balance); 
+          row.cells[1].classList.add('balance-col'); 
+          row.insertCell().textContent = getSafe(() => debt.interestRate, 'N/A'); 
+          row.insertCell().textContent = formatCurrency(getSafe(() => debt.minPayment, 0)); 
+        }); 
+        updateElementText('totalDebtBalance', totalBalance, formatCurrency); 
+        updateElementText('totalMinPayments', ratios.totalMinPayments, formatCurrency); 
+      } else { 
+        debtsTableBody.innerHTML = '<tr><td colspan="4">No debt data provided.</td></tr>'; 
+        updateElementText('totalDebtBalance', 0, formatCurrency); 
+        updateElementText('totalMinPayments', 0, formatCurrency); 
+      } 
+    }
+    function renderCharts(data) {
       try {
-        // Prepare data to send to the Edge Function
-        const contextData = fetchedReportData?.userInput || {}; // Send user input context
-        const requestPayload = {
-          prompt: input,
-          context: contextData
-        };
-
-        // Call your Supabase Edge Function
-        const response = await fetch(edgeFunctionUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            // No API key needed here!
-          },
-          body: JSON.stringify(requestPayload)
+        const income = data?.userInput?.income || {}; 
+        const expenses = data?.userInput?.expenses || {}; 
+        const incomeValues = [ 
+          getSafe(() => Number(income.mainJobIncome), 0), 
+          getSafe(() => Number(income.secondJob), 0), 
+          getSafe(() => Number(income.otherIncome), 0) 
+        ]; 
+        const incomeLabels = ['Main Job', 'Second Job', 'Other']; 
+        const filteredIncomeValues = []; 
+        const filteredIncomeLabels = []; 
+        incomeValues.forEach((v, i) => { 
+          if (v > 0) { 
+            filteredIncomeValues.push(v); 
+            filteredIncomeLabels.push(incomeLabels[i]); 
+          }
+        }); 
+        const incomeChartData = [{
+          values: filteredIncomeValues, 
+          labels: filteredIncomeLabels, 
+          type: 'pie', 
+          hole: .4, 
+          hoverinfo: 'label+percent+value',
+          marker: { colors: ['#4CAF50', '#8BC34A', '#CDDC39'] },
+          domain: { y: [0.30, 1] }
+        }]; 
+        const incomeLayout = { 
+          title: 'Income Sources', 
+          showlegend: true, 
+          height: 380, 
+          margin: { l: 20, r: 20, t: 40, b: 100 },
+          legend: { orientation: "h", yanchor: "bottom", y: -0.2, xanchor: 'center', x: 0.5 }
+        }; 
+        Plotly.newPlot('incomeChart', incomeChartData, incomeLayout, plotlyConfig);
+  
+        const expenseLabels = ['Housing', 'Utilities', 'Transportation', 'Groceries/Essentials', 'Insurance', 'Medical', 'Care', 'Subscriptions', 'Taxes'];
+        const expenseValuesRaw = [ 
+          getSafe(() => Number(expenses.housing), 0), 
+          getSafe(() => Number(expenses.utilities), 0), 
+          getSafe(() => Number(expenses.transportation), 0), 
+          getSafe(() => Number(expenses.groceriesEssentials), 0), 
+          getSafe(() => Number(expenses.insurance), 0), 
+          getSafe(() => Number(expenses.medical), 0), 
+          getSafe(() => Number(expenses.care), 0), 
+          getSafe(() => Number(expenses.subscriptions), 0), 
+          getSafe(() => Number(expenses.taxes), 0) 
+        ]; 
+        const filteredExpenseValues = []; 
+        const filteredExpenseLabels = []; 
+        expenseValuesRaw.forEach((v, i) => { 
+          if (v > 0) { 
+            filteredExpenseValues.push(v); 
+            filteredExpenseLabels.push(expenseLabels[i]); 
+          }
         });
-
-        // Process the response from the Edge Function
-        const result = await response.json(); // Try to parse JSON response
-
-        if (!response.ok) {
-          // Handle errors returned from the Edge Function (like 500s) or OpenAI errors proxied back
-          throw new Error(`Error from proxy (${response.status}): ${result.error || response.statusText}`);
-        }
-
-        // Display the successful OpenAI response
-        if (result.error) {
-          // Handle errors structured within a successful (e.g., 200 OK) response from OpenAI if applicable
-           responseBox.textContent = `❌ API Error: ${result.error.message || result.error}`;
-        } else if (result.choices && result.choices.length > 0) {
-          responseBox.textContent = result.choices[0]?.message?.content.trim() || "No response content received.";
-          inputElement.value = ''; // Clear input field on success
-        } else {
-          responseBox.textContent = "Received an empty or unexpected response format.";
-          console.warn("Unexpected response format:", result);
-        }
-
-      } catch (err) {
-        console.error("Chat Error:", err); // Log the full error for debugging
-        responseBox.textContent = `❌ Error: ${err.message}`; // Display error
+        const expenseChartData = [{
+          values: filteredExpenseValues, 
+          labels: filteredExpenseLabels, 
+          type: 'pie', 
+          hole: .4, 
+          hoverinfo: 'label+percent+value',
+          marker: { colors: ['#F44336', '#E91E63', '#9C27B0', '#673AB7', '#3F51B5', '#2196F3', '#03A9F4', '#00BCD4', '#009688'] },
+          domain: { y: [0.30, 1] }
+        }]; 
+        const expenseLayout = { 
+          title: 'Expense Categories', 
+          showlegend: true, 
+          height: 380, 
+          margin: { l: 20, r: 20, t: 40, b: 100 },
+          legend: { orientation: "h", yanchor: "bottom", y: -0.2, xanchor: 'center', x: 0.5 }
+        }; 
+        Plotly.newPlot('expenseChart', expenseChartData, expenseLayout, plotlyConfig);
+      } catch (chartError) {
+        console.error("Error rendering charts:", chartError); 
+        errorMessage.textContent = `Error displaying charts: ${chartError.message}. Please check the data format.`; 
+        errorMessage.style.display = 'block'; 
       }
     }
-    // --- End of sendChatMessage Function ---
-
-
-    // --- Initialization ---
-    function init() {
-        let data = null;
-        const dataElement = document.getElementById('embeddedPsrData');
-        errorMessage.textContent = ''; // Clear previous errors
-        errorMessage.style.display = 'none';
-
-        try {
-            // Check if embedded data exists and is not the placeholder
-            if (dataElement && dataElement.textContent.trim() && dataElement.textContent.trim() !== '/* MAKE_COM_JSON_PLACEHOLDER */') {
-                data = JSON.parse(dataElement.textContent);
-                fetchedReportData = data; // Store globally
-            }
-        } catch (error) {
-            console.error("Error parsing embedded JSON on initial load:", error);
-            errorMessage.textContent = `Failed to parse initially embedded report data: ${error.message}`;
-            errorMessage.style.display = 'block';
-        }
-
-        loadingMessage.style.display = 'none'; // Hide loading indicator
-        initSaveButton();
-        initUploadButton();
-        initModals({}); // Initialize modals regardless of data
-
-        // --- Modified Init Logic ---
-        if (Object.keys(fetchedReportData).length > 0) {
-             // Data loaded from embedded <pre> tag
-             processAndDisplayData(fetchedReportData);
-        } else {
-             // No embedded data, try loading from URL *before* deciding to show initial message
-             tryAutoLoadFromURL(); // Try URL load
-
-             // Re-check if data was loaded by tryAutoLoadFromURL
-              if (Object.keys(fetchedReportData).length > 0) {
-                  // Data was loaded from URL, process it
-                   processAndDisplayData(fetchedReportData);
-              } else {
-                 // Still no data after checking embedded and URL, hide main content and show initial message
-                 mainContent.style.display = 'none';
-                 // Ensure chat card is also hidden if no data
-                 if (chatInterfaceCard) chatInterfaceCard.style.display = 'none'; // Check if exists
-                 initialMessage.style.display = 'block';
-              }
-        }
-        // --- End of Modified Init Logic ---
+    function updateUIDisplayFromAI(data) { 
+      const aiOutput = data?.aiOutput || {}; 
+      const recommendationsList = document.getElementById('recommendationsList'); 
+      const analysisDiv = document.getElementById('aiAnalysis'); 
+      const progressDiv = document.getElementById('progressContent'); 
+      if (analysisDiv) { 
+        analysisDiv.textContent = getSafe(() => aiOutput.analysis, 'N/A'); 
+      } 
+      if (progressDiv) { 
+        progressDiv.textContent = getSafe(() => aiOutput.userProgress, 'N/A'); 
+      } 
+      if (recommendationsList) { 
+        recommendationsList.innerHTML = ''; 
+        const recommendationsText = getSafe(() => aiOutput.recommendations, ''); 
+        if (recommendationsText && recommendationsText !== 'N/A') { 
+          const items = recommendationsText.split('\\n')
+            .map(item => item.trim())
+            .filter(item => item.length > 0)
+            .map(item => item.replace(/^[\*\-\d\.]+\s*/, '')); 
+          if (items.length > 0 && !(items.length === 1 && items[0] === '')) { 
+            items.forEach(itemText => { 
+              const li = document.createElement('li'); 
+              li.textContent = itemText; 
+              recommendationsList.appendChild(li); 
+            }); 
+          } else { 
+            recommendationsList.innerHTML = '<li>No specific recommendations available.</li>'; 
+          } 
+        } else { 
+          recommendationsList.innerHTML = '<li>No recommendations available.</li>'; 
+        } 
+      } else { 
+        console.error("Recommendations list element not found"); 
+      } 
     }
-
+    function initModals(data) { 
+      window.onclick = function(event) { 
+        const modals = document.getElementsByClassName('modal'); 
+        for (let i = 0; i < modals.length; i++) { 
+          if (event.target == modals[i]) { 
+            modals[i].style.display = "none"; 
+          } 
+        } 
+      }
+    }
+    function openModal(modalId) { 
+      const modal = document.getElementById(modalId); 
+      if (modal) modal.style.display = "block"; 
+    }
+    function closeModal(modalId) { 
+      const modal = document.getElementById(modalId); 
+      if (modal) modal.style.display = "none"; 
+    }
+    function initSaveButton() { 
+      const saveButton = document.getElementById('saveButton'); 
+      if(!saveButton) return; 
+      saveButton.addEventListener('click', () => { 
+        if (!fetchedReportData || Object.keys(fetchedReportData).length === 0) { 
+          alert("No report data available to save."); 
+          return; 
+        } 
+        try { 
+          const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(fetchedReportData, null, 2)); 
+          const a = document.createElement('a'); 
+          a.href = dataStr; 
+          const filenameUser = getSafe(() => fetchedReportData.userInput.personalInfo.userName.replace(/[^a-z0-9]/gi, '_').toLowerCase(), 'user'); 
+          a.download = `financial_report_${filenameUser}_${new Date().toISOString().slice(0,10)}.json`; 
+          document.body.appendChild(a); 
+          a.click(); 
+          document.body.removeChild(a); 
+        } catch (saveError) { 
+          console.error("Error creating save data:", saveError); 
+          alert(`Error saving file: ${saveError.message}`); 
+        } 
+      }); 
+    }
+    function initUploadButton() { 
+      const uploadButton = document.getElementById('uploadButton'); 
+      const fileInput = document.getElementById('fileInput'); 
+      if (!uploadButton || !fileInput) { 
+        console.error("Upload button or file input not found."); 
+        return; 
+      } 
+      uploadButton.addEventListener('click', () => { fileInput.click(); }); 
+      fileInput.addEventListener('change', handleFileUpload); 
+    }
+    function handleFileUpload(event) { 
+      const file = event.target.files[0]; 
+      if (!file) return; 
+      loadingMessage.style.display = 'block'; 
+      errorMessage.style.display = 'none'; 
+      initialMessage.style.display = 'none'; 
+      mainContent.style.display = 'none'; 
+      const reader = new FileReader(); 
+      reader.onload = function(e) { 
+        let uploadedData = null; 
+        try { 
+          uploadedData = JSON.parse(e.target.result); 
+          if (typeof uploadedData !== 'object' || uploadedData === null) { 
+            throw new Error("Invalid file content. Expected a JSON object."); 
+          } 
+          fetchedReportData = uploadedData; 
+          processAndDisplayData(fetchedReportData); 
+        } catch (error) { 
+          console.error("Error parsing uploaded JSON or invalid format:", error); 
+          errorMessage.textContent = `Error loading file: ${error.message}. Please ensure it's a valid JSON file.`; 
+          errorMessage.style.display = 'block'; 
+          loadingMessage.style.display = 'none'; 
+          mainContent.style.display = 'none'; 
+          initialMessage.style.display = 'block'; 
+          fetchedReportData = {}; 
+        } finally { 
+          event.target.value = null; 
+        } 
+      }; 
+      reader.onerror = function(e) { 
+        console.error("FileReader error:", e); 
+        errorMessage.textContent = `Error reading file: ${e.target.error}`; 
+        errorMessage.style.display = 'block'; 
+        loadingMessage.style.display = 'none'; 
+        mainContent.style.display = 'none'; 
+        initialMessage.style.display = 'block'; 
+        fetchedReportData = {}; 
+      }; 
+      reader.readAsText(file); 
+    }
+    function processAndDisplayData(data) { 
+      if (!data || typeof data !== 'object') { 
+        console.error("Invalid data passed to processAndDisplayData"); 
+        errorMessage.textContent = `Error: Invalid data format received.`; 
+        errorMessage.style.display = 'block'; 
+        loadingMessage.style.display = 'none'; 
+        mainContent.style.display = 'none'; 
+        initialMessage.style.display = 'block'; 
+        fetchedReportData = {}; 
+        return; 
+      } 
+      try { 
+        const totals = calculateTotals(data); 
+        const ratios = calculateRatios(data, totals); 
+        updateReportBasics(data, totals); 
+        updateRatiosDisplay(ratios); 
+        updateGoalsDisplay(data); 
+        updateDebtsDisplay(data, ratios); 
+        renderCharts(data); 
+        updateUIDisplayFromAI(data); 
+        initModals(data); 
+        loadingMessage.style.display = 'none'; 
+        errorMessage.style.display = 'none'; 
+        initialMessage.style.display = 'none'; 
+        mainContent.style.display = 'block'; 
+      } catch(processingError) { 
+        console.error("Error processing data:", processingError); 
+        errorMessage.textContent = `Error displaying data: ${processingError.message}.`; 
+        errorMessage.style.display = 'block'; 
+        loadingMessage.style.display = 'none'; 
+        mainContent.style.display = 'none'; 
+        initialMessage.style.display = 'block'; 
+        fetchedReportData = {}; 
+      } 
+    }
+    function init() { 
+      let data = null; 
+      const dataElement = document.getElementById('embeddedPsrData'); 
+      errorMessage.textContent = ''; 
+      errorMessage.style.display = 'none'; 
+      try { 
+        if (dataElement && dataElement.textContent.trim() && dataElement.textContent.trim() !== '/* MAKE_COM_JSON_PLACEHOLDER */') { 
+          data = JSON.parse(dataElement.textContent); 
+          fetchedReportData = data; 
+        } 
+      } catch (error) { 
+        console.error("Error parsing embedded JSON on initial load:", error); 
+        errorMessage.textContent = `Failed to parse initially embedded report data: ${error.message}`; 
+        errorMessage.style.display = 'block'; 
+      } 
+      loadingMessage.style.display = 'none'; 
+      initSaveButton(); 
+      initUploadButton(); 
+      initModals({}); 
+      if (data) { 
+        processAndDisplayData(data); 
+      } else { 
+        mainContent.style.display = 'none'; 
+        initialMessage.style.display = 'block'; 
+      } 
+    }
     // --- Auto-load PSR JSON from URL if provided ---
-    function tryAutoLoadFromURL() { // Changed to a regular function to be called by init
-      const params = new URLSearchParams(window.location.search);
-      const encoded = params.get('data');
-      if (!encoded) return; // No data param, do nothing
-
-      try {
-        // Decode and parse the data
-        const json = atob(decodeURIComponent(encoded)); // Base64 decode
-        const parsed = JSON.parse(json);
-        // Assign directly to global variable instead of putting in <pre>
-        // Check if parsed data is a valid object
-        if (typeof parsed === 'object' && parsed !== null) {
-            fetchedReportData = parsed;
-        } else {
-            throw new Error("Decoded data is not a valid JSON object.");
-        }
-      } catch (err) {
-        console.error("Error parsing JSON from URL:", err);
-        const errorMsgElement = document.getElementById("errorMessage");
-        if (errorMsgElement) {
-          errorMsgElement.textContent = `Error parsing URL-based data: ${err.message}`;
-          errorMsgElement.style.display = 'block';
-        }
-        // Ensure main content remains hidden if URL parsing fails
-        const initialMsgElement = document.getElementById("initialMessage");
-         if(initialMsgElement) initialMsgElement.style.display = 'block';
-         if(mainContent) mainContent.style.display = 'none';
-         if (chatInterfaceCard) chatInterfaceCard.style.display = 'none'; // Check if exists
-         fetchedReportData = {}; // Clear data on error
-      }
+    function tryAutoLoadFromURL() { 
+      const params = new URLSearchParams(window.location.search); 
+      const encoded = params.get('data'); 
+      if (!encoded) return; 
+      try { 
+        const json = atob(decodeURIComponent(encoded)); 
+        const parsed = JSON.parse(json); 
+        fetchedReportData = parsed; 
+        processAndDisplayData(parsed); 
+      } catch (err) { 
+        console.error("Error parsing JSON from URL:", err); 
+        const errorMsgElement = document.getElementById("errorMessage"); 
+        if (errorMsgElement) { 
+          errorMsgElement.textContent = `Error parsing URL-based data: ${err.message}`; 
+          errorMsgElement.style.display = 'block'; 
+        } 
+      } 
     }
-
-    // Run init when the DOM is fully loaded
     document.addEventListener('DOMContentLoaded', init);
-</script>
+  </script>
+  
+  <!-- New script: Read URL parameters and update matching elements -->
+  <script>
+    function loadDataFromURLParams() {
+      const params = new URLSearchParams(window.location.search);
+      // List of expected URL parameters
+      const fields = [
+        "subscription",
+        "userName",
+        "age",
+        "ayepeeyigh",
+        "mainJobIncome",
+        "secondJob",
+        "otherIncome",
+        "savings",
+        "retirement",
+        "housing",
+        "utilities",
+        "transportation",
+        "groceries-essentials",
+        "insurance",
+        "medical",
+        "care",
+        "subscriptions",
+        "creditCard",
+        "bankloans",
+        "financialTools",
+        "challenges",
+        "upcomingPurchases"
+      ];
+      fields.forEach(field => {
+        if (params.has(field)) {
+          const value = params.get(field);
+          const element = document.getElementById(field);
+          if (element) {
+            element.textContent = value;
+          }
+        }
+      });
+    }
+    document.addEventListener('DOMContentLoaded', loadDataFromURLParams);
+  </script>
 </body>
 </html>
