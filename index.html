@@ -369,7 +369,7 @@
     function init() { let data = null; const dataElement = document.getElementById('embeddedPsrData'); errorMessage.textContent = ''; errorMessage.style.display = 'none'; try { if (dataElement && dataElement.textContent.trim() && dataElement.textContent.trim() !== '/* MAKE_COM_JSON_PLACEHOLDER */') { data = JSON.parse(dataElement.textContent); fetchedReportData = data; } } catch (error) { console.error("Error parsing embedded JSON on initial load:", error); errorMessage.textContent = `Failed to parse initially embedded report data: ${error.message}`; errorMessage.style.display = 'block'; } loadingMessage.style.display = 'none'; initSaveButton(); initUploadButton(); initModals({}); if (data) { processAndDisplayData(data); } else { mainContent.style.display = 'none'; initialMessage.style.display = 'block'; } }
 
 // --- Auto-load PSR JSON from URL if provided ---
-(function tryAutoLoadFromURL() {
+function tryAutoLoadFromURL() {
   const params = new URLSearchParams(window.location.search);
   const encoded = params.get('data');
   if (!encoded) return;
@@ -377,10 +377,8 @@
   try {
     const json = atob(decodeURIComponent(encoded));
     const parsed = JSON.parse(json);
-    const dataContainer = document.getElementById('embeddedPsrData');
-    if (dataContainer) {
-      dataContainer.textContent = JSON.stringify(parsed);
-    }
+    fetchedReportData = parsed; // assign to global
+    processAndDisplayData(parsed); // trigger UI update
   } catch (err) {
     console.error("Error parsing JSON from URL:", err);
     const errorMessage = document.getElementById("errorMessage");
@@ -389,7 +387,8 @@
       errorMessage.style.display = 'block';
     }
   }
-})();
+}
+tryAutoLoadFromURL();
   
     // Run init when the DOM is fully loaded
     document.addEventListener('DOMContentLoaded', init);
