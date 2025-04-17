@@ -415,74 +415,158 @@ try {
              renderDashboard(demoData);
         }
 
-        // Initialize dashboard (Data Loading Logic - Unchanged)
-        function initializeDashboard() {
-            const params = new URLSearchParams(window.location.search);
-            const dataElement = document.getElementById('embeddedPsrData');
-            let dataLoaded = false;
-            let rawData = {};
-            console.log("--- initializeDashboard START ---");
-            debugURLParameters();
+       // **Initialize dashboard: Load data from URL -> Embedded -> Demo (REVISED LOGIC)**
+    function initializeDashboard() {
+        const params = new URLSearchParams(window.location.search);
+        const dataElement = document.getElementById('embeddedPsrData');
+        let dataLoaded = false;
+        let rawData = {}; // Use a temporary object
 
-            try {
-                // --- Flexible Parameter Getter ---
-                 const getParam = (keyBase) => { /* ... unchanged ... */ };
-                // --- Helper to safely parse numbers ---
-                 const parseNumeric = (keyName, value, defaultValue = 0) => { /* ... unchanged ... */ };
+        // --- Log Initial State ---
+        console.log("--- initializeDashboard START ---");
+        debugURLParameters(); // Log params immediately for debugging
 
-                // --- Attempt to Load from URL ---
-                 console.log("--- Parsing URL Parameters ---");
-                 if (params.toString().length > 0) {
-                    // ... code to fetch all parameters using getParam/parseNumeric ...
-                    const fetchedUserName=getParam('userName')||getParam('username'); const fetchedAge=parseNumeric('age',getParam('age')); const fetchedMainJobIncome=parseNumeric('mainJobIncome',getParam('mainJobIncome')); const fetchedSecondJobIncome=parseNumeric('secondJobIncome',getParam('secondJobIncome')||getParam('secondJob')); const fetchedOtherIncome=parseNumeric('otherIncome',getParam('otherIncome')); const fetchedHousing=parseNumeric('housing',getParam('housing')); const fetchedTransportation=parseNumeric('transportation',getParam('transportation')); const fetchedUtilities=parseNumeric('utilities',getParam('utilities')); const fetchedGroceries=parseNumeric('groceries-essentials',getParam('groceries-essentials')||getParam('groceries')); const fetchedInsurance=parseNumeric('insurance',getParam('insurance')); const fetchedMedical=parseNumeric('medical',getParam('medical')); const fetchedCare=parseNumeric('care',getParam('care')); const fetchedSubscriptions=parseNumeric('subscriptions',getParam('subscriptions')); const fetchedTaxes=parseNumeric('taxes',getParam('taxes')); const fetchedEmergencySavings=parseNumeric('emergencySavings',getParam('emergencySavings')||getParam('emergency')); const fetchedCurrentSavings=parseNumeric('currentSavings',getParam('currentSavings')||getParam('savings')); const fetchedRetirementFund=parseNumeric('retirementFund',getParam('retirementFund')||getParam('retirement')); const fetchedCreditCardDebt=parseNumeric('creditCardDebt',getParam('creditCardDebt')||getParam('creditcard')); const fetchedBankLoans=parseNumeric('bankLoans',getParam('bankLoans')||getParam('loans'));
-                    const decodeAIField=(fieldName)=>{ const val=getParam(fieldName); if(!val)return''; try{ const decoded=decodeURIComponent(val); return decoded; }catch(e){ console.warn(`Decode URI fail for ${fieldName}`,e); return val; } }; const fetchedAnalysis=decodeAIField('aiAnalysis'); const fetchedRecommendations=decodeAIField('recommendations'); const fetchedProgress=decodeAIField('userProgressHistory')||decodeAIField('userProgress');
-                    rawData = { userInput: { personalInfo: { userName: fetchedUserName||'User', age: fetchedAge||30 }, income: { mainJobIncome: fetchedMainJobIncome, secondJob: fetchedSecondJobIncome, otherIncome: fetchedOtherIncome }, expenses: { housing: fetchedHousing, transportation: fetchedTransportation, utilities: fetchedUtilities, groceriesEssentials: fetchedGroceries, insurance: fetchedInsurance, medical: fetchedMedical, care: fetchedCare, subscriptions: fetchedSubscriptions, taxes: fetchedTaxes }, savings: { emergency: fetchedEmergencySavings, savings: fetchedCurrentSavings, retirement: fetchedRetirementFund }, debts: [ { type: "Credit Card", balance: fetchedCreditCardDebt, interestRate: 22.5, minPayment: 50 }, { type: "Bank Loans", balance: fetchedBankLoans, interestRate: 6.5, minPayment: 100 } ] }, aiOutput: { analysis: fetchedAnalysis, recommendations: fetchedRecommendations, userProgress: fetchedProgress } };
+        // --- Initialize Supabase Client FIRST ---
+        // (Moved initialization before the main data processing try...catch)
+        // Use the global 'supabase' variable defined earlier in the script
+        try {
+             // Check if credentials are set
+             if (!SUPABASE_URL || SUPABASE_URL === 'YOUR_SUPABASE_URL') {
+                 throw new Error("Supabase URL is not configured in the script.");
+             }
+             if (!SUPABASE_ANON_KEY || SUPABASE_ANON_KEY === 'YOUR_SUPABASE_ANON_KEY') {
+                 throw new Error("Supabase Anon Key is not configured in the script.");
+             }
 
-                 // --- Validation Check (REVISED with Detailed Logging) ---
-                    console.log("--- Validating Parsed URL Data ---");
+             // Check if the Supabase library loaded correctly
+             if (typeof window.supabase === 'undefined' || !window.supabase || typeof window.supabase.createClient !== 'function') {
+                 console.error("Supabase library (supabase-js@2) did not load correctly or 'createClient' is not available.");
+                 throw new Error("Supabase library failed to load. Check the script tag in <head> and network requests.");
+             }
 
-                    // Calculate the boolean checks FIRST
-                    const hasIncome = rawData.userInput.income.mainJobIncome > 0 || rawData.userInput.income.secondJob > 0 || rawData.userInput.income.otherIncome > 0;
-                    const hasExpenses = Object.values(rawData.userInput.expenses).some(v => v > 0);
-                    const hasSavings = Object.values(rawData.userInput.savings).some(v => v > 0);
-                    const hasDebt = rawData.userInput.debts.some(d => d.balance > 0);
-                    const hasName = !!rawData.userInput.personalInfo.userName && rawData.userInput.personalInfo.userName !== 'User';
+             // --- Correct Initialization ---
+             // Use the globally available createClient function
+             const { createClient } = window.supabase;
+             // Assign the created client instance to the global 'supabase' variable
+             // Note: Ensure 'supabase' was declared with 'let' outside this function if needed globally
+             // If 'supabase' is only needed within chat functions called later, this is fine.
+             supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+             // --- End Correct Initialization ---
 
-                    // **** ADDED DETAILED LOGGING ****
-                    // Log the rawData object right before the final decision
-                    console.log("rawData object just before validation:", JSON.stringify(rawData, null, 2));
-                    // Log the individual boolean results
-                    console.log(`Individual validation checks: hasIncome=${hasIncome}, hasExpenses=${hasExpenses}, hasSavings=${hasSavings}, hasDebt=${hasDebt}, hasName=${hasName}`);
-                    // *******************************
+             console.log("Supabase client initialized successfully.");
 
-                    // Now, make the decision based on the booleans
-                    if (hasIncome || hasExpenses || hasSavings || hasDebt || hasName) {
-                        dashboardData = rawData; // Assign to global variable
-                        dataLoaded = true;      // Set the flag indicating success
-                        console.log(">>> Validation PASSED. Data loaded from URL parameters.");
-                    } else {
-                        dataLoaded = false;     // Explicitly set flag to false
-                        console.warn("!!! Validation FAILED (no significant data or specific username found). `dataLoaded` remains false.");
-                    }
-                    // End of Validation Check Section
-
-                // --- Attempt to Load from Embedded JSON ---
-                if (!dataLoaded && dataElement && dataElement.textContent.trim() !== '/* MAKE_COM_JSON_PLACEHOLDER */') { /* ... unchanged ... */ }
-
-                // --- Final Check and Render/Fallback ---
-                 if (dataLoaded && dashboardData) {
-                    renderDashboard(dashboardData);
-                 } else {
-                    throw new Error("No valid financial data found...");
-                 }
-                 console.log("--- initializeDashboard END ---");
-
-            } catch (err) {
-                 console.error("--- initializeDashboard ERROR ---", err);
-                 handleError("Dashboard initialization failed", err);
-                 document.getElementById('manualEntryButton')?.classList.remove('hidden');
-            }
+        } catch (error) {
+             console.error("Error during Supabase client initialization:", error);
+             // Call handleError, which will show the error message and stop full loading
+             handleError("Failed to initialize backend connection", error);
+             // Stop further execution in initializeDashboard if Supabase fails
+             return;
         }
+        // --- End Supabase Initialization ---
+
+
+        // --- Now, try processing URL/Embedded data ---
+        try {
+            // --- Flexible Parameter Getter ---
+             const getParam = (keyBase) => {
+                 const keyBaseLower = keyBase.toLowerCase();
+                 let foundValue = null;
+                  // console.log(`getParam: Searching for base key "${keyBase}"`); // Optional: uncomment for extreme debug
+                 for (const currentKey of params.keys()) {
+                     const currentKeyLower = currentKey.toLowerCase();
+                     if (currentKeyLower === keyBaseLower) { foundValue = params.get(currentKey); break; }
+                     const jotformPattern = new RegExp(`^q\\d+_${keyBaseLower}$`, 'i');
+                     if (jotformPattern.test(currentKeyLower)) { foundValue = params.get(currentKey); break; }
+                     if (currentKeyLower.endsWith(keyBaseLower) && foundValue === null) { foundValue = params.get(currentKey); } // Less specific fallback
+                 }
+                 // if (foundValue === null) { console.log(`getParam: No matching parameter found for "${keyBase}"`); } // Optional
+                 return foundValue;
+             };
+
+            // --- Helper to safely parse numbers ---
+             const parseNumeric = (keyName, value, defaultValue = 0) => {
+                 // console.log(`parseNumeric: Parsing key "${keyName}", value: "${value}"`); // Optional
+                 if (value === null || typeof value === 'undefined' || String(value).trim() === '') { return defaultValue; }
+                 if (typeof value === 'number') { return isNaN(value) ? defaultValue : value; }
+                 if (typeof value !== 'string') { return defaultValue; }
+                 const cleaned = value.trim().replace(/[^0-9.-]+/g, '');
+                 if (cleaned === '' || cleaned === '-' || cleaned === '.') { return defaultValue; }
+                 const number = parseFloat(cleaned);
+                 return isNaN(number) ? defaultValue : number;
+             };
+
+            // --- Attempt to Load from URL ---
+             console.log("--- Parsing URL Parameters ---");
+             if (params.toString().length > 0) {
+                // ... (Code to fetch all parameters using getParam/parseNumeric remains the same) ...
+                const fetchedUserName=getParam('userName')||getParam('username'); const fetchedAge=parseNumeric('age',getParam('age')); const fetchedMainJobIncome=parseNumeric('mainJobIncome',getParam('mainJobIncome')); const fetchedSecondJobIncome=parseNumeric('secondJobIncome',getParam('secondJobIncome')||getParam('secondJob')); const fetchedOtherIncome=parseNumeric('otherIncome',getParam('otherIncome')); const fetchedHousing=parseNumeric('housing',getParam('housing')); const fetchedTransportation=parseNumeric('transportation',getParam('transportation')); const fetchedUtilities=parseNumeric('utilities',getParam('utilities')); const fetchedGroceries=parseNumeric('groceries-essentials',getParam('groceries-essentials')||getParam('groceries')); const fetchedInsurance=parseNumeric('insurance',getParam('insurance')); const fetchedMedical=parseNumeric('medical',getParam('medical')); const fetchedCare=parseNumeric('care',getParam('care')); const fetchedSubscriptions=parseNumeric('subscriptions',getParam('subscriptions')); const fetchedTaxes=parseNumeric('taxes',getParam('taxes')); const fetchedEmergencySavings=parseNumeric('emergencySavings',getParam('emergencySavings')||getParam('emergency')); const fetchedCurrentSavings=parseNumeric('currentSavings',getParam('currentSavings')||getParam('savings')); const fetchedRetirementFund=parseNumeric('retirementFund',getParam('retirementFund')||getParam('retirement')); const fetchedCreditCardDebt=parseNumeric('creditCardDebt',getParam('creditCardDebt')||getParam('creditcard')); const fetchedBankLoans=parseNumeric('bankLoans',getParam('bankLoans')||getParam('loans'));
+                const decodeAIField=(fieldName)=>{ const val=getParam(fieldName); if(!val)return''; try{ const decoded=decodeURIComponent(val); return decoded; }catch(e){ console.warn(`Decode URI fail for ${fieldName}`,e); return val; } }; const fetchedAnalysis=decodeAIField('aiAnalysis'); const fetchedRecommendations=decodeAIField('recommendations'); const fetchedProgress=decodeAIField('userProgressHistory')||decodeAIField('userProgress');
+                rawData = { userInput: { personalInfo: { userName: fetchedUserName||'User', age: fetchedAge||30 }, income: { mainJobIncome: fetchedMainJobIncome, secondJob: fetchedSecondJobIncome, otherIncome: fetchedOtherIncome }, expenses: { housing: fetchedHousing, transportation: fetchedTransportation, utilities: fetchedUtilities, groceriesEssentials: fetchedGroceries, insurance: fetchedInsurance, medical: fetchedMedical, care: fetchedCare, subscriptions: fetchedSubscriptions, taxes: fetchedTaxes }, savings: { emergency: fetchedEmergencySavings, savings: fetchedCurrentSavings, retirement: fetchedRetirementFund }, debts: [ { type: "Credit Card", balance: fetchedCreditCardDebt, interestRate: 22.5, minPayment: 50 }, { type: "Bank Loans", balance: fetchedBankLoans, interestRate: 6.5, minPayment: 100 } ] }, aiOutput: { analysis: fetchedAnalysis, recommendations: fetchedRecommendations, userProgress: fetchedProgress } };
+
+
+                // --- Validation Check (with Detailed Logging) ---
+                 console.log("--- Validating Parsed URL Data ---");
+                 const hasIncome = rawData.userInput.income.mainJobIncome > 0 || rawData.userInput.income.secondJob > 0 || rawData.userInput.income.otherIncome > 0;
+                 const hasExpenses = Object.values(rawData.userInput.expenses).some(v => v > 0);
+                 const hasSavings = Object.values(rawData.userInput.savings).some(v => v > 0);
+                 const hasDebt = rawData.userInput.debts.some(d => d.balance > 0);
+                 const hasName = !!rawData.userInput.personalInfo.userName && rawData.userInput.personalInfo.userName !== 'User';
+
+                 // Log details before the check
+                 console.log("rawData object just before validation:", JSON.stringify(rawData, null, 2));
+                 console.log(`Individual validation checks: hasIncome=${hasIncome}, hasExpenses=${hasExpenses}, hasSavings=${hasSavings}, hasDebt=${hasDebt}, hasName=${hasName}`);
+
+                 // Final check
+                 if (hasIncome || hasExpenses || hasSavings || hasDebt || hasName) {
+                     dashboardData = rawData;
+                     dataLoaded = true;
+                     console.log(">>> Validation PASSED. Data loaded from URL parameters.");
+                 } else {
+                     dataLoaded = false;
+                     console.warn("!!! Validation FAILED (no significant data or specific username found). `dataLoaded` remains false.");
+                 }
+                 // --- End Validation Check ---
+
+             } else {
+                 console.log("--- No URL parameters detected ---");
+             }
+
+            // --- Attempt to Load from Embedded JSON ---
+             if (!dataLoaded && dataElement && dataElement.textContent.trim() !== '/* MAKE_COM_JSON_PLACEHOLDER */') {
+                 console.log("--- Attempting to load data from embedded JSON ---");
+                 try {
+                     const embeddedJson = JSON.parse(dataElement.textContent);
+                     if (typeof embeddedJson === 'object' && embeddedJson !== null && embeddedJson.userInput) {
+                         dashboardData = embeddedJson; // Use embedded data
+                         dataLoaded = true;
+                         console.log(">>> Data successfully loaded from embedded JSON.", dashboardData);
+                     } else {
+                         console.warn("!!! Embedded content was not valid dashboard JSON.");
+                     }
+                 } catch (jsonErr) {
+                     console.error("!!! Error parsing embedded JSON:", jsonErr);
+                     // Don't throw here, allow fallback to demo/error
+                 }
+             }
+
+            // --- Final Check and Render/Fallback ---
+             console.log("--- Final Data Load Check ---");
+             if (dataLoaded && dashboardData) {
+                 console.log(">>> Proceeding to render dashboard.");
+                 renderDashboard(dashboardData); // Render with the loaded data
+             } else {
+                 console.warn("!!! No valid data loaded from URL or embedded JSON. Triggering error/demo fallback.");
+                 throw new Error("No valid financial data found in URL or embedded source."); // Trigger error display
+             }
+             console.log("--- initializeDashboard END (Success) ---");
+
+        } catch (err) {
+             // This catch block handles errors specifically from the data processing part
+             console.error("--- initializeDashboard Data Processing ERROR ---", err);
+             handleError("Dashboard initialization failed during data processing", err);
+             document.getElementById('manualEntryButton')?.classList.remove('hidden');
+        }
+    } // <-- End of initializeDashboard function
 
         // --- RENDER DASHBOARD ---
         function renderDashboard(data) {
