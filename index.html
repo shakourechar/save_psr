@@ -17,146 +17,35 @@
             padding: 0;
             line-height: 1.6;
         }
-        /* Header Font */
-        .header-font {
-            font-family: 'EB Garamond', serif;
-            color: #111827; /* Even darker for headers */
-        }
-        /* Main Container Styling (from File 1) */
-        .main-container {
-            max-width: 1400px; /* Wider container */
-            margin: 2rem auto; /* More vertical margin */
-            padding: 1.5rem 2rem; /* Adjusted padding */
-            /* background: #ffffff; */ /* Removed white background for body color to show */
-            /* border-radius: 12px; */ /* Softer radius */
-            /* box-shadow: 0 6px 15px rgba(0,0,0,0.07); */ /* Softer shadow */
-        }
-        /* Dashboard Card Styling (Refined) */
-        .dashboard-card {
-            background-color: white;
-            border-radius: 10px; /* Slightly more rounded */
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06); /* Subtle shadow */
-            padding: 1.5rem; /* Standard padding */
-            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-        }
-        .dashboard-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 7px 18px rgba(0, 0, 0, 0.08);
-        }
-        /* Stat Value Styling */
-        .stat-value {
-            font-size: 1.75rem; /* Slightly larger */
-            font-weight: 600;
-            line-height: 1.2;
-        }
-        /* Stat Label Styling */
-        .stat-label {
-            font-size: 0.9rem; /* Slightly larger */
-            color: #4b5563; /* Medium gray */
-            margin-bottom: 0.25rem;
-            display: block; /* Ensure it takes own line if needed */
-        }
-         /* Specific Card Headers */
-        .card-header {
-            font-family: 'Inter', sans-serif; /* Use Inter for card headers for clarity */
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #374151; /* Dark Gray */
-            margin-bottom: 1rem;
-            border-bottom: 1px solid #e5e7eb; /* Separator */
-            padding-bottom: 0.75rem;
-        }
-        /* Styling for breakdown lists */
-        .breakdown-list div {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.4rem 0;
-            border-bottom: 1px solid #f3f4f6; /* Very light separator */
-        }
-         .breakdown-list div:last-child {
-             border-bottom: none;
-         }
-        .breakdown-label {
-            font-size: 0.875rem;
-            color: #6b7280;
-        }
-        .breakdown-value {
-            font-weight: 500;
-            color: #1f2937;
-        }
-         /* Button Styling */
-        .action-button {
-            background-color: #3b82f6; /* Blue-600 */
-            color: white;
-            padding: 0.6rem 1.2rem;
-            border-radius: 6px;
-            font-weight: 500;
-            transition: background-color 0.2s ease;
-            border: none;
-            cursor: pointer;
-        }
-        .action-button:hover {
-            background-color: #2563eb; /* Blue-700 */
-        }
-        .secondary-button {
-             background-color: #e5e7eb; /* Gray-200 */
-             color: #374151; /* Gray-700 */
-             padding: 0.6rem 1.2rem;
-             border-radius: 6px;
-             font-weight: 500;
-             transition: background-color 0.2s ease;
-             border: none;
-             cursor: pointer;
-        }
-        .secondary-button:hover {
-             background-color: #d1d5db; /* Gray-300 */
-        }
-         /* Prose styling for summary/AI sections */
-        .prose {
-            color: #374151;
-        }
-        .prose h3 {
-             font-family: 'Inter', sans-serif;
-             font-size: 1.25rem;
-             font-weight: 600;
-             margin-bottom: 0.75rem;
-             color: #111827;
-        }
-        .prose h4 {
-             font-family: 'Inter', sans-serif;
-             font-size: 1.1rem;
-             font-weight: 600;
-             margin-top: 1rem;
-             margin-bottom: 0.5rem;
-             color: #1f2937;
-        }
-        .prose p {
-            margin-bottom: 0.75rem;
-            line-height: 1.7;
-        }
-        .prose ul {
-            list-style-position: outside;
-            padding-left: 1.25rem;
-            margin-bottom: 1rem;
-        }
-        .prose li {
-            margin-bottom: 0.5rem;
-        }
-        /* Color utilities */
-        .text-success { color: #10b981; } /* Emerald-500 */
-        .text-warning { color: #f59e0b; } /* Amber-500 */
-        .text-danger { color: #ef4444; } /* Red-500 */
-        .bg-success-light { background-color: #d1fae5; } /* Emerald-100 */
-        .bg-warning-light { background-color: #fef3c7; } /* Amber-100 */
-        .bg-danger-light { background-color: #fee2e2; } /* Red-100 */
-
-        /* Footer Styling */
-        footer {
-            margin-top: 3rem;
-            border-top: 1px solid #e5e7eb;
-            padding-top: 1.5rem;
-        }
+        .header-font { font-family: 'EB Garamond', serif; color: #111827; }
+        .main-container { max-width: 1400px; margin: 2rem auto; padding: 1.5rem 2rem; }
+        .dashboard-card { background-color: white; border-radius: 10px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06); padding: 1.5rem; transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; }
+        .dashboard-card:hover { transform: translateY(-3px); box-shadow: 0 7px 18px rgba(0, 0, 0, 0.08); }
+        .stat-value { font-size: 1.75rem; font-weight: 600; line-height: 1.2; }
+        .stat-label { font-size: 0.9rem; color: #4b5563; margin-bottom: 0.25rem; display: block; }
+        .card-header { font-family: 'Inter', sans-serif; font-size: 1.1rem; font-weight: 600; color: #374151; margin-bottom: 1rem; border-bottom: 1px solid #e5e7eb; padding-bottom: 0.75rem; }
+        .breakdown-list div { display: flex; justify-content: space-between; align-items: center; padding: 0.4rem 0; border-bottom: 1px solid #f3f4f6; }
+        .breakdown-list div:last-child { border-bottom: none; }
+        .breakdown-label { font-size: 0.875rem; color: #6b7280; }
+        .breakdown-value { font-weight: 500; color: #1f2937; }
+        .action-button { background-color: #3b82f6; color: white; padding: 0.6rem 1.2rem; border-radius: 6px; font-weight: 500; transition: background-color 0.2s ease; border: none; cursor: pointer; }
+        .action-button:hover { background-color: #2563eb; }
+        .secondary-button { background-color: #e5e7eb; color: #374151; padding: 0.6rem 1.2rem; border-radius: 6px; font-weight: 500; transition: background-color 0.2s ease; border: none; cursor: pointer; }
+        .secondary-button:hover { background-color: #d1d5db; }
+        .prose { color: #374151; }
+        .prose h3 { font-family: 'Inter', sans-serif; font-size: 1.25rem; font-weight: 600; margin-bottom: 0.75rem; color: #111827; }
+        .prose h4 { font-family: 'Inter', sans-serif; font-size: 1.1rem; font-weight: 600; margin-top: 1rem; margin-bottom: 0.5rem; color: #1f2937; }
+        .prose p { margin-bottom: 0.75rem; line-height: 1.7; }
+        .prose ul { list-style-position: outside; padding-left: 1.25rem; margin-bottom: 1rem; }
+        .prose li { margin-bottom: 0.5rem; }
+        .text-success { color: #10b981; } .text-warning { color: #f59e0b; } .text-danger { color: #ef4444; }
+        .bg-success-light { background-color: #d1fae5; } .bg-warning-light { background-color: #fef3c7; } .bg-danger-light { background-color: #fee2e2; }
+        footer { margin-top: 3rem; border-top: 1px solid #e5e7eb; padding-top: 1.5rem; }
+        /* Add specific styles for debug table */
+        #debugInfo table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        #debugInfo th, #debugInfo td { text-align: left; border-bottom: 1px solid #ddd; padding: 4px; word-break: break-all; }
+        #debugInfo th { background-color: #f0f0f0; }
+        #debugInfo strong { display: block; margin-top: 5px; margin-bottom: 2px; font-size: 12px; }
     </style>
 </head>
 <body class="min-h-screen">
@@ -164,10 +53,7 @@
 
     <div id="loadingSpinner" class="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-white bg-opacity-90 z-50">
         <div class="text-center">
-            <svg class="animate-spin h-10 w-10 text-blue-600 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
+            <svg class="animate-spin h-10 w-10 text-blue-600 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
             <p class="text-gray-700 text-lg">Loading your financial dashboard...</p>
         </div>
     </div>
@@ -176,14 +62,10 @@
         <div class="bg-red-100 border border-red-400 text-red-700 px-6 py-5 rounded-lg max-w-lg shadow-md">
             <h3 class="font-bold text-xl mb-3 header-font">Error Loading Dashboard</h3>
             <p id="errorText" class="mb-4">Unable to load financial data. Please check the URL or try again later.</p>
-            <div id="debugInfo" class="mb-4 max-h-40 overflow-auto bg-gray-100 p-3 rounded text-xs border border-gray-300"></div>
-            <div class="flex justify-center space-x-3">
-                <button id="retryButton" class="action-button">
-                    Retry Loading
-                </button>
-                <button id="manualEntryButton" class="secondary-button">
-                    Use Demo Data
-                </button>
+            <div id="debugInfo" class="mb-4 max-h-60 overflow-auto bg-gray-100 p-3 rounded text-xs border border-gray-300">Initializing debug info...</div>
+            <div class="flex justify-center space-x-3 mt-4">
+                <button id="retryButton" class="action-button">Retry Loading</button>
+                <button id="manualEntryButton" class="secondary-button">Use Demo Data</button>
             </div>
         </div>
     </div>
@@ -208,31 +90,21 @@
                      <h3 class="card-header text-base">Monthly Net Cash Flow</h3>
                      <div class="text-center mt-2">
                          <span id="netCashFlow" class="stat-value block mb-2">$0</span>
-                         <div class="bg-gray-200 h-2.5 rounded-full mb-3">
-                             <div id="cashFlowProgress" class="h-2.5 rounded-full" style="width: 0%"></div>
-                         </div>
-                         <p id="cashFlowMessage" class="text-xs text-gray-500 h-8"></p> </div>
+                         <div class="bg-gray-200 h-2.5 rounded-full mb-3"><div id="cashFlowProgress" class="h-2.5 rounded-full" style="width: 0%"></div></div>
+                         <p id="cashFlowMessage" class="text-xs text-gray-500 h-8"></p>
+                     </div>
                  </div>
                  <div class="dashboard-card p-5">
                      <h3 class="card-header text-base">Savings Rate</h3>
-                     <div class="text-center mt-2">
-                          <span id="savingsRate" class="stat-value block mb-2">0%</span>
-                          <p class="text-xs text-gray-500 mt-3">(Net Cash Flow / Total Income)</p>
-                     </div>
+                     <div class="text-center mt-2"><span id="savingsRate" class="stat-value block mb-2">0%</span><p class="text-xs text-gray-500 mt-3">(Net Cash Flow / Total Income)</p></div>
                  </div>
                   <div class="dashboard-card p-5">
                      <h3 class="card-header text-base">Estimated Net Worth</h3>
-                     <div class="text-center mt-2">
-                          <span id="netWorth" class="stat-value block mb-2">$0</span>
-                           <p class="text-xs text-gray-500 mt-3">(Total Savings - Total Debt)</p>
-                     </div>
+                     <div class="text-center mt-2"><span id="netWorth" class="stat-value block mb-2">$0</span><p class="text-xs text-gray-500 mt-3">(Total Savings - Total Debt)</p></div>
                  </div>
                   <div class="dashboard-card p-5">
                      <h3 class="card-header text-base">Emergency Fund</h3>
-                     <div class="text-center mt-2">
-                          <span id="emergencyFundCoverage" class="stat-value block mb-2">0 months</span>
-                          <p class="text-xs text-gray-500 mt-3">(Emergency Savings / Monthly Expenses)</p>
-                     </div>
+                     <div class="text-center mt-2"><span id="emergencyFundCoverage" class="stat-value block mb-2">0 months</span><p class="text-xs text-gray-500 mt-3">(Emergency Savings / Monthly Expenses)</p></div>
                  </div>
              </div>
         </section>
@@ -243,23 +115,16 @@
                 <div class="dashboard-card">
                     <h3 class="card-header">Monthly Income Breakdown</h3>
                     <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-200">
-                        <span class="stat-label font-semibold">Total Income</span>
-                        <span id="totalIncome" class="stat-value text-green-600">$0</span>
+                        <span class="stat-label font-semibold">Total Income</span><span id="totalIncome" class="stat-value text-green-600">$0</span>
                     </div>
-                    <div id="incomeBreakdown" class="space-y-2 breakdown-list">
-                        <p class="text-gray-500 text-sm">Loading income details...</p>
-                    </div>
+                    <div id="incomeBreakdown" class="space-y-2 breakdown-list"><p class="text-gray-500 text-sm">Loading income details...</p></div>
                 </div>
-
                 <div class="dashboard-card">
                      <h3 class="card-header">Monthly Expenses Breakdown</h3>
                      <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-200">
-                         <span class="stat-label font-semibold">Total Expenses</span>
-                         <span id="totalExpenses" class="stat-value text-red-600">$0</span>
+                         <span class="stat-label font-semibold">Total Expenses</span><span id="totalExpenses" class="stat-value text-red-600">$0</span>
                      </div>
-                     <div id="expensesBreakdown" class="space-y-1 breakdown-list max-h-60 overflow-y-auto pr-2">
-                         <p class="text-gray-500 text-sm">Loading expense details...</p>
-                     </div>
+                     <div id="expensesBreakdown" class="space-y-1 breakdown-list max-h-60 overflow-y-auto pr-2"><p class="text-gray-500 text-sm">Loading expense details...</p></div>
                 </div>
             </div>
         </section>
@@ -267,48 +132,24 @@
          <section class="mb-10">
              <h2 class="header-font text-2xl font-bold text-gray-800 mb-5">Visualizations</h2>
              <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                 <div class="dashboard-card">
-                     <h3 class="card-header">Income vs. Expenses</h3>
-                     <div id="incomeExpenseChart" class="min-h-[350px]">
-                          <p class="text-center text-gray-500 pt-10">Chart will load here if data is available.</p>
-                     </div>
-                 </div>
-                 <div class="dashboard-card">
-                      <h3 class="card-header">Savings & Debt Overview</h3>
-                      <div id="savingsDebtChart" class="min-h-[350px]">
-                           <p class="text-center text-gray-500 pt-10">Chart will load here if data is available.</p>
-                      </div>
-                 </div>
+                 <div class="dashboard-card"><h3 class="card-header">Income vs. Expenses</h3><div id="incomeExpenseChart" class="min-h-[350px]"><p class="text-center text-gray-500 pt-10">Chart will load here.</p></div></div>
+                 <div class="dashboard-card"><h3 class="card-header">Savings & Debt Overview</h3><div id="savingsDebtChart" class="min-h-[350px]"><p class="text-center text-gray-500 pt-10">Chart will load here.</p></div></div>
              </div>
          </section>
 
          <section class="mb-10">
              <h2 class="header-font text-2xl font-bold text-gray-800 mb-5">AI Insights & Recommendations</h2>
              <div class="dashboard-card">
-                 <div id="summaryContent" class="prose max-w-none prose-indigo">
-                     <p class="text-gray-500">Generating financial summary and recommendations...</p>
-                 </div>
-                  <div id="aiAnalysisSection" class="mt-6 prose max-w-none prose-indigo hidden">
-                      <h3 class="border-t pt-4">AI Analysis</h3>
-                      <p id="aiAnalysisContent">No analysis provided.</p>
-                  </div>
-                  <div id="aiRecommendationsSection" class="mt-6 prose max-w-none prose-indigo hidden">
-                      <h3 class="border-t pt-4">AI Recommendations</h3>
-                      <p id="aiRecommendationsContent">No specific recommendations provided.</p>
-                  </div>
-                   <div id="aiProgressSection" class="mt-6 prose max-w-none prose-indigo hidden">
-                      <h3 class="border-t pt-4">User Progress History</h3>
-                      <p id="aiProgressContent">No progress history provided.</p>
-                  </div>
+                 <div id="summaryContent" class="prose max-w-none prose-indigo"><p class="text-gray-500">Generating financial summary...</p></div>
+                  <div id="aiAnalysisSection" class="mt-6 prose max-w-none prose-indigo hidden"><h3 class="border-t pt-4">AI Analysis</h3><p id="aiAnalysisContent"></p></div>
+                  <div id="aiRecommendationsSection" class="mt-6 prose max-w-none prose-indigo hidden"><h3 class="border-t pt-4">AI Recommendations</h3><p id="aiRecommendationsContent"></p></div>
+                  <div id="aiProgressSection" class="mt-6 prose max-w-none prose-indigo hidden"><h3 class="border-t pt-4">User Progress History</h3><p id="aiProgressContent"></p></div>
              </div>
         </section>
 
         <section id="chatInterfaceCard" class="mb-10 dashboard-card hidden">
              <h2 class="header-font text-2xl font-bold text-gray-800 mb-5 border-b pb-3">Chat with SmartWealth AI</h2>
-             <p class="text-gray-600 mb-4">Ask questions about your financial report or get advice. (Feature under development)</p>
-            <div class="bg-gray-100 p-4 rounded min-h-[200px] flex items-center justify-center">
-                <p class="text-gray-500 italic">AI Chat coming soon...</p>
-             </div>
+             <div class="bg-gray-100 p-4 rounded min-h-[200px] flex items-center justify-center"><p class="text-gray-500 italic">AI Chat coming soon...</p></div>
         </section>
 
         <footer class="text-center text-gray-500 text-sm py-6">
@@ -319,291 +160,297 @@
 
     <script>
         // --- Global Variables ---
-        let dashboardData = null; // Store the parsed data globally
+        let dashboardData = null;
 
         // --- Utility Functions ---
-        function formatCurrency(value) {
-            if (isNaN(value)) return '$0';
-            return new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: 'USD',
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0
-            }).format(value);
+        function formatCurrency(value) { /* ... same as before ... */
+             if (isNaN(value)) return '$0';
+            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value);
+        }
+        function formatPercentage(value) { /* ... same as before ... */
+            if (isNaN(value) || !isFinite(value)) return '0%';
+             return `${value.toFixed(1)}%`;
         }
 
-         function formatPercentage(value) {
-             if (isNaN(value) || !isFinite(value)) return '0%';
-             return `${value.toFixed(1)}%`;
-         }
-
         // --- Data Loading and Initialization ---
-        document.addEventListener('DOMContentLoaded', function() {
-            // Set current date
-            const today = new Date();
-            document.getElementById('updateDate').textContent = today.toLocaleDateString('en-US', {
-                year: 'numeric', month: 'long', day: 'numeric'
-            });
-
-            // Add event listeners for buttons
-            document.getElementById('retryButton').addEventListener('click', function() {
-                document.getElementById('errorMessage').classList.add('hidden');
-                document.getElementById('loadingSpinner').classList.remove('hidden');
-                setTimeout(initializeDashboard, 500);
-            });
-
-            document.getElementById('manualEntryButton').addEventListener('click', function() {
-                document.getElementById('errorMessage').classList.add('hidden');
-                document.getElementById('loadingSpinner').classList.remove('hidden');
-                useDemoData();
-            });
-
-            // Initialize dashboard with data
-            initializeDashboard();
+        document.addEventListener('DOMContentLoaded', function() { /* ... same button listeners and date setup ... */
+             const today = new Date();
+            document.getElementById('updateDate').textContent = today.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            document.getElementById('retryButton').addEventListener('click', function() { /* ... */
+                 document.getElementById('errorMessage').classList.add('hidden');
+                 document.getElementById('loadingSpinner').classList.remove('hidden');
+                 setTimeout(initializeDashboard, 500);
+             });
+             document.getElementById('manualEntryButton').addEventListener('click', function() { /* ... */
+                 document.getElementById('errorMessage').classList.add('hidden');
+                 document.getElementById('loadingSpinner').classList.remove('hidden');
+                 useDemoData();
+             });
+             initializeDashboard();
         });
 
-        // Debug function to check URL parameters
+        // Debug function to check URL parameters (Enhanced)
         function debugURLParameters() {
              const params = new URLSearchParams(window.location.search);
-             let debugInfo = document.getElementById('debugInfo');
-             if (!debugInfo) return ''; // Exit if element not found
+             let debugInfoEl = document.getElementById('debugInfo');
+             if (!debugInfoEl) return '';
 
-             let paramsText = '<strong>URL Parameters Found:</strong><br>';
+             let paramsText = '<strong>URL Query String:</strong><br>';
+             paramsText += `<code style="font-size: 10px; word-break: break-all;">${window.location.search || '(empty)'}</code><br>`;
+             paramsText += '<strong>Parsed Parameters:</strong><br>';
+
              if (params.toString() === '') {
                  paramsText += '<span style="color: orange;">No URL parameters detected!</span><br>';
              } else {
-                 paramsText += '<table style="width:100%; border-collapse: collapse; font-size: 11px;">';
-                 paramsText += '<thead><tr><th style="text-align:left;border-bottom:1px solid #ccc;padding:3px;">Parameter</th><th style="text-align:left;border-bottom:1px solid #ccc;padding:3px;">Value</th></tr></thead><tbody>';
+                 paramsText += '<table><thead><tr><th>Parameter</th><th>Value</th></tr></thead><tbody>';
                  for (const [key, value] of params.entries()) {
-                     paramsText += `<tr><td style="border-bottom:1px solid #eee;padding:3px; word-break: break-all;">${key}</td><td style="border-bottom:1px solid #eee;padding:3px; word-break: break-all;">${value || '<i style="color: gray;">(empty)</i>'}</td></tr>`;
+                     paramsText += `<tr><td>${key}</td><td>${value || '<i style="color: gray;">(empty)</i>'}</td></tr>`;
                  }
                  paramsText += '</tbody></table>';
              }
-
-             paramsText += '<br><strong>Browser Info:</strong><br>';
-             paramsText += `<span style="font-size: 10px;">User Agent: ${navigator.userAgent}</span><br>`;
-
-             debugInfo.innerHTML = paramsText;
-             return paramsText; // Return the generated text
+             debugInfoEl.innerHTML = paramsText; // Update the debug element immediately
+             return paramsText;
         }
 
-        // Function to handle errors
+        // Function to handle errors (Shows debug info)
         function handleError(message, error) {
-            console.error(message, error);
-            const debugOutput = debugURLParameters(); // Get debug info
-            document.getElementById("errorText").innerText = `${message}. ${error?.message || 'Please check the console for details.'}`;
-
-             // Ensure debug info is visible even if URL params were empty
-             const debugInfoEl = document.getElementById("debugInfo");
-             if(debugInfoEl && !debugInfoEl.innerHTML.includes('Parameter')) {
-                 debugInfoEl.innerHTML = debugOutput || 'No debug information available.';
+            console.error("HANDLE ERROR:", message, error);
+            // Ensure debug info is generated and displayed
+            const debugContent = debugURLParameters();
+             const debugInfoEl = document.getElementById('debugInfo');
+             if (debugInfoEl && debugInfoEl.innerHTML.includes('Initializing')) {
+                  debugInfoEl.innerHTML = debugContent || 'Could not retrieve URL parameters for debugging.';
+             } else if (debugInfoEl) {
+                  // Append error message to existing debug info if needed
+                  debugInfoEl.innerHTML += `<br><strong>Error:</strong><br><span style="color: red;">${message}. ${error?.message || 'Check console.'}</span>`;
              }
 
+            document.getElementById("errorText").innerText = `${message}. ${error?.message || 'See debug info below or check console.'}`;
             document.getElementById("errorMessage").classList.remove("hidden");
             document.getElementById("loadingSpinner").classList.add("hidden");
             document.getElementById("mainContent").classList.add("hidden");
         }
 
-        // Function to use demo data
-        function useDemoData() {
+        // Function to use demo data (Same as before)
+        function useDemoData() { /* ... same demo data object and renderDashboard call ... */
              console.log("Using Demo Data");
              const demoData = {
                  userInput: {
                      personalInfo: { userName: "Demo User", age: 35 },
                      income: { mainJobIncome: 5500, secondJob: 1200, otherIncome: 300 },
-                     expenses: {
-                         housing: 1800, transportation: 450, utilities: 250, groceriesEssentials: 600,
-                         insurance: 350, medical: 150, care: 100, subscriptions: 80, taxes: 1100
-                     },
+                     expenses: { housing: 1800, transportation: 450, utilities: 250, groceriesEssentials: 600, insurance: 350, medical: 150, care: 100, subscriptions: 80, taxes: 1100 },
                      savings: { emergency: 8000, savings: 15000, retirement: 75000 },
-                     debts: [
-                         { type: "Credit Card", balance: 4500, interestRate: 22.5, minPayment: 150 },
-                         { type: "Bank Loans", balance: 12000, interestRate: 6.5, minPayment: 300 }
-                     ]
+                     debts: [ { type: "Credit Card", balance: 4500, interestRate: 22.5, minPayment: 150 }, { type: "Bank Loans", balance: 12000, interestRate: 6.5, minPayment: 300 } ]
                  },
-                  // Add placeholder AI output for demo
-                  aiOutput: {
-                       analysis: "The user has a positive cash flow, but the emergency fund is below the recommended 3-6 months of expenses. High-interest credit card debt should be prioritized.",
-                       recommendations: "- Focus on building the emergency fund to $12k-$24k.\n- Aggressively pay down the credit card debt using the avalanche or snowball method.\n- Review subscriptions and transportation costs for potential savings.",
-                       userProgress: "Initial report generated."
-                   }
+                  aiOutput: { analysis: "Demo analysis text.", recommendations: "Demo recommendations text.", userProgress: "Demo progress text." }
              };
              renderDashboard(demoData);
         }
 
-        // Initialize dashboard: Load data from URL -> Embedded -> Demo
+        // **Initialize dashboard: Load data from URL -> Embedded -> Demo (REVISED LOGIC)**
         function initializeDashboard() {
             const params = new URLSearchParams(window.location.search);
             const dataElement = document.getElementById('embeddedPsrData');
             let dataLoaded = false;
-            let rawData = {};
+            let rawData = {}; // Use a temporary object
+
+            // --- Log Initial State ---
+            console.log("--- initializeDashboard START ---");
+             debugURLParameters(); // Log params immediately for debugging
 
             try {
-                console.log("Attempting to load data from URL parameters...");
-                 debugURLParameters(); // Log params for debugging immediately
-
-                // Flexible parameter getter
+                // --- Flexible Parameter Getter (REVISED) ---
                  const getParam = (keyBase) => {
-                     const variations = [
-                         keyBase, // Exact match
-                         keyBase.toLowerCase(), // all lower
-                         `q\\d+_${keyBase}` // Jotform style like q8_mainJobIncome
-                     ];
-                     // Add camelCase from Jotform style if applicable
-                     const jotformMatch = keyBase.match(/^q\d+_(.+)/);
-                     if(jotformMatch) variations.push(jotformMatch[1]);
+                     const keyBaseLower = keyBase.toLowerCase();
+                     let foundValue = null;
+                      console.log(`getParam: Searching for base key "${keyBase}"`);
 
-                     for (const key of params.keys()) {
-                         const lowerKey = key.toLowerCase();
-                         for (const variation of variations) {
-                             // Check exact key or lowercase key against variation
-                             if (key === variation || lowerKey === variation.toLowerCase()) {
-                                  console.log(`Found param: ${key} for base ${keyBase}`);
-                                  return params.get(key);
-                             }
+                     // Iterate through all actual URL keys
+                     for (const currentKey of params.keys()) {
+                         const currentKeyLower = currentKey.toLowerCase();
+
+                         // 1. Exact match (case-insensitive)
+                         if (currentKeyLower === keyBaseLower) {
+                              foundValue = params.get(currentKey);
+                              console.log(` -> Found exact match: ${currentKey} = ${foundValue}`);
+                              break; // Found best match
+                         }
+
+                         // 2. Check for Jotform prefix q<number>_keyBase (case-insensitive)
+                         const jotformPattern = new RegExp(`^q\\d+_${keyBaseLower}$`, 'i');
+                         if (jotformPattern.test(currentKeyLower)) {
+                              foundValue = params.get(currentKey);
+                              console.log(` -> Found Jotform match: ${currentKey} = ${foundValue}`);
+                              break; // Found best match
+                         }
+
+                         // 3. Check if the key ENDS WITH the base key (e.g., ...Income for mainJobIncome) - Less specific
+                         if (currentKeyLower.endsWith(keyBaseLower)) {
+                              foundValue = params.get(currentKey);
+                              console.log(` -> Found suffix match: ${currentKey} = ${foundValue}`);
+                              // Don't break yet, keep looking for better matches
                          }
                      }
-                      // Try finding keys that *contain* the base name (less reliable)
-                     for (const key of params.keys()) {
-                          if (key.toLowerCase().includes(keyBase.toLowerCase())) {
-                               console.warn(`Loosely matched param: ${key} for base ${keyBase}. Using this value.`);
-                               return params.get(key);
-                          }
+
+                     if (foundValue !== null) {
+                          console.log(`getParam: Returning value for "${keyBase}": "${foundValue}"`);
+                          return foundValue;
+                     } else {
+                          console.log(`getParam: No matching parameter found for "${keyBase}"`);
+                          return null;
                      }
-                     // console.log(`Param not found for base: ${keyBase}`);
-                     return null;
                  };
 
+                 // --- Helper to safely parse numbers (REVISED) ---
+                 const parseNumeric = (keyName, value, defaultValue = 0) => {
+                     console.log(`parseNumeric: Parsing key "${keyName}", value: "${value}"`);
+                     if (value === null || typeof value === 'undefined' || String(value).trim() === '') {
+                          console.log(` -> Empty/null value, returning default: ${defaultValue}`);
+                          return defaultValue;
+                      }
+                     if (typeof value === 'number') {
+                          const result = isNaN(value) ? defaultValue : value;
+                           console.log(` -> Input is number, returning: ${result}`);
+                           return result;
+                     }
+                     // Only proceed if it's a string
+                     if (typeof value !== 'string') {
+                          console.warn(` -> Unexpected type (${typeof value}), returning default: ${defaultValue}`);
+                         return defaultValue;
+                     }
 
-                 // Helper to safely parse numbers (handles $, commas)
-                 const parseNumeric = (value, defaultValue = 0) => {
-                     if (value === null || typeof value === 'undefined') return defaultValue;
-                     if (typeof value === 'number') return isNaN(value) ? defaultValue : value;
-                     if (typeof value !== 'string') return defaultValue;
-
-                     const cleaned = value.trim().replace(/[^0-9.-]+/g, ''); // Remove currency, commas, keep negative/decimal
+                     // Remove common currency symbols, commas, whitespace. Keep decimal point and negative sign.
+                     const cleaned = value.trim().replace(/[^0-9.-]+/g, '');
+                      console.log(` -> Cleaned string: "${cleaned}"`);
+                     if (cleaned === '' || cleaned === '-' || cleaned === '.') {
+                          console.log(` -> Cleaned value invalid, returning default: ${defaultValue}`);
+                         return defaultValue;
+                     }
                      const number = parseFloat(cleaned);
-                     return isNaN(number) ? defaultValue : number;
+                     const result = isNaN(number) ? defaultValue : number;
+                      console.log(` -> Parsed float: ${number}, returning: ${result}`);
+                     return result;
                  };
 
-
-                // Check if *any* parameters exist
+                 // --- Attempt to Load from URL ---
+                 console.log("--- Parsing URL Parameters ---");
                  if (params.toString().length > 0) {
-                     console.log("URL parameters detected. Parsing...");
+                     const fetchedUserName = getParam('userName') || getParam('username');
+                     const fetchedAge = parseNumeric('age', getParam('age'));
+                     const fetchedMainJobIncome = parseNumeric('mainJobIncome', getParam('mainJobIncome'));
+                     const fetchedSecondJobIncome = parseNumeric('secondJobIncome', getParam('secondJobIncome') || getParam('secondJob'));
+                     const fetchedOtherIncome = parseNumeric('otherIncome', getParam('otherIncome'));
+                     const fetchedHousing = parseNumeric('housing', getParam('housing'));
+                     const fetchedTransportation = parseNumeric('transportation', getParam('transportation'));
+                     const fetchedUtilities = parseNumeric('utilities', getParam('utilities'));
+                     const fetchedGroceries = parseNumeric('groceries-essentials', getParam('groceries-essentials') || getParam('groceries'));
+                     const fetchedInsurance = parseNumeric('insurance', getParam('insurance'));
+                     const fetchedMedical = parseNumeric('medical', getParam('medical'));
+                     const fetchedCare = parseNumeric('care', getParam('care'));
+                     const fetchedSubscriptions = parseNumeric('subscriptions', getParam('subscriptions'));
+                     const fetchedTaxes = parseNumeric('taxes', getParam('taxes'));
+                     const fetchedEmergencySavings = parseNumeric('emergencySavings', getParam('emergencySavings') || getParam('emergency'));
+                     const fetchedCurrentSavings = parseNumeric('currentSavings', getParam('currentSavings') || getParam('savings'));
+                     const fetchedRetirementFund = parseNumeric('retirementFund', getParam('retirementFund') || getParam('retirement'));
+                     const fetchedCreditCardDebt = parseNumeric('creditCardDebt', getParam('creditCardDebt') || getParam('creditcard'));
+                     const fetchedBankLoans = parseNumeric('bankLoans', getParam('bankLoans') || getParam('loans'));
 
-                     // Map URL parameters to structured data
+                     // AI Fields (handle potential encoding)
+                     const decodeAIField = (fieldName) => {
+                         const val = getParam(fieldName);
+                         if (!val) return '';
+                         try {
+                             const decoded = decodeURIComponent(val);
+                              console.log(`Decoded AI field "${fieldName}": ${decoded.substring(0, 50)}...`); // Log snippet
+                             return decoded;
+                         } catch (e) {
+                             console.warn(`Could not decode URI component for ${fieldName}:`, e, `Returning raw value: ${val.substring(0,50)}...`);
+                             return val; // Return raw value if decoding fails
+                         }
+                     };
+                     const fetchedAnalysis = decodeAIField('aiAnalysis');
+                     const fetchedRecommendations = decodeAIField('recommendations');
+                     const fetchedProgress = decodeAIField('userProgressHistory') || decodeAIField('userProgress');
+
+                     // Construct the rawData object
                      rawData = {
                          userInput: {
-                             personalInfo: {
-                                 userName: getParam('userName') || getParam('username') || 'User',
-                                 age: parseNumeric(getParam('age'), 30)
-                             },
-                             income: {
-                                 mainJobIncome: parseNumeric(getParam('mainJobIncome')),
-                                 secondJob: parseNumeric(getParam('secondJobIncome') || getParam('secondJob')),
-                                 otherIncome: parseNumeric(getParam('otherIncome'))
-                             },
-                             expenses: {
-                                 housing: parseNumeric(getParam('housing')),
-                                 transportation: parseNumeric(getParam('transportation')),
-                                 utilities: parseNumeric(getParam('utilities')),
-                                 groceriesEssentials: parseNumeric(getParam('groceries-essentials') || getParam('groceries')),
-                                 insurance: parseNumeric(getParam('insurance')),
-                                 medical: parseNumeric(getParam('medical')),
-                                 care: parseNumeric(getParam('care')),
-                                 subscriptions: parseNumeric(getParam('subscriptions')),
-                                 taxes: parseNumeric(getParam('taxes'))
-                                 // Add other expense fields if they exist in the URL
-                             },
-                             savings: {
-                                 emergency: parseNumeric(getParam('emergencySavings') || getParam('emergency')),
-                                 savings: parseNumeric(getParam('currentSavings') || getParam('savings')),
-                                 retirement: parseNumeric(getParam('retirementFund') || getParam('retirement'))
-                             },
-                             debts: [ // Simplified: assumes fixed structure, might need more complex parsing if URL provides more debt details
-                                 {
-                                     type: "Credit Card",
-                                     balance: parseNumeric(getParam('creditCardDebt') || getParam('creditCard')),
-                                     interestRate: 22.5, // Default/Placeholder
-                                     minPayment: 50    // Default/Placeholder
-                                 },
-                                 {
-                                     type: "Bank Loans",
-                                     balance: parseNumeric(getParam('bankLoans')),
-                                     interestRate: 6.5, // Default/Placeholder
-                                     minPayment: 100   // Default/Placeholder
-                                 }
+                             personalInfo: { userName: fetchedUserName || 'User', age: fetchedAge || 30 },
+                             income: { mainJobIncome: fetchedMainJobIncome, secondJob: fetchedSecondJobIncome, otherIncome: fetchedOtherIncome },
+                             expenses: { housing: fetchedHousing, transportation: fetchedTransportation, utilities: fetchedUtilities, groceriesEssentials: fetchedGroceries, insurance: fetchedInsurance, medical: fetchedMedical, care: fetchedCare, subscriptions: fetchedSubscriptions, taxes: fetchedTaxes },
+                             savings: { emergency: fetchedEmergencySavings, savings: fetchedCurrentSavings, retirement: fetchedRetirementFund },
+                             debts: [
+                                 { type: "Credit Card", balance: fetchedCreditCardDebt, interestRate: 22.5, minPayment: 50 },
+                                 { type: "Bank Loans", balance: fetchedBankLoans, interestRate: 6.5, minPayment: 100 }
                              ]
                          },
-                         // AI Output fields from URL
-                          aiOutput: {
-                               analysis: decodeURIComponent(getParam('aiAnalysis') || ''),
-                               recommendations: decodeURIComponent(getParam('recommendations') || ''),
-                               userProgress: decodeURIComponent(getParam('userProgressHistory') || getParam('userProgress') || '')
-                           }
+                         aiOutput: { analysis: fetchedAnalysis, recommendations: fetchedRecommendations, userProgress: fetchedProgress }
                      };
 
-                     // Basic validation: Check if at least some financial data was parsed
-                      const hasIncome = Object.values(rawData.userInput.income).some(v => v > 0);
+                     // --- Validation Check (REVISED) ---
+                     console.log("--- Validating Parsed URL Data ---");
+                      const hasIncome = rawData.userInput.income.mainJobIncome > 0 || rawData.userInput.income.secondJob > 0 || rawData.userInput.income.otherIncome > 0;
                       const hasExpenses = Object.values(rawData.userInput.expenses).some(v => v > 0);
                       const hasSavings = Object.values(rawData.userInput.savings).some(v => v > 0);
                       const hasDebt = rawData.userInput.debts.some(d => d.balance > 0);
+                      const hasName = !!rawData.userInput.personalInfo.userName && rawData.userInput.personalInfo.userName !== 'User'; // Check if name was actually found
 
-                     if (hasIncome || hasExpenses || hasSavings || hasDebt) {
+                      console.log(`Validation results: hasIncome=${hasIncome}, hasExpenses=${hasExpenses}, hasSavings=${hasSavings}, hasDebt=${hasDebt}, hasName=${hasName}`);
+
+                      // Consider loaded if *any* financial data OR a specific name was found
+                      if (hasIncome || hasExpenses || hasSavings || hasDebt || hasName) {
                          dashboardData = rawData;
                          dataLoaded = true;
-                         console.log("Successfully parsed data from URL parameters:", dashboardData);
+                         console.log(">>> Data successfully loaded from URL parameters.", dashboardData);
                      } else {
-                         console.warn("URL parameters found, but contained no significant financial values.");
-                          // Don't set dataLoaded = true here, let it fall through to embedded/demo
+                         console.warn("!!! URL parameters parsed, but no significant financial data or username found. Will check embedded/demo.");
                      }
-
                  } else {
-                      console.log("No URL parameters found.");
+                     console.log("--- No URL parameters detected ---");
                  }
 
-                // Attempt to load from embedded JSON if URL loading failed or yielded no data
+                // --- Attempt to Load from Embedded JSON ---
                 if (!dataLoaded && dataElement && dataElement.textContent.trim() !== '/* MAKE_COM_JSON_PLACEHOLDER */') {
-                    console.log("Attempting to load data from embedded JSON...");
-                    try {
+                     console.log("--- Attempting to load data from embedded JSON ---");
+                     try {
+                        // ... (Embedded JSON parsing logic - same as before)
                         const embeddedJson = JSON.parse(dataElement.textContent);
                         if (typeof embeddedJson === 'object' && embeddedJson !== null && embeddedJson.userInput) {
                              dashboardData = embeddedJson;
                              dataLoaded = true;
-                             console.log("Successfully loaded data from embedded JSON:", dashboardData);
+                             console.log(">>> Data successfully loaded from embedded JSON.", dashboardData);
                          } else {
-                              console.warn("Embedded content was not valid dashboard JSON.");
+                              console.warn("!!! Embedded content was not valid dashboard JSON.");
                          }
-                    } catch (jsonErr) {
-                        console.error("Error parsing embedded JSON:", jsonErr);
-                        // Proceed to demo data if parsing fails
-                    }
-                }
+                     } catch (jsonErr) {
+                         console.error("!!! Error parsing embedded JSON:", jsonErr);
+                     }
+                 }
 
-                // Final Check: Render or Use Demo/Error
+                // --- Final Check and Render/Fallback ---
+                console.log("--- Final Data Load Check ---");
                 if (dataLoaded && dashboardData) {
+                    console.log(">>> Proceeding to render dashboard.");
                     renderDashboard(dashboardData);
                 } else {
-                    console.log("No valid data loaded from URL or embedded JSON. Falling back to demo data.");
-                    // Throwing a custom error to trigger the error display with demo option
-                     throw new Error("No valid financial data found in URL or embedded source.");
+                    console.warn("!!! No valid data loaded from URL or embedded JSON. Triggering error/demo fallback.");
+                    throw new Error("No valid financial data found in URL or embedded source."); // Trigger error display
                 }
+                console.log("--- initializeDashboard END ---");
 
             } catch (err) {
-                 // Show error message, but offer Demo Data as an option
+                 console.error("--- initializeDashboard ERROR ---", err);
                  handleError("Dashboard initialization failed", err);
-                 // Ensure the 'Use Demo Data' button is clearly available
-                 const manualButton = document.getElementById('manualEntryButton');
-                 if (manualButton) manualButton.classList.remove('hidden'); // Make sure it's visible
+                 // Ensure demo button is available in error state
+                 document.getElementById('manualEntryButton')?.classList.remove('hidden');
             }
         }
 
         // --- Rendering Functions ---
-        function renderDashboard(data) {
-            try {
-                 console.log("Rendering dashboard with data:", data);
-                 dashboardData = data; // Ensure global variable is set
-
+        function renderDashboard(data) { /* ... same as before ... */
+             try {
+                 console.log("--- renderDashboard START ---", data);
+                 dashboardData = data;
                  const userInput = data.userInput || {};
                  const personalInfo = userInput.personalInfo || {};
                  const income = userInput.income || {};
@@ -612,8 +459,7 @@
                  const debts = userInput.debts || [];
                  const aiOutput = data.aiOutput || {};
 
-
-                 // --- Calculations ---
+                 // Calculations (same as before)
                  const userName = personalInfo.userName || 'User';
                  const totalIncome = (income.mainJobIncome || 0) + (income.secondJob || 0) + (income.otherIncome || 0);
                  const totalExpenses = Object.values(expenses).reduce((sum, val) => sum + (val || 0), 0);
@@ -622,117 +468,73 @@
                  const totalDebt = debts.reduce((sum, debt) => sum + (debt.balance || 0), 0);
                  const netWorth = totalSavings - totalDebt;
                  const savingsRate = totalIncome > 0 ? (netCashFlow / totalIncome) * 100 : 0;
-                 const emergencyFundCoverage = totalExpenses > 0 ? (savings.emergency || 0) / totalExpenses : 0; // In months
+                 const emergencyFundCoverage = totalExpenses > 0 ? (savings.emergency || 0) / totalExpenses : 0;
 
-                 // --- Populate Header ---
+                 // Populate Header (same as before)
                  document.getElementById('userNameDisplay').textContent = userName;
                  document.getElementById('dashboard-subtitle').textContent = `Your Personalized Financial Insights for ${userName}`;
 
-                 // --- Populate Key Metrics ---
+                 // Populate Key Metrics (same logic as before, check element existence)
                  const netCashFlowEl = document.getElementById('netCashFlow');
                  const cashFlowProgressEl = document.getElementById('cashFlowProgress');
                  const cashFlowMessageEl = document.getElementById('cashFlowMessage');
-
-                 netCashFlowEl.textContent = formatCurrency(netCashFlow);
-                 if (netCashFlow > 0) {
-                     netCashFlowEl.className = 'stat-value block mb-2 text-success'; // Use specific class
-                     cashFlowProgressEl.className = 'h-2.5 rounded-full bg-green-500';
-                     cashFlowMessageEl.textContent = `Positive cash flow of ${formatCurrency(netCashFlow)}.`;
-                     cashFlowMessageEl.className = 'text-xs text-green-600';
-                      // Cap progress bar at 100%
-                     cashFlowProgressEl.style.width = totalIncome > 0 ? `${Math.min(savingsRate, 100)}%` : '0%';
-                 } else if (netCashFlow < 0) {
-                     netCashFlowEl.className = 'stat-value block mb-2 text-danger';
-                     cashFlowProgressEl.className = 'h-2.5 rounded-full bg-red-500';
-                     cashFlowMessageEl.textContent = `Negative cash flow of ${formatCurrency(Math.abs(netCashFlow))}.`;
-                     cashFlowMessageEl.className = 'text-xs text-red-600';
-                      // Show deficit percentage relative to expenses if income is zero, else relative to income
-                     const deficitRate = totalIncome > 0
-                         ? Math.min((Math.abs(netCashFlow) / totalIncome) * 100, 100)
-                         : totalExpenses > 0 ? 100 : 0; // If no income, show 100% if expenses exist
-                     cashFlowProgressEl.style.width = `${deficitRate}%`;
-
-                 } else {
-                     netCashFlowEl.className = 'stat-value block mb-2 text-gray-700';
-                     cashFlowProgressEl.className = 'h-2.5 rounded-full bg-blue-500';
-                     cashFlowMessageEl.textContent = 'Income equals expenses.';
-                     cashFlowMessageEl.className = 'text-xs text-blue-600';
-                     cashFlowProgressEl.style.width = '50%'; // Indicate balance
+                 if (netCashFlowEl && cashFlowProgressEl && cashFlowMessageEl) {
+                     // ... (net cash flow display logic same as before) ...
+                      netCashFlowEl.textContent = formatCurrency(netCashFlow);
+                      if (netCashFlow > 0) { netCashFlowEl.className = 'stat-value block mb-2 text-success'; cashFlowProgressEl.className = 'h-2.5 rounded-full bg-green-500'; cashFlowMessageEl.textContent = `Positive cash flow of ${formatCurrency(netCashFlow)}.`; cashFlowMessageEl.className = 'text-xs text-green-600'; cashFlowProgressEl.style.width = totalIncome > 0 ? `${Math.min(savingsRate, 100)}%` : '0%';
+                      } else if (netCashFlow < 0) { netCashFlowEl.className = 'stat-value block mb-2 text-danger'; cashFlowProgressEl.className = 'h-2.5 rounded-full bg-red-500'; cashFlowMessageEl.textContent = `Negative cash flow of ${formatCurrency(Math.abs(netCashFlow))}.`; cashFlowMessageEl.className = 'text-xs text-red-600'; const deficitRate = totalIncome > 0 ? Math.min((Math.abs(netCashFlow) / totalIncome) * 100, 100) : totalExpenses > 0 ? 100 : 0; cashFlowProgressEl.style.width = `${deficitRate}%`;
+                      } else { netCashFlowEl.className = 'stat-value block mb-2 text-gray-700'; cashFlowProgressEl.className = 'h-2.5 rounded-full bg-blue-500'; cashFlowMessageEl.textContent = 'Income equals expenses.'; cashFlowMessageEl.className = 'text-xs text-blue-600'; cashFlowProgressEl.style.width = '50%'; }
                  }
-
                  document.getElementById('savingsRate').textContent = formatPercentage(savingsRate);
                  document.getElementById('netWorth').textContent = formatCurrency(netWorth);
                  document.getElementById('emergencyFundCoverage').textContent = `${emergencyFundCoverage.toFixed(1)} months`;
-
-                  // Style Savings Rate based on value
-                 const savingsRateEl = document.getElementById('savingsRate');
-                 if (savingsRate < 5) savingsRateEl.classList.add('text-danger');
-                 else if (savingsRate < 15) savingsRateEl.classList.add('text-warning');
-                 else savingsRateEl.classList.add('text-success');
+                  const savingsRateEl = document.getElementById('savingsRate'); // Style Savings Rate
+                  if(savingsRateEl) { if (savingsRate < 5) savingsRateEl.className = 'stat-value block mb-2 text-danger'; else if (savingsRate < 15) savingsRateEl.className = 'stat-value block mb-2 text-warning'; else savingsRateEl.className = 'stat-value block mb-2 text-success'; }
 
 
-                 // --- Populate Income Breakdown ---
+                 // Populate Income Breakdown (same as before)
                  document.getElementById('totalIncome').textContent = formatCurrency(totalIncome);
                  const incomeBreakdownEl = document.getElementById('incomeBreakdown');
-                 incomeBreakdownEl.innerHTML = ''; // Clear placeholder
-                 let incomeItems = 0;
+                 incomeBreakdownEl.innerHTML = ''; let incomeItems = 0;
                  if (income.mainJobIncome > 0) { incomeItems++; incomeBreakdownEl.innerHTML += `<div><span class="breakdown-label">Main Job</span><span class="breakdown-value">${formatCurrency(income.mainJobIncome)}</span></div>`; }
                  if (income.secondJob > 0) { incomeItems++; incomeBreakdownEl.innerHTML += `<div><span class="breakdown-label">Second Job</span><span class="breakdown-value">${formatCurrency(income.secondJob)}</span></div>`; }
                  if (income.otherIncome > 0) { incomeItems++; incomeBreakdownEl.innerHTML += `<div><span class="breakdown-label">Other Income</span><span class="breakdown-value">${formatCurrency(income.otherIncome)}</span></div>`; }
                  if (incomeItems === 0) { incomeBreakdownEl.innerHTML = '<p class="text-gray-500 text-sm italic">No income sources provided.</p>'; }
 
-                 // --- Populate Expenses Breakdown ---
+                 // Populate Expenses Breakdown (same as before)
                  document.getElementById('totalExpenses').textContent = formatCurrency(totalExpenses);
                  const expensesBreakdownEl = document.getElementById('expensesBreakdown');
-                 expensesBreakdownEl.innerHTML = ''; // Clear placeholder
-                 let expenseItems = 0;
-                 const expenseOrder = ['housing', 'taxes', 'transportation', 'groceriesEssentials', 'insurance', 'utilities', 'medical', 'care', 'subscriptions']; // Define order
-                  expenseOrder.forEach(key => {
-                       if (expenses[key] > 0) {
-                            expenseItems++;
-                            // Format key nicely (e.g., groceriesEssentials -> Groceries & Essentials)
-                            const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()).replace('Essentials','& Essentials');
-                            expensesBreakdownEl.innerHTML += `<div><span class="breakdown-label">${label}</span><span class="breakdown-value">${formatCurrency(expenses[key])}</span></div>`;
-                       }
-                  });
-                  // Add any other expenses not in the defined order
-                  Object.entries(expenses).forEach(([key, value]) => {
-                      if (value > 0 && !expenseOrder.includes(key)) {
-                           expenseItems++;
-                           const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
-                           expensesBreakdownEl.innerHTML += `<div><span class="breakdown-label">${label}</span><span class="breakdown-value">${formatCurrency(value)}</span></div>`;
-                      }
-                  });
+                 expensesBreakdownEl.innerHTML = ''; let expenseItems = 0; const expenseOrder = ['housing', 'taxes', 'transportation', 'groceriesEssentials', 'insurance', 'utilities', 'medical', 'care', 'subscriptions'];
+                  expenseOrder.forEach(key => { if (expenses[key] > 0) { expenseItems++; const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()).replace('Essentials','& Essentials'); expensesBreakdownEl.innerHTML += `<div><span class="breakdown-label">${label}</span><span class="breakdown-value">${formatCurrency(expenses[key])}</span></div>`; } });
+                  Object.entries(expenses).forEach(([key, value]) => { if (value > 0 && !expenseOrder.includes(key)) { expenseItems++; const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()); expensesBreakdownEl.innerHTML += `<div><span class="breakdown-label">${label}</span><span class="breakdown-value">${formatCurrency(value)}</span></div>`; } });
                  if (expenseItems === 0) { expensesBreakdownEl.innerHTML = '<p class="text-gray-500 text-sm italic">No expense details provided.</p>'; }
 
 
-                 // --- Populate AI Insights & Summary ---
-                 renderSummaryAndRecommendations(data); // Call dedicated function
+                 // Populate AI Insights & Summary
+                 renderSummaryAndRecommendations(data);
                  populateAISections(aiOutput);
 
-
-                 // --- Render Charts ---
+                 // Render Charts
                  renderIncomeExpenseChart(income, expenses);
                  renderSavingsDebtChart(savings, debts, totalSavings, totalDebt);
 
-
-                 // --- Final Display ---
+                 // Final Display Tweaks
                  document.getElementById('loadingSpinner').classList.add('hidden');
                  document.getElementById('errorMessage').classList.add('hidden');
                  document.getElementById('mainContent').classList.remove('hidden');
-                 console.log("Dashboard rendered successfully.");
+                 console.log("--- renderDashboard END ---");
 
             } catch (err) {
-                handleError("Error rendering dashboard content", err);
+                console.error("--- renderDashboard ERROR ---", err);
+                // Attempt to show error via handleError, but might fail if DOM is broken
+                 try { handleError("Error during dashboard rendering", err); } catch { console.error("!!! FAILED TO SHOW ERROR MESSAGE !!!"); }
             }
         }
 
-        // --- RENDER SUMMARY & RECOMMENDATIONS ---
-         function renderSummaryAndRecommendations(data) {
-             const { userInput, aiOutput } = data;
+        // --- RENDER SUMMARY & RECOMMENDATIONS --- (Same as before)
+         function renderSummaryAndRecommendations(data) { /* ... function code remains the same ... */
+              const { userInput, aiOutput } = data;
              const { personalInfo, income, expenses, savings, debts } = userInput || {};
-
-             // Recalculate needed values (could pass them instead)
              const userName = personalInfo?.userName || 'User';
              const totalIncome = (income?.mainJobIncome || 0) + (income?.secondJob || 0) + (income?.otherIncome || 0);
              const totalExpenses = Object.values(expenses || {}).reduce((sum, val) => sum + (val || 0), 0);
@@ -742,12 +544,10 @@
              const emergencyFund = savings?.emergency || 0;
              const emergencyMonths = totalExpenses > 0 ? emergencyFund / totalExpenses : 0;
 
-
              let summaryHTML = `
                  <h3 class="text-lg font-semibold mb-3">Financial Snapshot for ${userName}</h3>
                  <div class="space-y-4">
                      <p>Here's a quick overview based on the data provided:</p>
-
                      <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
                          <div>
                              <h4 class="font-semibold mb-2 text-indigo-700">Monthly Flow</h4>
@@ -757,195 +557,77 @@
                                  <li>Net Cash Flow: <span class="font-medium ${netCashFlow >= 0 ? 'text-success' : 'text-danger'}">${formatCurrency(netCashFlow)}</span></li>
                              </ul>
                          </div>
-
                          <div>
                              <h4 class="font-semibold mb-2 text-indigo-700">Assets & Liabilities</h4>
                              <ul class="list-disc pl-5 space-y-1 text-sm">
                                  <li>Total Savings: <span class="font-medium">${formatCurrency(totalSavings)}</span> (Incl. Retirement)</li>
-                                  <li>Emergency Fund: <span class="font-medium">${formatCurrency(emergencyFund)}</span> (${emergencyMonths.toFixed(1)} months coverage)</li>
+                                 <li>Emergency Fund: <span class="font-medium">${formatCurrency(emergencyFund)}</span> (${emergencyMonths.toFixed(1)} months coverage)</li>
                                  <li>Total Debt: <span class="font-medium">${formatCurrency(totalDebt)}</span></li>
                                  <li>Est. Net Worth: <span class="font-medium">${formatCurrency(totalSavings - totalDebt)}</span></li>
                              </ul>
                          </div>
                      </div>
-
                      <div class="mt-6 pt-4 border-t">
                          <h4 class="font-semibold mb-2 text-indigo-700">Key Recommendations</h4>
-                         <ul class="list-disc pl-5 space-y-2 text-sm">
-             `;
+                         <ul class="list-disc pl-5 space-y-2 text-sm">`;
 
-             // --- Dynamic Recommendations ---
-
-             // Cash Flow Recs
-             if (netCashFlow < 0) {
-                 summaryHTML += `<li class="text-danger"><strong class="font-semibold">Address Negative Cash Flow:</strong> Your expenses (${formatCurrency(totalExpenses)}) exceed your income (${formatCurrency(totalIncome)}). Review all expense categories for potential reductions, starting with non-essentials. Explore ways to increase income if possible.</li>`;
-             } else {
-                 const savingsRate = totalIncome > 0 ? (netCashFlow / totalIncome) * 100 : 0;
-                 if (savingsRate < 10) {
-                      summaryHTML += `<li class="text-warning"><strong class="font-semibold">Boost Savings Rate:</strong> Your current savings rate (${formatPercentage(savingsRate)}) is below the recommended 15-20%. Aim to increase savings/debt repayment allocation.</li>`;
-                 } else if (savingsRate < 20) {
-                      summaryHTML += `<li class="text-success"><strong class="font-semibold">Good Cash Flow:</strong> You have positive cash flow (${formatCurrency(netCashFlow)}). Consider optimizing where these funds go (emergency fund, debt, investments).</li>`;
-                 } else {
-                     summaryHTML += `<li class="text-success"><strong class="font-semibold">Excellent Cash Flow:</strong> Strong savings rate (${formatPercentage(savingsRate)}). Ensure funds are allocated effectively towards your goals (debt payoff, investing, etc.).</li>`;
-                 }
-             }
-
-             // Emergency Fund Recs
-             if (emergencyMonths < 3) {
-                 summaryHTML += `<li class="text-warning"><strong class="font-semibold">Build Emergency Fund:</strong> Your fund (${formatCurrency(emergencyFund)}) covers ${emergencyMonths.toFixed(1)} months of expenses. Prioritize reaching 3-6 months (${formatCurrency(totalExpenses * 3)} - ${formatCurrency(totalExpenses * 6)}) for financial security.</li>`;
-             } else if (emergencyMonths < 6) {
-                 summaryHTML += `<li class="text-success"><strong class="font-semibold">Strengthen Emergency Fund:</strong> You have ${emergencyMonths.toFixed(1)} months coverage. Continue building towards the 6-month goal (${formatCurrency(totalExpenses * 6)}).</li>`;
-             } else {
-                  summaryHTML += `<li class="text-success"><strong class="font-semibold">Solid Emergency Fund:</strong> Your fund covers ${emergencyMonths.toFixed(1)} months. Ensure it's in a safe, accessible account.</li>`;
-             }
-
-             // Debt Recs
+              // Dynamic Recommendations (same logic as before)
+             if (netCashFlow < 0) { summaryHTML += `<li class="text-danger"><strong class="font-semibold">Address Negative Cash Flow:</strong> Your expenses (${formatCurrency(totalExpenses)}) exceed your income (${formatCurrency(totalIncome)}). Review all expense categories...</li>`; }
+             else { const savingsRate = totalIncome > 0 ? (netCashFlow / totalIncome) * 100 : 0; if (savingsRate < 10) { summaryHTML += `<li class="text-warning"><strong class="font-semibold">Boost Savings Rate:</strong> Your current rate (${formatPercentage(savingsRate)}) is below 15-20%...</li>`; } else if (savingsRate < 20) { summaryHTML += `<li class="text-success"><strong class="font-semibold">Good Cash Flow:</strong> Positive flow (${formatCurrency(netCashFlow)})...</li>`; } else { summaryHTML += `<li class="text-success"><strong class="font-semibold">Excellent Cash Flow:</strong> Strong rate (${formatPercentage(savingsRate)})...</li>`; } }
+             if (emergencyMonths < 3) { summaryHTML += `<li class="text-warning"><strong class="font-semibold">Build Emergency Fund:</strong> Fund (${formatCurrency(emergencyFund)}) covers ${emergencyMonths.toFixed(1)} months... Target 3-6 months...</li>`; } else if (emergencyMonths < 6) { summaryHTML += `<li class="text-success"><strong class="font-semibold">Strengthen Emergency Fund:</strong> ${emergencyMonths.toFixed(1)} months coverage... Continue towards 6 months...</li>`; } else { summaryHTML += `<li class="text-success"><strong class="font-semibold">Solid Emergency Fund:</strong> Covers ${emergencyMonths.toFixed(1)} months...</li>`; }
              const highInterestDebt = (debts || []).find(d => d.balance > 0 && d.interestRate > 10);
-             if (highInterestDebt) {
-                 summaryHTML += `<li class="text-danger"><strong class="font-semibold">Prioritize High-Interest Debt:</strong> You have debt with an interest rate over 10% (e.g., ${highInterestDebt.type} at ${highInterestDebt.interestRate}%). Focus on paying this down aggressively after establishing a basic emergency fund.</li>`;
-             } else if (totalDebt > 0) {
-                 summaryHTML += `<li class="text-warning"><strong class="font-semibold">Manage Debt:</strong> You have ${formatCurrency(totalDebt)} in total debt. Continue making payments, potentially paying extra on the highest interest loan if cash flow allows.</li>`;
-             } else {
-                 summaryHTML += `<li class="text-success"><strong class="font-semibold">Debt-Free:</strong> Congratulations! Focus on building wealth through saving and investing.</li>`;
-             }
+             if (highInterestDebt) { summaryHTML += `<li class="text-danger"><strong class="font-semibold">Prioritize High-Interest Debt:</strong> Debt over 10% (e.g., ${highInterestDebt.type} at ${highInterestDebt.interestRate}% interest)...</li>`; } else if (totalDebt > 0) { summaryHTML += `<li class="text-warning"><strong class="font-semibold">Manage Debt:</strong> Total debt ${formatCurrency(totalDebt)}...</li>`; } else { summaryHTML += `<li class="text-success"><strong class="font-semibold">Debt-Free:</strong> Congratulations!...</li>`; }
 
-
-             summaryHTML += `
-                         </ul>
-                     </div>
-                 </div>`;
-
+             summaryHTML += `</ul></div></div>`;
              document.getElementById('summaryContent').innerHTML = summaryHTML;
          }
 
-         // --- POPULATE AI SECTIONS ---
-         function populateAISections(aiOutput) {
+        // --- POPULATE AI SECTIONS --- (Same as before)
+         function populateAISections(aiOutput) { /* ... function code remains the same ... */
              const analysis = aiOutput?.analysis?.trim();
              const recommendations = aiOutput?.recommendations?.trim();
              const progress = aiOutput?.userProgress?.trim();
+              const analysisEl = document.getElementById('aiAnalysisContent');
+              const analysisSectionEl = document.getElementById('aiAnalysisSection');
+              const recsEl = document.getElementById('aiRecommendationsContent');
+              const recsSectionEl = document.getElementById('aiRecommendationsSection');
+              const progressEl = document.getElementById('aiProgressContent');
+              const progressSectionEl = document.getElementById('aiProgressSection');
 
-             if (analysis) {
-                 document.getElementById('aiAnalysisContent').textContent = analysis;
-                 document.getElementById('aiAnalysisSection').classList.remove('hidden');
-             } else {
-                  document.getElementById('aiAnalysisSection').classList.add('hidden');
-             }
+              if (analysis && analysisEl && analysisSectionEl) { analysisEl.textContent = analysis; analysisSectionEl.classList.remove('hidden'); }
+              else if (analysisSectionEl) { analysisSectionEl.classList.add('hidden'); }
 
-             if (recommendations) {
-                 // Basic formatting: replace newlines with <br> for display
-                  document.getElementById('aiRecommendationsContent').innerHTML = recommendations.replace(/\n/g, '<br>');
-                  document.getElementById('aiRecommendationsSection').classList.remove('hidden');
-             } else {
-                   document.getElementById('aiRecommendationsSection').classList.add('hidden');
-             }
+              if (recommendations && recsEl && recsSectionEl) { recsEl.innerHTML = recommendations.replace(/\n/g, '<br>'); recsSectionEl.classList.remove('hidden'); }
+              else if(recsSectionEl) { recsSectionEl.classList.add('hidden'); }
 
-              if (progress) {
-                 document.getElementById('aiProgressContent').textContent = progress;
-                 document.getElementById('aiProgressSection').classList.remove('hidden');
-             } else {
-                   document.getElementById('aiProgressSection').classList.add('hidden');
-             }
+              if (progress && progressEl && progressSectionEl) { progressEl.textContent = progress; progressSectionEl.classList.remove('hidden'); }
+              else if(progressSectionEl) { progressSectionEl.classList.add('hidden'); }
          }
 
-
-         // --- RENDER CHARTS ---
-         function renderIncomeExpenseChart(incomeData, expenseData) {
-             const chartElement = document.getElementById('incomeExpenseChart');
+        // --- RENDER CHARTS --- (Same as before)
+         function renderIncomeExpenseChart(incomeData, expenseData) { /* ... function code remains the same ... */
+              const chartElement = document.getElementById('incomeExpenseChart');
              try {
                  const totalIncome = (incomeData.mainJobIncome || 0) + (incomeData.secondJob || 0) + (incomeData.otherIncome || 0);
                  const totalExpenses = Object.values(expenseData || {}).reduce((sum, val) => sum + (val || 0), 0);
-
-                 if (totalIncome === 0 && totalExpenses === 0) {
-                     chartElement.innerHTML = '<p class="text-center text-gray-500 pt-10">No income or expense data to display chart.</p>';
-                     return;
-                 }
-
-                 const traceIncome = {
-                     x: ['Income'],
-                     y: [totalIncome],
-                     name: 'Total Income',
-                     type: 'bar',
-                     marker: { color: '#10b981' }, // Emerald-500
-                      width: 0.4
-                 };
-
-                 const traceExpenses = {
-                     x: ['Expenses'],
-                     y: [totalExpenses],
-                     name: 'Total Expenses',
-                     type: 'bar',
-                     marker: { color: '#ef4444' }, // Red-500
-                      width: 0.4
-                 };
-
-                 const layout = {
-                     title: 'Monthly Income vs. Expenses',
-                     yaxis: { title: 'Amount (USD)', tickprefix: '$', separatethousands: true },
-                     xaxis: { title: '' },
-                     barmode: 'group',
-                     showlegend: true,
-                     legend: { x: 0.1, y: -0.2, orientation: 'h' },
-                     margin: { l: 60, r: 30, t: 60, b: 50 }, // Adjusted margins
-                      font: { family: 'Inter, sans-serif', size: 12 }
-                 };
-
+                 if (totalIncome === 0 && totalExpenses === 0) { chartElement.innerHTML = '<p class="text-center text-gray-500 pt-10">No income or expense data.</p>'; return; }
+                 const traceIncome = { x: ['Income'], y: [totalIncome], name: 'Total Income', type: 'bar', marker: { color: '#10b981' }, width: 0.4 };
+                 const traceExpenses = { x: ['Expenses'], y: [totalExpenses], name: 'Total Expenses', type: 'bar', marker: { color: '#ef4444' }, width: 0.4 };
+                 const layout = { title: 'Monthly Income vs. Expenses', yaxis: { title: 'Amount (USD)', tickprefix: '$', separatethousands: true }, barmode: 'group', showlegend: true, legend: { x: 0.1, y: -0.2, orientation: 'h' }, margin: { l: 60, r: 30, t: 60, b: 50 }, font: { family: 'Inter, sans-serif', size: 12 } };
                  Plotly.newPlot(chartElement, [traceIncome, traceExpenses], layout, {responsive: true});
-             } catch(err) {
-                 console.error("Error rendering Income/Expense chart:", err);
-                 chartElement.innerHTML = '<p class="text-center text-danger pt-10">Could not render chart. Error logged.</p>';
-             }
+             } catch(err) { console.error("Error rendering Income/Expense chart:", err); chartElement.innerHTML = '<p class="text-center text-danger pt-10">Chart Error.</p>'; }
          }
-
-         function renderSavingsDebtChart(savingsData, debtData, totalSavings, totalDebt) {
+         function renderSavingsDebtChart(savingsData, debtData, totalSavings, totalDebt) { /* ... function code remains the same ... */
              const chartElement = document.getElementById('savingsDebtChart');
               try {
-                  // Filter out zero balances for cleaner chart
-                  const validSavings = Object.entries(savingsData || {})
-                                           .filter(([key, value]) => value > 0)
-                                           .map(([key, value]) => ({ label: key.charAt(0).toUpperCase() + key.slice(1), value: value }));
-
-                  const validDebts = (debtData || [])
-                                        .filter(debt => debt.balance > 0)
-                                        .map(debt => ({ label: debt.type, value: debt.balance }));
-
-                  if (validSavings.length === 0 && validDebts.length === 0) {
-                      chartElement.innerHTML = '<p class="text-center text-gray-500 pt-10">No savings or debt data to display chart.</p>';
-                      return;
-                  }
-
-                 const traceSavings = {
-                      x: validSavings.map(item => item.label),
-                      y: validSavings.map(item => item.value),
-                      name: 'Savings',
-                      type: 'bar',
-                      marker: { color: '#34d399' } // Emerald-400
-                 };
-
-                  const traceDebt = {
-                      x: validDebts.map(item => item.label),
-                      y: validDebts.map(item => item.value),
-                      name: 'Debt',
-                      type: 'bar',
-                      marker: { color: '#f87171' } // Red-400
-                 };
-
-                 const layout = {
-                     title: 'Savings Accounts vs. Debts',
-                     yaxis: { title: 'Amount (USD)', tickprefix: '$', separatethousands: true },
-                      xaxis: { title: 'Category' },
-                     barmode: 'group', // Group savings and debts separately if needed, or stack? Let's group.
-                     showlegend: true,
-                      legend: { x: 0.1, y: -0.2, orientation: 'h' },
-                      margin: { l: 60, r: 30, t: 60, b: 80 }, // Increased bottom margin for labels
-                      font: { family: 'Inter, sans-serif', size: 12 }
-                 };
-
+                  const validSavings = Object.entries(savingsData || {}).filter(([key, value]) => value > 0).map(([key, value]) => ({ label: key.charAt(0).toUpperCase() + key.slice(1), value: value }));
+                  const validDebts = (debtData || []).filter(debt => debt.balance > 0).map(debt => ({ label: debt.type, value: debt.balance }));
+                  if (validSavings.length === 0 && validDebts.length === 0) { chartElement.innerHTML = '<p class="text-center text-gray-500 pt-10">No savings or debt data.</p>'; return; }
+                 const traceSavings = { x: validSavings.map(item => item.label), y: validSavings.map(item => item.value), name: 'Savings', type: 'bar', marker: { color: '#34d399' } };
+                  const traceDebt = { x: validDebts.map(item => item.label), y: validDebts.map(item => item.value), name: 'Debt', type: 'bar', marker: { color: '#f87171' } };
+                 const layout = { title: 'Savings Accounts vs. Debts', yaxis: { title: 'Amount (USD)', tickprefix: '$', separatethousands: true }, barmode: 'group', showlegend: true, legend: { x: 0.1, y: -0.2, orientation: 'h' }, margin: { l: 60, r: 30, t: 60, b: 80 }, font: { family: 'Inter, sans-serif', size: 12 } };
                  Plotly.newPlot(chartElement, [traceSavings, traceDebt], layout, {responsive: true});
-
-             } catch(err) {
-                 console.error("Error rendering Savings/Debt chart:", err);
-                 chartElement.innerHTML = '<p class="text-center text-danger pt-10">Could not render chart. Error logged.</p>';
-             }
+             } catch(err) { console.error("Error rendering Savings/Debt chart:", err); chartElement.innerHTML = '<p class="text-center text-danger pt-10">Chart Error.</p>'; }
          }
 
     </script>
