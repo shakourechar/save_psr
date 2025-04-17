@@ -760,29 +760,214 @@
     }
 }
 
-        // --- Stub Functions for Template ---
-        function calculateTotals(data) { /* ... stub implementation ... */ return {}; }
-        function calculateRatios(data, totals) { /* ... stub implementation ... */ return {}; }
-        function updateReportBasics(data, totals) { /* ... stub implementation ... */ }
-        function updateRatiosDisplay(ratios) { /* ... stub implementation ... */ }
-        function updateGoalsDisplay(data) { /* ... stub implementation ... */ }
-        function updateDebtsDisplay(data, ratios) { /* ... stub implementation ... */ }
-        function renderCharts(data) { /* ... stub implementation ... */ }
-        function updateUIDisplayFromAI(data) { /* ... stub implementation ... */ }
-        function initModals() { /* ... stub implementation ... */ }
-        function openModal(modalId) { 
-            document.getElementById(modalId).style.display = 'block'; 
-        }
-        function closeModal(modalId) { 
-            document.getElementById(modalId).style.display = 'none'; 
-        }
-        function initSaveButton() { /* ... stub implementation ... */ }
-        function initUploadButton() { 
-            document.getElementById('uploadButton')?.addEventListener('click', () => document.getElementById('fileInput')?.click()); 
-            document.getElementById('fileInput')?.addEventListener('change', handleFileUpload);
-        }
-        function handleFileUpload(event) { /* ... stub implementation ... */ }
+      function calculateTotals(data) {
+    const totals = {
+        totalIncome: 0,
+        totalExpenses: 0,
+        netFlow: 0,
+        totalDebt: 0,
+        totalSavings: 0
+    };
 
+    // Calculate total income
+    if (data.userInput && data.userInput.income) {
+        totals.totalIncome = Object.values(data.userInput.income).reduce((sum, value) => sum + (Number(value) || 0), 0);
+    }
+
+    // Calculate total expenses
+    if (data.userInput && data.userInput.expenses) {
+        totals.totalExpenses = Object.values(data.userInput.expenses).reduce((sum, value) => sum + (Number(value) || 0), 0);
+    }
+
+    // Calculate net flow
+    totals.netFlow = totals.totalIncome - totals.totalExpenses;
+
+    // Calculate total debt
+    if (data.userInput && data.userInput.debts) {
+        totals.totalDebt = data.userInput.debts.reduce((sum, debt) => sum + (Number(debt.balance) || 0), 0);
+    }
+
+    // Calculate total savings
+    if (data.userInput && data.userInput.savings) {
+        totals.totalSavings = Object.values(data.userInput.savings).reduce((sum, value) => sum + (Number(value) || 0), 0);
+    }
+
+    return totals;
+}
+
+function calculateRatios(data, totals) {
+    const ratios = {
+        savingsRate: 0,
+        emergencyCoverage: 0,
+        dtiRatio: 0
+    };
+
+    // Calculate savings rate
+    if (totals.totalIncome > 0) {
+        const monthlySavings = data.userInput.savings.emergency || 0;
+        ratios.savingsRate = (monthlySavings / totals.totalIncome) * 100;
+    }
+
+    // Calculate emergency fund coverage
+    if (totals.totalExpenses > 0) {
+        const emergencySavings = data.userInput.savings.emergency || 0;
+        ratios.emergencyCoverage = (emergencySavings / totals.totalExpenses) * 100;
+    }
+
+    // Calculate debt-to-income ratio
+    if (totals.totalIncome > 0) {
+        const totalMinPayments = (data.userInput.debts || []).reduce((sum, debt) => sum + (Number(debt.minPayment) || 0), 0);
+        ratios.dtiRatio = (totalMinPayments / totals.totalIncome) * 100;
+    }
+
+    return ratios;
+}
+
+function updateReportBasics(data, totals) {
+    const userInfo = data.userInput.personalInfo || {};
+    updateElementText('userName', userInfo.userName);
+    updateElementText('age', userInfo.age);
+    updateElementText('totalIncome', totals.totalIncome, formatCurrency);
+    updateElementText('totalExpenses', totals.totalExpenses, formatCurrency);
+    updateElementText('netFlow', totals.netFlow, formatCurrency);
+}
+
+function updateRatiosDisplay(ratios) {
+    updateElementText('savingsRateValue', ratios.savingsRate, formatPercentage);
+    updateElementText('emergencyCoverageValue', ratios.emergencyCoverage, formatPercentage);
+    updateElementText('dtiRatioValue', ratios.dtiRatio, formatPercentage);
+
+    // Update ratio bars
+    document.getElementById('savingsRateBar').style.width = `${ratios.savingsRate}%`;
+    document.getElementById('emergencyCoverageBar').style.width = `${ratios.emergencyCoverage}%`;
+    document.getElementById('dtiRatioBar').style.width = `${ratios.dtiRatio}%`;
+
+    // Set bar colors based on values
+    const savingsBar = document.getElementById('savingsRateBar');
+    savingsBar.className = `ratio-bar savings-rate ${ratios.savingsRate >= 20 ? 'good' : (ratios.savingsRate >= 10 ? 'ok' : '')}`;
+
+    const emergencyBar = document.getElementById('emergencyCoverageBar');
+    emergencyBar.className = `ratio-bar emergency-coverage ${ratios.emergencyCoverage >= 100 ? 'good' : (ratios.emergencyCoverage >= 50 ? 'ok' : '')}`;
+
+    const dtiBar = document.getElementById('dtiRatioBar');
+    dtiBar.className = `ratio-bar dti-ratio ${ratios.dtiRatio > 40 ? 'high' : (ratios.dtiRatio > 30 ? 'warning' : '')}`;
+}
+
+function updateGoalsDisplay(data) {
+    const goals = data.userInput.savings;
+    const purchaseGoals = decodeURIComponent(data.userInput.financials.upcomingPurchase || '').split(',').map(g => g.trim());
+
+    // Update savings goals
+    updateElementText('emergencySavings', goals.emergency, formatCurrency);
+    updateElementText('currentSavings', goals.savings, formatCurrency);
+    updateElementText('retirementFund', goals.retirement, formatCurrency);
+
+    // Update progress bars
+    const emergencyGoal = goals.emergencyFundTarget || 0;
+    const emergencyProgress = emergencyGoal > 0 ? (goals.emergency / emergencyGoal) * 100 : 0;
+    document.getElementById('emergencyProgressBar').style.width = `${emergencyProgress}%`;
+
+    // Update purchase goals
+    document.getElementById('purchaseGoalName').textContent = purchaseGoals[0] || 'N/A';
+    const purchaseProgress = goals.savings / (purchaseGoals[1] ? Number(purchaseGoals[1].replace('$', '')) : 1) * 100;
+    document.getElementById('purchaseProgressBar').style.width = `${purchaseProgress}%`;
+
+    // Show/hide goal displays
+    document.getElementById('emergencyGoalDisplay').style.display = emergencyGoal > 0 ? 'block' : 'none';
+    document.getElementById('purchaseGoalDisplay').style.display = purchaseGoals.length > 1 ? 'block' : 'none';
+    document.getElementById('noGoalsMessage').style.display = emergencyGoal === 0 && purchaseGoals.length <= 1 ? 'block' : 'none';
+}
+
+function updateDebtsDisplay(data, ratios) {
+    const debtsTable = document.getElementById('debtsTable').getElementsByTagName('tbody')[0];
+    debtsTable.innerHTML = ''; // Clear existing rows
+
+    // Add header row
+    const headerRow = document.createElement('tr');
+    headerRow.innerHTML = `
+        <td><strong>Total Debt</strong></td>
+        <td class="balance-col">${formatCurrency(ratios.totalDebt)}</td>
+        <td><strong>Total Min. Payments</strong></td>
+        <td class="balance-col">${formatCurrency(ratios.totalMinPayments)}</td>
+    `;
+    debtsTable.appendChild(headerRow);
+
+    // Add debt rows
+    (data.userInput.debts || []).forEach(debt => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${debt.type}</td>
+            <td class="balance-col">${formatCurrency(debt.balance)}</td>
+            <td>${debt.interestRate.toFixed(1)}%</td>
+            <td class="balance-col">${formatCurrency(debt.minPayment)}</td>
+        `;
+        debtsTable.appendChild(row);
+    });
+
+    // Update totals
+    updateElementText('totalDebtBalance', ratios.totalDebt, formatCurrency);
+    updateElementText('totalMinPayments', ratios.totalMinPayments, formatCurrency);
+}
+
+function renderCharts(data) {
+    // Income chart
+    const incomeData = data.userInput.income;
+    const incomeCategories = Object.keys(incomeData);
+    const incomeValues = incomeCategories.map(cat => incomeData[cat]);
+
+    const incomeLayout = {
+        title: 'Monthly Income Breakdown',
+        showlegend: false,
+        xaxis: { title: 'Income Sources' },
+        yaxis: { title: 'Amount ($)' },
+        height: 350,
+        margin: { t: 40, b: 80 }
+    };
+
+    Plotly.newPlot('incomeChart', [{
+        x: incomeCategories,
+        y: incomeValues,
+        type: 'bar',
+        marker: { color: '#4f46e5' }
+    }], incomeLayout, plotlyConfig);
+
+    // Expense chart
+    const expenseData = data.userInput.expenses;
+    const expenseCategories = Object.keys(expenseData);
+    const expenseValues = expenseCategories.map(cat => expenseData[cat]);
+
+    const expenseLayout = {
+        title: 'Monthly Expense Breakdown',
+        showlegend: false,
+        xaxis: { title: 'Expense Categories' },
+        yaxis: { title: 'Amount ($)' },
+        height: 350,
+        margin: { t: 40, b: 80 }
+    };
+
+    Plotly.newPlot('expenseChart', [{
+        x: expenseCategories,
+        y: expenseValues,
+        type: 'bar',
+        marker: { color: '#ef4444' }
+    }], expenseLayout, plotlyConfig);
+}
+
+function updateUIDisplayFromAI(data) {
+    const aiOutput = data.aiOutput || {};
+    updateElementHTML('aiAnalysis', aiOutput.analysis || 'No analysis available');
+    
+    const recommendationsList = document.getElementById('recommendationsList');
+    recommendationsList.innerHTML = '';
+    
+    if (aiOutput.recommendations) {
+        aiOutput.recommendations.split('\n').forEach(rec => {
+            const li = document.createElement('li');
+            li.textContent = rec.trim();
+            recommendationsList.appendChild(li);
+        });
+    }
+}
         // --- Chat Functionality ---
         function initializeChat() {
             console.log("--- initializeChat START ---");
