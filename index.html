@@ -308,26 +308,42 @@
         let chatMessages = []; // Stores the conversation history for API calls
         const CHAT_MODEL = 'gpt-4o-mini'; // For backend reference if needed
 
-        // --- Supabase Client (CONFIGURE THESE) ---
-        const SUPABASE_URL = 'https://tfnwwpksieluzvxqdiiq.supabase.co/functions/v1/smooth-function'; // <-- REPLACE
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRmbnd3cGtzaWVsdXp2eHFkaWlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ1ODQ3MjgsImV4cCI6MjA2MDE2MDcyOH0.xbtjiQ65vCggjj35qtlCZ0S5mJa4muSZcHXhaU4qvrE'; // <-- REPLACE
-        let supabase = null;
-        try {
-            if (!SUPABASE_URL || SUPABASE_URL === 'YOUR_SUPABASE_URL') {
-                console.warn("Supabase URL not configured.");
-                // Optionally disable chat or show specific error
-            } else if (!SUPABASE_ANON_KEY || SUPABASE_ANON_KEY === 'YOUR_SUPABASE_ANON_KEY') {
-                 console.warn("Supabase Anon Key not configured.");
-                 // Optionally disable chat
-            } else {
-                supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                console.log("Supabase client initialized.");
-            }
-        } catch (error) {
-            console.error("Error initializing Supabase client:", error);
-            // Optionally disable chat or show error message on page
-            handleError("Failed to initialize backend connection", error);
-        }
+  // --- Supabase Client (CONFIGURE THESE) ---
+const SUPABASE_URL = 'https://tfnwwpksieluzvxqdiiq.supabase.co/functions/v1/smooth-function'; // <-- Make sure this has your URL
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRmbnd3cGtzaWVsdXp2eHFkaWlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ1ODQ3MjgsImV4cCI6MjA2MDE2MDcyOH0.xbtjiQ65vCggjj35qtlCZ0S5mJa4muSZcHXhaU4qvrE'; // <-- Make sure this has your Key
+let supabase = null; // Keep this variable global within the script scope
+try {
+    // Check if credentials are set
+    if (!SUPABASE_URL || SUPABASE_URL === 'YOUR_SUPABASE_URL') {
+        throw new Error("Supabase URL is not configured in the script.");
+    }
+    if (!SUPABASE_ANON_KEY || SUPABASE_ANON_KEY === 'YOUR_SUPABASE_ANON_KEY') {
+        throw new Error("Supabase Anon Key is not configured in the script.");
+    }
+
+    // Check if the Supabase library loaded and exposed the global object and function
+    // Use window.supabase to be explicit about checking the global scope
+    if (typeof window.supabase === 'undefined' || !window.supabase || typeof window.supabase.createClient !== 'function') {
+         console.error("Supabase library (supabase-js@2) did not load correctly or 'createClient' is not available.");
+         throw new Error("Supabase library failed to load. Check the script tag in <head> and network requests.");
+    }
+
+    // --- *** Correct Initialization *** ---
+    // Use the globally available createClient function from the loaded library
+    const { createClient } = window.supabase;
+    // Assign the created client instance to your 'supabase' variable
+    supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // --- *** End Correct Initialization *** ---
+
+    console.log("Supabase client initialized successfully.");
+
+} catch (error) {
+    console.error("Error during Supabase client initialization:", error);
+    // Call handleError, which will show the specific error (URL/Key missing, library load fail, etc.)
+    handleError("Failed to initialize backend connection", error);
+    // We might want to prevent further execution or disable chat here
+    // e.g., enableChatInput(false); // Assuming this function exists and handles null elements
+}
 
 
         // --- Utility Functions ---
