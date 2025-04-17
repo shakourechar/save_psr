@@ -716,50 +716,49 @@
         }
 
         // --- Main Data Processing & Display Function ---
-        function processAndDisplayData(data) {
-             if (!data || typeof data !== 'object' || !data.userInput) {
-                 console.error("Invalid data received by processAndDisplayData", data);
-                 handleError("Invalid data format received", new Error("Data structure is missing userInput."));
-                 return;
-             }
-             console.log("--- processAndDisplayData START ---");
-             dashboardData = data;
+      function processAndDisplayData(data) {
+    if (!data || typeof data !== 'object' || !data.userInput) {
+        console.error("Invalid data received by processAndDisplayData", data);
+        handleError("Invalid data format received", new Error("Data structure is missing userInput."));
+        return;
+    }
+    console.log("--- processAndDisplayData START ---");
+    dashboardData = data;
+    try {
+         console.log("Calculating totals...");
+         const totals = calculateTotals(data);
+         console.log("Calculating ratios...");
+         const ratios = calculateRatios(data, totals);
 
-             try {
-                 console.log("Calculating totals...");
-                 const totals = calculateTotals(data);
-                 console.log("Calculating ratios...");
-                 const ratios = calculateRatios(data, totals);
+         console.log("Updating basic info...");
+         updateReportBasics(data, totals);
+         console.log("Updating ratios display...");
+         updateRatiosDisplay(ratios);
+         console.log("Updating goals display...");
+         updateGoalsDisplay(data);
+         console.log("Updating debts display...");
+         updateDebtsDisplay(data, ratios);
+         console.log("Rendering charts...");
+         renderCharts(data);
+         console.log("Updating AI display...");
+         updateUIDisplayFromAI(data);
 
-                 console.log("Updating basic info...");
-                 updateReportBasics(data, totals);
-                 console.log("Updating ratios display...");
-                 updateRatiosDisplay(ratios);
-                 console.log("Updating goals display...");
-                 updateGoalsDisplay(data);
-                 console.log("Updating debts display...");
-                 updateDebtsDisplay(data, ratios);
-                 console.log("Rendering charts...");
-                 renderCharts(data);
-                 console.log("Updating AI display...");
-                 updateUIDisplayFromAI(data);
+         console.log("Initializing chat...");
+         initializeChat();
 
-                 console.log("Initializing chat...");
-                 initializeChat();
-
-                 console.log("Hiding loading, showing content...");
-                 loadingSpinner?.classList.add('hidden');
-                 errorMessageElement?.classList.add('hidden');
-                 initialMessageElement.style.display = 'none';
-                 mainContentElement?.classList.remove('hidden');
-
-                 console.log("--- processAndDisplayData END ---");
-
-             } catch (processingError) {
-                  console.error("--- processAndDisplayData ERROR ---", processingError);
-                  handleError("Error processing or displaying data", processingError);
-             }
-        }
+         console.log("Showing main content, hiding spinner...");
+         errorMessageElement?.classList.add('hidden');
+         initialMessageElement.style.display = 'none';
+         mainContentElement?.classList.remove('hidden');
+    } catch (processingError) {
+         console.error("--- processAndDisplayData ERROR ---", processingError);
+         handleError("Error processing or displaying data", processingError);
+    } finally {
+         // Always hide the spinner even if an error occurs
+         loadingSpinner?.classList.add('hidden');
+         console.log("Spinner hidden (in finally).");
+    }
+}
 
         // --- Stub Functions for Template ---
         function calculateTotals(data) { /* ... stub implementation ... */ return {}; }
