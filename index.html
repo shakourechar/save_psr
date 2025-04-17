@@ -829,16 +829,17 @@
              }
         }
 
-        function handleChatSubmit() {
-            const chatInput = document.getElementById('chatInput');
-            const chatSendButton = document.getElementById('chatSendButton'); // Now defined locally
-            const userMessage = chatInput.value.trim();
-            if (!userMessage || chatSendButton.disabled) return;
-            addMessageToChat("User", userMessage);
-            chatMessages.push({ role: "user", content: userMessage });
-            chatInput.value = '';
-            sendToBackendChatFunction();
-        }
+      function handleChatSubmit() {
+    const chatInput = document.getElementById('chatInput');
+    const chatSendButton = document.getElementById('chatSendButton'); // now defined locally
+    const userMessage = chatInput.value.trim();
+    if (!userMessage || chatSendButton.disabled) return;
+    
+    addMessageToChat("User", userMessage);
+    chatMessages.push({ role: "user", content: userMessage });
+    chatInput.value = '';
+    sendToBackendChatFunction(); // Call backend
+}
 
         function addMessageToChat(sender, message, isError = false) {
             const chatHistory = document.getElementById('chatHistory');
