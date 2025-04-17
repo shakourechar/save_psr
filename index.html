@@ -438,18 +438,33 @@ try {
                     const decodeAIField=(fieldName)=>{ const val=getParam(fieldName); if(!val)return''; try{ const decoded=decodeURIComponent(val); return decoded; }catch(e){ console.warn(`Decode URI fail for ${fieldName}`,e); return val; } }; const fetchedAnalysis=decodeAIField('aiAnalysis'); const fetchedRecommendations=decodeAIField('recommendations'); const fetchedProgress=decodeAIField('userProgressHistory')||decodeAIField('userProgress');
                     rawData = { userInput: { personalInfo: { userName: fetchedUserName||'User', age: fetchedAge||30 }, income: { mainJobIncome: fetchedMainJobIncome, secondJob: fetchedSecondJobIncome, otherIncome: fetchedOtherIncome }, expenses: { housing: fetchedHousing, transportation: fetchedTransportation, utilities: fetchedUtilities, groceriesEssentials: fetchedGroceries, insurance: fetchedInsurance, medical: fetchedMedical, care: fetchedCare, subscriptions: fetchedSubscriptions, taxes: fetchedTaxes }, savings: { emergency: fetchedEmergencySavings, savings: fetchedCurrentSavings, retirement: fetchedRetirementFund }, debts: [ { type: "Credit Card", balance: fetchedCreditCardDebt, interestRate: 22.5, minPayment: 50 }, { type: "Bank Loans", balance: fetchedBankLoans, interestRate: 6.5, minPayment: 100 } ] }, aiOutput: { analysis: fetchedAnalysis, recommendations: fetchedRecommendations, userProgress: fetchedProgress } };
 
-                    // --- Validation Check ---
+                 // --- Validation Check (REVISED with Detailed Logging) ---
                     console.log("--- Validating Parsed URL Data ---");
-                     const hasIncome = Object.values(rawData.userInput.income).some(v => v > 0);
-                     const hasExpenses = Object.values(rawData.userInput.expenses).some(v => v > 0);
-                     // ... etc ...
-                     const hasName = !!rawData.userInput.personalInfo.userName && rawData.userInput.personalInfo.userName !== 'User';
-                     if (hasIncome || hasExpenses || /*...*/ hasName) {
-                         dashboardData = rawData;
-                         dataLoaded = true;
-                         console.log(">>> Data successfully loaded from URL parameters.");
-                     } else { /* ... */ }
-                 } else { /* ... */ }
+
+                    // Calculate the boolean checks FIRST
+                    const hasIncome = rawData.userInput.income.mainJobIncome > 0 || rawData.userInput.income.secondJob > 0 || rawData.userInput.income.otherIncome > 0;
+                    const hasExpenses = Object.values(rawData.userInput.expenses).some(v => v > 0);
+                    const hasSavings = Object.values(rawData.userInput.savings).some(v => v > 0);
+                    const hasDebt = rawData.userInput.debts.some(d => d.balance > 0);
+                    const hasName = !!rawData.userInput.personalInfo.userName && rawData.userInput.personalInfo.userName !== 'User';
+
+                    // **** ADDED DETAILED LOGGING ****
+                    // Log the rawData object right before the final decision
+                    console.log("rawData object just before validation:", JSON.stringify(rawData, null, 2));
+                    // Log the individual boolean results
+                    console.log(`Individual validation checks: hasIncome=${hasIncome}, hasExpenses=${hasExpenses}, hasSavings=${hasSavings}, hasDebt=${hasDebt}, hasName=${hasName}`);
+                    // *******************************
+
+                    // Now, make the decision based on the booleans
+                    if (hasIncome || hasExpenses || hasSavings || hasDebt || hasName) {
+                        dashboardData = rawData; // Assign to global variable
+                        dataLoaded = true;      // Set the flag indicating success
+                        console.log(">>> Validation PASSED. Data loaded from URL parameters.");
+                    } else {
+                        dataLoaded = false;     // Explicitly set flag to false
+                        console.warn("!!! Validation FAILED (no significant data or specific username found). `dataLoaded` remains false.");
+                    }
+                    // End of Validation Check Section
 
                 // --- Attempt to Load from Embedded JSON ---
                 if (!dataLoaded && dataElement && dataElement.textContent.trim() !== '/* MAKE_COM_JSON_PLACEHOLDER */') { /* ... unchanged ... */ }
