@@ -8,29 +8,29 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> <style>
-        /* Base Styles from Template */
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        /* Base Styles */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f5f7fa; /* Use slightly blueish gray from later versions */
-            color: #374151; /* Use darker gray */
+            background-color: #f5f7fa;
+            color: #374151;
             margin: 0;
             padding: 0;
             line-height: 1.6;
         }
-        /* Use Garamond for Headers */
+        /* Garamond for Headers */
         h1, h2, h3, h4, .header-font {
             font-family: 'EB Garamond', serif;
-            color: #111827; /* Darker */
+            color: #111827;
             font-weight: bold;
         }
         h1 { font-size: 1.8em; }
         h2 { font-size: 1.5em; }
-        h3 { font-size: 1.2em; color: #333; } /* Card titles */
+        h3 { font-size: 1.2em; color: #333; }
         h4 { font-size: 1.1em; }
-
-        .main-container { /* Renamed from .container */
-            max-width: 1400px; /* Wider */
+        .main-container {
+            max-width: 1400px;
             margin: 2rem auto;
             padding: 1.5rem 2rem;
             background: #ffffff;
@@ -40,29 +40,28 @@
         header {
             display: flex;
             align-items: center;
-            margin-bottom: 2rem; /* Increased margin */
+            margin-bottom: 2rem;
             padding-bottom: 1rem;
             border-bottom: 1px solid #e5e7eb;
             flex-wrap: wrap;
         }
         header img {
-            height: 72px; /* Slightly smaller */
+            height: 72px;
             margin-right: 15px;
             border-radius: 8px;
             object-fit: contain;
         }
-        header h1 { /* Specifically the main title */
-             color: #4f46e5; /* Indigo */
+        header h1 {
+             color: #4f46e5;
              margin: 0;
              flex-grow: 1;
-             font-size: 2.2em; /* Larger */
+             font-size: 2.2em;
              line-height: 1.2;
         }
-        /* Buttons in Header */
-         header button {
+        header button {
             margin-left: 10px;
             padding: 0.6rem 1.2rem;
-            background-color: #4f46e5; /* Indigo */
+            background-color: #4f46e5;
             color: white;
             border: none;
             border-radius: 6px;
@@ -71,42 +70,40 @@
             transition: background-color 0.3s ease;
             font-family: 'Inter', sans-serif;
             font-weight: 500;
-         }
-         header button#uploadButton { background-color: #059669; /* Emerald */ }
-         header button:hover { background-color: #4338ca; /* Darker Indigo */ }
-         header button#uploadButton:hover { background-color: #047857; /* Darker Emerald */ }
-         #fileInput { display: none; }
-
+        }
+        header button#uploadButton { background-color: #059669; }
+        header button:hover { background-color: #4338ca; }
+        header button#uploadButton:hover { background-color: #047857; }
+        #fileInput { display: none; }
         .grid-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px; /* Slightly larger gap */
+            gap: 25px;
             margin-bottom: 25px;
         }
-        .dashboard-card { /* Renamed from .card */
+        .dashboard-card {
             background: #fff;
-            padding: 1.5rem; /* Consistent padding */
+            padding: 1.5rem;
             border-radius: 10px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
             border: 1px solid #e5e7eb;
             display: flex;
             flex-direction: column;
-            min-height: 160px; /* Adjusted min height */
+            min-height: 160px;
         }
-         .card-header { /* Standardized card header style */
+         .card-header {
             font-family: 'Inter', sans-serif;
             font-size: 1.1rem;
             font-weight: 600;
             color: #374151;
-            margin: -1.5rem -1.5rem 1.25rem -1.5rem; /* Extend to edges */
+            margin: -1.5rem -1.5rem 1.25rem -1.5rem;
             padding: 0.75rem 1.5rem;
             border-bottom: 1px solid #e5e7eb;
-            background-color: #f9fafb; /* Slight background */
+            background-color: #f9fafb;
             border-radius: 10px 10px 0 0;
          }
-         /* Specific card titles if needed */
          .dashboard-card h3 {
-              font-family: 'Inter', sans-serif; /* Use Inter for card titles */
+              font-family: 'Inter', sans-serif;
               font-size: 1.1rem;
               font-weight: 600;
               color: #374151;
@@ -116,100 +113,91 @@
          }
         .card-content { flex-grow: 1; font-size: 0.95em; }
         .card-content p { margin-bottom: 0.6rem; }
-        .card-content p strong { font-weight: 500; color: #1f2937; margin-right: 5px;}
-
+        .card-content p strong { font-weight: 500; color: #1f2937; margin-right: 5px; }
          .chart-card {
-             min-height: 400px; /* Keep min height */
+             min-height: 400px;
              overflow: hidden;
          }
-        .chart-container-div { /* Used inside chart cards */
-            min-height: 350px; /* Min height for plot area */
+        .chart-container-div {
+            min-height: 350px;
             width: 100%;
-            flex-grow: 1; /* Allow chart to fill space */
+            flex-grow: 1;
             display: flex;
             align-items: center;
             justify-content: center;
         }
-
          /* Ratio Bar Styles */
          .ratio-item { margin-bottom: 12px; }
-         .ratio-label { display: block; font-weight: 500; margin-bottom: 3px; font-size: 0.9em; color: #4b5563;}
-         .ratio-value { display: inline-block; margin-bottom: 5px; font-size: 1.1em; font-weight: 600; color: #1f2937;}
+         .ratio-label { display: block; font-weight: 500; margin-bottom: 3px; font-size: 0.9em; color: #4b5563; }
+         .ratio-value { display: inline-block; margin-bottom: 5px; font-size: 1.1em; font-weight: 600; color: #1f2937; }
          .ratio-bar-container { background-color: #e5e7eb; border-radius: 4px; overflow: hidden; height: 8px; width: 100%; }
          .ratio-bar { height: 100%; width: 0%; transition: width 0.5s ease-in-out; border-radius: 4px; }
-         /* Ratio colors (using Tailwind names for reference) */
-         .ratio-bar.savings-rate { background-color: #ef4444; } /* Red-500 */
-         .ratio-bar.savings-rate.ok { background-color: #f59e0b; } /* Amber-500 */
-         .ratio-bar.savings-rate.good { background-color: #10b981; } /* Emerald-500 */
+         .ratio-bar.savings-rate { background-color: #ef4444; }
+         .ratio-bar.savings-rate.ok { background-color: #f59e0b; }
+         .ratio-bar.savings-rate.good { background-color: #10b981; }
          .ratio-bar.emergency-coverage { background-color: #ef4444; }
          .ratio-bar.emergency-coverage.ok { background-color: #f59e0b; }
          .ratio-bar.emergency-coverage.good { background-color: #10b981; }
          .ratio-bar.dti-ratio { background-color: #10b981; }
          .ratio-bar.dti-ratio.warning { background-color: #f59e0b; }
          .ratio-bar.dti-ratio.high { background-color: #ef4444; }
-
          /* Debt Table Styles */
          #debtsTable { width: 100%; margin-top: 10px; border-collapse: collapse; }
          #debtsTable th, #debtsTable td { text-align: left; padding: 8px 5px; border-bottom: 1px solid #f3f4f6; font-size: 0.9em; }
          #debtsTable th { font-weight: 500; color: #6b7280; background-color: #f9fafb; }
          #debtsTable tr:last-child td { border-bottom: none; }
          #debtsTable .balance-col { text-align: right; font-weight: 500; }
-
          /* Progress Bar Styles */
          .progress-bar-container { background-color: #e5e7eb; border-radius: 6px; overflow: hidden; height: 20px; margin-top: 5px; margin-bottom: 10px; }
-         .progress-bar { background-color: #4f46e5; /* Indigo */ height: 100%; width: 0%; transition: width 0.5s ease-in-out; text-align: center; color: white; font-size: 0.8em; line-height: 20px; font-weight: 500;}
-         .goal-status {font-weight: 500; color: #1f2937;}
-
+         .progress-bar { background-color: #4f46e5; height: 100%; width: 0%; transition: width 0.5s ease-in-out; text-align: center; color: white; font-size: 0.8em; line-height: 20px; font-weight: 500; }
+         .goal-status { font-weight: 500; color: #1f2937; }
          /* Recommendations List Styles */
          #recommendationsList { list-style: none; padding-left: 0; margin-top: 10px; }
          #recommendationsList li { margin-bottom: 10px; line-height: 1.6; font-family: 'Inter', sans-serif; font-size: 0.95em; padding-left: 1.5em; position: relative; }
-         #recommendationsList li::before { content: '✓'; /* Check mark */ color: #10b981; /* Emerald */ position: absolute; left: 0; font-weight: bold; }
-         #recommendationsList li.warning::before { content: '!'; color: #f59e0b; /* Amber */ }
-         #recommendationsList li.critical::before { content: '!!'; color: #ef4444; /* Red */ }
-
+         #recommendationsList li::before { content: '✓'; color: #10b981; position: absolute; left: 0; font-weight: bold; }
+         #recommendationsList li.warning::before { content: '!'; color: #f59e0b; }
+         #recommendationsList li.critical::before { content: '!!'; color: #ef4444; }
         /* Modals */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); padding-top: 60px; }
         .modal-content { background-color: #fefefe; margin: 5% auto; padding: 25px; border: 1px solid #888; width: 80%; max-width: 700px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
         .close-button { color: #aaa; float: right; font-size: 32px; line-height: 1; font-weight: bold; cursor: pointer; }
         .close-button:hover, .close-button:focus { color: black; text-decoration: none; }
-
-        /* Loading / Error / Initial Messages (Use dedicated blocks now) */
-        /* Hide these by default */
+        /* Loading / Error / Initial Messages */
         #loadingMessage, #initialMessage { display: none; text-align: center; padding: 40px; font-size: 1.2em; color: #555; }
-
-        /* Chat Styles (Copied from modern version) */
+        #mainContent.hidden { display: none; }
+        #mainContent { display: none; }
+        #chatInterfaceCard { display: none; }
+        /* Chat Styles */
          #chatInterfaceCard { background: linear-gradient(135deg, var(--sw-bg-card) 0%, #f9faff 100%); border: 1px solid #e8eafc; }
          .chat-container { display: flex; flex-direction: column; height: 550px; border: 1px solid #d1d5db; border-radius: 10px; overflow: hidden; background-color: #ffffff; box-shadow: inset 0 2px 4px rgba(0,0,0,0.03); }
          .chat-history { flex-grow: 1; padding: 1.5rem; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #d1d5db transparent; }
-         .chat-history::-webkit-scrollbar { width: 8px; } .chat-history::-webkit-scrollbar-track { background: transparent; } .chat-history::-webkit-scrollbar-thumb { background-color: #d1d5db; border-radius: 10px; border: 2px solid transparent; background-clip: content-box; } .chat-history::-webkit-scrollbar-thumb:hover { background-color: #9ca3af; }
+         .chat-history::-webkit-scrollbar { width: 8px; }
+         .chat-history::-webkit-scrollbar-track { background: transparent; }
+         .chat-history::-webkit-scrollbar-thumb { background-color: #d1d5db; border-radius: 10px; border: 2px solid transparent; background-clip: content-box; }
+         .chat-history::-webkit-scrollbar-thumb:hover { background-color: #9ca3af; }
          .chat-message { margin-bottom: 1.25rem; line-height: 1.6; display: flex; }
-         .chat-message.user { justify-content: flex-end; } .chat-message.assistant { justify-content: flex-start; }
+         .chat-message.user { justify-content: flex-end; }
+         .chat-message.assistant { justify-content: flex-start; }
          .message-bubble { border-radius: 18px; padding: 0.8rem 1.1rem; max-width: 75%; box-shadow: 0 2px 4px rgba(0,0,0,0.05); word-wrap: break-word; }
          .chat-message.user .message-bubble { background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%); color: white; border-radius: 18px 18px 4px 18px; }
          .chat-message.assistant .message-bubble { background-color: #eef2ff; color: #374151; border: 1px solid #e0e7ff; border-radius: 18px 18px 18px 4px; }
          .message-sender { display: none; }
          .chat-status { font-size: 0.8rem; color: #6b7280; padding: 0.5rem 1rem; text-align: center; height: 25px; background-color: #f9fafb; border-top: 1px solid #e5e7eb; }
-         .typing-indicator span { /* ... */ } @keyframes typing { /* ... */ }
+         .typing-indicator span { }
+         @keyframes typing { }
          .chat-input-area { border-top: 1px solid #e5e7eb; padding: 0.75rem 1rem; background-color: #f9fafb; display: flex; align-items: center; gap: 0.75rem; }
          .chat-input-area textarea { flex-grow: 1; padding: 0.7rem 1rem; border: 1px solid #d1d5db; border-radius: 20px; resize: none; font-size: 0.95rem; line-height: 1.4; height: 44px; background-color: white; transition: border-color 0.2s ease, box-shadow 0.2s ease; outline: none; }
          .chat-input-area textarea:focus { border-color: #4f46e5; box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2); }
-         .chat-input-area button { padding: 0.6rem 1rem; white-space: nowrap; flex-shrink: 0; border-radius: 20px; /* Match textarea */ }
-
-        /* Spinner / Error Pane / Initial Message Visibility */
-        #loadingSpinner { /* Styles are inline now, added z-index */ z-index: 1050; }
-        #errorMessage { /* Styles are inline now, added z-index */ z-index: 1050; }
-        #initialMessage { /* Styles are inline now */ }
-        #mainContent.hidden { display: none; } /* Use Tailwind hidden class */
-        #mainContent { /* Default state should be hidden */ display: none; }
-        #chatInterfaceCard { display: none; } /* Hide chat initially */
-
-
-        @media (max-width: 768px) {
+         .chat-input-area button { padding: 0.6rem 1rem; white-space: nowrap; flex-shrink: 0; border-radius: 20px; }
+         /* Spinner / Error Pane / Initial Message */
+         #loadingSpinner { z-index: 1050; }
+         #errorMessage { z-index: 1050; }
+         @media (max-width: 768px) {
             header { flex-direction: column; align-items: flex-start; }
             header h1 { margin-top: 10px; font-size: 1.8em; }
             header button { margin-left: 0; margin-top: 10px; }
             .grid-container { grid-template-columns: 1fr; }
-        }
+         }
     </style>
 </head>
 <body>
@@ -217,7 +205,10 @@
 
     <div id="loadingSpinner" class="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-white bg-opacity-90 z-50">
         <div class="text-center">
-             <svg class="animate-spin h-10 w-10 text-indigo-600 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+             <svg class="animate-spin h-10 w-10 text-indigo-600 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+             </svg>
              <p class="text-gray-700 text-lg">Loading your financial dashboard...</p>
         </div>
     </div>
@@ -226,7 +217,9 @@
          <div class="bg-red-100 border border-red-400 text-red-700 px-6 py-5 rounded-lg max-w-lg shadow-md text-center">
              <h3 class="font-bold text-xl mb-3 header-font">Error Loading Dashboard</h3>
              <p id="errorText" class="mb-4">An error occurred.</p>
-             <div id="debugInfo" class="mb-4 max-h-60 overflow-auto text-left bg-gray-100 p-3 rounded text-xs border border-gray-300">Debug info will appear here...</div>
+             <div id="debugInfo" class="mb-4 max-h-60 overflow-auto text-left bg-gray-100 p-3 rounded text-xs border border-gray-300">
+               Debug info will appear here...
+             </div>
              <div class="flex justify-center space-x-3 mt-4">
                  <button id="retryButton" class="action-button">Retry Loading</button>
                  <button id="manualEntryButton" class="secondary-button">Use Demo Data</button>
@@ -238,13 +231,13 @@
         Upload a PSR JSON file or provide data via URL parameter to view your dashboard.
     </div>
 
-
-    <div id="mainContent" class="main-container hidden"> <header>
+    <div id="mainContent" class="main-container hidden">
+        <header>
             <img src="https://static.wixstatic.com/media/c3283f_a9271d9818ba414994d98950da749489~mv2.jpg" alt="SmartWealth Navigator Logo">
             <h1>SmartWealth Navigator</h1>
-             <input type="file" id="fileInput" accept=".json">
-             <button id="uploadButton">Upload PSR</button>
-             <button id="saveButton">Download PSR</button>
+            <input type="file" id="fileInput" accept=".json">
+            <button id="uploadButton">Upload PSR</button>
+            <button id="saveButton">Download PSR</button>
         </header>
 
         <div class="grid-container">
@@ -261,9 +254,28 @@
             <div class="dashboard-card" id="ratiosCard">
                 <h3 class="card-header">Key Financial Ratios</h3>
                 <div class="card-content">
-                    <div class="ratio-item"> <span class="ratio-label">Savings Rate</span> <span class="ratio-value" id="savingsRateValue">N/A</span> <div class="ratio-bar-container"><div class="ratio-bar savings-rate" id="savingsRateBar"></div></div> </div>
-                    <div class="ratio-item"> <span class="ratio-label">Emergency Fund Coverage</span> <span class="ratio-value" id="emergencyCoverageValue">N/A</span> <div class="ratio-bar-container"><div class="ratio-bar emergency-coverage" id="emergencyCoverageBar"></div></div> </div>
-                    <div class="ratio-item"> <span class="ratio-label">Debt-to-Income (DTI)</span> <span class="ratio-value" id="dtiRatioValue">N/A</span> <div class="ratio-bar-container"><div class="ratio-bar dti-ratio" id="dtiRatioBar"></div></div> <p style="font-size: 0.8em; color: #666;">(Using min. payments)</p> </div>
+                    <div class="ratio-item">
+                        <span class="ratio-label">Savings Rate</span>
+                        <span class="ratio-value" id="savingsRateValue">N/A</span>
+                        <div class="ratio-bar-container">
+                           <div class="ratio-bar savings-rate" id="savingsRateBar"></div>
+                        </div>
+                    </div>
+                    <div class="ratio-item">
+                        <span class="ratio-label">Emergency Fund Coverage</span>
+                        <span class="ratio-value" id="emergencyCoverageValue">N/A</span>
+                        <div class="ratio-bar-container">
+                           <div class="ratio-bar emergency-coverage" id="emergencyCoverageBar"></div>
+                        </div>
+                    </div>
+                    <div class="ratio-item">
+                        <span class="ratio-label">Debt-to-Income (DTI)</span>
+                        <span class="ratio-value" id="dtiRatioValue">N/A</span>
+                        <div class="ratio-bar-container">
+                           <div class="ratio-bar dti-ratio" id="dtiRatioBar"></div>
+                        </div>
+                        <p style="font-size: 0.8em; color: #666;">(Using min. payments)</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -280,9 +292,21 @@
             <div class="dashboard-card" id="goalsCard">
                 <h3 class="card-header">Savings Goals Progress</h3>
                 <div class="card-content">
-                    <div id="emergencyGoalDisplay" style="display: none;"> <p><strong>Emergency Fund Goal:</strong> <span class="goal-status">N/A</span></p> <div class="progress-bar-container"><div class="progress-bar" id="emergencyProgressBar"></div></div> </div>
-                    <div id="purchaseGoalDisplay" style="margin-top: 15px; display: none;"> <p><strong>Purchase Goal (<span id="purchaseGoalName">N/A</span>):</strong> <span class="goal-status">N/A</span></p> <div class="progress-bar-container"><div class="progress-bar" id="purchaseProgressBar"></div></div> </div>
-                    <p id="noGoalsMessage" style="display: none;" class="text-gray-500 italic">No specific goals defined in report.</p>
+                    <div id="emergencyGoalDisplay" style="display: none;">
+                        <p><strong>Emergency Fund Goal:</strong> <span class="goal-status">N/A</span></p>
+                        <div class="progress-bar-container">
+                           <div class="progress-bar" id="emergencyProgressBar"></div>
+                        </div>
+                    </div>
+                    <div id="purchaseGoalDisplay" style="margin-top: 15px; display: none;">
+                        <p><strong>Purchase Goal (<span id="purchaseGoalName">N/A</span>):</strong> <span class="goal-status">N/A</span></p>
+                        <div class="progress-bar-container">
+                           <div class="progress-bar" id="purchaseProgressBar"></div>
+                        </div>
+                    </div>
+                    <p id="noGoalsMessage" style="display: none;" class="text-gray-500 italic">
+                      No specific goals defined in report.
+                    </p>
                 </div>
             </div>
         </div>
@@ -290,11 +314,15 @@
         <div class="grid-container">
             <div class="dashboard-card chart-card">
                 <h3 class="card-header">Income Breakdown</h3>
-                <div id="incomeChart" class="chart-container-div"><p class="text-center text-gray-500 pt-10">Chart loading...</p></div>
+                <div id="incomeChart" class="chart-container-div">
+                    <p class="text-center text-gray-500 pt-10">Chart loading...</p>
+                </div>
             </div>
             <div class="dashboard-card chart-card">
                 <h3 class="card-header">Expense Breakdown</h3>
-                <div id="expenseChart" class="chart-container-div"><p class="text-center text-gray-500 pt-10">Chart loading...</p></div>
+                <div id="expenseChart" class="chart-container-div">
+                    <p class="text-center text-gray-500 pt-10">Chart loading...</p>
+                </div>
             </div>
         </div>
 
@@ -302,14 +330,20 @@
             <div class="dashboard-card">
                 <h3 class="card-header">Recommendations</h3>
                 <div class="card-content">
-                    <ul id="recommendationsList"><li>Loading recommendations...</li></ul>
+                    <ul id="recommendationsList">
+                        <li>Loading recommendations...</li>
+                    </ul>
                 </div>
             </div>
             <div class="dashboard-card">
                 <h3 class="card-header">AI Analysis Summary</h3>
                 <div class="card-content">
-                    <div id="aiAnalysis" class="prose prose-sm max-w-none mb-4" style="white-space: pre-wrap;">Loading analysis...</div>
-                    <button onclick="openModal('progressModal')" class="text-indigo-600 hover:underline text-sm font-medium">View Full Progress History</button>
+                    <div id="aiAnalysis" class="prose prose-sm max-w-none mb-4" style="white-space: pre-wrap;">
+                        Loading analysis...
+                    </div>
+                    <button onclick="openModal('progressModal')" class="text-indigo-600 hover:underline text-sm font-medium">
+                        View Full Progress History
+                    </button>
                 </div>
             </div>
         </div>
@@ -317,15 +351,25 @@
         <div class="grid-container">
             <div class="dashboard-card" id="debtsCard">
                 <h3 class="card-header">Debt Overview</h3>
-                <div class="card-content overflow-x-auto"> <table id="debtsTable">
-                        <thead><tr><th>Type</th><th>Balance</th><th>Rate (%)</th><th>Min. Pmt</th></tr></thead>
-                        <tbody><tr><td colspan="4">Loading debt data...</td></tr></tbody>
+                <div class="card-content overflow-x-auto">
+                    <table id="debtsTable">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Balance</th>
+                                <th>Rate (%)</th>
+                                <th>Min. Pmt</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td colspan="4">Loading debt data...</td></tr>
+                        </tbody>
                     </table>
                     <p style="margin-top: 10px;"><strong>Total Debt Balance:</strong> <span id="totalDebtBalance" class="font-semibold">N/A</span></p>
                     <p><strong>Total Min. Payments:</strong> <span id="totalMinPayments" class="font-semibold">N/A</span></p>
                 </div>
             </div>
-             <div class="dashboard-card">
+            <div class="dashboard-card">
                 <h3 class="card-header">Financial Tools & Goals</h3>
                 <div class="card-content">
                      <p><strong>Financial Tools:</strong> <span id="financialTools">N/A</span></p>
@@ -335,62 +379,91 @@
             </div>
         </div>
 
-        <section id="chatInterfaceCard" class="dashboard-card" style="grid-column: 1 / -1;"> <h3 class="card-header">Ask SmartWealth AI</h3>
-             <div class="chat-container">
+        <section id="chatInterfaceCard" class="dashboard-card" style="grid-column: 1 / -1;">
+            <h3 class="card-header">Ask SmartWealth AI</h3>
+            <div class="chat-container">
                 <div class="chat-history" id="chatHistory"></div>
                 <div class="chat-status" id="chatStatus"></div>
                 <div class="chat-input-area">
                     <textarea id="chatInput" placeholder="Ask about your finances..." rows="1" disabled></textarea>
                     <button id="chatSendButton" class="action-button" disabled>
-                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"> <path d="M3.105 3.105a1.5 1.5 0 011.995-.04l8 4a1.5 1.5 0 010 2.87l-8 4a1.5 1.5 0 01-1.995-.04L1.6 13.89a1.5 1.5 0 01-.04-1.995l3-4a1.5 1.5 0 010-1.79l-3-4a1.5 1.5 0 01.04-1.995l1.5-1.5z" /> </svg>
+                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                             <path d="M3.105 3.105a1.5 1.5 0 011.995-.04l8 4a1.5 1.5 0 010 2.87l-8 4a1.5 1.5 0 01-1.995-.04L1.6 13.89a1.5 1.5 0 01-.04-1.995l3-4a1.5 1.5 0 010-1.79l-3-4a1.5 1.5 0 01.04-1.995l1.5-1.5z" />
+                         </svg>
                          <span class="sr-only">Send</span>
                     </button>
                 </div>
-             </div>
+            </div>
         </section>
 
         <footer class="text-center text-gray-500 text-sm py-6">
             <p>SmartWealth Navigator &copy; 2025 | Built by Socialeap™️</p>
-             <p>Consult with a qualified financial advisor for personalized advice.</p>
+            <p>Consult with a qualified financial advisor for personalized advice.</p>
         </footer>
+    </div>
 
-    </div> <div id="progressModal" class="modal">
+    <div id="progressModal" class="modal">
        <div class="modal-content">
            <span class="close-button" onclick="closeModal('progressModal')">&times;</span>
            <h2>User Progress History</h2>
            <div id="progressContent" style="white-space: pre-wrap;">Loading history...</div>
        </div>
-     </div>
+    </div>
 
     <script>
         // --- Globals ---
-        let dashboardData = {}; // Changed from fetchedReportData for consistency
+        let dashboardData = {};
         let chatMessages = [];
         const CHAT_MODEL = 'gpt-4o-mini';
         const plotlyConfig = { displaylogo: false, modeBarButtonsToRemove: ['sendDataToCloud', 'select2d', 'lasso2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d', 'resetScale2d', 'hoverClosestPie'] };
 
         // --- Supabase Client (CONFIGURE THESE) ---
-        const SUPABASE_URL = 'https://tfnwwpksieluzvxqdiiq.supabase.co'; // <-- REPLACE
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRmbnd3cGtzaWVsdXp2eHFkaWlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ1ODQ3MjgsImV4cCI6MjA2MDE2MDcyOH0.xbtjiQ65vCggjj35qtlCZ0S5mJa4muSZcHXhaU4qvrE'; // <-- REPLACE
+        const SUPABASE_URL = 'https://tfnwwpksieluzvxqdiiq.supabase.co'; // REPLACE with your URL
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRmbnd3cGtzaWVsdXp2eHFkaWlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ1ODQ3MjgsImV4cCI6MjA2MDE2MDcyOH0.xbtjiQ65vCggjj35qtlCZ0S5mJa4muSZcHXhaU4qvrE'; // REPLACE with your key
         let supabase = null;
 
-        // --- DOM Element References (Cache them) ---
-        // Cache frequently accessed elements after DOM is loaded
-        let loadingSpinner, errorMessageElement, mainContentElement, initialMessageElement, errorTextElement, debugInfoElement; // Add others as needed
+        // --- Cached DOM Elements ---
+        let loadingSpinner, errorMessageElement, mainContentElement, initialMessageElement, errorTextElement, debugInfoElement;
 
         // --- Utility Functions ---
-        // Using slightly more robust versions from previous successful attempts
-        function getSafe(fn, defaultVal = 'N/A') { try { const value = fn(); return (value === null || value === undefined || value === '') ? defaultVal : value; } catch (e) { return defaultVal; } }
-        function formatCurrency(value, hideNA = false) { const number = Number(value); if (isNaN(number)) return hideNA ? '' : 'N/A'; return number.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }); } // Use consistent formatting
-        function formatPercentage(value, decimals = 1) { const number = Number(value); if (isNaN(number) || !isFinite(number)) return 'N/A'; return number.toLocaleString(undefined, { style: 'percent', minimumFractionDigits: decimals, maximumFractionDigits: decimals }); }
-        function updateElementText(id, value, formatter) { const element = document.getElementById(id); if (element) { element.textContent = formatter ? formatter(value) : (value || 'N/A'); } else { console.warn(`Element with ID ${id} not found for text update.`); }}
-        function updateElementHTML(id, value) { const element = document.getElementById(id); if (element) { element.innerHTML = value; } else { console.warn(`Element with ID ${id} not found for HTML update.`); }}
+        function getSafe(fn, defaultVal = 'N/A') { 
+            try { 
+                const value = fn(); 
+                return (value === null || value === undefined || value === '') ? defaultVal : value; 
+            } catch (e) { 
+                return defaultVal; 
+            } 
+        }
+        function formatCurrency(value, hideNA = false) { 
+            const number = Number(value); 
+            if (isNaN(number)) return hideNA ? '' : 'N/A'; 
+            return number.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }); 
+        }
+        function formatPercentage(value, decimals = 1) { 
+            const number = Number(value); 
+            if (isNaN(number) || !isFinite(number)) return 'N/A'; 
+            return number.toLocaleString(undefined, { style: 'percent', minimumFractionDigits: decimals, maximumFractionDigits: decimals }); 
+        }
+        function updateElementText(id, value, formatter) { 
+            const element = document.getElementById(id); 
+            if (element) { 
+                element.textContent = formatter ? formatter(value) : (value || 'N/A'); 
+            } else { 
+                console.warn(`Element with ID ${id} not found for text update.`); 
+            }
+        }
+        function updateElementHTML(id, value) { 
+            const element = document.getElementById(id); 
+            if (element) { 
+                element.innerHTML = value; 
+            } else { 
+                console.warn(`Element with ID ${id} not found for HTML update.`); 
+            }
+        }
 
-
-        // --- Initialization on DOM Load ---
+        // --- Initialization ---
         document.addEventListener('DOMContentLoaded', function() {
             console.log("DOM fully loaded. Initializing...");
-            // Cache main elements
             loadingSpinner = document.getElementById('loadingSpinner');
             errorMessageElement = document.getElementById('errorMessage');
             mainContentElement = document.getElementById('mainContent');
@@ -398,195 +471,251 @@
             errorTextElement = document.getElementById('errorText');
             debugInfoElement = document.getElementById('debugInfo');
 
-            // Show loading spinner initially
+            // Show loading spinner and hide other content
             loadingSpinner?.classList.remove('hidden');
             errorMessageElement?.classList.add('hidden');
             mainContentElement?.classList.add('hidden');
-            initialMessageElement?.style.display = 'none'; // Use style display none/block for this one
-
+            initialMessageElement.style.display = 'none';
 
             try {
-                 // Initialize Supabase Client
-                 if (!SUPABASE_URL || SUPABASE_URL === 'YOUR_SUPABASE_URL') { throw new Error("Supabase URL missing."); }
-                 if (!SUPABASE_ANON_KEY || SUPABASE_ANON_KEY === 'YOUR_SUPABASE_ANON_KEY') { throw new Error("Supabase Anon Key missing."); }
-                 if (typeof window.supabase === 'undefined' || !window.supabase || typeof window.supabase.createClient !== 'function') { throw new Error("Supabase library failed to load."); }
-                 const { createClient } = window.supabase;
-                 supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                 console.log("Supabase client initialized successfully.");
+                // Initialize Supabase Client
+                if (!SUPABASE_URL || SUPABASE_URL === 'YOUR_SUPABASE_URL') { 
+                    throw new Error("Supabase URL missing."); 
+                }
+                if (!SUPABASE_ANON_KEY || SUPABASE_ANON_KEY === 'YOUR_SUPABASE_ANON_KEY') { 
+                    throw new Error("Supabase Anon Key missing."); 
+                }
+                if (typeof window.supabase === 'undefined' || !window.supabase || typeof window.supabase.createClient !== 'function') { 
+                    throw new Error("Supabase library failed to load."); 
+                }
+                const { createClient } = window.supabase;
+                supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                console.log("Supabase client initialized successfully.");
 
-                 // Setup Buttons (check if elements exist)
-                 document.getElementById('retryButton')?.addEventListener('click', () => location.reload()); // Simple retry
-                 document.getElementById('manualEntryButton')?.addEventListener('click', useDemoData);
-                 initSaveButton();
-                 initUploadButton();
+                // Setup Buttons
+                document.getElementById('retryButton')?.addEventListener('click', () => location.reload());
+                document.getElementById('manualEntryButton')?.addEventListener('click', useDemoData);
+                initSaveButton();
+                initUploadButton();
+                initModals();
 
-                 // Initialize Modals
-                 initModals();
-
-                 // Attempt to load data and render dashboard
-                 initializeDashboard();
+                // Load Dashboard Data
+                initializeDashboard();
 
             } catch (error) {
-                 console.error("Critical Error during initial setup:", error);
-                 handleError("Failed during initial page setup", error); // Use central error handler
+                console.error("Critical Error during initial setup:", error);
+                handleError("Failed during initial page setup", error);
             }
-        }); // End DOMContentLoaded Listener
+        });
 
         // --- Debugging & Error Handling ---
-         function debugURLParameters() {
-              const params = new URLSearchParams(window.location.search);
-              if (!debugInfoElement) return; // Use cached element
-              let paramsText='<strong>URL:</strong><br><code style="font-size:10px;word-break:break-all;">'+window.location.search+'</code><br><strong>Params:</strong><br>';
-              if(params.toString()===''){paramsText+='<span style="color:orange;">None</span><br>'}else{paramsText+='<table><thead><tr><th>Param</th><th>Value</th></tr></thead><tbody>';for(const[key,value]of params.entries()){paramsText+=`<tr><td>${key}</td><td>${value||'<i style="color:gray;">(empty)</i>'}</td></tr>`;}paramsText+='</tbody></table>';}
-              debugInfoElement.innerHTML = paramsText;
-         }
+        function debugURLParameters() {
+            const params = new URLSearchParams(window.location.search);
+            if (!debugInfoElement) return;
+            let paramsText = '<strong>URL:</strong><br><code style="font-size:10px;word-break:break-all;">' + window.location.search + '</code><br><strong>Params:</strong><br>';
+            if (params.toString() === '') {
+                paramsText += '<span style="color:orange;">None</span><br>';
+            } else {
+                paramsText += '<table><thead><tr><th>Param</th><th>Value</th></tr></thead><tbody>';
+                for (const [key, value] of params.entries()) {
+                    paramsText += `<tr><td>${key}</td><td>${value || '<i style="color:gray;">(empty)</i>'}</td></tr>`;
+                }
+                paramsText += '</tbody></table>';
+            }
+            debugInfoElement.innerHTML = paramsText;
+        }
         function handleError(message, error) {
             console.error("HANDLE ERROR:", message, error);
-            debugURLParameters(); // Show URL params in debug info
-            if (errorTextElement) { errorTextElement.textContent = `${message}: ${error?.message || 'Unknown error'}`; }
-            if (debugInfoElement && error?.message) { debugInfoElement.innerHTML += `<br><strong>Error Detail:</strong><br><span style="color:red;">${error.message}</span>`; }
+            debugURLParameters();
+            if (errorTextElement) { 
+                errorTextElement.textContent = `${message}: ${error?.message || 'Unknown error'}`; 
+            }
+            if (debugInfoElement && error?.message) { 
+                debugInfoElement.innerHTML += `<br><strong>Error Detail:</strong><br><span style="color:red;">${error.message}</span>`; 
+            }
             loadingSpinner?.classList.add('hidden');
             mainContentElement?.classList.add('hidden');
-            initialMessageElement?.style.display = 'none';
-            errorMessageElement?.classList.remove('hidden'); // Show the error pane
+            initialMessageElement.style.display = 'none';
+            errorMessageElement?.classList.remove('hidden');
         }
 
         // --- Demo Data ---
         function useDemoData() {
-             console.log("Using Demo Data");
-             // Using a structure compatible with the detailed render functions
-             const demoData = {
-                 userInput: {
-                     personalInfo: { userName: "Demo User", age: 35 },
-                     income: { mainJobIncome: 5500, secondJob: 1200, otherIncome: 300 },
-                     expenses: { housing: 1800, utilities: 250, transportation: 450, groceriesEssentials: 600, insurance: 350, medical: 150, care: 100, subscriptions: 80, taxes: 1100 },
-                     savings: { emergency: 8000, savings: 15000, retirement: 75000, emergencyFundTarget: 15000 }, // Added target
-                     debts: [
-                         { type: "Credit Card", balance: 4500, interestRate: 22.5, minPayment: 150 },
-                         { type: "Bank Loans", balance: 12000, interestRate: 6.5, minPayment: 300 }
-                     ],
-                     financials: { // Added section for non-core items
+            console.log("Using Demo Data");
+            const demoData = {
+                userInput: {
+                    personalInfo: { userName: "Demo User", age: 35 },
+                    income: { mainJobIncome: 5500, secondJob: 1200, otherIncome: 300 },
+                    expenses: { housing: 1800, utilities: 250, transportation: 450, groceriesEssentials: 600, insurance: 350, medical: 150, care: 100, subscriptions: 80, taxes: 1100 },
+                    savings: { emergency: 8000, savings: 15000, retirement: 75000, emergencyFundTarget: 15000 },
+                    debts: [
+                        { type: "Credit Card", balance: 4500, interestRate: 22.5, minPayment: 150 },
+                        { type: "Bank Loans", balance: 12000, interestRate: 6.5, minPayment: 300 }
+                    ],
+                    financials: {
                         financialTools: "Budgeting App, Credit Monitor",
                         challenges: "Saving consistently, Reducing debt",
-                        upcomingPurchase: "New Laptop ($1500, 6 months)",
-                        purchaseGoalTarget: 1500,
-                        purchaseGoalSaved: 300
-                     }
-                 },
-                 aiOutput: { analysis: "Demo analysis: Cash flow positive. Emergency fund halfway to target. High interest CC debt should be focus.", recommendations: "- Allocate $X monthly to emergency fund.\n- Use debt snowball for CC.\n- Review subscriptions.", userProgress: "Previous check-in: Focused on budget setup." }
-             };
-             dashboardData = demoData; // Set global data
-             console.log("Rendering demo data...");
-             processAndDisplayData(dashboardData); // Use the main processing function
+                        upcomingPurchase: "New Laptop ($1500, 6 months)"
+                    }
+                },
+                aiOutput: { 
+                    analysis: "Demo analysis: Cash flow positive. Emergency fund halfway to target. High interest CC debt should be focus.", 
+                    recommendations: "- Allocate $X monthly to emergency fund.\n- Use debt snowball for CC.\n- Review subscriptions.", 
+                    userProgress: "Previous check-in: Focused on budget setup." 
+                }
+            };
+            dashboardData = demoData;
+            console.log("Rendering demo data...");
+            processAndDisplayData(dashboardData);
         }
 
         // --- Initialize Dashboard Data Logic ---
         function initializeDashboard() {
-            // Supabase client initialized in DOMContentLoaded
             console.log("--- initializeDashboard START ---");
             const params = new URLSearchParams(window.location.search);
             const dataElement = document.getElementById('embeddedPsrData');
             let dataLoaded = false;
-            let rawData = null; // Initialize as null
+            let rawData = null;
 
             try {
-                // --- Parameter Getter & Parser (Robust versions) ---
                 const getParam = (keyBase) => {
-                    const keyBaseLower=keyBase.toLowerCase(); let foundValue=null;
-                    for(const currentKey of params.keys()){ const currentKeyLower=currentKey.toLowerCase();
-                    if(currentKeyLower===keyBaseLower){foundValue=params.get(currentKey);break;}
-                    const jotformPattern=new RegExp(`^q\\d+_${keyBaseLower}$`,'i'); if(jotformPattern.test(currentKeyLower)){foundValue=params.get(currentKey);break;}
-                    if(currentKeyLower.endsWith(keyBaseLower)&&foundValue===null){foundValue=params.get(currentKey);}} return foundValue;
+                    const keyBaseLower = keyBase.toLowerCase();
+                    let foundValue = null;
+                    for (const currentKey of params.keys()) {
+                        const currentKeyLower = currentKey.toLowerCase();
+                        if (currentKeyLower === keyBaseLower) {
+                            foundValue = params.get(currentKey);
+                            break;
+                        }
+                        const jotformPattern = new RegExp(`^q\\d+_${keyBaseLower}$`, 'i');
+                        if (jotformPattern.test(currentKeyLower)) {
+                            foundValue = params.get(currentKey);
+                            break;
+                        }
+                        if (currentKeyLower.endsWith(keyBaseLower) && foundValue === null) {
+                            foundValue = params.get(currentKey);
+                        }
+                    }
+                    return foundValue;
                 };
                 const parseNumeric = (keyName, value, defaultValue = 0) => {
-                    if(value===null||typeof value==='undefined'||String(value).trim()===''){return defaultValue;} if(typeof value==='number'){return isNaN(value)?defaultValue:value;} if(typeof value !== 'string'){return defaultValue;} const cleaned=value.trim().replace(/[^0-9.-]+/g,''); if(cleaned===''||cleaned==='-'||cleaned==='.'){return defaultValue;} const number=parseFloat(cleaned); return isNaN(number)?defaultValue:number;
+                    if (value === null || typeof value === 'undefined' || String(value).trim() === '') { return defaultValue; }
+                    if (typeof value === 'number') { return isNaN(value) ? defaultValue : value; }
+                    if (typeof value !== 'string') { return defaultValue; }
+                    const cleaned = value.trim().replace(/[^0-9.-]+/g, '');
+                    if (cleaned === '' || cleaned === '-' || cleaned === '.') { return defaultValue; }
+                    const number = parseFloat(cleaned);
+                    return isNaN(number) ? defaultValue : number;
                 };
-                 const decodeField = (fieldName) => { // Changed name from decodeAIField
-                     const val=getParam(fieldName); if(!val)return''; try{return decodeURIComponent(val);}catch(e){console.warn(`Decode URI fail for ${fieldName}`,e); return val;}
-                 };
+                const decodeField = (fieldName) => { 
+                    const val = getParam(fieldName); 
+                    if (!val) return ''; 
+                    try { return decodeURIComponent(val); } 
+                    catch (e) { console.warn(`Decode URI fail for ${fieldName}`, e); return val; }
+                };
 
-
-                // --- Attempt to Load from URL ---
-                 if (params.toString().length > 0 && params.has('userName')) { // Check for at least one key param
+                if (params.toString().length > 0 && params.has('userName')) {
                     console.log("--- Parsing URL Parameters ---");
-                    // Fetch all parameters...
-                     const fetchedUserName=getParam('userName')||getParam('username'); const fetchedAge=parseNumeric('age',getParam('age')); const fetchedMainJobIncome=parseNumeric('mainJobIncome',getParam('mainJobIncome')); const fetchedSecondJobIncome=parseNumeric('secondJobIncome',getParam('secondJobIncome')||getParam('secondJob')); const fetchedOtherIncome=parseNumeric('otherIncome',getParam('otherIncome')); const fetchedHousing=parseNumeric('housing',getParam('housing')); const fetchedTransportation=parseNumeric('transportation',getParam('transportation')); const fetchedUtilities=parseNumeric('utilities',getParam('utilities')); const fetchedGroceries=parseNumeric('groceries-essentials',getParam('groceries-essentials')||getParam('groceries')); const fetchedInsurance=parseNumeric('insurance',getParam('insurance')); const fetchedMedical=parseNumeric('medical',getParam('medical')); const fetchedCare=parseNumeric('care',getParam('care')); const fetchedSubscriptions=parseNumeric('subscriptions',getParam('subscriptions')); const fetchedTaxes=parseNumeric('taxes',getParam('taxes')); const fetchedEmergencySavings=parseNumeric('emergencySavings',getParam('emergencySavings')||getParam('emergency')); const fetchedCurrentSavings=parseNumeric('currentSavings',getParam('currentSavings')||getParam('savings')); const fetchedRetirementFund=parseNumeric('retirementFund',getParam('retirementFund')||getParam('retirement')); const fetchedCreditCardDebt=parseNumeric('creditCardDebt',getParam('creditCardDebt')||getParam('creditcard')); const fetchedBankLoans=parseNumeric('bankLoans',getParam('bankLoans')||getParam('loans'));
-                     const fetchedFinancialTools = decodeField('financialTools');
-                     const fetchedChallenges = decodeField('challenges');
-                     const fetchedUpcomingPurchases = decodeField('upcomingPurchases'); // Use plural based on earlier discussion
-                     const fetchedAnalysis=decodeField('aiAnalysis'); const fetchedRecommendations=decodeField('recommendations'); const fetchedProgress=decodeField('userProgressHistory')||decodeField('userProgress');
+                    const fetchedUserName = getParam('userName') || getParam('username');
+                    const fetchedAge = parseNumeric('age', getParam('age'));
+                    const fetchedMainJobIncome = parseNumeric('mainJobIncome', getParam('mainJobIncome'));
+                    const fetchedSecondJobIncome = parseNumeric('secondJobIncome', getParam('secondJobIncome') || getParam('secondJob'));
+                    const fetchedOtherIncome = parseNumeric('otherIncome', getParam('otherIncome'));
+                    const fetchedHousing = parseNumeric('housing', getParam('housing'));
+                    const fetchedTransportation = parseNumeric('transportation', getParam('transportation'));
+                    const fetchedUtilities = parseNumeric('utilities', getParam('utilities'));
+                    const fetchedGroceries = parseNumeric('groceries-essentials', getParam('groceries-essentials') || getParam('groceries'));
+                    const fetchedInsurance = parseNumeric('insurance', getParam('insurance'));
+                    const fetchedMedical = parseNumeric('medical', getParam('medical'));
+                    const fetchedCare = parseNumeric('care', getParam('care'));
+                    const fetchedSubscriptions = parseNumeric('subscriptions', getParam('subscriptions'));
+                    const fetchedTaxes = parseNumeric('taxes', getParam('taxes'));
+                    const fetchedEmergencySavings = parseNumeric('emergencySavings', getParam('emergencySavings') || getParam('emergency'));
+                    const fetchedCurrentSavings = parseNumeric('currentSavings', getParam('currentSavings') || getParam('savings'));
+                    const fetchedRetirementFund = parseNumeric('retirementFund', getParam('retirementFund') || getParam('retirement'));
+                    const fetchedCreditCardDebt = parseNumeric('creditCardDebt', getParam('creditCardDebt') || getParam('creditcard'));
+                    const fetchedBankLoans = parseNumeric('bankLoans', getParam('bankLoans') || getParam('loans'));
+                    const fetchedFinancialTools = decodeField('financialTools');
+                    const fetchedChallenges = decodeField('challenges');
+                    const fetchedUpcomingPurchases = decodeField('upcomingPurchases');
+                    const fetchedAnalysis = decodeField('aiAnalysis');
+                    const fetchedRecommendations = decodeField('recommendations');
+                    const fetchedProgress = decodeField('userProgressHistory') || decodeField('userProgress');
+                    const ccMinPayment = fetchedCreditCardDebt * 0.03 > 50 ? fetchedCreditCardDebt * 0.03 : 50;
+                    const loanMinPayment = fetchedBankLoans * 0.015 > 100 ? fetchedBankLoans * 0.015 : 100;
 
-                    // Estimate min payments (as before)
-                     const ccMinPayment=fetchedCreditCardDebt*0.03>50?fetchedCreditCardDebt*0.03:50; const loanMinPayment=fetchedBankLoans*0.015>100?fetchedBankLoans*0.015:100;
-
-                    // Construct data structure matching detailed render functions
-                     rawData = {
-                         userInput: {
-                             personalInfo: { userName: fetchedUserName||'User', age: fetchedAge||30 },
-                             income: { mainJobIncome: fetchedMainJobIncome, secondJob: fetchedSecondJobIncome, otherIncome: fetchedOtherIncome },
-                             expenses: { housing: fetchedHousing, transportation: fetchedTransportation, utilities: fetchedUtilities, groceriesEssentials: fetchedGroceries, insurance: fetchedInsurance, medical: fetchedMedical, care: fetchedCare, subscriptions: fetchedSubscriptions, taxes: fetchedTaxes },
-                             savings: { emergency: fetchedEmergencySavings, savings: fetchedCurrentSavings, retirement: fetchedRetirementFund /* TODO: Add targets if available */ },
-                             debts: [
-                                 { type: "Credit Card", balance: fetchedCreditCardDebt, interestRate: 22.5, minPayment: ccMinPayment },
-                                 { type: "Bank Loans", balance: fetchedBankLoans, interestRate: 6.5, minPayment: loanMinPayment }
-                             ],
-                              financials: { // Store extra fields here
-                                 financialTools: fetchedFinancialTools,
-                                 challenges: fetchedChallenges,
-                                 upcomingPurchase: fetchedUpcomingPurchases // Check consistency
-                                 // TODO: Parse target/saved for purchase goal if needed
-                              }
-                         },
-                         aiOutput: { analysis: fetchedAnalysis, recommendations: fetchedRecommendations, userProgress: fetchedProgress }
+                    rawData = {
+                        userInput: {
+                            personalInfo: { userName: fetchedUserName || 'User', age: fetchedAge || 30 },
+                            income: { mainJobIncome: fetchedMainJobIncome, secondJob: fetchedSecondJobIncome, otherIncome: fetchedOtherIncome },
+                            expenses: { housing: fetchedHousing, transportation: fetchedTransportation, utilities: fetchedUtilities, groceriesEssentials: fetchedGroceries, insurance: fetchedInsurance, medical: fetchedMedical, care: fetchedCare, subscriptions: fetchedSubscriptions, taxes: fetchedTaxes },
+                            savings: { emergency: fetchedEmergencySavings, savings: fetchedCurrentSavings, retirement: fetchedRetirementFund },
+                            debts: [
+                                { type: "Credit Card", balance: fetchedCreditCardDebt, interestRate: 22.5, minPayment: ccMinPayment },
+                                { type: "Bank Loans", balance: fetchedBankLoans, interestRate: 6.5, minPayment: loanMinPayment }
+                            ],
+                            financials: {
+                                financialTools: fetchedFinancialTools,
+                                challenges: fetchedChallenges,
+                                upcomingPurchase: fetchedUpcomingPurchases
+                            }
+                        },
+                        aiOutput: { analysis: fetchedAnalysis, recommendations: fetchedRecommendations, userProgress: fetchedProgress }
                     };
 
-                    // --- Validation Check ---
                     console.log("--- Validating Parsed URL Data ---");
-                    const hasIncome=Object.values(rawData.userInput.income||{}).some(v=>v>0); const hasExpenses=Object.values(rawData.userInput.expenses||{}).some(v=>v>0); const hasSavings=Object.values(rawData.userInput.savings||{}).some(v=>v>0); const hasDebt=(rawData.userInput.debts||[]).some(d=>d.balance>0); const hasName=!!rawData.userInput.personalInfo.userName&&rawData.userInput.personalInfo.userName!=='User';
+                    const hasIncome = Object.values(rawData.userInput.income || {}).some(v => v > 0);
+                    const hasExpenses = Object.values(rawData.userInput.expenses || {}).some(v => v > 0);
+                    const hasSavings = Object.values(rawData.userInput.savings || {}).some(v => v > 0);
+                    const hasDebt = (rawData.userInput.debts || []).some(d => d.balance > 0);
+                    const hasName = !!rawData.userInput.personalInfo.userName && rawData.userInput.personalInfo.userName !== 'User';
                     console.log("rawData object just before validation:", JSON.stringify(rawData, null, 2));
                     console.log(`Checks: Income=${hasIncome}, Expenses=${hasExpenses}, Savings=${hasSavings}, Debt=${hasDebt}, Name=${hasName}`);
-                    if(hasIncome||hasExpenses||hasSavings||hasDebt||hasName){
-                        dashboardData=rawData; dataLoaded=true; console.log(">>> Validation PASSED (URL).");
-                    } else { console.warn("!!! Validation FAILED (URL)."); }
+                    if (hasIncome || hasExpenses || hasSavings || hasDebt || hasName) {
+                        dashboardData = rawData;
+                        dataLoaded = true;
+                        console.log(">>> Validation PASSED (URL).");
+                    } else {
+                        console.warn("!!! Validation FAILED (URL).");
+                    }
+                } else {
+                    console.log("--- No URL parameters detected or 'userName' missing ---");
+                }
 
-                 } else { console.log("--- No URL parameters detected or 'userName' missing ---"); }
-
-                 // --- Attempt to Load from Embedded JSON ---
-                 if (!dataLoaded && dataElement && dataElement.textContent.trim() !== '/* MAKE_COM_JSON_PLACEHOLDER */') {
+                if (!dataLoaded && dataElement && dataElement.textContent.trim() !== '/* MAKE_COM_JSON_PLACEHOLDER */') {
                     console.log("--- Attempting to load data from embedded JSON ---");
                     try {
                         const embeddedJson = JSON.parse(dataElement.textContent);
                         if (typeof embeddedJson === 'object' && embeddedJson !== null && embeddedJson.userInput) {
-                             dashboardData = embeddedJson; // Assign to global
+                             dashboardData = embeddedJson;
                              dataLoaded = true;
                              console.log(">>> Data loaded from embedded JSON.");
-                             // TODO: Potentially add validation for embedded data too
-                        } else { console.warn("!!! Embedded content invalid."); }
-                    } catch (jsonErr) { console.error("!!! Error parsing embedded JSON:", jsonErr); }
-                 }
+                        } else {
+                             console.warn("!!! Embedded content invalid.");
+                        }
+                    } catch (jsonErr) {
+                        console.error("!!! Error parsing embedded JSON:", jsonErr);
+                    }
+                }
 
-                 // --- Final Decision ---
-                 if (dataLoaded && dashboardData) {
+                if (dataLoaded && dashboardData) {
                      console.log(">>> Proceeding to process and display data.");
-                     processAndDisplayData(dashboardData); // Use the main processing function
-                 } else {
+                     processAndDisplayData(dashboardData);
+                } else {
                      console.warn("No valid data loaded from URL or embedded JSON.");
-                     // Show initial message, hide main content & spinner
                      loadingSpinner?.classList.add('hidden');
                      mainContentElement?.classList.add('hidden');
                      document.getElementById('chatInterfaceCard')?.style.display = 'none';
-                     initialMessageElement?.style.display = 'block'; // Show the prompt to upload/use URL
-                 }
-                 console.log("--- initializeDashboard END ---");
-
+                     initialMessageElement.style.display = 'block';
+                }
+                console.log("--- initializeDashboard END ---");
             } catch (err) {
                   console.error("--- initializeDashboard ERROR ---", err);
-                  handleError("Dashboard initialization failed", err); // Use central error handler
+                  handleError("Dashboard initialization failed", err);
             }
-        } // End initializeDashboard
+        }
 
-
-        // --- ** NEW ** Main Data Processing & Display Function ---
+        // --- Main Data Processing & Display Function ---
         function processAndDisplayData(data) {
              if (!data || typeof data !== 'object' || !data.userInput) {
                  console.error("Invalid data received by processAndDisplayData", data);
@@ -594,40 +723,35 @@
                  return;
              }
              console.log("--- processAndDisplayData START ---");
-             dashboardData = data; // Ensure global data is set
+             dashboardData = data;
 
              try {
-                 // --- Calculations ---
                  console.log("Calculating totals...");
-                 const totals = calculateTotals(data); // Uses template's function
+                 const totals = calculateTotals(data);
                  console.log("Calculating ratios...");
-                 const ratios = calculateRatios(data, totals); // Uses template's function
+                 const ratios = calculateRatios(data, totals);
 
-                 // --- Update Display ---
                  console.log("Updating basic info...");
-                 updateReportBasics(data, totals); // Uses template's function
+                 updateReportBasics(data, totals);
                  console.log("Updating ratios display...");
-                 updateRatiosDisplay(ratios); // Uses template's function
+                 updateRatiosDisplay(ratios);
                  console.log("Updating goals display...");
-                 updateGoalsDisplay(data); // Uses template's function
+                 updateGoalsDisplay(data);
                  console.log("Updating debts display...");
-                 updateDebtsDisplay(data, ratios); // Uses template's function
+                 updateDebtsDisplay(data, ratios);
                  console.log("Rendering charts...");
-                 renderCharts(data); // Uses template's function
+                 renderCharts(data);
                  console.log("Updating AI display...");
-                 updateUIDisplayFromAI(data); // Uses template's function
+                 updateUIDisplayFromAI(data);
 
-                 // --- Initialize Chat ---
                  console.log("Initializing chat...");
-                 initializeChat(); // Uses function from response #34
+                 initializeChat();
 
-                 // --- Show Content ---
                  console.log("Hiding loading, showing content...");
                  loadingSpinner?.classList.add('hidden');
                  errorMessageElement?.classList.add('hidden');
-                 initialMessageElement?.style.display = 'none';
-                 mainContentElement?.classList.remove('hidden'); // Show main content
-                 // Chat visibility handled by initializeChat / CSS potentially
+                 initialMessageElement.style.display = 'none';
+                 mainContentElement?.classList.remove('hidden');
 
                  console.log("--- processAndDisplayData END ---");
 
@@ -635,80 +759,101 @@
                   console.error("--- processAndDisplayData ERROR ---", processingError);
                   handleError("Error processing or displaying data", processingError);
              }
-        } // End processAndDisplayData
+        }
 
+        // --- Stub Functions for Template ---
+        function calculateTotals(data) { /* ... stub implementation ... */ return {}; }
+        function calculateRatios(data, totals) { /* ... stub implementation ... */ return {}; }
+        function updateReportBasics(data, totals) { /* ... stub implementation ... */ }
+        function updateRatiosDisplay(ratios) { /* ... stub implementation ... */ }
+        function updateGoalsDisplay(data) { /* ... stub implementation ... */ }
+        function updateDebtsDisplay(data, ratios) { /* ... stub implementation ... */ }
+        function renderCharts(data) { /* ... stub implementation ... */ }
+        function updateUIDisplayFromAI(data) { /* ... stub implementation ... */ }
+        function initModals() { /* ... stub implementation ... */ }
+        function openModal(modalId) { 
+            document.getElementById(modalId).style.display = 'block'; 
+        }
+        function closeModal(modalId) { 
+            document.getElementById(modalId).style.display = 'none'; 
+        }
+        function initSaveButton() { /* ... stub implementation ... */ }
+        function initUploadButton() { 
+            document.getElementById('uploadButton')?.addEventListener('click', () => document.getElementById('fileInput')?.click()); 
+            document.getElementById('fileInput')?.addEventListener('change', handleFileUpload);
+        }
+        function handleFileUpload(event) { /* ... stub implementation ... */ }
 
-        // --- Helper Functions from Template (Calculations, Updates, Rendering) ---
-        function calculateTotals(data) { /* ... From Template ... */ }
-        function calculateRatios(data, totals) { /* ... From Template ... */ }
-        function updateReportBasics(data, totals) { /* ... From Template ... */ }
-        function updateRatiosDisplay(ratios) { /* ... From Template ... */ }
-        function updateGoalsDisplay(data) { /* ... From Template ... */ }
-        function updateDebtsDisplay(data, ratios) { /* ... From Template ... */ }
-        function renderCharts(data) { /* ... From Template ... */ }
-        function updateUIDisplayFromAI(data) { /* ... From Template ... */ }
-        function initModals(data) { /* ... From Template ... */ }
-        function openModal(modalId) { /* ... From Template ... */ }
-        function closeModal(modalId) { /* ... From Template ... */ }
-        function initSaveButton() { /* ... From Template ... */ }
-        function initUploadButton() { /* ... From Template ... */ }
-        function handleFileUpload(event) { /* ... From Template ... */ }
-
-
-        // --- Chat Functionality (From Response #34 - Using Backend) ---
+        // --- Chat Functionality ---
         function initializeChat() {
             console.log("--- initializeChat START ---");
-            const chatInput = document.getElementById('chatInput'); // Ensure IDs match template HTML
-            const chatSendButton = document.getElementById('chatSendButton'); // Ensure IDs match template HTML
-            const chatHistory = document.getElementById('chatHistory'); // Ensure IDs match template HTML
-            const chatInterfaceCard = document.getElementById('chatInterfaceCard'); // Ensure IDs match template HTML
+            const chatInput = document.getElementById('chatInput');
+            const chatSendButton = document.getElementById('chatSendButton');
+            const chatHistory = document.getElementById('chatHistory');
+            const chatInterfaceCard = document.getElementById('chatInterfaceCard');
 
-            if (!chatInput || !chatSendButton || !chatHistory || !chatInterfaceCard) { console.error("Chat UI elements not found!"); return; }
+            if (!chatInput || !chatSendButton || !chatHistory || !chatInterfaceCard) { 
+                console.error("Chat UI elements not found!"); 
+                return; 
+            }
 
-            chatInterfaceCard.style.display = 'grid'; // Or 'block', make visible
+            chatInterfaceCard.style.display = 'grid';
 
-            if (!supabase) { addMessageToChat("System", "Chat service connection failed.", true); enableChatInput(false); return; }
+            if (!supabase) { 
+                addMessageToChat("System", "Chat service connection failed.", true); 
+                enableChatInput(false); 
+                return; 
+            }
 
             enableChatInput(true);
             chatHistory.innerHTML = '';
             addMessageToChat("System", "Ask a question about your financial data.", false);
 
-            chatSendButton.addEventListener('click', handleChatSubmit); // Changed from inline onclick
-            chatInput.addEventListener('keydown', (event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); handleChatSubmit(); } });
+            chatSendButton.addEventListener('click', handleChatSubmit);
+            chatInput.addEventListener('keydown', (event) => { 
+                if (event.key === 'Enter' && !event.shiftKey) { 
+                    event.preventDefault(); 
+                    handleChatSubmit(); 
+                }
+            });
             console.log("--- initializeChat END ---");
         }
 
         function enableChatInput(enabled) {
              const chatInput = document.getElementById('chatInput');
              const chatSendButton = document.getElementById('chatSendButton');
-             if(chatInput && chatSendButton) {
+             if (chatInput && chatSendButton) {
                   chatInput.disabled = !enabled;
                   chatSendButton.disabled = !enabled;
                   chatInput.placeholder = enabled ? "Ask about your finances..." : "Chat unavailable";
              }
         }
 
-        function handleChatSubmit() { // Replaces inline onclick="sendChatMessage()"
+        function handleChatSubmit() {
             const chatInput = document.getElementById('chatInput');
+            const chatSendButton = document.getElementById('chatSendButton'); // Now defined locally
             const userMessage = chatInput.value.trim();
             if (!userMessage || chatSendButton.disabled) return;
-
             addMessageToChat("User", userMessage);
             chatMessages.push({ role: "user", content: userMessage });
             chatInput.value = '';
-            sendToBackendChatFunction(); // Call backend
+            sendToBackendChatFunction();
         }
 
         function addMessageToChat(sender, message, isError = false) {
-            const chatHistory = document.getElementById('chatHistory'); // Use the new chat history div
+            const chatHistory = document.getElementById('chatHistory');
             if (!chatHistory) return;
-            if(chatHistory.innerHTML.includes("Ask a question about your financial data.")) { chatHistory.innerHTML = ''; }
-
+            if(chatHistory.innerHTML.includes("Ask a question about your financial data.")) { 
+                chatHistory.innerHTML = ''; 
+            }
             const messageContainer = document.createElement('div');
             messageContainer.classList.add('chat-message', sender.toLowerCase());
             const bubble = document.createElement('div');
             bubble.classList.add('message-bubble');
-             if (isError) { bubble.style.backgroundColor = '#fee2e2'; bubble.style.color = '#b91c1c'; }
+            if (isError) { 
+                bubble.style.backgroundColor = '#fee2e2'; 
+                bubble.style.color = '#b91c1c'; 
+            }
             const linkedMessage = message.replace(/\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline font-medium">$1</a>').replace(/\n/g, '<br>');
             bubble.innerHTML = linkedMessage;
             messageContainer.appendChild(bubble);
@@ -716,33 +861,58 @@
             chatHistory.scrollTop = chatHistory.scrollHeight;
         }
 
-         function setChatStatus(message, isLoading = false) {
-              const chatStatus = document.getElementById('chatStatus'); // Use the new status div
+        function setChatStatus(message, isLoading = false) {
+              const chatStatus = document.getElementById('chatStatus');
               if (!chatStatus) return;
-              if (isLoading) { chatStatus.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`; }
-              else { chatStatus.textContent = message; if (message && !message.toLowerCase().includes('error')) { setTimeout(() => { if (chatStatus.textContent === message) { chatStatus.textContent = ''; } }, 3000); } }
-         }
+              if (isLoading) { 
+                  chatStatus.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`; 
+              } else { 
+                  chatStatus.textContent = message;
+                  if (message && !message.toLowerCase().includes('error')) { 
+                      setTimeout(() => { 
+                          if (chatStatus.textContent === message) { 
+                              chatStatus.textContent = ''; 
+                          } 
+                      }, 3000); 
+                  }
+              }
+        }
 
+        async function sendToBackendChatFunction() {
+            if (!dashboardData?.userInput) { 
+                addMessageToChat("System", "Error: Financial data not loaded.", true); 
+                return; 
+            }
+            if (!supabase) { 
+                addMessageToChat("System", "Error: Chat service not connected.", true); 
+                return; 
+            }
 
-        // Sends messages to YOUR Supabase Edge Function
-        async function sendToBackendChatFunction() { // Renamed from sendChatMessage
-            if (!dashboardData?.userInput) { addMessageToChat("System", "Error: Financial data not loaded.", true); return; }
-            if (!supabase) { addMessageToChat("System", "Error: Chat service not connected.", true); return; }
+            setChatStatus("Thinking...", true);
+            enableChatInput(false);
 
-             setChatStatus("Thinking...", true);
-             enableChatInput(false);
-
-            // --- Construct Context and System Message ---
-            // Using detailed context generation from previous working version
             let financialContext = `Username: ${dashboardData.userInput.personalInfo?.userName || 'N/A'}\n`;
-            const income = dashboardData.userInput.income || {}; const expenses = dashboardData.userInput.expenses || {}; const savings = dashboardData.userInput.savings || {}; const debts = dashboardData.userInput.debts || [];
-            const totalIncome=Object.values(income).reduce((s,v)=>s+(v||0),0); const totalExpenses=Object.values(expenses).reduce((s,v)=>s+(v||0),0); financialContext += `Totals: Income(${formatCurrency(totalIncome)}), Expenses(${formatCurrency(totalExpenses)}), Net(${formatCurrency(totalIncome-totalExpenses)})\n`; financialContext += `Savings: Emergency(${formatCurrency(savings.emergency||0)}), General(${formatCurrency(savings.savings||0)}), Retirement(${formatCurrency(savings.retirement||0)})\n`; const totalDebt=debts.reduce((s,d)=>s+(d.balance || 0),0); financialContext += `Total Debt: ${formatCurrency(totalDebt)}\n`; if(dashboardData.aiOutput?.analysis) financialContext+=`Prior Analysis: ${dashboardData.aiOutput.analysis}\n`; if(dashboardData.aiOutput?.recommendations) financialContext+=`Prior Recs: ${dashboardData.aiOutput.recommendations}\n`;
+            const income = dashboardData.userInput.income || {};
+            const expenses = dashboardData.userInput.expenses || {};
+            const savings = dashboardData.userInput.savings || {};
+            const debts = dashboardData.userInput.debts || [];
+            const totalIncome = Object.values(income).reduce((s,v)=>s+(v||0), 0);
+            const totalExpenses = Object.values(expenses).reduce((s,v)=>s+(v||0), 0);
+            financialContext += `Totals: Income(${formatCurrency(totalIncome)}), Expenses(${formatCurrency(totalExpenses)}), Net(${formatCurrency(totalIncome-totalExpenses)})\n`;
+            financialContext += `Savings: Emergency(${formatCurrency(savings.emergency||0)}), General(${formatCurrency(savings.savings||0)}), Retirement(${formatCurrency(savings.retirement||0)})\n`;
+            const totalDebt = debts.reduce((s,d)=>s+(d.balance || 0), 0);
+            financialContext += `Total Debt: ${formatCurrency(totalDebt)}\n`;
+            if(dashboardData.aiOutput?.analysis) {
+                financialContext += `Prior Analysis: ${dashboardData.aiOutput.analysis}\n`;
+            }
+            if(dashboardData.aiOutput?.recommendations) {
+                financialContext += `Prior Recs: ${dashboardData.aiOutput.recommendations}\n`;
+            }
 
-             const systemMessage = { role: "system", content: `You are SmartWealth AI. Use the financial context below to answer concisely. Context:\n${financialContext}` };
-             const messagesForBackend = [systemMessage, ...chatMessages];
+            const systemMessage = { role: "system", content: `You are SmartWealth AI. Use the financial context below to answer concisely. Context:\n${financialContext}` };
+            const messagesForBackend = [systemMessage, ...chatMessages];
 
-            // --- Use the Correct Supabase Function URL ---
-            const backendEndpoint = 'https://tfnwwpksieluzvxqdiiq.supabase.co/functions/v1/smooth-function'; // Your URL
+            const backendEndpoint = 'https://tfnwwpksieluzvxqdiiq.supabase.co/functions/v1/smooth-function';
 
             console.log(`Sending ${messagesForBackend.length} messages to backend: ${backendEndpoint}`);
 
@@ -761,7 +931,9 @@
                  if (data.assistantResponse && data.assistantResponse.content) {
                      addMessageToChat("Assistant", data.assistantResponse.content);
                      chatMessages.push(data.assistantResponse);
-                 } else { throw new Error("Unexpected response format from backend."); }
+                 } else { 
+                     throw new Error("Unexpected response format from backend."); 
+                 }
             } catch (error) {
                  console.error("Error calling backend chat function:", error);
                  addMessageToChat("System", `Error: ${error.message}`, true);
@@ -769,8 +941,7 @@
             } finally {
                  enableChatInput(true);
             }
-        } // End sendToBackendChatFunction
-
+        }
     </script>
 </body>
 </html>
