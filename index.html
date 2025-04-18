@@ -237,6 +237,160 @@
           #errorMessage button.secondary-button { background-color: #d1d5db; color: #374151; }
           #errorMessage button.secondary-button:hover { background-color: #9ca3af; }
 
+        <div id="initialUploadPrompt" style="display: none; text-align: center; padding: 60px 20px;">
+        <div class="main-container" style="max-width: 600px; margin: auto;"> <h2 class="header-font text-2xl mb-4 text-gray-700">Welcome to SmartWealth Navigator</h2>
+             <p class="text-gray-600 mb-6">
+                 No financial data was detected. Please upload your saved Financial Report (PSR JSON) file to view your dashboard.
+             </p>
+             <button id="initialUploadButton" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg text-lg transition duration-200 ease-in-out">
+                 Upload Report File (.json)
+             </button>
+             <p class="text-sm text-gray-500 mt-4">
+                 (If you haven't generated a report yet, please complete the initial form first.)
+             </p>
+        </div>
+    </div>
+
+    <div id="initialMessage" style="display: none;">
+         Upload a PSR JSON file or provide data via URL parameter to view your dashboard.
+    </div>
+
+    <div id="mainContent" class="main-container">
+    ```
+
+**2. Modify JavaScript (`loadInitialData` and Initialization):**
+
+Now, update the JavaScript to show this new `#initialUploadPrompt` instead of `#initialMessage` when no data is found, and add an event listener for the new button.
+
+```javascript
+<script>
+    // ... (keep Globals, Supabase Config, Cached Elements, Utilities) ...
+
+    // --- Initialization ---
+    document.addEventListener('DOMContentLoaded', function() {
+        // ... (cache elements as before) ...
+
+        // Show loading spinner and hide other content initially
+        if (loadingSpinner) {
+             loadingSpinner.style.display = 'flex';
+             console.log("Initial UI state set (spinner visible).");
+        } // ... rest of spinner logic
+
+        // Hide other main sections
+        if (errorMessageElement) errorMessageElement.style.display = 'none';
+        if (mainContentElement) mainContentElement.style.display = 'none';
+        if (initialMessageElement) initialMessageElement.style.display = 'none';
+        // *** Hide the new prompt initially too ***
+        const initialUploadPrompt = document.getElementById('initialUploadPrompt');
+        if (initialUploadPrompt) initialUploadPrompt.style.display = 'none';
+
+
+        try {
+            // ... (Supabase initialization) ...
+            // ... (Button/Modal initialization: initSaveButton, initUploadButton, initModals) ...
+
+             // *** Add listener for the NEW initial upload button ***
+            const initialUploadButton = document.getElementById('initialUploadButton');
+            const fileInput = document.getElementById('fileInput'); // Get the hidden file input
+            if (initialUploadButton && fileInput) {
+                initialUploadButton.addEventListener('click', () => {
+                    console.log("Initial Upload Button clicked, triggering file input.");
+                    fileInput.click(); // Trigger the same hidden file input
+                });
+            } else {
+                 console.error("Could not find initialUploadButton or fileInput elements.");
+            }
+
+
+            // Auto-load data from URL or embedded data
+            console.log("Attempting to load initial data...");
+            loadInitialData();
+            console.log("Initial data load attempt finished.");
+
+        } catch (error) {
+            console.error("CRITICAL Error during initial setup:", error);
+            handleError("Failed during initial page setup", error);
+        }
+    });
+
+    // ... (keep handleError, debugURLParameters, useDemoData) ...
+
+    // --- Data Loading Logic ---
+    function loadInitialData() {
+        const params = new URLSearchParams(window.location.search);
+        const dataElement = document.getElementById('embeddedPsrData');
+        let dataFound = false;
+        const initialUploadPrompt = document.getElementById('initialUploadPrompt'); // Get the new prompt element
+
+        // ... (keep URL parameter parsing logic) ...
+        // ... (keep Embedded JSON parsing logic) ...
+
+        // Process data if found, otherwise show the NEW initial upload prompt
+        if (dataFound && dashboardData) {
+            console.log("Data found, proceeding to display.");
+            // Hide the initial upload prompt if it was somehow visible
+            if(initialUploadPrompt) initialUploadPrompt.style.display = 'none';
+            processAndDisplayData(dashboardData);
+        } else {
+            console.warn("No valid data loaded from URL or embedded JSON. Displaying initial upload prompt.");
+            if (loadingSpinner) loadingSpinner.style.display = 'none';
+            if (mainContentElement) mainContentElement.style.display = 'none';
+
+             // Ensure error message isn't hidden if it was already shown
+             const isErrorVisible = errorMessageElement && getComputedStyle(errorMessageElement).display !== 'none';
+
+             if (!isErrorVisible) { // Only show upload prompt if no error is displayed
+                 if (initialUploadPrompt) {
+                     initialUploadPrompt.style.display = 'block'; // Or 'flex' if you use flex for its content centering
+                 } else {
+                     // Fallback to old message if new prompt element is missing
+                     if (initialMessageElement) initialMessageElement.style.display = 'block';
+                     console.error("Initial Upload Prompt element not found!");
+                 }
+                 // Ensure old initial message is hidden
+                 if (initialMessageElement) initialMessageElement.style.display = 'none';
+             } else {
+                  console.log("Error message is visible, not showing initial upload prompt.");
+             }
+
+
+            if (document.getElementById('chatInterfaceCard')) {
+                 document.getElementById('chatInterfaceCard').style.display = 'none'; // Hide chat if no data
+            }
+        }
+    }
+
+    // ... (keep parseDataFromUrlParams, processAndDisplayData, Calculations, UI Updates, Chat, Event Handlers, Modals etc.) ...
+
+    // Ensure handleFileUpload still works correctly when triggered by either button
+    function handleFileUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        // Show loading, hide others (including the initial upload prompt)
+        if (loadingSpinner) loadingSpinner.style.display = 'flex';
+        if (errorMessageElement) errorMessageElement.style.display = 'none';
+        if (initialMessageElement) initialMessageElement.style.display = 'none';
+        if (mainContentElement) mainContentElement.style.display = 'none';
+        const initialUploadPrompt = document.getElementById('initialUploadPrompt');
+        if(initialUploadPrompt) initialUploadPrompt.style.display = 'none'; // Hide prompt during upload processing
+
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            // ... (rest of file processing logic - parse JSON, validate, call processAndDisplayData)
+            // ... make sure to call processAndDisplayData on success
+            // ... and handleError on error
+        };
+        reader.onerror = function(e) {
+            // ... (call handleError) ...
+        };
+        reader.readAsText(file);
+         // Reset file input value so the same file can be selected again if needed
+         event.target.value = null;
+    }
+
+</script>
 
          #initialMessage {
              display: none; /* Hide by default */
