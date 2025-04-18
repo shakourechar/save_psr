@@ -630,7 +630,7 @@
         }
     }
 
-   // --- CORRECT Initialization (Ensure this is the ONLY DOMContentLoaded listener) ---
+  // --- CORRECT Initialization (Ensure this is the ONLY DOMContentLoaded listener) ---
     document.addEventListener('DOMContentLoaded', function() {
         console.log("DOM fully loaded. Initializing...");
 
@@ -651,7 +651,7 @@
         if (initialMessageElement) initialMessageElement.style.display = 'none';
         if (initialUploadPrompt) initialUploadPrompt.style.display = 'none';
 
-        // --- 3. Check for data=null URL parameter --- <--- THIS IS THE ADDED CHECK
+        // --- 3. Check for data=null URL parameter ---
         const params = new URLSearchParams(window.location.search);
         if (params.has('data') && params.get('data') === 'null') {
             console.warn("URL parameter 'data=null' detected. Showing initial upload prompt and skipping normal init.");
@@ -665,8 +665,8 @@
 
             // Show the initial upload prompt
             if (initialUploadPrompt) {
-                initialUploadPrompt.style.display = 'block'; // Or 'flex'
-                // Add the button listener here since normal init is skipped
+                initialUploadPrompt.style.display = 'block';
+                // Add the button listener here
                 const initialUploadButton = document.getElementById('initialUploadButton');
                 if (initialUploadButton && fileInput) {
                      initialUploadButton.addEventListener('click', () => { fileInput.click(); });
@@ -678,33 +678,27 @@
         }
         // --- End check for data=null ---
 
-
         // --- 4. If data=null was NOT found, proceed with normal setup ---
-        // (This section matches the code you found from line ~650 onwards)
         console.log("Proceeding with normal initialization...");
         try {
-            // Initialize Supabase Client
-            // *** Remember to replace placeholders for SUPABASE_URL and SUPABASE_ANON_KEY near the top of the script ***
+            // Initialize Supabase (Make sure URL/Key are set above)
             if (!SUPABASE_URL || SUPABASE_URL === 'YOUR_SUPABASE_URL' || SUPABASE_URL.length < 10) { throw new Error("Supabase URL is not configured or is invalid."); }
             if (!SUPABASE_ANON_KEY || SUPABASE_ANON_KEY === 'YOUR_SUPABASE_ANON_KEY' || SUPABASE_ANON_KEY.length < 50) { throw new Error("Supabase Anon Key is not configured or is invalid."); }
             if (typeof window.supabase === 'undefined' || !window.supabase?.createClient) { throw new Error("Supabase library failed to load."); }
-
             const { createClient } = window.supabase;
             supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             console.log("Supabase client initialized.");
             if (typeof supabase.from !== 'function' || typeof supabase.functions !== 'object') { throw new Error("Supabase client seems invalid."); }
             console.log("Supabase client seems functional.");
 
-            // Setup Core Button Listeners (Error/Demo buttons)
+            // Setup Core Button Listeners
             document.getElementById('retryButton')?.addEventListener('click', () => location.reload());
             document.getElementById('manualEntryButton')?.addEventListener('click', useDemoData);
+            initSaveButton();
+            initUploadButton(); // Sets up header upload button AND fileInput listener
+            initModals();
 
-            // Setup Main Functionality Buttons & Modals
-            initSaveButton(); // Sets up Save button listener
-            initUploadButton(); // Sets up header Upload button listener and fileInput listener
-            initModals(); // Sets up modal close behavior
-
-            // Setup listener for the button within the initial upload prompt (safe to add again)
+            // Setup listener for the initial upload button (needed for normal flow too)
              const initialUploadButton = document.getElementById('initialUploadButton');
              if (initialUploadButton && fileInput) {
                  initialUploadButton.addEventListener('click', () => { fileInput.click(); });
@@ -712,20 +706,21 @@
 
             console.log("Buttons and modals initialized.");
 
-            // --- Call your main data loading function ---
-            if (typeof loadInitialData === 'function') {
-                 console.log("Attempting to load initial data via loadInitialData()...");
-                 loadInitialData(); // This should be your main data loading function
+            // --- Call your main initialization/data loading function ---
+            // Check your code: Is the function called 'init' or 'loadInitialData'?
+            // Replace 'init' below if your function has a different name.
+            if (typeof init === 'function') {
+                 console.log("Calling init() function...");
+                 init(); // <<< CALL YOUR MAIN FUNCTION HERE
             } else {
-                 // This error means the function needed for loading is not defined correctly
-                 console.error("Function 'loadInitialData' not found! Check definition.");
-                 throw new Error("Required function 'loadInitialData' is not defined.");
+                 console.error("Function 'init' not found! Check your function definitions.");
+                 throw new Error("Required function 'init' is not defined.");
             }
-            console.log("Initial data load function called.");
+            console.log("Main init function called.");
 
         } catch (error) {
             console.error("CRITICAL Error during initial setup:", error);
-            handleError("Failed during initial page setup", error); // Display error using handler
+            handleError("Failed during initial page setup", error);
         }
     }); // --- End of the SINGLE DOMContentLoaded listener ---
      
