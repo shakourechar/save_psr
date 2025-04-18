@@ -19,11 +19,11 @@ document.addEventListener('DOMContentLoaded', function() {
     try {
  // CORRECTED CHECKS:
 // Check if the URL is missing or still set to a placeholder value
-if (!SUPABASE_URL || SUPABASE_URL === 'YOUR_SUPABASE_URL' || SUPABASE_URL.length < 10) { // Added length check just in case
+if (!SUPABASE_URL || SUPABASE_URL === 'https://tfnwwpksieluzvxqdiiq.supabase.co' || SUPABASE_URL.length < 10) { // Added length check just in case
     throw new Error("Supabase URL is not configured or is invalid.");
 }
 // Check if the Key is missing or still set to a placeholder value
-if (!SUPABASE_ANON_KEY || SUPABASE_ANON_KEY === 'YOUR_SUPABASE_ANON_KEY' || SUPABASE_ANON_KEY.length < 50) { // Added length check
+if (!SUPABASE_ANON_KEY || SUPABASE_ANON_KEY === 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRmbnd3cGtzaWVsdXp2eHFkaWlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ1ODQ3MjgsImV4cCI6MjA2MDE2MDcyOH0.xbtjiQ65vCggjj35qtlCZ0S5mJa4muSZcHXhaU4qvrE' || SUPABASE_ANON_KEY.length < 50) { // Added length check
     throw new Error("Supabase Anon Key is not configured or is invalid.");
 }
         const { createClient } = window.supabase;
