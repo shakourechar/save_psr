@@ -723,7 +723,95 @@
             handleError("Failed during initial page setup", error);
         }
     }); // --- End of the SINGLE DOMContentLoaded listener ---
-     
+
+    function initUploadButton() {
+    const uploadButton = document.getElementById('uploadButton'); // Header button
+    // fileInput should be cached globally or found here again
+    fileInput = fileInput || document.getElementById('fileInput');
+    if (!uploadButton || !fileInput) {
+        console.error("Upload button or file input not found in initUploadButton.");
+        return;
+    }
+    uploadButton.addEventListener('click', () => { fileInput.click(); });
+
+    // Remove previous listener first to avoid duplicates if init runs multiple times
+    fileInput.removeEventListener('change', handleFileUpload);
+    // Add the listener
+    fileInput.addEventListener('change', handleFileUpload);
+
+    // *** ADD THIS LOG ***
+    console.log("initUploadButton: 'change' event listener attached to #fileInput.");
+}
+
+    function handleFileUpload(event) {
+    // *** ADD LOGS AND CHECKS AT THE VERY START ***
+    console.log("handleFileUpload: Function triggered.");
+
+    // Debugging: Check if elements are accessible here
+    loadingSpinner = loadingSpinner || document.getElementById('loadingSpinner');
+    errorMessageElement = errorMessageElement || document.getElementById('errorMessage');
+    mainContentElement = mainContentElement || document.getElementById('mainContent');
+    initialUploadPrompt = initialUploadPrompt || document.getElementById('initialUploadPrompt'); // Ensure this is found
+
+    if (!loadingSpinner) { console.error("handleFileUpload: loadingSpinner element is null!"); return; }
+    if (!errorMessageElement) { console.error("handleFileUpload: errorMessageElement is null!"); return; }
+    if (!mainContentElement) { console.error("handleFileUpload: mainContentElement is null!"); return; }
+    if (!initialUploadPrompt) { console.error("handleFileUpload: initialUploadPrompt element is null!"); /* Don't return, might still work */ }
+    console.log("handleFileUpload: Required elements checked.");
+    // *** END OF ADDED LOGS/CHECKS ***
+
+
+    const file = event.target.files[0];
+    console.log("handleFileUpload: File selected:", file ? file.name : 'No file'); // Log if file exists
+
+    if (!file) {
+         console.warn("handleFileUpload: No file selected or event triggered without file.");
+         return; // Exit if no file
+    }
+
+    // Show loading, hide others (should be safe after checks above)
+    loadingSpinner.style.display = 'flex';
+    errorMessageElement.style.display = 'none';
+    // initialMessageElement might not be cached, find if needed:
+    const initialMessageElement = document.getElementById('initialMessage');
+    if(initialMessageElement) initialMessageElement.style.display = 'none';
+    mainContentElement.style.display = 'none';
+    if(initialUploadPrompt) initialUploadPrompt.style.display = 'none'; // Hide prompt
+    console.log("handleFileUpload: UI state set for loading.");
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        console.log("handleFileUpload: reader.onload triggered."); // Log onload
+        let uploadedData = null;
+        try {
+            // ... rest of your existing reader.onload logic ...
+            // (parse, validate, call processAndDisplayData)
+            console.log("handleFileUpload: Parsing JSON...");
+            uploadedData = JSON.parse(e.target.result);
+            console.log("handleFileUpload: JSON parsed.");
+            if (typeof uploadedData !== 'object' || uploadedData === null || !uploadedData.userInput || !uploadedData.userInput.personalInfo) {
+                 throw new Error("Invalid file content. Expected JSON with 'userInput' and 'personalInfo'.");
+             }
+            dashboardData = uploadedData;
+            chatMessages = [];
+            console.log("handleFileUpload: Calling processAndDisplayData...");
+            processAndDisplayData(dashboardData);
+            console.log("handleFileUpload: Returned from processAndDisplayData.");
+
+        } catch (error) { // ... error handling ...
+        } finally { // ... finally block ...
+        }
+    };
+    reader.onerror = function(e) {
+        // ... error handling ...
+    };
+    console.log("handleFileUpload: Calling reader.readAsText..."); // Log before read
+    reader.readAsText(file);
+     // Reset file input value
+     event.target.value = null;
+     console.log("handleFileUpload: File input reset.");
+}
+    
     // --- Debugging & Error Handling ---
     function debugURLParameters() {
         if (!debugInfoElement) return; // Check if element exists
