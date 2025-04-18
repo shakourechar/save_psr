@@ -528,6 +528,21 @@ Now, update the JavaScript to show this new `#initialUploadPrompt` instead of `#
             </div>
         </div>
     </div>
+
+function handleFileUpload(event) {
+        // ... (get file) ...
+
+        // Show loading, hide others (including the initial upload prompt)
+        if (loadingSpinner) loadingSpinner.style.display = 'flex';
+        if (errorMessageElement) errorMessageElement.style.display = 'none';
+        if (initialMessageElement) initialMessageElement.style.display = 'none';
+        if (mainContentElement) mainContentElement.style.display = 'none';
+        const initialUploadPrompt = document.getElementById('initialUploadPrompt');
+        if(initialUploadPrompt) initialUploadPrompt.style.display = 'none'; // Hide prompt
+
+        // ... (rest of file reading and processing) ...
+    }
+    
 <div id="initialUploadPrompt" style="display: none; text-align: center; padding: 60px 20px;">
         <div class="main-container" style="max-width: 600px; margin: auto;"> <h2 class="header-font text-2xl mb-4 text-gray-700">Welcome to SmartWealth Navigator</h2>
              <p class="text-gray-600 mb-6">
