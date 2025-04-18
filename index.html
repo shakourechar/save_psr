@@ -630,71 +630,106 @@
         }
     }
 
-    // --- Initialization ---
+   // --- CORRECT Initialization (Ensure this is the ONLY DOMContentLoaded listener) ---
     document.addEventListener('DOMContentLoaded', function() {
         console.log("DOM fully loaded. Initializing...");
-        // Cache key DOM elements
+
+        // --- 1. Cache Elements ---
         loadingSpinner = document.getElementById('loadingSpinner');
         errorMessageElement = document.getElementById('errorMessage');
         mainContentElement = document.getElementById('mainContent');
         initialMessageElement = document.getElementById('initialMessage');
+        initialUploadPrompt = document.getElementById('initialUploadPrompt');
         errorTextElement = document.getElementById('errorText');
         debugInfoElement = document.getElementById('debugInfo');
+        fileInput = document.getElementById('fileInput');
 
-        // Show loading spinner and hide other content initially
-        if (loadingSpinner) {
-             loadingSpinner.style.display = 'flex'; // Use flex for centering
-             console.log("Initial UI state set (spinner visible).");
-        } else {
-             console.error("Loading spinner element not found on init!");
-        }
+        // --- 2. Set Initial UI State ---
+        if (loadingSpinner) loadingSpinner.style.display = 'flex'; else console.error("Loading spinner not found!");
         if (errorMessageElement) errorMessageElement.style.display = 'none';
         if (mainContentElement) mainContentElement.style.display = 'none';
         if (initialMessageElement) initialMessageElement.style.display = 'none';
+        if (initialUploadPrompt) initialUploadPrompt.style.display = 'none';
+
+        // --- 3. Check for data=null URL parameter --- <--- THIS IS THE ADDED CHECK
+        const params = new URLSearchParams(window.location.search);
+        if (params.has('data') && params.get('data') === 'null') {
+            console.warn("URL parameter 'data=null' detected. Showing initial upload prompt and skipping normal init.");
+            // Hide spinner and other sections
+            if(loadingSpinner) loadingSpinner.style.display = 'none';
+            if(mainContentElement) mainContentElement.style.display = 'none';
+            if(errorMessageElement) errorMessageElement.style.display = 'none';
+            if(initialMessageElement) initialMessageElement.style.display = 'none';
+            const chatCard = document.getElementById('chatInterfaceCard');
+            if (chatCard) chatCard.style.display = 'none';
+
+            // Show the initial upload prompt
+            if (initialUploadPrompt) {
+                initialUploadPrompt.style.display = 'block'; // Or 'flex'
+                // Add the button listener here since normal init is skipped
+                const initialUploadButton = document.getElementById('initialUploadButton');
+                if (initialUploadButton && fileInput) {
+                     initialUploadButton.addEventListener('click', () => { fileInput.click(); });
+                     console.log("Listener added to initial upload button (data=null case).");
+                 } else { console.error("Initial upload button or fileInput element not found for data=null case."); }
+            } else { console.error("Initial Upload Prompt element (#initialUploadPrompt) not found in HTML!"); }
+            // *** IMPORTANT: Stop further initialization ***
+            return;
+        }
+        // --- End check for data=null ---
 
 
+        // --- 4. If data=null was NOT found, proceed with normal setup ---
+        // (This section matches the code you found from line ~650 onwards)
+        console.log("Proceeding with normal initialization...");
         try {
             // Initialize Supabase Client
-            // *** Ensure YOUR_SUPABASE_URL and YOUR_SUPABASE_ANON_KEY are replaced above ***
-             if (!SUPABASE_URL || SUPABASE_URL === 'YOUR_SUPABASE_URL' || SUPABASE_URL.length < 10) {
-                 throw new Error("Supabase URL is not configured or is invalid. Please replace 'YOUR_SUPABASE_URL'.");
-             }
-             if (!SUPABASE_ANON_KEY || SUPABASE_ANON_KEY === 'YOUR_SUPABASE_ANON_KEY' || SUPABASE_ANON_KEY.length < 50) {
-                 throw new Error("Supabase Anon Key is not configured or is invalid. Please replace 'YOUR_SUPABASE_ANON_KEY'.");
-             }
-            if (typeof window.supabase === 'undefined' || !window.supabase || typeof window.supabase.createClient !== 'function') {
-                throw new Error("Supabase library (supabase-js v2) failed to load or is not available. Check the script tag.");
-            }
+            // *** Remember to replace placeholders for SUPABASE_URL and SUPABASE_ANON_KEY near the top of the script ***
+            if (!SUPABASE_URL || SUPABASE_URL === 'YOUR_SUPABASE_URL' || SUPABASE_URL.length < 10) { throw new Error("Supabase URL is not configured or is invalid."); }
+            if (!SUPABASE_ANON_KEY || SUPABASE_ANON_KEY === 'YOUR_SUPABASE_ANON_KEY' || SUPABASE_ANON_KEY.length < 50) { throw new Error("Supabase Anon Key is not configured or is invalid."); }
+            if (typeof window.supabase === 'undefined' || !window.supabase?.createClient) { throw new Error("Supabase library failed to load."); }
+
             const { createClient } = window.supabase;
             supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             console.log("Supabase client initialized.");
-
-            // Quick test to ensure client is somewhat functional
-            if (typeof supabase.from !== 'function' || typeof supabase.functions !== 'object') {
-                 throw new Error("Supabase client object seems invalid (missing 'from' or 'functions' capability).");
-            }
+            if (typeof supabase.from !== 'function' || typeof supabase.functions !== 'object') { throw new Error("Supabase client seems invalid."); }
             console.log("Supabase client seems functional.");
 
-            // Setup Buttons
+            // Setup Core Button Listeners (Error/Demo buttons)
             document.getElementById('retryButton')?.addEventListener('click', () => location.reload());
             document.getElementById('manualEntryButton')?.addEventListener('click', useDemoData);
-            initSaveButton(); // Handles saving current dashboardData
-            initUploadButton(); // Handles uploading and processing a new file
+
+            // Setup Main Functionality Buttons & Modals
+            initSaveButton(); // Sets up Save button listener
+            initUploadButton(); // Sets up header Upload button listener and fileInput listener
             initModals(); // Sets up modal close behavior
+
+            // Setup listener for the button within the initial upload prompt (safe to add again)
+             const initialUploadButton = document.getElementById('initialUploadButton');
+             if (initialUploadButton && fileInput) {
+                 initialUploadButton.addEventListener('click', () => { fileInput.click(); });
+             }
+
             console.log("Buttons and modals initialized.");
 
-            // Auto-load data from URL or embedded data
-            console.log("Attempting to load initial data...");
-            loadInitialData(); // New function to handle initial load logic
-            console.log("Initial data load attempt finished.");
+            // --- Call your main data loading function ---
+            if (typeof loadInitialData === 'function') {
+                 console.log("Attempting to load initial data via loadInitialData()...");
+                 loadInitialData(); // This should be your main data loading function
+            } else {
+                 // This error means the function needed for loading is not defined correctly
+                 console.error("Function 'loadInitialData' not found! Check definition.");
+                 throw new Error("Required function 'loadInitialData' is not defined.");
+            }
+            console.log("Initial data load function called.");
 
         } catch (error) {
             console.error("CRITICAL Error during initial setup:", error);
-            handleError("Failed during initial page setup", error);
+            handleError("Failed during initial page setup", error); // Display error using handler
         }
-    });
-
-     // --- Debugging & Error Handling ---
+    }); // --- End of the SINGLE DOMContentLoaded listener ---
+     
+    // --- Debugging & Error Handling ---
     function debugURLParameters() {
         if (!debugInfoElement) return; // Check if element exists
         const params = new URLSearchParams(window.location.search);
