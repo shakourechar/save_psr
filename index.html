@@ -1784,6 +1784,22 @@ loadInitialData();          // ← bypasses the missing init()
 
 </script>
 
+<script>
+/* --- Info‑popup support (added) --- */
+function showInfo(text){
+  document.getElementById('infoModalText').textContent = text;
+  openModal('infoModal');                 // uses your existing openModal()
+}
+
+function initInfoPopups(){
+  document.querySelectorAll('[data-desc]').forEach(el=>{
+      el.style.cursor = 'pointer';
+      el.addEventListener('click', () => showInfo(el.dataset.desc));
+  });
+}
+
+document.addEventListener('DOMContentLoaded', initInfoPopups);
+</script>
     <!-- Info‑popup modal (added) -->
 <div id="infoModal" class="modal">
   <div class="modal-content">
