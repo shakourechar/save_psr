@@ -435,17 +435,20 @@
                 <h3 class="card-header">Key Financial Ratios</h3>
                 <div class="card-content">
                     <div class="ratio-item">
-                        <span class="ratio-label">Savings Rate</span>
+                        <span class="ratio-label cursor-pointer" data-desc="Income kept, not spent.">Savings Rate
+</span>
                         <span class="ratio-value" id="savingsRateValue">N/A</span>
                         <div class="ratio-bar-container"><div class="ratio-bar savings-rate" id="savingsRateBar"></div></div>
                     </div>
                     <div class="ratio-item">
-                        <span class="ratio-label">Emergency Fund Coverage</span>
+                        <span class="ratio-label cursor-pointer" data-desc="Months cash covers bills.">Emergency Fund Coverage
+</span>
                         <span class="ratio-value" id="emergencyCoverageValue">N/A</span>
                         <div class="ratio-bar-container"><div class="ratio-bar emergency-coverage" id="emergencyCoverageBar"></div></div>
                     </div>
                     <div class="ratio-item">
-                        <span class="ratio-label">Debt-to-Income (DTI)</span>
+                        <span class="ratio-label cursor-pointer" data-desc="Income used for debts.">Debtâ€‘toâ€‘Income (DTI)
+</span>
                         <span class="ratio-value" id="dtiRatioValue">N/A</span>
                         <div class="ratio-bar-container"><div class="ratio-bar dti-ratio" id="dtiRatioBar"></div></div>
                         <p style="font-size: 0.8em; color: #666;">(Using min. payments)</p>
@@ -464,7 +467,8 @@
                  </div>
             </div>
             <div class="dashboard-card" id="goalsCard">
-                 <h3 class="card-header">Savings Goals Progress</h3>
+                 <h3 class="card-header cursor-pointer" data-desc="Distance to rainyâ€‘day target.">Savings Goals Progress
+</h3>
                  <div class="card-content">
                     <div id="emergencyGoalDisplay" style="display: none;"> <p><strong>Emergency Fund Goal:</strong> <span class="goal-status">N/A</span></p>
                         <div class="progress-bar-container"><div class="progress-bar" id="emergencyProgressBar"></div></div>
@@ -481,13 +485,15 @@
 
         <div class="grid-container">
             <div class="dashboard-card chart-card">
-                 <h3 class="card-header">Income Breakdown</h3>
+                 <h3 class="card-header cursor-pointer" data-desc="Where income comes from.">Income Breakdown
+</h3>
                  <div id="incomeChart" class="chart-container-div">
                     <p class="text-center text-gray-500 pt-10">Chart loading...</p>
                  </div>
             </div>
             <div class="dashboard-card chart-card">
-                 <h3 class="card-header">Expense Breakdown</h3>
+                 <h3 class="card-header cursor-pointer" data-desc="Where money goes.">Expense Breakdown
+</h3>
                  <div id="expenseChart" class="chart-container-div">
                      <p class="text-center text-gray-500 pt-10">Chart loading...</p>
                  </div>
@@ -532,8 +538,10 @@
                              <tr><td colspan="4" class="text-center p-4 text-gray-500">Loading debt data...</td></tr>
                         </tbody>
                     </table>
-                    <p style="margin-top: 10px;"><strong>Total Debt Balance:</strong> <span id="totalDebtBalance" class="font-semibold">N/A</span></p>
-                    <p><strong>Total Min. Payments:</strong> <span id="totalMinPayments" class="font-semibold">N/A</span></p>
+                    <p style="margin-top: 10px;"><strong data-desc="All debts owed.">Total Debt Balance:
+</strong> <span id="totalDebtBalance" class="font-semibold">N/A</span></p>
+                    <p><strong data-desc="Minimum due monthly.">Total Min. Payments:
+</strong> <span id="totalMinPayments" class="font-semibold">N/A</span></p>
                  </div>
             </div>
             <div class="dashboard-card">
@@ -1775,5 +1783,14 @@ loadInitialData();          // ← bypasses the missing init()
     }
 
 </script>
+
+    <!-- Info‑popup modal (added) -->
+<div id="infoModal" class="modal">
+  <div class="modal-content">
+      <span class="close-button" onclick="closeModal('infoModal')">&times;</span>
+      <p id="infoModalText" style="margin:0;"></p>
+  </div>
+</div>
+    
 </body>
 </html>
