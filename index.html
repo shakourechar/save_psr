@@ -518,6 +518,10 @@
                     <button onclick="openModal('progressModal')" class="text-indigo-600 hover:underline text-sm font-medium">
                          View Full Progress History
                      </button>
+                    <button id="saveSummaryBtn"
+        class="bg-indigo-600 text-white text-sm font-medium px-3 py-1 rounded mt-2">
+  Save Summary to Report
+</button>
                 </div>
             </div>
         </div>
@@ -1784,6 +1788,41 @@ loadInitialData();          // ← bypasses the missing init()
 
 </script>
 
+<script>
+/* --- Save Summary workflow --- */
+async function generateAndSaveSummary() {
+  try {
+    setChatStatus("Summarizing…", true);
+    enableChatInput(false);
+
+    const { data, error } = await supabase.functions.invoke('chat_summary', {
+      body: { messages: chatMessages, model: gpt-4o-mini }
+    });
+
+    if (error || !data?.ok) throw new Error(data?.error || error.message);
+
+    dashboardData.aiOutput.analysis = data.analysis;
+
+    const aiDisplay = document.getElementById('aiAnalysis');
+    if (aiDisplay) aiDisplay.innerHTML = data.analysis.replace(/\n/g, '<br>');
+
+    setChatStatus("Summary saved ✅", false);
+  } catch (err) {
+    console.error("Summary failed:", err);
+    addMessageToChat("System", "Couldn’t create summary: " + err.message, true);
+    setChatStatus("Summary failed", false);
+  } finally {
+    enableChatInput(true);
+  }
+}
+
+/* Attach Save Summary button listener */
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('saveSummaryBtn')
+          ?.addEventListener('click', generateAndSaveSummary);
+});
+</script>
+    
 <script>
 /* --- Info‑popup support (added) --- */
 function showInfo(text){
