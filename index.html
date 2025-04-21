@@ -706,16 +706,8 @@
 
             console.log("Buttons and modals initialized.");
 
-            // --- Call your main initialization/data loading function ---
-            // Check your code: Is the function called 'init' or 'loadInitialData'?
-            // Replace 'init' below if your function has a different name.
-            if (typeof init === 'function') {
-                 console.log("Calling init() function...");
-                 init(); // <<< CALL YOUR MAIN FUNCTION HERE
-            } else {
-                 console.error("Function 'init' not found! Check your function definitions.");
-                 throw new Error("Required function 'init' is not defined.");
-            }
+         console.log("Starting initial data load…");
+loadInitialData();          // ← bypasses the missing init()
             console.log("Main init function called.");
 
         } catch (error) {
