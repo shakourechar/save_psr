@@ -699,36 +699,6 @@
             if (typeof window.supabase === 'undefined' || !window.supabase?.createClient) { throw new Error("Supabase library failed to load."); }
             const { createClient } = window.supabase;
             supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-// 🧠 Function to detect Pro tier from serial and save to Supabase
-async function detectUserTierAndSyncWithSupabase(userId) {
-  const params = new URLSearchParams(window.location.search);
-  const xtl = params.get("xtl");
-
-  let tier = 'basic';
-  if (xtl && xtl.length >= 11) {
-    const marker = xtl.substring(6, 11); // 7th–11th chars
-    if (marker === '16j59') {
-      tier = 'pro';
-      console.log("✅ Pro user detected from serial");
-    }
-  }
-
-  const { error } = await supabase
-    .from("users")
-    .upsert({
-      id: userId,
-      tier: tier,
-      usage_count: 0,
-    }, { onConflict: 'id' });
-
-  if (error) console.error("Error updating user tier:", error);
-  else {
-    console.log(`✅ Supabase updated with tier: ${tier}`);
-    window.userTier = tier; // Save for later use
-  }
-}
-            
             console.log("Supabase client initialized.");
             if (typeof supabase.from !== 'function' || typeof supabase.functions !== 'object') { throw new Error("Supabase client seems invalid."); }
             console.log("Supabase client seems functional.");
@@ -1671,43 +1641,9 @@ loadInitialData();          // ← bypasses the missing init()
         console.log(`Invoking Supabase function '${functionName}' with ${messagesForBackend.length} messages.`);
 
         try {
-            // Construct messages payload for Supabase function
-const { data: userData } = await supabase.auth.getUser();
-const userId = userData?.user?.id;
-
-const user = supabase.auth.user();
-if (!user) {
-  alert("Please sign in to use the chat.");
-  return;
-}
-
-const userId = user.id;
-const userTier = user.app_metadata?.tier || "basic";  // Use "basic" if no tier found
-
-const response = await fetch('https://tfnwwpksieluzvxqdiiq.supabase.co/functions/v1/smooth-function'
-, {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    'x-user-id': userId,
-    'x-user-tier': userTier
-  },
-  body: JSON.stringify({
-    messages: messagesForBackend // keep your message array here
-  })
-});
-
-const data = await response.json();
-
-if (response.ok) {
-  const assistantReply = data.assistantResponse.content;
-  addMessageToChat("Assistant", assistantReply);
-} else {
-  console.error("Chat Error:", data.error);
-  addMessageToChat("System", `Error: ${data.error}`, true); // Show error in chat
-}
-
-
+            const { data, error } = await supabase.functions.invoke(functionName, {
+                body: { messages: messagesForBackend, model: CHAT_MODEL }, // Send model preference if backend supports it
+            });
 
             setChatStatus("", false); // Clear thinking indicator
 
@@ -1859,50 +1795,16 @@ async function generateAndSaveSummary() {
     setChatStatus("Summarizing…", true);
     enableChatInput(false);
 
-   const user = supabase.auth.user();
-if (!user) {
-  alert("Please sign in to use the chat.");
-  return;
-}
+    const { data, error } = await supabase.functions.invoke('chat_summary', {
+      body: { messages: chatMessages, model: gpt-4o-mini }
+    });
 
-const userId = user.id;
-const userTier = user.app_metadata?.tier || "basic";  // Default to basic if missing
+    if (error || !data?.ok) throw new Error(data?.error || error.message);
 
-setChatStatus("Thinking...", true);
-enableChatInput(false);
+    dashboardData.aiOutput.analysis = data.analysis;
 
-try {
-  const response = await fetch('https://tfnwwpksieluzvxqdiiq.supabase.co/functions/v1/smooth-function'
-, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-user-id': userId,
-      'x-user-tier': userTier
-    },
-    body: JSON.stringify({
-      messages: chatMessages
-    })
-  });
-
-  const data = await response.json();
-  setChatStatus("", false);
-
-  if (response.ok) {
-    const assistantReply = data.assistantResponse.content;
-    addMessageToChat("Assistant", assistantReply);
-    chatMessages.push(data.assistantResponse);
-  } else {
-    console.error("Chat Error:", data.error);
-    addMessageToChat("System", `Error: ${data.error}`, true);
-  }
-} catch (error) {
-  console.error("Network or Server Error:", error);
-  addMessageToChat("System", "An unexpected error occurred.", true);
-} finally {
-  enableChatInput(true);
-}
-
+    const aiDisplay = document.getElementById('aiAnalysis');
+    if (aiDisplay) aiDisplay.innerHTML = data.analysis.replace(/\n/g, '<br>');
 
     setChatStatus("Summary saved ✅", false);
   } catch (err) {
