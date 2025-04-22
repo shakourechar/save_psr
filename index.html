@@ -980,7 +980,7 @@ loadInitialData();          // ← bypasses the missing init()
                  }
 
                 // Validate parsed data structure (basic check)
-                if (urlData && urlData.userInput && urlData.userInput.personalInfo) {
+              if (urlData && urlData.userInput) {
                     dashboardData = urlData;
                     dataFound = true;
                     console.log("Data loaded successfully from URL.");
