@@ -1035,98 +1035,73 @@ loadInitialData();          // ← bypasses the missing init()
 
     // Helper to parse data from individual URL parameters
     function parseDataFromUrlParams(params) {
-         // Always decode the parameter value
-         const getParam = (keyBase) => {
-             const keyBaseLower = keyBase.toLowerCase();
-             for (const currentKey of params.keys()) {
-                 const currentKeyLower = currentKey.toLowerCase();
-                 if (currentKeyLower === keyBaseLower || currentKeyLower.endsWith(keyBaseLower)) {
-                     const rawValue = params.get(currentKey);
-                     try {
-                         return decodeURIComponent(rawValue.replace(/\+/g, ' ')).trim();
-                     } catch (e) {
-                         console.warn(`Failed to decode URI component for ${currentKey}:`, e);
-                         return rawValue;
-                     }
-                 }
-             }
-             return null;
-         };
-         const parseNumeric = (value, defaultValue = 0) => {
-             if (value === null || typeof value === 'undefined' || String(value).trim() === '') {
-                 console.warn(`Missing numeric parameter, defaulting to ${defaultValue}`);
-                 return defaultValue;
-             }
-             const cleaned = String(value).trim().replace(/[^0-9.-]+/g, '');
-             const number = parseFloat(cleaned);
-             if (isNaN(number)) {
-                 console.warn(`Failed to parse number from "${value}", defaulting to ${defaultValue}`);
-                 return defaultValue;
-             }
-             return number;
-         };
+        const getParam = (key) => {
+            const rawValue = params.get(key);
+            return rawValue ? decodeURIComponent(rawValue.replace(/\+/g, ' ')).trim() : null;
+        };
+        const parseNumeric = (value, defaultValue = 0) => {
+            const cleaned = String(value || '').replace(/[^0-9.-]+/g, '');
+            const number = parseFloat(cleaned);
+            return isNaN(number) ? defaultValue : number;
+        };
 
-         // --- Build the data structure ---
-        const fetchedUserName = getParam('userName') || getParam('username');
-        const fetchedAge = parseNumeric(getParam('age'));
-        const fetchedCreditCardDebt = parseNumeric(getParam('creditCardDebt') || getParam('creditcard'));
-        const fetchedBankLoans = parseNumeric(getParam('bankLoans') || getParam('loans'));
-        // Estimate min payments (can be refined)
-        const ccMinPayment = Math.max(fetchedCreditCardDebt * 0.03, 25);
-        const loanMinPayment = Math.max(fetchedBankLoans * 0.015, 50); // Example
-
-         const parsedData = {
-             userInput: {
-                 personalInfo: {
-                     userName: fetchedUserName || 'User',
-                     age: fetchedAge || 30
-                 },
-                 income: {
-                     mainJobIncome: parseNumeric(getParam('mainJobIncome')),
-                     secondJob: parseNumeric(getParam('secondJobIncome') || getParam('secondJob')),
-                     otherIncome: parseNumeric(getParam('otherIncome'))
-                 },
-                 expenses: {
+        return {
+            userInput: {
+                personalInfo: {
+                    userName: getParam('userName'),
+                    age: parseNumeric(getParam('age'))
+                },
+                income: {
+                    mainJobIncome: parseNumeric(getParam('mainJobIncome')),
+                    secondJob: parseNumeric(getParam('secondJobIncome')),
+                    otherIncome: parseNumeric(getParam('otherIncome'))
+                },
+                expenses: {
                     housing: parseNumeric(getParam('housing')),
                     transportation: parseNumeric(getParam('transportation')),
                     utilities: parseNumeric(getParam('utilities')),
-                    groceriesEssentials: parseNumeric(getParam('groceries-essentials') || getParam('groceries')),
+                    groceriesEssentials: parseNumeric(getParam('groceries-essentials')),
                     insurance: parseNumeric(getParam('insurance')),
                     medical: parseNumeric(getParam('medical')),
                     care: parseNumeric(getParam('care')),
                     subscriptions: parseNumeric(getParam('subscriptions')),
                     taxes: parseNumeric(getParam('taxes'))
-                 },
-                 savings: {
-                     emergency: parseNumeric(getParam('emergencySavings') || getParam('emergency')),
-                     savings: parseNumeric(getParam('currentSavings') || getParam('savings')),
-                     retirement: parseNumeric(getParam('retirementFund') || getParam('retirement')),
-                     emergencyFundTarget: parseNumeric(getParam('emergencyFundTarget')),
-                     monthlySavingsGoal: parseNumeric(getParam('monthlySavingsGoal'))
-                 },
-                 debts: [
-                     ...(fetchedCreditCardDebt > 0 ? [{ type: "Credit Card", balance: fetchedCreditCardDebt, interestRate: parseNumeric(getParam('ccRate'), 22.5), minPayment: ccMinPayment }] : []),
-                     ...(fetchedBankLoans > 0 ? [{ type: "Bank Loans", balance: fetchedBankLoans, interestRate: parseNumeric(getParam('loanRate'), 6.5), minPayment: loanMinPayment }] : [])
-                      // Add more debt types if needed, parsing their params
-                 ],
-                 financials: {
+                },
+                savings: {
+                    emergency: parseNumeric(getParam('emergencySavings')),
+                    savings: parseNumeric(getParam('currentSavings')),
+                    retirement: parseNumeric(getParam('retirementFund'))
+                },
+                debts: [
+                    ...(parseNumeric(getParam('creditCardDebt')) > 0
+                        ? [{
+                            type: "Credit Card",
+                            balance: parseNumeric(getParam('creditCardDebt')),
+                            interestRate: 22.5,
+                            minPayment: Math.max(parseNumeric(getParam('creditCardDebt')) * 0.03, 25)
+                        }]
+                        : []),
+                    ...(parseNumeric(getParam('bankLoans')) > 0
+                        ? [{
+                            type: "Bank Loans",
+                            balance: parseNumeric(getParam('bankLoans')),
+                            interestRate: 6.5,
+                            minPayment: Math.max(parseNumeric(getParam('bankLoans')) * 0.015, 50)
+                        }]
+                        : [])
+                ],
+                financials: {
                     financialTools: getParam('financialTools'),
                     challenges: getParam('challenges'),
                     upcomingPurchase: getParam('upcomingPurchases')
-                 }
-             },
-              aiOutput: {
-                  analysis: getParam('aiAnalysis'),
-                  recommendations: getParam('recommendations'),
-                  userProgress: getParam('userProgressHistory') || getParam('userProgress')
-              }
-         };
-        // Clean up empty strings in aiOutput
-        if (!parsedData.aiOutput.analysis) parsedData.aiOutput.analysis = 'Analysis not provided.';
-        if (!parsedData.aiOutput.recommendations) parsedData.aiOutput.recommendations = 'Recommendations not provided.';
-        if (!parsedData.aiOutput.userProgress) parsedData.aiOutput.userProgress = 'Progress history not available.';
-
-        return parsedData;
+                }
+            },
+            aiOutput: {
+                analysis: getParam('aiAnalysis'),
+                recommendations: getParam('recommendations'),
+                userProgress: getParam('userProgressHistory')
+            }
+        };
     }
 
 
