@@ -10,6 +10,7 @@
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
+        /* --- All your existing CSS --- */
         /* Base Styles */
         body {
             font-family: 'Inter', sans-serif;
@@ -200,7 +201,7 @@
              align-items: center;
              justify-content: center;
              padding: 1rem;
-         }
+        }
          /* Style for the error message box itself */
          #errorMessage > div {
              background-color: #fee2e2; /* Red-100 */
@@ -236,6 +237,8 @@
           #errorMessage button:hover { background-color: #b91c1c; } /* Red-700 */
           #errorMessage button.secondary-button { background-color: #d1d5db; color: #374151; }
           #errorMessage button.secondary-button:hover { background-color: #9ca3af; }
+
+        #initialUploadPrompt { display: none; } /* Hide by default */
 
         #initialMessage {
             display: none; /* Hide by default */
@@ -351,11 +354,11 @@
         }
     </style>
 </head>
-    
+
 <body>
     <pre id="embeddedPsrData" style="display: none;">/* EMBEDDED_JSON_DATA_HERE */</pre>
 
-    <div id="loadingSpinner"> 
+    <div id="loadingSpinner" style="display: none;">
         <div class="text-center">
             <svg class="animate-spin h-10 w-10 text-indigo-600 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -365,8 +368,8 @@
         </div>
     </div>
 
-    <div id="errorMessage"> 
-        <div> 
+    <div id="errorMessage" style="display: none;">
+        <div>
             <h3 class="font-bold text-xl mb-3 header-font">Error Loading Dashboard</h3>
             <p id="errorText" class="mb-4">An error occurred.</p>
             <div id="debugInfo" class="mb-4 text-xs">Debug info will appear here...</div>
@@ -377,30 +380,30 @@
         </div>
     </div>
 
-    <div id="initialUploadPrompt" style="display: none; text-align: center; padding: 60px 20px;">
-        <div class="main-container" style="max-width: 600px; margin: auto;"> 
-            <h2 class="header-font text-2xl mb-4 text-gray-700">Welcome to SmartWealth Navigator</h2>
-            <p class="text-gray-600 mb-6">
-                📂 Please upload your saved PSR file to view your dashboard.
-            </p>
-            <button id="initialUploadButton" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg text-lg transition duration-200 ease-in-out">
-                Upload PSR
-            </button>
-            <p class="text-sm text-gray-500 mt-4">
-                (If you haven't generated a report yet, please complete the initial form first.)
-            </p>
-        </div>
-    </div>
+     <div id="initialUploadPrompt" style="display: none; text-align: center; padding: 60px 20px;">
+         <div class="main-container" style="max-width: 600px; margin: auto;">
+             <h2 class="header-font text-2xl mb-4 text-gray-700">Welcome to SmartWealth Navigator</h2>
+             <p class="text-gray-600 mb-6">
+                 📂 Please upload your saved PSR file to view your dashboard.
+             </p>
+             <button id="initialUploadButton" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg text-lg transition duration-200 ease-in-out">
+                 Upload PSR
+             </button>
+             <p class="text-sm text-gray-500 mt-4">
+                 (If you haven't generated a report yet, please complete the initial form first.)
+             </p>
+         </div>
+     </div>
 
     <div id="initialMessage" style="display: none;">
         Upload a PSR JSON file or parameter to view your dashboard.
     </div>
 
-    <div id="mainContent" class="main-container"> 
+    <div id="mainContent" class="main-container" style="display: none;">
         <header>
             <img src="https://static.wixstatic.com/media/c3283f_a9271d9818ba414994d98950da749489~mv2.jpg" alt="SmartWealth Navigator Logo">
-            <h1>SmartWealth Navigator</h1> 
-            <input type="file" id="fileInput" accept=".json"> 
+            <h1>SmartWealth Navigator</h1>
+            <input type="file" id="fileInput" accept=".json">
             <button id="uploadButton">Upload PSR</button>
             <button id="saveButton">Download PSR</button>
         </header>
@@ -451,11 +454,11 @@
             <div class="dashboard-card" id="goalsCard">
                 <h3 class="card-header cursor-pointer" data-desc="Distance to rainy day target.">Savings Goals Progress</h3>
                 <div class="card-content">
-                    <div id="emergencyGoalDisplay" style="display: none;"> 
+                    <div id="emergencyGoalDisplay" style="display: none;">
                         <p><strong>Emergency Fund Goal:</strong> <span class="goal-status">N/A</span></p>
                         <div class="progress-bar-container"><div class="progress-bar" id="emergencyProgressBar"></div></div>
                     </div>
-                    <div id="purchaseGoalDisplay" style="margin-top: 15px; display: none;"> 
+                    <div id="purchaseGoalDisplay" style="margin-top: 15px; display: none;">
                         <p><strong data-desc="Saved toward big buy.">Purchase Goal (<span id="purchaseGoalName">N/A</span>):</strong> <span class="goal-status">N/A</span></p>
                         <div class="progress-bar-container"><div class="progress-bar" id="purchaseProgressBar"></div></div>
                     </div>
@@ -509,7 +512,7 @@
         <div class="grid-container">
             <div class="dashboard-card" id="debtsCard">
                 <h3 class="card-header">Debt Overview</h3>
-                <div class="card-content overflow-x-auto"> 
+                <div class="card-content overflow-x-auto">
                     <table id="debtsTable">
                         <thead>
                             <tr>
@@ -537,11 +540,11 @@
             </div>
         </div>
 
-        <section id="chatInterfaceCard" class="dashboard-card"> 
+        <section id="chatInterfaceCard" class="dashboard-card" style="display: none;">
             <h3 class="card-header">Ask SmartWealth AI</h3>
             <div class="chat-container">
                 <div class="chat-history" id="chatHistory">
-                </div>
+                    </div>
                 <div class="chat-status" id="chatStatus"></div>
                 <div class="chat-input-area">
                     <textarea id="chatInput" placeholder="Ask about your finances..." rows="1" disabled></textarea>
@@ -559,7 +562,7 @@
             <p>SmartWealth Navigator &copy; 2025 | Built by Socialeap™️</p>
             <p>Consult with a qualified financial advisor for personalized advice.</p>
         </footer>
-    </div> 
+    </div>
 
     <div id="progressModal" class="modal">
         <div class="modal-content">
@@ -569,7 +572,6 @@
         </div>
     </div>
 
-    <!-- Info‑popup modal -->
     <div id="infoModal" class="modal">
         <div class="modal-content">
             <span class="close-button" onclick="closeModal('infoModal')">&times;</span>
@@ -591,7 +593,7 @@
 
     // --- Cached DOM Elements ---
     // Cached in DOMContentLoaded for efficiency
-    let loadingSpinner, errorMessageElement, mainContentElement, initialMessageElement, errorTextElement, debugInfoElement;
+    let loadingSpinner, errorMessageElement, mainContentElement, initialMessageElement, errorTextElement, debugInfoElement, fileInput, initialUploadPrompt;
 
     // --- Utility Functions ---
     function getSafe(fn, defaultVal = 'N/A') {
@@ -604,19 +606,19 @@
             return defaultVal;
         }
     }
-    
+
     function formatCurrency(value, hideNA = false) {
         const number = Number(value);
         if (isNaN(number)) return hideNA ? '' : 'N/A';
         return number.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 });
     }
-    
+
     function formatPercentage(value, decimals = 1) {
         const number = Number(value);
         if (isNaN(number) || !isFinite(number)) return 'N/A';
         return number.toLocaleString(undefined, { style: 'percent', minimumFractionDigits: decimals, maximumFractionDigits: decimals });
     }
-    
+
     function updateElementText(id, value, formatter) {
         const element = document.getElementById(id);
         if (element) {
@@ -626,7 +628,7 @@
             console.warn(`Element with ID ${id} not found for text update.`);
         }
     }
-    
+
     function updateElementHTML(id, value) {
         const element = document.getElementById(id);
         if (element) {
@@ -639,13 +641,8 @@
     // --- IMPROVED Data Loading Logic ---
     function loadInitialData() {
         console.log("Starting loadInitialData function");
-        
-        // Reference DOM elements
-        loadingSpinner = document.getElementById('loadingSpinner');
-        errorMessageElement = document.getElementById('errorMessage');
-        mainContentElement = document.getElementById('mainContent');
-        initialMessageElement = document.getElementById('initialMessage');
-        initialUploadPrompt = document.getElementById('initialUploadPrompt');
+
+        // Reference DOM elements (already cached in DOMContentLoaded)
 
         // Set initial UI states
         if (loadingSpinner) loadingSpinner.style.display = 'flex';
@@ -656,160 +653,214 @@
 
         // Get URL parameters
         const params = new URLSearchParams(window.location.search);
-        
+
         // Debug: Log all URL parameters
         console.log("URL Parameters:");
         for (const [key, value] of params.entries()) {
-            console.log(`${key}: ${value}`);
+            console.log(`  ${key}: ${value}`);
         }
 
         // Check for data=null parameter (special case)
         if (params.has('data') && params.get('data') === 'null') {
-            console.warn("URL parameter 'data=null' detected. Showing initial upload prompt.");
-            if (loadingSpinner) loadingSpinner.style.display = 'none';
-            if (initialUploadPrompt) initialUploadPrompt.style.display = 'block';
-            return; // Exit early
-        }
+             console.warn("URL parameter 'data=null' detected. Showing initial upload prompt.");
+             if (loadingSpinner) loadingSpinner.style.display = 'none';
+             if (initialUploadPrompt) initialUploadPrompt.style.display = 'block';
+             //Ensure the button inside the prompt is clickable
+             const initialUploadButton = document.getElementById('initialUploadButton');
+             if(initialUploadButton && fileInput){
+                 initialUploadButton.addEventListener('click', () => { fileInput.click(); });
+             }
+             return; // Exit early
+         }
 
         // Try to parse data from URL parameters
         try {
             console.log("Attempting to parse data from URL parameters...");
             const parsedData = parseDataFromUrlParams(params);
-            
+
             // Debug: Log the parsed data structure
-            console.log("Parsed data:", parsedData);
-            
-            // Check if we got valid data
-            if (parsedData && 
-                parsedData.userInput && 
-                parsedData.userInput.personalInfo && 
-                parsedData.userInput.personalInfo.userName) {
-                
-                console.log("Valid data found in URL parameters");
+            console.log("Parsed data structure from URL:", parsedData);
+
+            // Check if we got valid data (specifically looking for userName as a key indicator)
+            if (parsedData &&
+                parsedData.userInput &&
+                parsedData.userInput.personalInfo &&
+                (parsedData.userInput.personalInfo.userName !== undefined && parsedData.userInput.personalInfo.userName !== null) ) { // Check if userName exists and is not null/undefined
+
+                console.log("Valid data found in URL parameters, processing...");
                 dashboardData = parsedData;
                 processAndDisplayData(dashboardData);
             } else {
-                console.warn("No valid data structure found in URL parameters");
-                showInitialMessage();
+                // If no valid data structure from URL params, check for embedded data as a fallback
+                console.warn("No valid data structure found in URL parameters. Checking for embedded data...");
+                const embeddedDataElement = document.getElementById('embeddedPsrData');
+                if (embeddedDataElement && embeddedDataElement.textContent.trim().length > 20) { // Basic check if it has content
+                    console.log("Attempting to parse embedded data...");
+                    try {
+                        const embeddedJson = embeddedDataElement.textContent.replace('/* EMBEDDED_JSON_DATA_HERE */', '').trim();
+                        const embeddedParsedData = JSON.parse(embeddedJson);
+                        if (embeddedParsedData && embeddedParsedData.userInput && embeddedParsedData.userInput.personalInfo) {
+                             console.log("Valid embedded data found, processing...");
+                             dashboardData = embeddedParsedData;
+                             processAndDisplayData(dashboardData);
+                        } else {
+                             console.warn("Embedded data found but structure is invalid.");
+                             showInitialMessage(); // Show initial upload prompt if embedded data is bad
+                        }
+                    } catch (embedError) {
+                         console.error("Error parsing embedded data:", embedError);
+                         handleError("Failed to parse embedded data", embedError);
+                    }
+                } else {
+                    console.warn("No valid URL parameters and no embedded data found.");
+                    showInitialMessage(); // Show the message to upload or use params
+                }
             }
         } catch (error) {
-            console.error("Error parsing data from URL:", error);
-            handleError("Failed to parse URL parameters", error);
+            console.error("Error processing initial data source (URL or Embedded):", error);
+            handleError("Failed to load initial data", error);
         }
     }
 
-    // IMPROVED: Function to parse data from URL parameters
+    // --- Function to parse data from URL parameters ---
+    // <<< THIS IS THE KEY FUNCTION TO ENSURE IT MATCHES YOUR URL PARAMS >>>
     function parseDataFromUrlParams(params) {
-        console.log("Starting parameter parsing");
-        
+        console.log("Starting parameter parsing from URLSearchParams object");
+
         // Helper function to safely get and decode parameters
         const getParam = (key) => {
             if (!params.has(key)) return null;
             const rawValue = params.get(key);
             if (!rawValue) return null;
             try {
+                // Decode URI components and replace '+' with space (common in query strings)
                 return decodeURIComponent(rawValue.replace(/\+/g, ' ')).trim();
             } catch (e) {
-                console.warn(`Error decoding parameter ${key}:`, e);
+                console.warn(`Error decoding parameter ${key} with value "${rawValue}":`, e);
                 return rawValue.trim(); // Return raw if decoding fails
             }
         };
-        
+
         // Helper function to parse numeric values
         const parseNumeric = (value, defaultValue = 0) => {
             if (value === null || value === undefined) return defaultValue;
+            // Remove currency symbols, commas, etc. before parsing
             const cleaned = String(value).replace(/[^0-9.-]+/g, '');
             const number = parseFloat(cleaned);
             return isNaN(number) ? defaultValue : number;
         };
 
-        // Log key parameters for debugging
-        console.log("userName param:", getParam('userName'));
-        console.log("age param:", getParam('age'));
-        console.log("mainJobIncome param:", getParam('mainJobIncome'));
-        
-        // FIXED: Parse groceriesessentials without hyphen (matching URL parameter)
-        console.log("groceriesessentials param:", getParam('groceriesessentials'));
-        
-        // Construct and return the data object
+        // --- Log key parameters for debugging ---
+        console.log("  Reading 'userName':", getParam('userName'));
+        console.log("  Reading 'age':", getParam('age'));
+        console.log("  Reading 'mainJobIncome':", getParam('mainJobIncome'));
+        console.log("  Reading 'housing':", getParam('housing'));
+        // *** IMPORTANT: Corrected parameter name here ***
+        console.log("  Reading 'groceriesessentials':", getParam('groceriesessentials'));
+        console.log("  Reading 'creditCardDebt':", getParam('creditCardDebt'));
+        console.log("  Reading 'aiAnalysis':", getParam('aiAnalysis')); // Check a longer text field
+        // Add logs for any other parameters you are troubleshooting
+
+        // Construct and return the data object based on URL parameters
         const parsedData = {
             userInput: {
                 personalInfo: {
-                    userName: getParam('userName'),
+                    userName: getParam('userName'), // Keep as string
                     age: parseNumeric(getParam('age'))
                 },
                 income: {
                     mainJobIncome: parseNumeric(getParam('mainJobIncome')),
-                    secondJob: parseNumeric(getParam('secondJobIncome')),
+                    secondJob: parseNumeric(getParam('secondJobIncome')), // Parameter might be 'secondJob' or 'secondJobIncome'
                     otherIncome: parseNumeric(getParam('otherIncome'))
                 },
                 expenses: {
                     housing: parseNumeric(getParam('housing')),
                     transportation: parseNumeric(getParam('transportation')),
                     utilities: parseNumeric(getParam('utilities')),
-                    // FIXED: Match parameter name exactly as in URL (without hyphen)
+                    // *** IMPORTANT: Corrected parameter name here ***
                     groceriesEssentials: parseNumeric(getParam('groceriesessentials')),
                     insurance: parseNumeric(getParam('insurance')),
                     medical: parseNumeric(getParam('medical')),
-                    care: parseNumeric(getParam('care')),
+                    care: parseNumeric(getParam('care')), // Check if param is 'care' or 'childCare' etc.
                     subscriptions: parseNumeric(getParam('subscriptions')),
                     taxes: parseNumeric(getParam('taxes'))
+                    // Add any other expense categories from your form/URL parameters
                 },
                 savings: {
                     emergency: parseNumeric(getParam('emergencySavings')),
                     savings: parseNumeric(getParam('currentSavings')),
-                    retirement: parseNumeric(getParam('retirementFund'))
+                    retirement: parseNumeric(getParam('retirementFund')),
+                    emergencyFundTarget: parseNumeric(getParam('emergencyFundTarget')), // Optional target from params
+                    monthlySavingsGoal: parseNumeric(getParam('monthlySavingsGoal')) // Optional goal from params
                 },
-                debts: [],
+                debts: [], // Debts will be populated below
                 financials: {
                     financialTools: getParam('financialTools'),
                     challenges: getParam('challenges'),
-                    upcomingPurchase: getParam('upcomingPurchases')
+                    upcomingPurchase: getParam('upcomingPurchases') // Parameter might be 'upcomingPurchase' or 'upcomingPurchases'
                 }
             },
             aiOutput: {
-                analysis: getParam('aiAnalysis') || 'Analysis not provided.',
-                recommendations: getParam('recommendations') || 'Recommendations not provided.',
+                // Get AI fields, default to neutral strings if not provided
+                analysis: getParam('aiAnalysis') || 'Analysis not available.',
+                recommendations: getParam('recommendations') || 'Recommendations not available.',
                 userProgress: getParam('userProgressHistory') || 'No progress history available.'
             }
         };
-        
-        // Add credit card debt if present
+
+        // --- Populate Debts Array ---
+        // Example for Credit Card Debt (assuming parameter name 'creditCardDebt')
         const creditCardDebt = parseNumeric(getParam('creditCardDebt'));
         if (creditCardDebt > 0) {
             parsedData.userInput.debts.push({
                 type: "Credit Card",
                 balance: creditCardDebt,
-                interestRate: 22.5,
-                minPayment: Math.max(creditCardDebt * 0.03, 25)
+                // You might need parameters for interestRate and minPayment if they vary,
+                // otherwise use defaults or derive them.
+                interestRate: parseNumeric(getParam('creditCardRate'), 22.5), // Example: Get rate or default
+                minPayment: parseNumeric(getParam('creditCardMinPayment'), Math.max(creditCardDebt * 0.03, 25)) // Example: Get min payment or derive
             });
+            console.log("  Added Credit Card Debt from param:", creditCardDebt);
         }
-        
-        // Add bank loans if present
+
+        // Example for Bank Loans (assuming parameter name 'bankLoans')
         const bankLoans = parseNumeric(getParam('bankLoans'));
         if (bankLoans > 0) {
             parsedData.userInput.debts.push({
                 type: "Bank Loans",
                 balance: bankLoans,
-                interestRate: 6.5,
-                minPayment: Math.max(bankLoans * 0.015, 50)
+                interestRate: parseNumeric(getParam('bankLoanRate'), 6.5),
+                minPayment: parseNumeric(getParam('bankLoanMinPayment'), Math.max(bankLoans * 0.015, 50))
             });
+             console.log("  Added Bank Loans from param:", bankLoans);
         }
-        
-        console.log("Parsed data object created:", parsedData);
+
+        // Add similar blocks for other debt types (Student Loans, Car Loans, etc.)
+        // using their respective parameter names (e.g., 'studentLoanDebt', 'carLoanBalance')
+
+        console.log("Parsed data object created from URL params:", parsedData);
         return parsedData;
     }
 
+
     // Helper function to show initial message when no data is found
     function showInitialMessage() {
+        console.log("Executing showInitialMessage");
         if (loadingSpinner) loadingSpinner.style.display = 'none';
         if (mainContentElement) mainContentElement.style.display = 'none';
+        // Only show the initial message if no error message is already visible
         if (errorMessageElement && errorMessageElement.style.display !== 'flex') {
             if (initialMessageElement) initialMessageElement.style.display = 'block';
+             console.log("Displayed initial message element.");
+        } else {
+             console.log("Initial message display skipped (error message might be visible).");
         }
-        if (document.getElementById('chatInterfaceCard')) {
-            document.getElementById('chatInterfaceCard').style.display = 'none';
+        // Ensure chat is hidden if we revert to the initial message state
+        const chatCard = document.getElementById('chatInterfaceCard');
+        if (chatCard) {
+            chatCard.style.display = 'none';
         }
+        enableChatInput(false); // Disable chat input as well
     }
 
     // --- Debugging & Error Handling ---
@@ -822,25 +873,24 @@
         } else {
             paramsText += '<table style="width:100%; font-size:10px; border-collapse: collapse;"><thead><tr style="background:#eee;"><th style="border:1px solid #ccc; padding: 2px;">Param</th><th style="border:1px solid #ccc; padding: 2px;">Value</th></tr></thead><tbody>';
             for (const [key, value] of params.entries()) {
-                paramsText += `<tr><td style="border:1px solid #ccc; padding: 2px; word-break:break-all;">${key}</td><td style="border:1px solid #ccc; padding: 2px; word-break:break-all;">${value || '<i style="color:gray;">(empty)</i>'}</td></tr>`;
+                // Truncate long values for display in debug box
+                const displayValue = (value && value.length > 150) ? value.substring(0, 150) + '...' : (value || '<i style="color:gray;">(empty)</i>');
+                paramsText += `<tr><td style="border:1px solid #ccc; padding: 2px; word-break:break-all;">${key}</td><td style="border:1px solid #ccc; padding: 2px; word-break:break-all;">${displayValue}</td></tr>`;
             }
             paramsText += '</tbody></table>';
         }
         // Append to existing debug info safely
          const currentDebugHTML = debugInfoElement.innerHTML;
-         debugInfoElement.innerHTML = paramsText + '<hr style="margin: 5px 0;">' + currentDebugHTML.replace(/^<strong>URL Params:.*?<hr style="margin: 5px 0;">/s, ''); // Replace previous params if any
+         // Add params at the top, remove old params if present
+         debugInfoElement.innerHTML = paramsText + '<hr style="margin: 5px 0;">' + currentDebugHTML.replace(/^<strong>URL Params:.*?<hr style="margin: 5px 0;">/s, '');
     }
 
     function handleError(message, error) {
         console.error("HANDLE ERROR TRIGGERED:", message, error);
 
-        // Ensure elements exist before manipulating
-        errorTextElement = errorTextElement || document.getElementById('errorText');
+        // Ensure elements exist before manipulating (using cached elements)
+        errorTextElement = errorTextElement || document.getElementById('errorText'); // Fallback if cache failed
         debugInfoElement = debugInfoElement || document.getElementById('debugInfo');
-        loadingSpinner = loadingSpinner || document.getElementById('loadingSpinner');
-        mainContentElement = mainContentElement || document.getElementById('mainContent');
-        initialMessageElement = initialMessageElement || document.getElementById('initialMessage');
-        errorMessageElement = errorMessageElement || document.getElementById('errorMessage');
 
         // Populate error details
         if (errorTextElement) {
@@ -850,11 +900,12 @@
         }
         if (debugInfoElement) {
             debugInfoElement.innerHTML = ''; // Clear previous debug info first
-            debugURLParameters(); // Add URL parameters
+            debugURLParameters(); // Add URL parameters FIRST
             debugInfoElement.innerHTML += `<br><strong>Error Type:</strong> ${error?.name || 'N/A'}`;
             debugInfoElement.innerHTML += `<br><strong>Error Message:</strong><br><span style="color:red;">${error?.message || 'Unknown error'}</span>`;
             if (error?.stack) {
-                debugInfoElement.innerHTML += `<br><strong>Stack Trace:</strong><br><code style="font-size:10px; white-space: pre-wrap; display: block;">${error.stack}</code>`;
+                // Make stack trace more readable
+                debugInfoElement.innerHTML += `<br><strong>Stack Trace:</strong><br><code style="font-size:10px; white-space: pre-wrap; display: block; line-height:1.2;">${error.stack.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</code>`;
             }
         } else {
             console.error("Debug info element not found!");
@@ -869,6 +920,7 @@
         }
         if (mainContentElement) mainContentElement.style.display = 'none';
         if (initialMessageElement) initialMessageElement.style.display = 'none';
+        if (initialUploadPrompt) initialUploadPrompt.style.display = 'none'; // Hide prompt on error too
 
         if (errorMessageElement) {
             errorMessageElement.style.display = 'flex'; // Use flex for centering
@@ -913,10 +965,12 @@
             }
         };
         dashboardData = demoData; // Set global data
+        chatMessages = []; // Clear chat history when loading demo data
         console.log("Rendering demo data...");
         // Ensure error message is hidden before processing
         if (errorMessageElement) errorMessageElement.style.display = 'none';
         if (initialMessageElement) initialMessageElement.style.display = 'none';
+        if (initialUploadPrompt) initialUploadPrompt.style.display = 'none';
         processAndDisplayData(dashboardData); // Process the demo data
     }
 
@@ -927,7 +981,7 @@
             handleError("Invalid data format for processing", new Error("Data structure is missing userInput."));
             return;
         }
-        console.log("--- processAndDisplayData START ---");
+        console.log("--- processAndDisplayData START ---", data); // Log the data being processed
         dashboardData = data; // Update global reference
 
         try {
@@ -956,17 +1010,20 @@
             console.log("Debts UI updated.");
 
             console.log("7. Scheduling chart rendering...");
+            // Use requestAnimationFrame to ensure DOM is ready for Plotly
             requestAnimationFrame(() => {
                  console.log("7a. Executing chart rendering (inside requestAnimationFrame)...");
                  try {
-                    renderCharts(data);
-                    console.log("Charts rendered successfully.");
+                     renderCharts(data);
+                     console.log("Charts rendered successfully.");
                  } catch (chartError) {
                      console.error("--- Error during renderCharts ---", chartError);
-                     handleError("Failed to render charts", chartError);
-                     // Show specific error messages in chart divs
-                      if(document.getElementById('incomeChart')) document.getElementById('incomeChart').innerHTML = '<p class="text-red-600 text-center p-4">Error loading income chart.</p>';
-                      if(document.getElementById('expenseChart')) document.getElementById('expenseChart').innerHTML = '<p class="text-red-600 text-center p-4">Error loading expense chart.</p>';
+                     // Display error within the chart divs
+                     const incomeChartDiv = document.getElementById('incomeChart');
+                     const expenseChartDiv = document.getElementById('expenseChart');
+                     if(incomeChartDiv) incomeChartDiv.innerHTML = `<p class="text-red-600 text-center p-4">Error loading income chart:<br>${chartError.message}</p>`;
+                     if(expenseChartDiv) expenseChartDiv.innerHTML = `<p class="text-red-600 text-center p-4">Error loading expense chart:<br>${chartError.message}</p>`;
+                     // Don't necessarily call the main handleError here, as the rest of the page might be fine.
                  }
             });
 
@@ -975,14 +1032,15 @@
             console.log("AI display UI updated.");
 
             console.log("9. Initializing chat...");
-            initializeChat();
+            initializeChat(); // Initialize chat AFTER data is processed
             console.log("Chat initialized.");
 
             console.log("10. Making main content visible...");
             if (errorMessageElement) errorMessageElement.style.display = 'none';
             if (initialMessageElement) initialMessageElement.style.display = 'none';
+            if (initialUploadPrompt) initialUploadPrompt.style.display = 'none'; // Ensure prompt is hidden
             if (mainContentElement) {
-                mainContentElement.style.display = 'block'; // Use block display
+                mainContentElement.style.display = 'block'; // Use block display (or grid if appropriate)
                 mainContentElement.classList.remove('hidden'); // Ensure class is removed if used
             }
             console.log("Main content should now be visible.");
@@ -994,12 +1052,12 @@
             // Ensure spinner is hidden regardless of success/failure within the try block
              console.log("Executing finally block in processAndDisplayData.");
              if (loadingSpinner) {
-                loadingSpinner.style.display = 'none';
+                 loadingSpinner.style.display = 'none';
                  console.log("Spinner hidden by processAndDisplayData finally block.");
-            } else {
-                console.warn("Spinner element not found in finally block.");
-            }
-            console.log("--- processAndDisplayData END ---");
+             } else {
+                 console.warn("Spinner element not found in finally block.");
+             }
+             console.log("--- processAndDisplayData END ---");
         }
     }
 
@@ -1019,24 +1077,42 @@
         totals.totalIncome = (Number(income.mainJobIncome) || 0) + (Number(income.secondJob) || 0) + (Number(income.otherIncome) || 0);
 
         // Expenses & Core Expenses: Iterate through expenses object
-        const coreExpenseKeys = ['housing', 'utilities', 'transportation', 'groceriesEssentials', 'insurance', 'medical', 'care', 'taxes']; // Define core expenses
+        // Define core expenses - ADJUST THESE KEYS TO MATCH YOUR DATA EXACTLY
+        const coreExpenseKeys = ['housing', 'utilities', 'transportation', 'groceriesEssentials', 'insurance', 'medical', 'care', 'taxes', 'minPayments']; // Include min debt payments as core? Decide based on definition.
         for (const key in expenses) {
             const value = Number(expenses[key]) || 0;
             totals.totalExpenses += value;
+            // Check if the expense key is considered 'core'
             if (coreExpenseKeys.includes(key)) {
                 totals.monthlyCoreExpenses += value;
             }
         }
 
-        totals.netFlow = totals.totalIncome - totals.totalExpenses;
-
         // Debts: Sum balance and minimum payments from the debts array
         if (Array.isArray(debts)) {
              debts.forEach(debt => {
                  totals.totalDebt += Number(debt.balance) || 0;
-                 totals.totalMinPayments += Number(debt.minPayment) || 0;
+                 const minPayment = Number(debt.minPayment) || 0;
+                 totals.totalMinPayments += minPayment;
+                 // Option: Add total minimum payments to core expenses if not already included
+                 // if (!coreExpenseKeys.includes('minPayments')) {
+                 //     totals.monthlyCoreExpenses += minPayment;
+                 // }
              });
         }
+        // If min payments are treated as a core expense, add the total here.
+        if (coreExpenseKeys.includes('minPayments')) {
+             totals.monthlyCoreExpenses += totals.totalMinPayments;
+        }
+
+
+        // Add total minimum debt payments to total expenses
+        // This assumes min payments aren't already listed under 'expenses'
+        totals.totalExpenses += totals.totalMinPayments;
+
+
+        totals.netFlow = totals.totalIncome - totals.totalExpenses;
+
 
         // Savings: Sum known savings types
         totals.totalSavings = (Number(savings.emergency) || 0) + (Number(savings.savings) || 0) + (Number(savings.retirement) || 0);
@@ -1047,28 +1123,42 @@
     function calculateRatios(data, totals) {
         const ratios = { savingsRate: 0, emergencyCoverage: 0, dtiRatio: 0 };
         const savingsInput = data?.userInput?.savings || {};
-        const debts = data?.userInput?.debts || []; // Needed if totalMinPayments not in totals
+        // We use totals.totalIncome and totals.totalMinPayments calculated in calculateTotals
 
-        // Savings Rate: Use explicit monthly goal if available, else use positive net flow proxy
+        // Savings Rate: Use explicit monthly goal if available, otherwise use positive net flow proxy
         const monthlySavingsGoal = Number(savingsInput.monthlySavingsGoal);
-        const contribution = !isNaN(monthlySavingsGoal) && monthlySavingsGoal > 0 ? monthlySavingsGoal : Math.max(0, totals.netFlow);
+        // Use the goal if defined AND positive, otherwise use net flow (but cap at 0 if net flow is negative)
+        const contribution = (monthlySavingsGoal > 0) ? monthlySavingsGoal : Math.max(0, totals.netFlow);
+
         if (totals.totalIncome > 0) {
+             // Savings rate = (Amount Saved Per Month / Gross Monthly Income)
             ratios.savingsRate = (contribution / totals.totalIncome); // Rate as decimal
+        } else {
+            ratios.savingsRate = 0; // Avoid division by zero
         }
+
 
         // Emergency Fund Coverage (Months based on CORE expenses)
         const currentEmergencyFund = Number(savingsInput.emergency) || 0;
         if (totals.monthlyCoreExpenses > 0) {
             ratios.emergencyCoverage = currentEmergencyFund / totals.monthlyCoreExpenses; // Result in months
         } else if (totals.totalExpenses > 0) {
-             ratios.emergencyCoverage = currentEmergencyFund / totals.totalExpenses; // Fallback to total expenses
+             // Fallback if core expenses somehow end up zero but total expenses > 0
+            ratios.emergencyCoverage = currentEmergencyFund / totals.totalExpenses;
              console.warn("Using total expenses for emergency coverage calculation as core expenses were zero.")
+        } else {
+            ratios.emergencyCoverage = Infinity; // If no expenses, coverage is infinite (or handle as special case)
         }
 
+
         // Debt-to-Income (DTI) Ratio (using minimum payments from totals)
+        // DTI = (Total Monthly Minimum Debt Payments / Gross Monthly Income)
         if (totals.totalIncome > 0) {
             ratios.dtiRatio = (totals.totalMinPayments / totals.totalIncome); // Rate as decimal
+        } else {
+            ratios.dtiRatio = 0; // Or Infinity if debts exist but income is zero? Define behavior.
         }
+
 
         return ratios;
     }
@@ -1080,14 +1170,14 @@
         const financials = data?.userInput?.financials || {};
 
         updateElementText('userName', personalInfo.userName);
-        updateElementText('age', personalInfo.age);
+        updateElementText('age', personalInfo.age); // Assumes age is just a number
         updateElementText('totalIncome', totals.totalIncome, formatCurrency);
         updateElementText('totalExpenses', totals.totalExpenses, formatCurrency);
         updateElementText('netFlow', totals.netFlow, formatCurrency);
 
         // Update Savings Overview Card
         updateElementText('emergencySavings', savings.emergency, formatCurrency);
-        updateElementText('currentSavings', savings.savings, formatCurrency);
+        updateElementText('currentSavings', savings.savings, formatCurrency); // Assumes 'savings' is general savings
         updateElementText('retirementFund', savings.retirement, formatCurrency);
 
         // Update Financial Tools & Goals Card (specific fields)
@@ -1104,18 +1194,20 @@
         const savingsBar = document.getElementById('savingsRateBar');
         if (savingsBar) {
             savingsBar.style.width = `${savingsRatePercent}%`;
-            // Recommendation: Poor < 5%, Fair 5-10%, Good 10-15%, Excellent > 15%
-            savingsBar.className = `ratio-bar savings-rate ${savingsRateValue >= 0.15 ? 'good' : savingsRateValue >= 0.05 ? 'ok' : 'poor'}`;
+            // Recommendation: Poor < 5%, Ok 5-10%, Good 10-15%, Excellent > 15% (Adjust thresholds as needed)
+            savingsBar.className = `ratio-bar savings-rate ${savingsRateValue >= 0.10 ? 'good' : savingsRateValue >= 0.05 ? 'ok' : 'poor'}`; // Example thresholds
         }
 
         // Emergency Fund Coverage (Display in Months)
-        const emergencyCoverageMonths = ratios.emergencyCoverage || 0;
-        updateElementText('emergencyCoverageValue', `${emergencyCoverageMonths.toFixed(1)} months`);
+        const emergencyCoverageMonths = ratios.emergencyCoverage === Infinity ? Infinity : (ratios.emergencyCoverage || 0);
+        updateElementText('emergencyCoverageValue', emergencyCoverageMonths === Infinity ? 'N/A (No Expenses)' : `${emergencyCoverageMonths.toFixed(1)} months`);
         const emergencyBar = document.getElementById('emergencyCoverageBar');
         if (emergencyBar) {
-            const emergencyProgressPercent = Math.min(100, Math.max(0, (emergencyCoverageMonths / 6) * 100)); // Progress towards 6 months
+            // Progress towards a target, e.g., 6 months. Cap at 100%. Handle Infinity.
+            const targetMonths = 6;
+            const emergencyProgressPercent = emergencyCoverageMonths === Infinity ? 100 : Math.min(100, Math.max(0, (emergencyCoverageMonths / targetMonths) * 100));
             emergencyBar.style.width = `${emergencyProgressPercent}%`;
-            // Recommendation: Poor < 1 month, Fair 1-3 months, Good 3-6 months, Excellent > 6 months
+            // Recommendation: Poor < 1 month, Ok 1-3 months, Good 3-6 months, Excellent > 6 months (Adjust thresholds)
             emergencyBar.className = `ratio-bar emergency-coverage ${emergencyCoverageMonths >= 3 ? 'good' : emergencyCoverageMonths >= 1 ? 'ok' : 'poor'}`;
         }
 
@@ -1126,7 +1218,7 @@
         const dtiBar = document.getElementById('dtiRatioBar');
         if (dtiBar) {
             dtiBar.style.width = `${dtiPercent}%`;
-            // General guideline: Excellent < 15%, Good 15-36%, Fair 37-43%, Poor > 43%
+            // General guideline: Good < 36%, Warning 36-43%, High > 43% (Adjust thresholds)
              dtiBar.className = `ratio-bar dti-ratio ${dtiRatioValue > 0.43 ? 'high' : dtiRatioValue >= 0.36 ? 'warning' : 'good'}`;
         }
     }
@@ -1143,8 +1235,12 @@
 
         // --- Emergency Fund Goal ---
         const emergencyCurrent = Number(savingsInput.emergency) || 0;
-        // Use target from URL/JSON if available, otherwise default to 3 months CORE expenses
-        const emergencyGoalTarget = Number(savingsInput.emergencyFundTarget) || (totals.monthlyCoreExpenses * 3);
+        // Use target from data if available, otherwise default to 3 months CORE expenses
+        const emergencyGoalTargetExplicit = Number(savingsInput.emergencyFundTarget);
+        const emergencyGoalTargetCalculated = totals.monthlyCoreExpenses * 3;
+        // Prefer explicit target if valid, else use calculated, else hide if calculated is 0
+        const emergencyGoalTarget = (emergencyGoalTargetExplicit > 0) ? emergencyGoalTargetExplicit : (emergencyGoalTargetCalculated > 0 ? emergencyGoalTargetCalculated : 0);
+
         const emergencyProgressBar = document.getElementById('emergencyProgressBar');
 
         if (emergencyGoalTarget > 0 && emergencyGoalDisplay && emergencyProgressBar) {
@@ -1164,28 +1260,31 @@
         const purchaseGoalNameEl = document.getElementById('purchaseGoalName');
 
         if (upcomingPurchaseString && purchaseGoalDisplay && purchaseProgressBar && purchaseGoalNameEl) {
-            // NOTE: Only parsing the first listed goal. Multiple goals need separate handling if required.
-            const match = upcomingPurchaseString.match(/#1\)\s*(.*?),\s*\$?([\d,.]+)/);
+            // Look for pattern like: #1) Name, $Amount[, X months] - make months optional
+            const match = upcomingPurchaseString.match(/#\d+\)\s*(.*?),\s*\$?([\d,.]+)(?:,\s*\d+\s*months?)?/);
             if (match && match[1] && match[2]) {
                 const goalName = match[1].trim();
                 const goalAmountStr = match[2].replace(/,/g, '');
                 const goalAmount = parseFloat(goalAmountStr);
-                 // Use general savings for progress unless specific goal savings provided
+                // Use general savings for progress unless specific goal savings provided in data
                 const generalSavings = Number(savingsInput.savings) || 0;
-                 // const goalSavings = Number(financialsInput.purchaseGoalSaved) || generalSavings; // Use specific if available
+                // const goalSavings = Number(financialsInput.purchaseGoalSaved) || generalSavings; // Use specific if available
 
                 if (goalName && !isNaN(goalAmount) && goalAmount > 0) {
                     hasVisibleGoal = true;
                     purchaseGoalDisplay.style.display = 'block';
                     purchaseGoalNameEl.textContent = goalName;
-                     const progress = Math.min(100, Math.max(0, (generalSavings / goalAmount) * 100)); // Using general savings
+                     // Calculate progress using general savings balance towards this goal amount
+                    const progress = Math.min(100, Math.max(0, (generalSavings / goalAmount) * 100));
                     purchaseProgressBar.style.width = `${progress}%`;
                     purchaseProgressBar.textContent = `${progress.toFixed(0)}%`;
-                     const statusEl = purchaseGoalDisplay.querySelector('.goal-status');
+                    const statusEl = purchaseGoalDisplay.querySelector('.goal-status');
                      if (statusEl) statusEl.textContent = `Target: ${formatCurrency(goalAmount)} (${formatCurrency(generalSavings)} saved)`;
+                } else if (purchaseGoalDisplay) {
+                    purchaseGoalDisplay.style.display = 'none'; // Hide if parsing results in invalid goal
                 }
             } else if (purchaseGoalDisplay) {
-                  purchaseGoalDisplay.style.display = 'none'; // Hide if parsing fails
+                 purchaseGoalDisplay.style.display = 'none'; // Hide if parsing fails
             }
         } else if (purchaseGoalDisplay) {
              purchaseGoalDisplay.style.display = 'none'; // Hide if no string or elements
@@ -1212,11 +1311,15 @@
             debts.forEach(debt => {
                 const row = debtsTableBody.insertRow();
                 // Use getSafe for potentially missing debt properties
+                const balance = getSafe(() => debt.balance);
+                const minPayment = getSafe(() => debt.minPayment);
+                const interestRate = getSafe(() => debt.interestRate, 0); // Default rate to 0 if missing
+
                 row.innerHTML = `
                     <td>${getSafe(() => debt.type, 'N/A')}</td>
-                    <td class="balance-col">${formatCurrency(getSafe(() => debt.balance))}</td>
-                    <td>${(Number(getSafe(() => debt.interestRate, 0))).toFixed(1)}%</td>
-                    <td class="balance-col">${formatCurrency(getSafe(() => debt.minPayment))}</td>
+                    <td class="balance-col">${formatCurrency(balance)}</td>
+                    <td>${(Number(interestRate)).toFixed(1)}%</td>
+                    <td class="balance-col">${formatCurrency(minPayment)}</td>
                 `;
             });
         }
@@ -1226,74 +1329,115 @@
     }
 
     function renderCharts(data) {
-        // Use try...catch within the function called by requestAnimationFrame
+        // This function now runs inside requestAnimationFrame via processAndDisplayData
         try {
             const incomeData = data?.userInput?.income || {};
             const expenseData = data?.userInput?.expenses || {};
 
-            // --- Filter and sync income labels/values ---
+            // --- Filter and prepare income labels/values ---
             const incomeLabels = [];
             const incomeValues = [];
             Object.entries(incomeData).forEach(([key, value]) => {
                 const numValue = Number(value);
                 if (numValue > 0) {
-                    incomeLabels.push(key.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase()));
+                    // Convert camelCase to Title Case for labels
+                    let label = key.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase());
+                    incomeLabels.push(label);
                     incomeValues.push(numValue);
                 }
             });
-            // --- Filter and sync expense labels/values ---
+
+            // --- Filter and prepare expense labels/values ---
             const expenseLabels = [];
             const expenseValues = [];
             Object.entries(expenseData).forEach(([key, value]) => {
                 const numValue = Number(value);
                 if (numValue > 0) {
-                    expenseLabels.push(key.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase()));
+                     let label = key.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase());
+                     // Handle specific case like 'Groceries Essentials' if needed
+                     if (key === 'groceriesEssentials') label = 'Groceries/Essentials';
+                    expenseLabels.push(label);
                     expenseValues.push(numValue);
                 }
             });
 
             // Debug logs for label/value arrays
-            console.log("Income Labels:", incomeLabels);
-            console.log("Income Values:", incomeValues);
-            console.log("Expense Labels:", expenseLabels);
-            console.log("Expense Values:", expenseValues);
+            console.log("Income Chart Data:", { labels: incomeLabels, values: incomeValues });
+            console.log("Expense Chart Data:", { labels: expenseLabels, values: expenseValues });
 
             const incomeChartDiv = document.getElementById('incomeChart');
             const expenseChartDiv = document.getElementById('expenseChart');
 
              // Common layout adjustments for Pie charts
-            const commonPieLayout = {
-                 height: 350,
-                 margin: { t: 50, b: 80, l: 20, r: 20 }, // Adjust margins
+             const commonPieLayout = {
+                 height: 350, // Reduced height slightly
+                 margin: { t: 30, b: 60, l: 20, r: 20 }, // Adjusted margins (less top, more bottom for legend)
                  showlegend: true,
-                 legend: { orientation: "h", yanchor: "bottom", y: -0.2, xanchor: 'center', x: 0.5 }, // Horizontal legend below
-                 paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)',
-                 font: { family: 'Inter, sans-serif', size: 11, color: '#374151' }
+                 legend: {
+                     orientation: "h", // Horizontal legend
+                     yanchor: "bottom", y: -0.2, // Position below chart
+                     xanchor: 'center', x: 0.5
+                 },
+                 paper_bgcolor: 'rgba(0,0,0,0)', // Transparent background
+                 plot_bgcolor: 'rgba(0,0,0,0)',
+                 font: { family: 'Inter, sans-serif', size: 11, color: '#374151' } // Match page font
+                 // automargin: true // May help with labels, but can conflict with fixed margins
              };
+
+             // Define specific Plotly config options if needed
+             const plotlyConfig = {
+                displaylogo: false,
+                responsive: true, // Make chart responsive
+                modeBarButtonsToRemove: ['sendDataToCloud', 'select2d', 'lasso2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d', 'resetScale2d', 'hoverClosestPie', 'toggleSpikelines', 'hoverCompareCartesian']
+             };
+
 
             // Income Chart (Pie)
              if (incomeChartDiv) {
-                if (incomeValues.length > 0) {
-                    const incomeTrace = {
-                        values: incomeValues, labels: incomeLabels, type: 'pie', hole: .4,
-                        hoverinfo: 'label+percent', textinfo: 'value', textfont_size: 11,
-                        marker: { colors: ['#10b981', '#34d399', '#6ee7b7'] } // Example green shades
-                    };
-                    Plotly.newPlot(incomeChartDiv, [incomeTrace], { ...commonPieLayout, title: 'Income Sources' }, plotlyConfig);
-                } else {
-                    incomeChartDiv.innerHTML = '<p class="text-center text-gray-500 pt-10">No income data to display.</p>';
-                }
+                 Plotly.purge(incomeChartDiv); // Clear previous chart first
+                 if (incomeValues.length > 0) {
+                     const incomeTrace = [{ // Wrap trace in an array
+                         values: incomeValues,
+                         labels: incomeLabels,
+                         type: 'pie',
+                         hole: .4,
+                         hoverinfo: 'label+percent', // Show label and percentage on hover
+                         textinfo: 'value', // Show currency value on slice
+                         texttemplate: '%{value:$,.0f}', // Format text as currency
+                         textfont_size: 11,
+                         marker: {
+                             colors: ['#10b981', '#34d399', '#6ee7b7', '#a7f3d0'], // Example green shades
+                             line: { color: '#ffffff', width: 1 } // White line between slices
+                         },
+                         domain: { y: [0, 0.9] } // Add space at the top to avoid title overlap if needed
+                     }];
+                     Plotly.newPlot(incomeChartDiv, incomeTrace, { ...commonPieLayout, title: { text: 'Income Sources', y:0.95 } }, plotlyConfig);
+                 } else {
+                     incomeChartDiv.innerHTML = '<p class="text-center text-gray-500 pt-10">No income data to display.</p>';
+                 }
              } else { console.error("Income chart div not found"); }
 
             // Expense Chart (Pie)
             if (expenseChartDiv) {
+                Plotly.purge(expenseChartDiv); // Clear previous chart
                 if (expenseValues.length > 0) {
-                    const expenseTrace = {
-                        values: expenseValues, labels: expenseLabels, type: 'pie', hole: .4,
-                        hoverinfo: 'label+percent', textinfo: 'value', textfont_size: 11,
-                        marker: { colors: ['#ef4444', '#f87171', '#fca5a5', '#fecaca', '#fee2e2', '#ffedd5', '#fed7aa', '#fdba74', '#fb923c'] } // Example red/orange shades
-                    };
-                     Plotly.newPlot(expenseChartDiv, [expenseTrace], { ...commonPieLayout, title: 'Expense Categories' }, plotlyConfig);
+                    const expenseTrace = [{ // Wrap trace in an array
+                        values: expenseValues,
+                        labels: expenseLabels,
+                        type: 'pie',
+                        hole: .4,
+                        hoverinfo: 'label+percent',
+                        textinfo: 'value',
+                        texttemplate: '%{value:$,.0f}',
+                        textfont_size: 11,
+                        // Example color sequence for expenses
+                        marker: {
+                            colors: ['#ef4444', '#f87171', '#fca5a5', '#fecaca', '#fb923c', '#fdba74', '#fed7aa', '#ffedd5', '#d1d5db', '#9ca3af'],
+                            line: { color: '#ffffff', width: 1 }
+                        },
+                        domain: { y: [0, 0.9] }
+                    }];
+                    Plotly.newPlot(expenseChartDiv, expenseTrace, { ...commonPieLayout, title: { text: 'Expense Categories', y:0.95 } }, plotlyConfig);
                 } else {
                      expenseChartDiv.innerHTML = '<p class="text-center text-gray-500 pt-10">No expense data to display.</p>';
                 }
@@ -1301,10 +1445,11 @@
 
         } catch (chartError) {
              console.error("Error during Plotly rendering:", chartError);
-             // Propagate error to main handler
+             // Rethrow the error so it can be caught by the caller in requestAnimationFrame
              throw new Error(`Chart rendering failed: ${chartError.message}`);
         }
     }
+
 
     function updateUIDisplayFromAI(data) {
         const aiOutput = data?.aiOutput || {};
@@ -1313,32 +1458,46 @@
         const progressContentEl = document.getElementById('progressContent'); // For modal
 
         if (analysisEl) {
-            analysisEl.innerHTML = (aiOutput.analysis || 'Analysis not provided.').replace(/\n/g, '<br>');
-        }
+            // Replace literal '\n' and actual newlines with <br> for HTML display
+             const formattedAnalysis = (aiOutput.analysis || 'Analysis not provided.').replace(/\\n/g, '<br>').replace(/\n/g, '<br>');
+            analysisEl.innerHTML = formattedAnalysis;
+        } else { console.error("AI Analysis element not found"); }
+
         if (progressContentEl) {
-             progressContentEl.textContent = aiOutput.userProgress || 'No progress history available.';
-        }
+             const formattedProgress = (aiOutput.userProgress || 'No progress history available.').replace(/\\n/g, '\n'); // Keep actual newlines for pre-wrap
+             progressContentEl.textContent = formattedProgress;
+        } else { console.error("Progress Content element not found"); }
+
         if (recommendationsList) {
             recommendationsList.innerHTML = ''; // Clear previous
             const recsText = aiOutput.recommendations || '';
-            const recsArray = recsText.split(/\\n|\n/) // Split by literal '\n' or actual newline
-                                     .map(r => r.trim().replace(/^[\*\-\d\.]+\s*/, '')) // Trim and remove list markers
-                                     .filter(r => r.length > 0); // Remove empty lines
+            // Split by literal '\n' or actual newline, trim, remove list markers, filter empty
+            const recsArray = recsText.split(/\\n|\n/)
+                                      .map(r => r.trim().replace(/^[\*\-\d\.]+\s*/, ''))
+                                      .filter(r => r.length > 0);
 
-            if (recsArray.length > 0 && !(recsArray.length === 1 && recsArray[0].toLowerCase().includes("not provided"))) {
+            // Check if the only item indicates no recommendations
+            if (recsArray.length > 0 && !(recsArray.length === 1 && /not available|not provided/i.test(recsArray[0]))) {
                 recsArray.forEach(rec => {
                     const li = document.createElement('li');
-                    if (rec.toLowerCase().includes('critical') || rec.toLowerCase().includes('urgent')) li.className = 'critical';
-                    else if (rec.toLowerCase().includes('warning') || rec.toLowerCase().includes('consider')) li.className = 'warning';
+                    // Add classes based on keywords for styling
+                    if (/\b(critical|urgent|immediately|highest priority)\b/i.test(rec)) {
+                        li.className = 'critical';
+                    } else if (/\b(warning|consider|should|recommend|important)\b/i.test(rec)) {
+                        li.className = 'warning';
+                    }
+                    // Use textContent to prevent potential XSS from recommendation text
                     li.textContent = rec;
                     recommendationsList.appendChild(li);
                 });
             } else {
+                // Display a standard message if no recommendations are found
                 recommendationsList.innerHTML = '<li>No specific recommendations available.</li>';
             }
         } else { console.error("Recommendations list element not found"); }
     }
-    
+
+
     // --- Chat Functionality ---
     function initializeChat() {
         console.log("--- initializeChat START ---");
@@ -1349,46 +1508,67 @@
 
         if (!chatInput || !chatSendButton || !chatHistory || !chatInterfaceCard) {
             console.error("One or more Chat UI elements not found! Aborting chat initialization.");
-            if(chatInterfaceCard) chatInterfaceCard.style.display = 'none';
+            if(chatInterfaceCard) chatInterfaceCard.style.display = 'none'; // Ensure hidden if elements missing
             return;
         }
 
-        // Show chat card only if data was successfully processed and Supabase is available
-        if (supabase && typeof supabase.functions?.invoke === 'function') {
-             chatInterfaceCard.style.display = 'block'; // Use block or grid as needed
-             enableChatInput(true);
-             chatHistory.innerHTML = ''; // Clear previous messages
-             // Add initial assistant message only once? Maybe check chatMessages length.
-             if (chatMessages.length === 0) {
-                addMessageToChat("Assistant", "Hello! Ask me anything about the financial data shown on your dashboard.", false);
-             } else {
-                 // Restore previous messages if needed (e.g., after demo data load) - complex, omit for now
-             }
-             setChatStatus("", false);
+        // Check if Supabase client is initialized and has the invoke method
+        const isSupabaseReady = supabase && typeof supabase.functions?.invoke === 'function';
+        console.log("Is Supabase ready for chat?", isSupabaseReady);
 
-             // Ensure listeners are attached only once
-             chatSendButton.removeEventListener('click', handleChatSubmit);
-             chatInput.removeEventListener('keydown', handleChatEnterKey);
+        // Show chat card only if data was successfully processed and Supabase is available
+        if (isSupabaseReady && dashboardData?.userInput?.personalInfo) { // Also check if dashboardData is loaded
+             chatInterfaceCard.style.display = 'block'; // Or 'grid' depending on your layout
+             enableChatInput(true);
+             chatHistory.innerHTML = ''; // Clear previous messages on re-initialization
+
+             // Add initial assistant message only if chat history is empty
+             if (chatMessages.length === 0) {
+                 addMessageToChat("Assistant", "Hello! Ask me anything about the financial data shown on your dashboard.", false);
+                 // Add the initial message to the chatMessages array as well
+                 chatMessages.push({ role: "assistant", content: "Hello! Ask me anything about the financial data shown on your dashboard." });
+             } else {
+                 // Restore previous messages if chatMessages array is not empty (e.g., after error/retry)
+                 chatMessages.forEach(msg => addMessageToChat(msg.role.charAt(0).toUpperCase() + msg.role.slice(1), msg.content));
+             }
+             setChatStatus("", false); // Clear any previous status
+
+             // Ensure listeners are attached only once or re-attached correctly
+             chatSendButton.removeEventListener('click', handleChatSubmit); // Remove previous listener if any
+             chatInput.removeEventListener('keydown', handleChatEnterKey); // Remove previous listener if any
              chatSendButton.addEventListener('click', handleChatSubmit);
              chatInput.addEventListener('keydown', handleChatEnterKey);
 
+             // Auto-resize textarea
+             chatInput.removeEventListener('input', autoGrowTextarea); // Remove previous
+             chatInput.addEventListener('input', autoGrowTextarea);
+
              console.log("Chat UI initialized and enabled.");
         } else {
-             chatInterfaceCard.style.display = 'none'; // Hide if Supabase not ready
-             addMessageToChat("System", "Chat service connection failed.", true); // Add message even if hidden?
+             chatInterfaceCard.style.display = 'none'; // Hide if Supabase not ready or data not loaded
+             // Optionally add a system message even if hidden, for internal state
+             // addMessageToChat("System", "Chat service connection failed or data missing.", true);
              enableChatInput(false);
              setChatStatus("Chat unavailable", false);
-             console.warn("Chat initialization skipped: Supabase client or functions not available.");
+             console.warn("Chat initialization skipped: Supabase client/functions not available or dashboard data missing.");
         }
         console.log("--- initializeChat END ---");
     }
 
-    function handleChatEnterKey(event) { 
-        if (event.key === 'Enter' && !event.shiftKey) { 
-            event.preventDefault(); 
-            handleChatSubmit(); 
-        } 
+    function handleChatEnterKey(event) {
+        if (event.key === 'Enter' && !event.shiftKey) { // Send on Enter, allow Shift+Enter for newline
+            event.preventDefault(); // Prevent default newline insertion
+            handleChatSubmit(); // Trigger send action
+        }
     }
+
+    function autoGrowTextarea(event) {
+         const textarea = event.target;
+         textarea.style.height = 'auto'; // Temporarily shrink to base height
+         // Set height based on scroll height, but limit max height
+         textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px'; // Max height e.g., 120px
+    }
+
 
     function enableChatInput(enabled) {
         const chatInput = document.getElementById('chatInput');
@@ -1397,55 +1577,70 @@
             chatInput.disabled = !enabled;
             chatSendButton.disabled = !enabled;
             chatInput.placeholder = enabled ? "Ask about your finances..." : "Chat unavailable";
+            // Adjust opacity and cursor for visual feedback
             chatInput.style.opacity = enabled ? '1' : '0.6';
             chatSendButton.style.opacity = enabled ? '1' : '0.6';
             chatSendButton.style.cursor = enabled ? 'pointer' : 'not-allowed';
+        } else {
+             console.warn("Could not find chat input or send button to enable/disable.");
         }
     }
 
+
     function addMessageToChat(sender, message, isError = false) {
         const chatHistory = document.getElementById('chatHistory');
-        if (!chatHistory) return;
+        if (!chatHistory) {
+             console.error("Chat history element not found.");
+             return;
+        }
+
 
         const messageContainer = document.createElement('div');
-        // Add sender type as class: 'user', 'assistant', 'system'
-        messageContainer.classList.add('chat-message', sender.toLowerCase());
+        const senderClass = sender.toLowerCase(); // 'user', 'assistant', or 'system'
+        messageContainer.classList.add('chat-message', senderClass);
 
         const bubble = document.createElement('div');
         bubble.classList.add('message-bubble');
 
-        if (isError) { // Style error messages distinctly
+        if (isError) { // Style error messages distinctly within the bubble
             bubble.style.backgroundColor = '#fee2e2'; // Tailwind red-100
             bubble.style.color = '#b91c1c'; // Tailwind red-700
             bubble.style.borderColor = '#fca5a5'; // Tailwind red-300
+            bubble.style.borderWidth = '1px';
+            bubble.style.borderStyle = 'solid';
         }
 
         // Basic Markdown-like link handling: [text](url) -> <a href="url">text</a>
-        // Be cautious with innerHTML and untrusted content. Sanitize if necessary.
-        const linkedMessage = message.replace(
-                /\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g,
-                '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-indigo-600 hover:underline font-medium">$1</a>'
-            )
-            .replace(/\n/g, '<br>'); // Convert newlines to <br>
+        // Basic bold handling: **text** -> <strong>text</strong>
+        // Convert newlines to <br> for HTML display
+        // CAUTION: Using innerHTML. Ensure backend sanitizes responses if they could contain malicious script tags.
+        const formattedMessage = message
+            .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-indigo-600 hover:underline font-medium">$1</a>')
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Handle bold
+            .replace(/\n/g, '<br>'); // Convert newlines
 
-        bubble.innerHTML = linkedMessage;
+
+        bubble.innerHTML = formattedMessage; // Assign the processed HTML
         messageContainer.appendChild(bubble);
         chatHistory.appendChild(messageContainer);
 
-        // Scroll to the bottom
-        chatHistory.scrollTop = chatHistory.scrollHeight;
+        // Scroll to the bottom smoothly
+        chatHistory.scrollTo({ top: chatHistory.scrollHeight, behavior: 'smooth' });
     }
+
 
     function setChatStatus(message, isLoading = false) {
         const chatStatus = document.getElementById('chatStatus');
         if (!chatStatus) return;
         if (isLoading) {
+            // Use the typing indicator HTML structure
             chatStatus.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div> Thinking...`;
         } else {
-            chatStatus.textContent = message;
-            // Auto-clear status message after a few seconds unless it's an error
-            if (message && !message.toLowerCase().includes('error')) {
+            chatStatus.textContent = message; // Display simple text message
+            // Auto-clear status message after a few seconds unless it's an error or empty
+            if (message && !/error|failed|unavailable/i.test(message)) {
                 setTimeout(() => {
+                     // Only clear if the message hasn't changed in the meantime
                     if (chatStatus.textContent === message) chatStatus.textContent = '';
                 }, 4000);
             }
@@ -1453,111 +1648,157 @@
     }
 
     async function sendToBackendChatFunction() {
+        // Ensure dashboard data is loaded before proceeding
         if (!dashboardData?.userInput?.personalInfo) {
-            addMessageToChat("System", "Error: Financial data seems incomplete.", true);
+            addMessageToChat("System", "Error: Financial data seems incomplete. Cannot process chat request.", true);
             setChatStatus("Error: Data missing", false);
             return;
         }
+        // Ensure Supabase client is ready
         if (!supabase || typeof supabase.functions?.invoke !== 'function') {
-            addMessageToChat("System", "Error: Chat service connection lost.", true);
+            addMessageToChat("System", "Error: Chat service connection lost. Please reload.", true);
             setChatStatus("Chat unavailable", false);
             return;
         }
 
-        setChatStatus("Thinking...", true);
-        enableChatInput(false);
+        setChatStatus("Thinking...", true); // Show loading indicator
+        enableChatInput(false); // Disable input while processing
 
-        // Prepare context string (summary of key data)
-        let financialContext = `User: ${getSafe(() => dashboardData.userInput.personalInfo.userName)}\n`;
+        // --- Prepare Context String (More Comprehensive) ---
+        let financialContext = `User: ${getSafe(() => dashboardData.userInput.personalInfo.userName)}, Age: ${getSafe(() => dashboardData.userInput.personalInfo.age)}\n`;
         const totals = calculateTotals(dashboardData); // Recalculate for fresh context
-        financialContext += `Totals: Income(${formatCurrency(totals.totalIncome)}), Expenses(${formatCurrency(totals.totalExpenses)}), Net(${formatCurrency(totals.netFlow)})\n`;
-        financialContext += `Savings: Emergency(${formatCurrency(getSafe(()=>dashboardData.userInput.savings.emergency))}), General(${formatCurrency(getSafe(()=>dashboardData.userInput.savings.savings))}), Retirement(${formatCurrency(getSafe(()=>dashboardData.userInput.savings.retirement))})\n`;
-        financialContext += `Total Debt: ${formatCurrency(totals.totalDebt)}\n`;
-        // Include prior analysis/recs if available
-        if (getSafe(() => dashboardData.aiOutput.analysis) !== 'N/A') financialContext += `Prior Analysis: ${getSafe(() => dashboardData.aiOutput.analysis)}\n`;
-        if (getSafe(() => dashboardData.aiOutput.recommendations) !== 'N/A') financialContext += `Prior Recs: ${getSafe(() => dashboardData.aiOutput.recommendations)}\n`;
+        const ratios = calculateRatios(dashboardData, totals); // Calculate ratios for context
 
-        // Construct messages payload for Supabase function
-        const systemMessage = { role: "system", content: `You are SmartWealth AI, a helpful financial assistant. Use the provided financial context ONLY to answer the user's questions concisely. Financial Context:\n${financialContext}` };
-        const messagesForBackend = [systemMessage, ...chatMessages]; // Include full history + system prompt
+        financialContext += `Monthly Totals: Income: ${formatCurrency(totals.totalIncome)}, Expenses: ${formatCurrency(totals.totalExpenses)}, Net Flow: ${formatCurrency(totals.netFlow)}\n`;
+        financialContext += `Savings Balances: Emergency: ${formatCurrency(getSafe(()=>dashboardData.userInput.savings.emergency))}, General: ${formatCurrency(getSafe(()=>dashboardData.userInput.savings.savings))}, Retirement: ${formatCurrency(getSafe(()=>dashboardData.userInput.savings.retirement))}\n`;
+        financialContext += `Debt: Total Balance: ${formatCurrency(totals.totalDebt)}, Total Min Payments: ${formatCurrency(totals.totalMinPayments)}\n`;
+        // Add key ratios to context
+        financialContext += `Ratios: Savings Rate: ${formatPercentage(ratios.savingsRate, 1)}, Emergency Coverage: ${ratios.emergencyCoverage.toFixed(1)} months, DTI: ${formatPercentage(ratios.dtiRatio, 1)}\n`;
 
-        const functionName = 'smooth-function'; // Make sure this matches your deployed function name
+        // Include debt details
+        if (dashboardData.userInput.debts && dashboardData.userInput.debts.length > 0) {
+            financialContext += "Debts Breakdown:\n";
+            dashboardData.userInput.debts.forEach(d => {
+                financialContext += ` - ${d.type}: Bal ${formatCurrency(d.balance)}, Rate ${d.interestRate}%, Min Pmt ${formatCurrency(d.minPayment)}\n`;
+            });
+        }
+
+        // Include prior analysis/recs if available and not default text
+        const priorAnalysis = getSafe(() => dashboardData.aiOutput.analysis);
+        const priorRecs = getSafe(() => dashboardData.aiOutput.recommendations);
+        if (priorAnalysis !== 'N/A' && !/not available/i.test(priorAnalysis)) financialContext += `Prior Analysis Summary: ${priorAnalysis.substring(0, 200)}...\n`; // Keep context concise
+        if (priorRecs !== 'N/A' && !/not available/i.test(priorRecs)) financialContext += `Prior Recommendations Summary: ${priorRecs.substring(0, 200)}...\n`; // Keep context concise
+
+
+        // --- Construct messages payload for Supabase function ---
+        // Limit history length to keep payload reasonable (e.g., last 10 messages + system prompt)
+        const maxHistory = 10;
+        const recentMessages = chatMessages.slice(-maxHistory);
+
+        const systemMessage = {
+            role: "system",
+            content: `You are SmartWealth AI, a helpful financial assistant. Use the provided financial context ONLY to answer the user's questions concisely and directly related to their financial situation. Do not provide generic financial advice unless asked. Financial Context:\n${financialContext}`
+        };
+        const messagesForBackend = [systemMessage, ...recentMessages]; // Include system prompt + recent history
+
+        const functionName = 'smooth-function'; // *** Ensure this matches your deployed Supabase function name ***
 
         console.log(`Invoking Supabase function '${functionName}' with ${messagesForBackend.length} messages.`);
+         // console.log("Payload:", JSON.stringify({ messages: messagesForBackend })); // Log full payload for deep debug if needed
 
         try {
-            // Try to simulate authentication (simplified for this fix)
-            // In a real implementation, this would use proper auth
-            const userId = 'anonymous-user';
-            const userTier = 'basic';
+             // Invoke the Supabase Function using fetch (as invoke might have issues without auth sometimes)
+             const response = await fetch(`${SUPABASE_URL}/functions/v1/${functionName}`, {
+                 method: 'POST',
+                 headers: {
+                     'Content-Type': 'application/json',
+                     'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, // Use Anon key for basic auth
+                     // Add custom headers if your function expects them (e.g., user ID)
+                     // 'x-user-id': 'some-user-id',
+                 },
+                 body: JSON.stringify({
+                     messages: messagesForBackend,
+                     // You can pass other parameters your function might need
+                     // e.g., model: CHAT_MODEL
+                 })
+             });
 
-            const response = await fetch(`${SUPABASE_URL}/functions/v1/${functionName}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                    'x-user-id': userId,
-                    'x-user-tier': userTier
-                },
-                body: JSON.stringify({
-                    messages: messagesForBackend
-                })
-            });
 
-            const data = await response.json();
-            setChatStatus("", false); // Clear thinking indicator
+            const data = await response.json(); // Attempt to parse JSON response
+
+            setChatStatus("", false); // Clear "Thinking..." indicator
 
             if (!response.ok) {
-                console.error("Error response from backend:", data);
-                throw new Error(`Backend Error: ${data.error || 'Unknown error'}`);
+                console.error("Error response from backend function:", { status: response.status, body: data });
+                // Try to get a meaningful error message from the response body
+                const errorMsg = data?.error || data?.message || `Backend function returned status ${response.status}`;
+                throw new Error(errorMsg);
             }
 
+            // --- Process successful response ---
+             // Expecting response format like: { assistantResponse: { role: "assistant", content: "..." } }
             if (data && data.assistantResponse && data.assistantResponse.content) {
                 const assistantMsg = data.assistantResponse;
                 addMessageToChat("Assistant", assistantMsg.content);
                 chatMessages.push(assistantMsg); // Add AI response to local history
             } else {
-                console.error("Unexpected response format from backend:", data);
-                throw new Error("Received an unexpected response format from the AI service.");
+                console.error("Unexpected response format from backend function:", data);
+                throw new Error("Received an unexpected or empty response from the AI service.");
             }
 
         } catch (error) {
-            console.error("Error during chat interaction:", error);
-            addMessageToChat("System", `Sorry, I encountered an error: ${error.message}`, true);
-            setChatStatus("Error communicating with AI", false);
+            console.error("Error during chat function invocation:", error);
+            // Provide a user-friendly error message in chat
+            addMessageToChat("System", `Sorry, I encountered an error communicating with the AI service. Please try again later. (Error: ${error.message})`, true);
+            setChatStatus("Error communicating with AI", false); // Set error status
         } finally {
-            enableChatInput(true); // Always re-enable input
+            enableChatInput(true); // Always re-enable input after attempt
         }
     }
+
 
     // --- Event Handlers & Button Initializers ---
     function handleChatSubmit() {
         const chatInput = document.getElementById('chatInput');
+        if (!chatInput) return; // Safety check
+
         const userMessage = chatInput.value.trim();
-        if (!userMessage || chatInput.disabled) return;
+        if (!userMessage || chatInput.disabled) return; // Don't send empty messages or if disabled
 
         addMessageToChat("User", userMessage);
-        chatMessages.push({ role: "user", content: userMessage }); // Add user message to history
-        chatInput.value = ''; // Clear input
-        chatInput.style.height = '44px'; // Reset height after send
+        chatMessages.push({ role: "user", content: userMessage }); // Add user message to history array
+        chatInput.value = ''; // Clear input field
+        chatInput.style.height = 'auto'; // Reset height after send
+         chatInput.style.height = '44px'; // Force back to original size
 
-        sendToBackendChatFunction(); // Call backend
+
+        sendToBackendChatFunction(); // Call backend function
     }
 
     function initSaveButton() {
         const saveButton = document.getElementById('saveButton');
         if (!saveButton) { console.error("Save button not found."); return; }
         saveButton.addEventListener('click', () => {
-            if (!dashboardData || Object.keys(dashboardData).length === 0) {
+            if (!dashboardData || Object.keys(dashboardData).length === 0 || !dashboardData.userInput) {
                 alert("No report data available to save."); return;
             }
             try {
-                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dashboardData, null, 2));
+                // Create a deep copy to avoid modifying the original object
+                const dataToSave = JSON.parse(JSON.stringify(dashboardData));
+
+                // Optional: Add a timestamp to the saved data
+                dataToSave.savedAt = new Date().toISOString();
+
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataToSave, null, 2)); // Pretty print JSON
                 const a = document.createElement('a');
                 a.href = dataStr;
-                const filenameUser = getSafe(() => dashboardData.userInput.personalInfo.userName.replace(/[^a-z0-9]/gi, '_').toLowerCase(), 'user');
-                a.download = `financial_report_${filenameUser}_${new Date().toISOString().slice(0,10)}.json`;
-                document.body.appendChild(a); a.click(); document.body.removeChild(a);
+                // Sanitize username for filename
+                const filenameUser = getSafe(() => dataToSave.userInput.personalInfo.userName.replace(/[^a-z0-9]/gi, '_').toLowerCase(), 'user');
+                const dateStamp = new Date().toISOString().slice(0,10); // YYYY-MM-DD
+                a.download = `financial_report_${filenameUser}_${dateStamp}.json`;
+                document.body.appendChild(a); // Required for Firefox
+                a.click();
+                document.body.removeChild(a); // Clean up
             } catch (saveError) {
                 console.error("Error creating save data:", saveError);
                 handleError("Error saving file", saveError); // Use central error handler
@@ -1566,42 +1807,87 @@
     }
 
     function initUploadButton() {
-        const uploadButton = document.getElementById('uploadButton');
-        const fileInput = document.getElementById('fileInput');
-        if (!uploadButton || !fileInput) { console.error("Upload button or file input not found."); return; }
-        uploadButton.addEventListener('click', () => { fileInput.click(); });
-        fileInput.addEventListener('change', handleFileUpload);
+        // This initializes BOTH the header upload button and the initial prompt button (if present)
+        // to trigger the same hidden file input.
+        const uploadButtonHeader = document.getElementById('uploadButton');
+        const initialUploadButtonPrompt = document.getElementById('initialUploadButton'); // Button in the prompt div
+        const fileInputElement = document.getElementById('fileInput'); // The hidden file input
+
+        if (!fileInputElement) {
+             console.error("File input element (#fileInput) not found! Upload will not work.");
+             return; // Can't proceed without file input
+        }
+
+
+        // Listener for the header button
+        if (uploadButtonHeader) {
+            uploadButtonHeader.addEventListener('click', () => { fileInputElement.click(); });
+        } else {
+             console.warn("Header upload button (#uploadButton) not found.");
+        }
+
+        // Listener for the button inside the initial prompt
+        if (initialUploadButtonPrompt) {
+             initialUploadButtonPrompt.addEventListener('click', () => { fileInputElement.click(); });
+        } else {
+             console.warn("Initial upload prompt button (#initialUploadButton) not found.");
+        }
+
+        // Listener for the actual file input change event
+        fileInputElement.addEventListener('change', handleFileUpload);
     }
+
 
     function handleFileUpload(event) {
         const file = event.target.files[0];
-        if (!file) return;
+        if (!file) return; // No file selected
 
-        // Show loading, hide others
+        console.log(`File selected: ${file.name}, Type: ${file.type}, Size: ${file.size} bytes`);
+
+        // Ensure it's a JSON file (basic check)
+        if (file.type !== 'application/json' && !file.name.toLowerCase().endsWith('.json')) {
+             handleError("Invalid file type", new Error("Please upload a valid JSON file (.json)."));
+             event.target.value = null; // Reset file input
+             return;
+        }
+
+
+        // Show loading, hide others immediately
         if (loadingSpinner) loadingSpinner.style.display = 'flex';
         if (errorMessageElement) errorMessageElement.style.display = 'none';
         if (initialMessageElement) initialMessageElement.style.display = 'none';
-        if (mainContentElement) mainContentElement.style.display = 'none';
+        if (initialUploadPrompt) initialUploadPrompt.style.display = 'none'; // Hide prompt
+        if (mainContentElement) mainContentElement.style.display = 'none'; // Hide main content
+
 
         const reader = new FileReader();
         reader.onload = function(e) {
             let uploadedData = null;
             try {
                 uploadedData = JSON.parse(e.target.result);
-                // Basic validation of uploaded structure
-                if (typeof uploadedData !== 'object' || uploadedData === null || !uploadedData.userInput || !uploadedData.userInput.personalInfo) {
-                    throw new Error("Invalid file content. Expected a JSON object with 'userInput' and 'personalInfo'.");
+                // Basic validation of uploaded structure - Adapt based on your required fields
+                if (typeof uploadedData !== 'object' || uploadedData === null ||
+                    !uploadedData.userInput || !uploadedData.userInput.personalInfo || !uploadedData.userInput.income) {
+                     // Be more specific about what's missing if possible
+                    throw new Error("Invalid file content. Expected a JSON object with 'userInput' containing 'personalInfo', 'income', etc.");
                 }
+
+                console.log("Successfully parsed uploaded JSON file.");
                 dashboardData = uploadedData; // Replace current data
                 chatMessages = []; // Clear chat history for new data
                 processAndDisplayData(dashboardData); // Display the new data
+
             } catch (error) {
                 console.error("Error processing uploaded file:", error);
-                handleError("Error loading file", error); // Use central handler
+                // Provide more specific error message if parsing failed vs structure validation failed
+                const userMessage = error.message.includes("JSON.parse") ? "File is not valid JSON." : error.message;
+                handleError(`Error loading file: ${userMessage}`, error);
                 dashboardData = {}; // Reset data on error
                 chatMessages = []; // Clear chat
             } finally {
-                event.target.value = null; // Reset file input
+                // Reset file input regardless of success/failure to allow re-uploading the same file
+                event.target.value = null;
+                // Spinner hiding is handled by processAndDisplayData or handleError
             }
         };
         reader.onerror = function(e) {
@@ -1609,85 +1895,203 @@
             handleError("Error reading file", e.target.error || new Error("Unknown FileReader error"));
             dashboardData = {}; // Reset data
             chatMessages = []; // Clear chat
+            event.target.value = null; // Reset file input
+             if (loadingSpinner) loadingSpinner.style.display = 'none'; // Ensure spinner hides on read error
         };
-        reader.readAsText(file);
+        reader.readAsText(file); // Read the file as text
     }
 
     // --- Modals ---
     function initModals() {
-        // Close modal if clicking outside the content area
+        // Close modal if clicking on the background overlay
         window.addEventListener('click', function(event) {
             const modals = document.getElementsByClassName('modal');
             for (let i = 0; i < modals.length; i++) {
-                if (event.target == modals[i]) {
-                    modals[i].style.display = "none";
+                if (event.target == modals[i]) { // Check if the click target is the modal background itself
+                    closeModal(modals[i].id); // Close the modal using its ID
                 }
             }
         });
-        // Add explicit close button handlers if needed (already handled by inline onclick)
+        // Add ESC key listener to close modals
+         document.addEventListener('keydown', function(event) {
+             if (event.key === "Escape") {
+                 const modals = document.getElementsByClassName('modal');
+                 for (let i = 0; i < modals.length; i++) {
+                     if (modals[i].style.display === "block") {
+                         closeModal(modals[i].id);
+                         // Optionally break if you only want ESC to close one modal at a time
+                         // break;
+                     }
+                 }
+             }
+         });
+
+
+        // Explicit close button handlers are already set via inline onclick,
+        // but could be attached here if preferred:
+        // document.querySelectorAll('.close-button').forEach(button => {
+        //     const modalId = button.closest('.modal')?.id;
+        //     if (modalId) {
+        //         button.addEventListener('click', () => closeModal(modalId));
+        //     }
+        // });
     }
-    
+
     function openModal(modalId) {
         const modal = document.getElementById(modalId);
         if (modal) {
-            // Optional: Refresh modal content if dynamic
+            // Optional: Refresh modal content if dynamic before showing
             if(modalId === 'progressModal' && dashboardData?.aiOutput) {
                 const progressContentEl = document.getElementById('progressContent');
-                if(progressContentEl) progressContentEl.textContent = dashboardData.aiOutput.userProgress || 'No progress history available.';
+                if(progressContentEl) {
+                     const formattedProgress = (dashboardData.aiOutput.userProgress || 'No progress history available.').replace(/\\n/g, '\n');
+                     progressContentEl.textContent = formattedProgress;
+                 }
             }
             modal.style.display = "block";
+            // Optional: Trap focus within the modal for accessibility
         } else { console.warn(`Modal with ID ${modalId} not found.`); }
     }
-    
+
     function closeModal(modalId) {
         const modal = document.getElementById(modalId);
-        if (modal) modal.style.display = "none";
+        if (modal) {
+            modal.style.display = "none";
+            // Optional: Return focus to the element that opened the modal
+        }
     }
 
     /* --- Save Summary workflow --- */
     async function generateAndSaveSummary() {
-        try {
-            setChatStatus("Summarizing…", true);
-            enableChatInput(false);
+        if (!dashboardData || !dashboardData.userInput) {
+             alert("Please load financial data before generating a summary.");
+             return;
+        }
+        if (!supabase || typeof supabase.functions?.invoke !== 'function') {
+             addMessageToChat("System", "Error: Cannot generate summary. Service connection unavailable.", true);
+             setChatStatus("Summary generation failed", false);
+             return;
+        }
 
-            // Simulate generating a summary - just a placeholder
-            // In a real app, this would make an API call to generate a customized summary
-            const newAnalysis = "Generated summary of financial situation based on current data.";
-            
-            // Update UI
-            if (dashboardData && dashboardData.aiOutput) {
-                dashboardData.aiOutput.analysis = newAnalysis;
-                updateUIDisplayFromAI(dashboardData);
-            }
-            
-            setChatStatus("Summary saved ✅", false);
+
+        try {
+            setChatStatus("Generating & Saving Summary…", true);
+            enableChatInput(false); // Disable chat during this operation
+
+
+            // --- Prepare context for summary generation ---
+            // Similar context as chat, but maybe more focused on overall picture
+             let summaryContext = `User: ${getSafe(() => dashboardData.userInput.personalInfo.userName)}\n`;
+             const totals = calculateTotals(dashboardData);
+             const ratios = calculateRatios(dashboardData, totals);
+             summaryContext += `Income: ${formatCurrency(totals.totalIncome)}, Expenses: ${formatCurrency(totals.totalExpenses)}, Net: ${formatCurrency(totals.netFlow)}\n`;
+             summaryContext += `Savings: ${formatCurrency(totals.totalSavings)}, Debt: ${formatCurrency(totals.totalDebt)}\n`;
+             summaryContext += `Key Ratios: Savings Rate: ${formatPercentage(ratios.savingsRate)}, DTI: ${formatPercentage(ratios.dtiRatio)}, Emergency: ${ratios.emergencyCoverage.toFixed(1)} months\n`;
+             summaryContext += `Challenges: ${getSafe(()=>dashboardData.userInput.financials.challenges)}\n`;
+             summaryContext += `Goals: ${getSafe(()=>dashboardData.userInput.financials.upcomingPurchase)}\n`;
+
+             // --- Call a specific Supabase function for SUMMARY ---
+             // It's good practice to have a separate function for different core tasks
+             const summaryFunctionName = 'generate-financial-summary'; // *** Use your summary function name ***
+
+             console.log(`Invoking Supabase function '${summaryFunctionName}' for summary.`);
+
+             const response = await fetch(`${SUPABASE_URL}/functions/v1/${summaryFunctionName}`, {
+                 method: 'POST',
+                 headers: {
+                     'Content-Type': 'application/json',
+                     'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                 },
+                 body: JSON.stringify({
+                     financialContext: summaryContext,
+                     // Pass the existing analysis/recs if the summary function should build upon them
+                     // existingAnalysis: dashboardData.aiOutput?.analysis,
+                     // existingRecommendations: dashboardData.aiOutput?.recommendations
+                 })
+             });
+
+             const result = await response.json();
+
+             if (!response.ok) {
+                 throw new Error(result?.error || `Summary generation failed with status ${response.status}`);
+             }
+
+             // --- Update UI and Data Object ---
+             // Assuming the function returns { summary: "...", recommendations: "..." }
+             if (result && result.summary) {
+                // Update the aiOutput section of your main data object
+                if (dashboardData && dashboardData.aiOutput) {
+                    dashboardData.aiOutput.analysis = result.summary; // Replace analysis with new summary
+                    // Optionally update recommendations if the summary function also provides them
+                    if (result.recommendations) {
+                        dashboardData.aiOutput.recommendations = result.recommendations;
+                    }
+                    // Add a timestamp to progress history
+                     const now = new Date();
+                     const progressUpdate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}: AI Summary generated.`;
+                     dashboardData.aiOutput.userProgress = (dashboardData.aiOutput.userProgress || '') + '\n' + progressUpdate;
+
+
+                    updateUIDisplayFromAI(dashboardData); // Refresh the AI section display
+                    setChatStatus("Summary saved to report ✅", false);
+                    addMessageToChat("System", "A new AI summary has been generated and saved to the report data."); // Inform user via chat
+                }
+             } else {
+                 throw new Error("Summary function returned an unexpected format.");
+             }
+
         } catch (err) {
-            console.error("Summary failed:", err);
-            addMessageToChat("System", "Couldn't create summary: " + err.message, true);
+            console.error("Summary generation/saving failed:", err);
+            addMessageToChat("System", "Couldn't generate or save summary: " + err.message, true);
             setChatStatus("Summary failed", false);
         } finally {
-            enableChatInput(true);
+            enableChatInput(true); // Re-enable chat input
         }
     }
 
     /* --- Info popup support --- */
     function showInfo(text) {
-        document.getElementById('infoModalText').textContent = text;
-        openModal('infoModal');
+        const infoModalText = document.getElementById('infoModalText');
+        if(infoModalText) {
+            infoModalText.textContent = text;
+            openModal('infoModal');
+        } else {
+            console.warn("Info modal text element not found.");
+            alert(text); // Fallback to simple alert
+        }
     }
 
     function initInfoPopups() {
-        document.querySelectorAll('[data-desc]').forEach(el => {
-            el.style.cursor = 'pointer';
-            el.addEventListener('click', () => showInfo(el.dataset.desc));
-        });
+        // Use event delegation on a parent container for potentially dynamic elements
+        const mainContainer = document.getElementById('mainContent');
+        if (mainContainer) {
+             mainContainer.addEventListener('click', function(event) {
+                 // Find the closest ancestor with data-desc attribute
+                 const targetElement = event.target.closest('[data-desc]');
+                 if (targetElement) {
+                     const description = targetElement.dataset.desc;
+                     if (description) {
+                         showInfo(description);
+                     }
+                 }
+             });
+             // Add cursor pointer style via CSS if needed, or here:
+             // document.querySelectorAll('[data-desc]').forEach(el => {
+             //    el.style.cursor = 'pointer';
+             // });
+             console.log("Info popups initialized via event delegation.");
+        } else {
+             console.warn("Main content container not found for info popup delegation.");
+        }
     }
 
     // --- MAIN Document Ready Event ---
     document.addEventListener('DOMContentLoaded', function() {
-        console.log("DOM fully loaded. Initializing...");
+        console.log("DOM fully loaded. Initializing application...");
 
-        // --- 1. Cache Elements ---
+        // --- 1. Cache Global DOM Elements ---
+        // It's generally better to query elements when needed or within specific init functions,
+        // but caching upfront is okay if they are guaranteed to exist.
         loadingSpinner = document.getElementById('loadingSpinner');
         errorMessageElement = document.getElementById('errorMessage');
         mainContentElement = document.getElementById('mainContent');
@@ -1695,7 +2099,8 @@
         initialUploadPrompt = document.getElementById('initialUploadPrompt');
         errorTextElement = document.getElementById('errorText');
         debugInfoElement = document.getElementById('debugInfo');
-        fileInput = document.getElementById('fileInput');
+        fileInput = document.getElementById('fileInput'); // Crucial for uploads
+
 
         // --- 2. Set Initial UI State ---
         if (loadingSpinner) loadingSpinner.style.display = 'flex'; else console.error("Loading spinner not found!");
@@ -1704,76 +2109,66 @@
         if (initialMessageElement) initialMessageElement.style.display = 'none';
         if (initialUploadPrompt) initialUploadPrompt.style.display = 'none';
 
-        // --- 3. Check for data=null URL parameter ---
-        const params = new URLSearchParams(window.location.search);
-        if (params.has('data') && params.get('data') === 'null') {
-            console.warn("URL parameter 'data=null' detected. Showing initial upload prompt and skipping normal init.");
-            // Hide spinner and other sections
-            if(loadingSpinner) loadingSpinner.style.display = 'none';
-            if(mainContentElement) mainContentElement.style.display = 'none';
-            if(errorMessageElement) errorMessageElement.style.display = 'none';
-            if(initialMessageElement) initialMessageElement.style.display = 'none';
-            const chatCard = document.getElementById('chatInterfaceCard');
-            if (chatCard) chatCard.style.display = 'none';
-
-            // Show the initial upload prompt
-            if (initialUploadPrompt) {
-                initialUploadPrompt.style.display = 'block';
-                // Add the button listener here
-                const initialUploadButton = document.getElementById('initialUploadButton');
-                if (initialUploadButton && fileInput) {
-                    initialUploadButton.addEventListener('click', () => { fileInput.click(); });
-                    console.log("Listener added to initial upload button (data=null case).");
-                } else { console.error("Initial upload button or fileInput element not found for data=null case."); }
-            } else { console.error("Initial Upload Prompt element (#initialUploadPrompt) not found in HTML!"); }
-            // *** IMPORTANT: Stop further initialization ***
-            return;
-        }
 
         try {
-            // Initialize Supabase (Make sure URL/Key are set above)
-            if (!SUPABASE_URL || SUPABASE_URL === 'YOUR_SUPABASE_URL' || SUPABASE_URL.length < 10) { 
-                throw new Error("Supabase URL is not configured or is invalid."); 
+            // --- 3. Initialize Supabase ---
+            // Basic checks for Supabase configuration and library presence
+            if (!SUPABASE_URL || !SUPABASE_URL.startsWith('https://')) {
+                 throw new Error("Supabase URL is not configured or is invalid.");
             }
-            if (!SUPABASE_ANON_KEY || SUPABASE_ANON_KEY === 'YOUR_SUPABASE_ANON_KEY' || SUPABASE_ANON_KEY.length < 50) { 
-                throw new Error("Supabase Anon Key is not configured or is invalid."); 
+            if (!SUPABASE_ANON_KEY || SUPABASE_ANON_KEY.length < 50) { // Basic length check
+                 throw new Error("Supabase Anon Key is not configured or seems invalid.");
             }
-            if (typeof window.supabase === 'undefined' || !window.supabase?.createClient) { 
-                throw new Error("Supabase library failed to load."); 
+            if (typeof window.supabase === 'undefined' || !window.supabase?.createClient) {
+                 throw new Error("Supabase library (supabase-js) failed to load. Check the script tag.");
             }
-            
+
+            // Initialize the client
             const { createClient } = window.supabase;
             supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            console.log("Supabase client initialized.");
+            console.log("Supabase client initialized successfully.");
 
-            // Setup Core Button Listeners
-            document.getElementById('retryButton')?.addEventListener('click', () => location.reload());
+            // --- 4. Setup Core Button Listeners & UI Interactions ---
+            document.getElementById('retryButton')?.addEventListener('click', () => {
+                console.log("Retry button clicked. Reloading page.");
+                location.reload();
+            });
             document.getElementById('manualEntryButton')?.addEventListener('click', useDemoData);
-            initSaveButton();
-            initUploadButton(); // Sets up header upload button AND fileInput listener
-            initModals();
-            initInfoPopups();
+            initSaveButton(); // Attaches listener to #saveButton
+            initUploadButton(); // Attaches listeners to #uploadButton, #initialUploadButton, and #fileInput
+            initModals(); // Sets up modal closing behavior
+            initInfoPopups(); // Sets up click listeners for elements with [data-desc]
 
-            // Setup listener for the initial upload button
-            const initialUploadButton = document.getElementById('initialUploadButton');
-            if (initialUploadButton && fileInput) {
-                initialUploadButton.addEventListener('click', () => { fileInput.click(); });
-            }
+            // Setup save summary button listener
+             const saveSummaryBtn = document.getElementById('saveSummaryBtn');
+             if(saveSummaryBtn) {
+                 saveSummaryBtn.addEventListener('click', generateAndSaveSummary);
+             } else {
+                 console.warn("Save Summary button (#saveSummaryBtn) not found.");
+             }
 
-            // Setup save summary button
-            document.getElementById('saveSummaryBtn')?.addEventListener('click', generateAndSaveSummary);
 
-            console.log("Buttons and modals initialized.");
-            
-            // IMPORTANT: Call our improved loadInitialData function
-            console.log("Starting initial data load...");
-            loadInitialData();
+            console.log("Core event listeners and UI interactions initialized.");
+
+            // --- 5. Load Initial Data ---
+            // This function now handles checking URL params, embedded data, or showing the initial message.
+             console.log("Starting initial data load process...");
+             loadInitialData();
 
         } catch (error) {
-            console.error("CRITICAL Error during initial setup:", error);
-            handleError("Failed during initial page setup", error);
+            console.error("CRITICAL Error during initial page setup:", error);
+            // Attempt to use the handleError function, but it might fail if elements aren't ready
+            try {
+                 handleError("Failed during initial page setup", error);
+            } catch (fallbackError) {
+                 console.error("Fallback error handler:", fallbackError);
+                 alert(`Critical Setup Error: ${error.message}\n\nPlease check the console for details.`); // Ultimate fallback
+            }
+            // Ensure spinner is hidden if setup fails critically
+             if (loadingSpinner) loadingSpinner.style.display = 'none';
         }
     });
+
 </script>
 </body>
 </html>
