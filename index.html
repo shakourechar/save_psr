@@ -931,7 +931,7 @@ loadInitialData();          // ← bypasses the missing init()
         let dataFound = false;
 
         // Priority 1: Check for data in URL parameters (e.g., from Jotform redirect)
-        if (params.toString().length > 0 && (params.has('userName') || params.has('username') || params.has('data'))) { // Added 'data' param check
+        if (params.toString().length > 0) { // Added 'data' param check
             console.log("Attempting to load data from URL parameters...");
             try {
                  let urlData;
