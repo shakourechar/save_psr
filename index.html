@@ -758,25 +758,6 @@ loadInitialData();          // ← bypasses the missing init()
         }
     }); // --- End of the SINGLE DOMContentLoaded listener ---
 
-    function initUploadButton() {
-    const uploadButton = document.getElementById('uploadButton'); // Header button
-    // fileInput should be cached globally or found here again
-    fileInput = fileInput || document.getElementById('fileInput');
-    if (!uploadButton || !fileInput) {
-        console.error("Upload button or file input not found in initUploadButton.");
-        return;
-    }
-    uploadButton.addEventListener('click', () => { fileInput.click(); });
-
-    // Remove previous listener first to avoid duplicates if init runs multiple times
-    fileInput.removeEventListener('change', handleFileUpload);
-    // Add the listener
-    fileInput.addEventListener('change', handleFileUpload);
-
-    // *** ADD THIS LOG ***
-    console.log("initUploadButton: 'change' event listener attached to #fileInput.");
-}
-
     function handleFileUpload(event) {
     // *** ADD LOGS AND CHECKS AT THE VERY START ***
     console.log("handleFileUpload: Function triggered.");
@@ -955,47 +936,32 @@ loadInitialData();          // ← bypasses the missing init()
     }
 
     // --- Data Loading Logic ---
-    function loadInitialData() {
-        const params = new URLSearchParams(window.location.search);
-        const dataElement = document.getElementById('embeddedPsrData');
-        let dataFound = false;
+   function loadInitialData() {
+    const params = new URLSearchParams(window.location.search);
+    let dataFound = false;
+    let parsedData = null;
 
-        // Priority 1: Check for data in URL parameters (e.g., from Jotform redirect)
-        if (params.toString().length > 0 && (params.has('userName') || params.has('username') || params.has('data'))) { // Added 'data' param check
-            console.log("Attempting to load data from URL parameters...");
-            try {
-                 let urlData;
-                 // Check for base64 encoded 'data' parameter first
-                 const encodedData = params.get('data');
-                 if (encodedData) {
-                     console.log("Decoding 'data' parameter from URL...");
-                     const jsonString = atob(decodeURIComponent(encodedData)); // Decode base64
-                     urlData = JSON.parse(jsonString);
-                     console.log("'data' parameter decoded and parsed successfully.");
-                 } else {
-                     // Fallback to parsing individual parameters if 'data' not present
-                     console.log("Parsing individual parameters from URL...");
-                     urlData = parseDataFromUrlParams(params); // Use helper function
-                     console.log("Individual parameters parsed successfully.");
-                 }
-
-                // Accept both {userInput: ...} and flat key/value pairs, wrap if needed
-                if (urlData) {
-                    if (!urlData.userInput) {
-                        urlData = { userInput: urlData, aiOutput: {} };
-                    }
-                    dashboardData = urlData;
-                    dataFound = true;
-                    console.log("Data loaded successfully from URL (adjusted structure).");
-                } else {
-                    console.warn("Data parsed from URL lacks expected structure (userInput/personalInfo).");
-                }
-            } catch (err) {
-                console.error("Error processing data from URL:", err);
-                handleError("Failed to load data from URL", err);
-                return; // Stop further processing if URL data fails
-            }
+    try {
+        parsedData = parseDataFromUrlParams(params);
+        if (parsedData && parsedData.userInput && parsedData.userInput.personalInfo) {
+            dashboardData = parsedData;
+            dataFound = true;
         }
+    } catch (error) {
+        console.error("Error parsing data from URL parameters:", error);
+    }
+
+    if (dataFound) {
+        processAndDisplayData(dashboardData);
+    } else {
+        console.warn("No valid data found in URL parameters.");
+        if (loadingSpinner) loadingSpinner.style.display = 'none';
+        if (mainContentElement) mainContentElement.style.display = 'none';
+        if (errorMessageElement && errorMessageElement.style.display !== 'flex') {
+            if (initialMessageElement) initialMessageElement.style.display = 'block';
+        }
+    }
+}
 
         // Priority 2: Check for embedded JSON (if not loaded from URL)
         if (!dataFound && dataElement && dataElement.textContent.trim() !== '/* MAKE_COM_JSON_PLACEHOLDER */') {
