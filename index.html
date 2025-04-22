@@ -1442,14 +1442,32 @@ loadInitialData();          // ← bypasses the missing init()
             const incomeData = data?.userInput?.income || {};
             const expenseData = data?.userInput?.expenses || {};
 
-            // Filter out zero values and prepare data for Plotly
-            const incomeLabels = Object.keys(incomeData).filter(k => Number(incomeData[k]) > 0)
-                                     .map(label => label.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase())); // Format labels
-            const incomeValues = Object.keys(incomeData).map(k => Number(incomeData[k])).filter(v => v > 0);
+            // --- Filter and sync income labels/values ---
+            const incomeLabels = [];
+            const incomeValues = [];
+            Object.entries(incomeData).forEach(([key, value]) => {
+                const numValue = Number(value);
+                if (numValue > 0) {
+                    incomeLabels.push(key.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase()));
+                    incomeValues.push(numValue);
+                }
+            });
+            // --- Filter and sync expense labels/values ---
+            const expenseLabels = [];
+            const expenseValues = [];
+            Object.entries(expenseData).forEach(([key, value]) => {
+                const numValue = Number(value);
+                if (numValue > 0) {
+                    expenseLabels.push(key.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase()));
+                    expenseValues.push(numValue);
+                }
+            });
 
-            const expenseLabels = Object.keys(expenseData).filter(k => Number(expenseData[k]) > 0)
-                                     .map(label => label.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase())); // Format labels
-            const expenseValues = Object.keys(expenseData).map(k => Number(expenseData[k])).filter(v => v > 0);
+            // Debug logs for label/value arrays
+            console.log("Income Labels:", incomeLabels);
+            console.log("Income Values:", incomeValues);
+            console.log("Expense Labels:", expenseLabels);
+            console.log("Expense Values:", expenseValues);
 
             const incomeChartDiv = document.getElementById('incomeChart');
             const expenseChartDiv = document.getElementById('expenseChart');
