@@ -936,55 +936,134 @@ loadInitialData();          // ← bypasses the missing init()
     }
 
     // --- Data Loading Logic ---
-   function loadInitialData() {
+  function loadInitialData() {
     const params = new URLSearchParams(window.location.search);
     let dataFound = false;
-    let parsedData = null;
+    let urlData = null;
 
-    try {
-        parsedData = parseDataFromUrlParams(params);
-        if (parsedData && parsedData.userInput && parsedData.userInput.personalInfo) {
-            dashboardData = parsedData;
-            dataFound = true;
-        }
-    } catch (error) {
-        console.error("Error parsing data from URL parameters:", error);
-    }
-
-    if (dataFound) {
-        processAndDisplayData(dashboardData);
-    } else {
-        console.warn("No valid data found in URL parameters.");
-        if (loadingSpinner) loadingSpinner.style.display = 'none';
-        if (mainContentElement) mainContentElement.style.display = 'none';
-        if (errorMessageElement && errorMessageElement.style.display !== 'flex') {
-            if (initialMessageElement) initialMessageElement.style.display = 'block';
+    // PRIORITY 1: If standard URL parameters exist, parse and use those
+    if (params.toString() && (params.has('userName') || params.has('username') || params.has('age') || params.has('mainJobIncome'))) {
+        console.log("URL parameters detected. Parsing URL parameters into data.");
+        try {
+            urlData = parseDataFromUrlParams(params);
+            // Ensure that the expected structure is present (at least a personalInfo object with a userName)
+            if (urlData && urlData.userInput && urlData.userInput.personalInfo && urlData.userInput.personalInfo.userName) {
+                dashboardData = urlData;
+                dataFound = true;
+                console.log("Data from URL parameters successfully parsed:", dashboardData);
+            } else {
+                console.warn("Parsed URL data is missing required structure. Ignoring URL parameters.");
+            }
+        } catch (err) {
+            console.error("Error while parsing URL parameters:", err);
         }
     }
-}
 
-        // Priority 2: Check for embedded JSON (if not loaded from URL)
-        if (!dataFound && dataElement && dataElement.textContent.trim() !== '/* MAKE_COM_JSON_PLACEHOLDER */') {
+    // PRIORITY 2: Check for embedded JSON if URL parameters are not valid
+    if (!dataFound) {
+        const dataElement = document.getElementById('embeddedPsrData');
+        if (dataElement && dataElement.textContent.trim() !== '/* MAKE_COM_JSON_PLACEHOLDER */') {
             console.log("Attempting to load data from embedded JSON...");
             try {
                 const embeddedJson = JSON.parse(dataElement.textContent);
-                // Validate structure
-                if (typeof embeddedJson === 'object' && embeddedJson !== null && embeddedJson.userInput && embeddedJson.userInput.personalInfo) {
+                if (embeddedJson && embeddedJson.userInput && embeddedJson.userInput.personalInfo) {
                     dashboardData = embeddedJson;
                     dataFound = true;
                     console.log("Data loaded successfully from embedded JSON.");
                 } else {
-                    console.warn("Embedded content is not valid JSON or lacks expected structure.");
+                    console.warn("Embedded JSON does not have the expected structure.");
                 }
             } catch (jsonErr) {
                 console.error("Error parsing embedded JSON:", jsonErr);
-                // Don't necessarily stop everything, but log it. Maybe show initial message later.
-                 if (debugInfoElement) {
-                     debugInfoElement.innerHTML += `<br><strong>Embedded JSON Parse Error:</strong> ${jsonErr.message}`;
-                 }
             }
         }
+    }
 
+    // Process data if available, otherwise show the initial message (or prompt)
+    if (dataFound && dashboardData) {
+        console.log("Data found, proceeding to display.");
+        processAndDisplayData(dashboardData);
+    } else {
+        console.warn("No valid data loaded from URL parameters or embedded JSON. Displaying initial message.");
+        if (loadingSpinner) loadingSpinner.style.display = 'none';
+        if (mainContentElement) mainContentElement.style.display = 'none';
+        if (initialMessageElement) initialMessageElement.style.display = 'block';
+        if (document.getElementById('chatInterfaceCard')) {
+            document.getElementById('chatInterfaceCard').style.display = 'none';
+        }
+    }
+}
+
+// Helper to parse data from individual URL parameters (existing function)
+function parseDataFromUrlParams(params) {
+    const getParam = (key) => {
+        const rawValue = params.get(key);
+        return rawValue ? decodeURIComponent(rawValue.replace(/\+/g, ' ')).trim() : null;
+    };
+    const parseNumeric = (value, defaultValue = 0) => {
+        const cleaned = String(value || '').replace(/[^0-9.-]+/g, '');
+        const number = parseFloat(cleaned);
+        return isNaN(number) ? defaultValue : number;
+    };
+
+    return {
+        userInput: {
+            personalInfo: {
+                userName: getParam('userName') || getParam('username'),
+                age: parseNumeric(getParam('age'))
+            },
+            income: {
+                mainJobIncome: parseNumeric(getParam('mainJobIncome')),
+                secondJob: parseNumeric(getParam('secondJobIncome')),
+                otherIncome: parseNumeric(getParam('otherIncome'))
+            },
+            expenses: {
+                housing: parseNumeric(getParam('housing')),
+                transportation: parseNumeric(getParam('transportation')),
+                utilities: parseNumeric(getParam('utilities')),
+                groceriesEssentials: parseNumeric(getParam('groceries-essentials')),
+                insurance: parseNumeric(getParam('insurance')),
+                medical: parseNumeric(getParam('medical')),
+                care: parseNumeric(getParam('care')),
+                subscriptions: parseNumeric(getParam('subscriptions')),
+                taxes: parseNumeric(getParam('taxes'))
+            },
+            savings: {
+                emergency: parseNumeric(getParam('emergencySavings')),
+                savings: parseNumeric(getParam('currentSavings')),
+                retirement: parseNumeric(getParam('retirementFund'))
+            },
+            debts: [
+                ...(parseNumeric(getParam('creditCardDebt')) > 0
+                    ? [{
+                        type: "Credit Card",
+                        balance: parseNumeric(getParam('creditCardDebt')),
+                        interestRate: 22.5,
+                        minPayment: Math.max(parseNumeric(getParam('creditCardDebt')) * 0.03, 25)
+                    }]
+                    : []),
+                ...(parseNumeric(getParam('bankLoans')) > 0
+                    ? [{
+                        type: "Bank Loans",
+                        balance: parseNumeric(getParam('bankLoans')),
+                        interestRate: 6.5,
+                        minPayment: Math.max(parseNumeric(getParam('bankLoans')) * 0.015, 50)
+                    }]
+                    : [])
+            ],
+            financials: {
+                financialTools: getParam('financialTools'),
+                challenges: getParam('challenges'),
+                upcomingPurchase: getParam('upcomingPurchases')
+            }
+        },
+        aiOutput: {
+            analysis: getParam('aiAnalysis'),
+            recommendations: getParam('recommendations'),
+            userProgress: getParam('userProgressHistory')
+        }
+    };
+}
         // Process data if found, otherwise show initial message
         if (dataFound && dashboardData) {
             console.log("Data found, proceeding to display.");
