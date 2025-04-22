@@ -699,6 +699,36 @@
             if (typeof window.supabase === 'undefined' || !window.supabase?.createClient) { throw new Error("Supabase library failed to load."); }
             const { createClient } = window.supabase;
             supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// 🧠 Function to detect Pro tier from serial and save to Supabase
+async function detectUserTierAndSyncWithSupabase(userId) {
+  const params = new URLSearchParams(window.location.search);
+  const xtl = params.get("xtl");
+
+  let tier = 'basic';
+  if (xtl && xtl.length >= 11) {
+    const marker = xtl.substring(6, 11); // 7th–11th chars
+    if (marker === '16j59') {
+      tier = 'pro';
+      console.log("✅ Pro user detected from serial");
+    }
+  }
+
+  const { error } = await supabase
+    .from("users")
+    .upsert({
+      id: userId,
+      tier: tier,
+      usage_count: 0,
+    }, { onConflict: 'id' });
+
+  if (error) console.error("Error updating user tier:", error);
+  else {
+    console.log(`✅ Supabase updated with tier: ${tier}`);
+    window.userTier = tier; // Save for later use
+  }
+}
+            
             console.log("Supabase client initialized.");
             if (typeof supabase.from !== 'function' || typeof supabase.functions !== 'object') { throw new Error("Supabase client seems invalid."); }
             console.log("Supabase client seems functional.");
@@ -931,7 +961,7 @@ loadInitialData();          // ← bypasses the missing init()
         let dataFound = false;
 
         // Priority 1: Check for data in URL parameters (e.g., from Jotform redirect)
-        if (params.toString().length > 0) { // Added 'data' param check
+        if (params.toString().length > 0 && (params.has('userName') || params.has('username') || params.has('data'))) { // Added 'data' param check
             console.log("Attempting to load data from URL parameters...");
             try {
                  let urlData;
@@ -1005,33 +1035,39 @@ loadInitialData();          // ← bypasses the missing init()
 
     // Helper to parse data from individual URL parameters
     function parseDataFromUrlParams(params) {
-         // Using getSafe to handle potentially missing parameters gracefully
+         // Always decode the parameter value
          const getParam = (keyBase) => {
              const keyBaseLower = keyBase.toLowerCase();
              for (const currentKey of params.keys()) {
                  const currentKeyLower = currentKey.toLowerCase();
-                 if (currentKeyLower === keyBaseLower || currentKeyLower.endsWith(keyBaseLower)) { // Simple check
-                     return params.get(currentKey);
+                 if (currentKeyLower === keyBaseLower || currentKeyLower.endsWith(keyBaseLower)) {
+                     const rawValue = params.get(currentKey);
+                     try {
+                         return decodeURIComponent(rawValue.replace(/\+/g, ' ')).trim();
+                     } catch (e) {
+                         console.warn(`Failed to decode URI component for ${currentKey}:`, e);
+                         return rawValue;
+                     }
                  }
              }
-             return null; // Return null if not found
+             return null;
          };
-        const parseNumeric = (value, defaultValue = 0) => {
-             if (value === null || typeof value === 'undefined' || String(value).trim() === '') { return defaultValue; }
-             if (typeof value === 'number') { return isNaN(value) ? defaultValue : value; }
+         const parseNumeric = (value, defaultValue = 0) => {
+             if (value === null || typeof value === 'undefined' || String(value).trim() === '') {
+                 console.warn(`Missing numeric parameter, defaulting to ${defaultValue}`);
+                 return defaultValue;
+             }
              const cleaned = String(value).trim().replace(/[^0-9.-]+/g, '');
-             if (cleaned === '' || cleaned === '-' || cleaned === '.') { return defaultValue; }
              const number = parseFloat(cleaned);
-             return isNaN(number) ? defaultValue : number;
+             if (isNaN(number)) {
+                 console.warn(`Failed to parse number from "${value}", defaulting to ${defaultValue}`);
+                 return defaultValue;
+             }
+             return number;
          };
-         const decodeField = (value) => {
-            if (!value) return '';
-            try { return decodeURIComponent(value.replace(/\+/g, ' ')); } // Also handle '+' encoding
-            catch (e) { console.warn(`Decode URI fail`, e); return value; }
-        };
 
          // --- Build the data structure ---
-        const fetchedUserName = decodeField(getParam('userName') || getParam('username'));
+        const fetchedUserName = getParam('userName') || getParam('username');
         const fetchedAge = parseNumeric(getParam('age'));
         const fetchedCreditCardDebt = parseNumeric(getParam('creditCardDebt') || getParam('creditcard'));
         const fetchedBankLoans = parseNumeric(getParam('bankLoans') || getParam('loans'));
@@ -1042,8 +1078,8 @@ loadInitialData();          // ← bypasses the missing init()
          const parsedData = {
              userInput: {
                  personalInfo: {
-                     userName: fetchedUserName || 'User', // Default
-                     age: fetchedAge || 30 // Default
+                     userName: fetchedUserName || 'User',
+                     age: fetchedAge || 30
                  },
                  income: {
                      mainJobIncome: parseNumeric(getParam('mainJobIncome')),
@@ -1065,8 +1101,8 @@ loadInitialData();          // ← bypasses the missing init()
                      emergency: parseNumeric(getParam('emergencySavings') || getParam('emergency')),
                      savings: parseNumeric(getParam('currentSavings') || getParam('savings')),
                      retirement: parseNumeric(getParam('retirementFund') || getParam('retirement')),
-                     emergencyFundTarget: parseNumeric(getParam('emergencyFundTarget')), // Allow specifying target
-                     monthlySavingsGoal: parseNumeric(getParam('monthlySavingsGoal')) // Allow specifying goal
+                     emergencyFundTarget: parseNumeric(getParam('emergencyFundTarget')),
+                     monthlySavingsGoal: parseNumeric(getParam('monthlySavingsGoal'))
                  },
                  debts: [
                      ...(fetchedCreditCardDebt > 0 ? [{ type: "Credit Card", balance: fetchedCreditCardDebt, interestRate: parseNumeric(getParam('ccRate'), 22.5), minPayment: ccMinPayment }] : []),
@@ -1074,19 +1110,15 @@ loadInitialData();          // ← bypasses the missing init()
                       // Add more debt types if needed, parsing their params
                  ],
                  financials: {
-                    financialTools: decodeField(getParam('financialTools')),
-                    challenges: decodeField(getParam('challenges')),
-                    upcomingPurchase: decodeField(getParam('upcomingPurchases'))
-                    // Add purchase goal details if separate params exist:
-                    // purchaseGoalTarget: parseNumeric(getParam('purchaseGoalTarget')),
-                    // purchaseGoalSaved: parseNumeric(getParam('purchaseGoalSaved')),
+                    financialTools: getParam('financialTools'),
+                    challenges: getParam('challenges'),
+                    upcomingPurchase: getParam('upcomingPurchases')
                  }
              },
-             // Attempt to parse AI output from params too, if provided separately
               aiOutput: {
-                  analysis: decodeField(getParam('aiAnalysis')),
-                  recommendations: decodeField(getParam('recommendations')),
-                  userProgress: decodeField(getParam('userProgressHistory') || getParam('userProgress'))
+                  analysis: getParam('aiAnalysis'),
+                  recommendations: getParam('recommendations'),
+                  userProgress: getParam('userProgressHistory') || getParam('userProgress')
               }
          };
         // Clean up empty strings in aiOutput
@@ -1343,7 +1375,8 @@ loadInitialData();          // ← bypasses the missing init()
         const purchaseGoalNameEl = document.getElementById('purchaseGoalName');
 
         if (upcomingPurchaseString && purchaseGoalDisplay && purchaseProgressBar && purchaseGoalNameEl) {
-            const match = upcomingPurchaseString.match(/#\d+\)\s*(.*?),\s*\$?([\d,.]+)/);
+            // NOTE: Only parsing the first listed goal. Multiple goals need separate handling if required.
+            const match = upcomingPurchaseString.match(/#1\)\s*(.*?),\s*\$?([\d,.]+)/);
             if (match && match[1] && match[2]) {
                 const goalName = match[1].trim();
                 const goalAmountStr = match[2].replace(/,/g, '');
@@ -1641,9 +1674,43 @@ loadInitialData();          // ← bypasses the missing init()
         console.log(`Invoking Supabase function '${functionName}' with ${messagesForBackend.length} messages.`);
 
         try {
-            const { data, error } = await supabase.functions.invoke(functionName, {
-                body: { messages: messagesForBackend, model: CHAT_MODEL }, // Send model preference if backend supports it
-            });
+            // Construct messages payload for Supabase function
+const { data: userData } = await supabase.auth.getUser();
+const userId = userData?.user?.id;
+
+const user = supabase.auth.user();
+if (!user) {
+  alert("Please sign in to use the chat.");
+  return;
+}
+
+const userId = user.id;
+const userTier = user.app_metadata?.tier || "basic";  // Use "basic" if no tier found
+
+const response = await fetch('https://tfnwwpksieluzvxqdiiq.supabase.co/functions/v1/smooth-function'
+, {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'x-user-id': userId,
+    'x-user-tier': userTier
+  },
+  body: JSON.stringify({
+    messages: messagesForBackend // keep your message array here
+  })
+});
+
+const data = await response.json();
+
+if (response.ok) {
+  const assistantReply = data.assistantResponse.content;
+  addMessageToChat("Assistant", assistantReply);
+} else {
+  console.error("Chat Error:", data.error);
+  addMessageToChat("System", `Error: ${data.error}`, true); // Show error in chat
+}
+
+
 
             setChatStatus("", false); // Clear thinking indicator
 
@@ -1795,16 +1862,50 @@ async function generateAndSaveSummary() {
     setChatStatus("Summarizing…", true);
     enableChatInput(false);
 
-    const { data, error } = await supabase.functions.invoke('chat_summary', {
-      body: { messages: chatMessages, model: gpt-4o-mini }
-    });
+   const user = supabase.auth.user();
+if (!user) {
+  alert("Please sign in to use the chat.");
+  return;
+}
 
-    if (error || !data?.ok) throw new Error(data?.error || error.message);
+const userId = user.id;
+const userTier = user.app_metadata?.tier || "basic";  // Default to basic if missing
 
-    dashboardData.aiOutput.analysis = data.analysis;
+setChatStatus("Thinking...", true);
+enableChatInput(false);
 
-    const aiDisplay = document.getElementById('aiAnalysis');
-    if (aiDisplay) aiDisplay.innerHTML = data.analysis.replace(/\n/g, '<br>');
+try {
+  const response = await fetch('https://tfnwwpksieluzvxqdiiq.supabase.co/functions/v1/smooth-function'
+, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-user-id': userId,
+      'x-user-tier': userTier
+    },
+    body: JSON.stringify({
+      messages: chatMessages
+    })
+  });
+
+  const data = await response.json();
+  setChatStatus("", false);
+
+  if (response.ok) {
+    const assistantReply = data.assistantResponse.content;
+    addMessageToChat("Assistant", assistantReply);
+    chatMessages.push(data.assistantResponse);
+  } else {
+    console.error("Chat Error:", data.error);
+    addMessageToChat("System", `Error: ${data.error}`, true);
+  }
+} catch (error) {
+  console.error("Network or Server Error:", error);
+  addMessageToChat("System", "An unexpected error occurred.", true);
+} finally {
+  enableChatInput(true);
+}
+
 
     setChatStatus("Summary saved ✅", false);
   } catch (err) {
