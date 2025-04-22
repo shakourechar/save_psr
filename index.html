@@ -758,6 +758,25 @@ loadInitialData();          // ← bypasses the missing init()
         }
     }); // --- End of the SINGLE DOMContentLoaded listener ---
 
+    function initUploadButton() {
+    const uploadButton = document.getElementById('uploadButton'); // Header button
+    // fileInput should be cached globally or found here again
+    fileInput = fileInput || document.getElementById('fileInput');
+    if (!uploadButton || !fileInput) {
+        console.error("Upload button or file input not found in initUploadButton.");
+        return;
+    }
+    uploadButton.addEventListener('click', () => { fileInput.click(); });
+
+    // Remove previous listener first to avoid duplicates if init runs multiple times
+    fileInput.removeEventListener('change', handleFileUpload);
+    // Add the listener
+    fileInput.addEventListener('change', handleFileUpload);
+
+    // *** ADD THIS LOG ***
+    console.log("initUploadButton: 'change' event listener attached to #fileInput.");
+}
+
     function handleFileUpload(event) {
     // *** ADD LOGS AND CHECKS AT THE VERY START ***
     console.log("handleFileUpload: Function triggered.");
@@ -936,149 +955,57 @@ loadInitialData();          // ← bypasses the missing init()
     }
 
     // --- Data Loading Logic ---
-  function loadInitialData() {
-    const params = new URLSearchParams(window.location.search);
-    let dataFound = false;
-    let urlData = null;
+    function loadInitialData() {
+        const params = new URLSearchParams(window.location.search);
+        const dataElement = document.getElementById('embeddedPsrData');
+        let dataFound = false;
 
-    // PRIORITY 1: If standard URL parameters exist, parse and use those
-    if (params.toString() && (params.has('userName') || params.has('username') || params.has('age') || params.has('mainJobIncome'))) {
-        console.log("URL parameters detected. Parsing URL parameters into data.");
         try {
-            urlData = parseDataFromUrlParams(params);
-            // Ensure that the expected structure is present (at least a personalInfo object with a userName)
-            if (urlData && urlData.userInput && urlData.userInput.personalInfo && urlData.userInput.personalInfo.userName) {
+            // Check for individual parameters directly
+            const urlData = parseDataFromUrlParams(params);
+
+            if (urlData && urlData.userInput) {
                 dashboardData = urlData;
                 dataFound = true;
-                console.log("Data from URL parameters successfully parsed:", dashboardData);
+                console.log("Data loaded successfully from URL parameters.");
             } else {
-                console.warn("Parsed URL data is missing required structure. Ignoring URL parameters.");
+                console.warn("No valid data found in URL parameters.");
             }
         } catch (err) {
-            console.error("Error while parsing URL parameters:", err);
+            console.error("Error processing data from URL:", err);
+            handleError("Failed to load data from URL", err);
+            return;
         }
-    }
 
-    // PRIORITY 2: Check for embedded JSON if URL parameters are not valid
-    if (!dataFound) {
-        const dataElement = document.getElementById('embeddedPsrData');
-        if (dataElement && dataElement.textContent.trim() !== '/* MAKE_COM_JSON_PLACEHOLDER */') {
-            console.log("Attempting to load data from embedded JSON...");
+        // Check embedded JSON only if URL data not found
+        if (!dataFound && dataElement && dataElement.textContent.trim() !== '/* MAKE_COM_JSON_PLACEHOLDER */') {
             try {
                 const embeddedJson = JSON.parse(dataElement.textContent);
-                if (embeddedJson && embeddedJson.userInput && embeddedJson.userInput.personalInfo) {
+                if (embeddedJson && embeddedJson.userInput) {
                     dashboardData = embeddedJson;
                     dataFound = true;
-                    console.log("Data loaded successfully from embedded JSON.");
-                } else {
-                    console.warn("Embedded JSON does not have the expected structure.");
+                    console.log("Data loaded from embedded JSON.");
                 }
             } catch (jsonErr) {
                 console.error("Error parsing embedded JSON:", jsonErr);
             }
         }
-    }
 
-    // Process data if available, otherwise show the initial message (or prompt)
-    if (dataFound && dashboardData) {
-        console.log("Data found, proceeding to display.");
-        processAndDisplayData(dashboardData);
-    } else {
-        console.warn("No valid data loaded from URL parameters or embedded JSON. Displaying initial message.");
-        if (loadingSpinner) loadingSpinner.style.display = 'none';
-        if (mainContentElement) mainContentElement.style.display = 'none';
-        if (initialMessageElement) initialMessageElement.style.display = 'block';
-        if (document.getElementById('chatInterfaceCard')) {
-            document.getElementById('chatInterfaceCard').style.display = 'none';
-        }
-    }
-}
-
-// Helper to parse data from individual URL parameters (existing function)
-function parseDataFromUrlParams(params) {
-    const getParam = (key) => {
-        const rawValue = params.get(key);
-        return rawValue ? decodeURIComponent(rawValue.replace(/\+/g, ' ')).trim() : null;
-    };
-    const parseNumeric = (value, defaultValue = 0) => {
-        const cleaned = String(value || '').replace(/[^0-9.-]+/g, '');
-        const number = parseFloat(cleaned);
-        return isNaN(number) ? defaultValue : number;
-    };
-
-    return {
-        userInput: {
-            personalInfo: {
-                userName: getParam('userName') || getParam('username'),
-                age: parseNumeric(getParam('age'))
-            },
-            income: {
-                mainJobIncome: parseNumeric(getParam('mainJobIncome')),
-                secondJob: parseNumeric(getParam('secondJobIncome')),
-                otherIncome: parseNumeric(getParam('otherIncome'))
-            },
-            expenses: {
-                housing: parseNumeric(getParam('housing')),
-                transportation: parseNumeric(getParam('transportation')),
-                utilities: parseNumeric(getParam('utilities')),
-                groceriesEssentials: parseNumeric(getParam('groceries-essentials')),
-                insurance: parseNumeric(getParam('insurance')),
-                medical: parseNumeric(getParam('medical')),
-                care: parseNumeric(getParam('care')),
-                subscriptions: parseNumeric(getParam('subscriptions')),
-                taxes: parseNumeric(getParam('taxes'))
-            },
-            savings: {
-                emergency: parseNumeric(getParam('emergencySavings')),
-                savings: parseNumeric(getParam('currentSavings')),
-                retirement: parseNumeric(getParam('retirementFund'))
-            },
-            debts: [
-                ...(parseNumeric(getParam('creditCardDebt')) > 0
-                    ? [{
-                        type: "Credit Card",
-                        balance: parseNumeric(getParam('creditCardDebt')),
-                        interestRate: 22.5,
-                        minPayment: Math.max(parseNumeric(getParam('creditCardDebt')) * 0.03, 25)
-                    }]
-                    : []),
-                ...(parseNumeric(getParam('bankLoans')) > 0
-                    ? [{
-                        type: "Bank Loans",
-                        balance: parseNumeric(getParam('bankLoans')),
-                        interestRate: 6.5,
-                        minPayment: Math.max(parseNumeric(getParam('bankLoans')) * 0.015, 50)
-                    }]
-                    : [])
-            ],
-            financials: {
-                financialTools: getParam('financialTools'),
-                challenges: getParam('challenges'),
-                upcomingPurchase: getParam('upcomingPurchases')
-            }
-        },
-        aiOutput: {
-            analysis: getParam('aiAnalysis'),
-            recommendations: getParam('recommendations'),
-            userProgress: getParam('userProgressHistory')
-        }
-    };
-}
-        // Process data if found, otherwise show initial message
-        if (dataFound && dashboardData) {
-            console.log("Data found, proceeding to display.");
+        // Process data or show prompt
+        if (dataFound) {
             processAndDisplayData(dashboardData);
         } else {
-            console.warn("No valid data loaded from URL or embedded JSON. Displaying initial message.");
-            if (loadingSpinner) loadingSpinner.style.display = 'none';
-            if (mainContentElement) mainContentElement.style.display = 'none';
-            if (errorMessageElement && errorMessageElement.style.display !== 'flex') { // Don't overwrite existing error
-                 if (initialMessageElement) initialMessageElement.style.display = 'block';
-            }
-            if (document.getElementById('chatInterfaceCard')) {
-                 document.getElementById('chatInterfaceCard').style.display = 'none'; // Hide chat if no data
-            }
+            showInitialUploadPrompt();
         }
+    }
+
+    // Ensure the fallback upload prompt logic works
+    function showInitialUploadPrompt() {
+        if (loadingSpinner) loadingSpinner.style.display = 'none';
+        if (mainContentElement) mainContentElement.style.display = 'none';
+        if (errorMessageElement) errorMessageElement.style.display = 'none';
+        if (initialMessageElement) initialMessageElement.style.display = 'none';
+        if (initialUploadPrompt) initialUploadPrompt.style.display = 'block';
     }
 
     // Helper to parse data from individual URL parameters
