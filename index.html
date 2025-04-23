@@ -894,53 +894,59 @@
     }
 
     // --- Parse XTL Parameter for Authentication ---
-    function parseXtlParameter() {
-        const params = new URLSearchParams(window.location.search);
-        const xtlParam = params.get('xtl');
-        let userIdFromXtl = null;
-        let tierFromXtl = 'basic'; // Default assumption
+function parseXtlParameter() {
+    const params = new URLSearchParams(window.location.search);
+    const xtlParam = params.get('xtl');
+    let userIdFromXtl = null;
+    let tierFromXtl = 'basic'; // Default assumption
 
-        if (xtlParam && xtlParam.length === 21) {
-            console.log("Found xtl parameter (length 21):", xtlParam);
-            const verificationSegment = xtlParam.substring(6, 11); // Digits 7-11 (index 6, length 5)
-            const userIdSegment = xtlParam.substring(11); // Last 10 digits (index 11 to end)
+    console.log("XTL parameter found:", xtlParam);
+    
+    if (xtlParam && xtlParam.length === 21) {
+        // Extract the verification segment (characters 7-11, index 6-10)
+        const verificationSegment = xtlParam.substring(6, 11);
+        // Extract the user ID segment (characters 12-21, index 11-end)
+        const userIdSegment = xtlParam.substring(11);
+        
+        console.log("Parsed XTL: verification segment =", verificationSegment, "user ID segment =", userIdSegment);
 
-            if (/^[a-zA-Z0-9]{5}$/.test(verificationSegment) && userIdSegment.length === 10) {
-                userIdFromXtl = userIdSegment; // Store valid User ID
-
-                // The Core Tier Logic
-                if (verificationSegment === '16j59') {
-                    tierFromXtl = 'pro';
-                    console.log(`xtl code '${verificationSegment}' = PRO tier for user ID: ${userIdFromXtl}`);
-                } else if (verificationSegment === '83n45') {
-                    tierFromXtl = 'basic';
-                    console.log(`xtl code '${verificationSegment}' = BASIC tier for user ID: ${userIdFromXtl}`);
-                } else {
-                    // Code is 5 valid chars, but not recognized pro/basic
-                    console.error(`xtl parameter has unrecognized verification segment: ${verificationSegment}`);
-                    userIdFromXtl = null; // Invalidate if code is unknown
-                    tierFromXtl = 'basic'; // Reset tier
-                    handleInvalidAccess("Invalid Access Code Segment");
-                }
+        // Validate both segments
+        if (/^[a-zA-Z0-9]{5}$/.test(verificationSegment) && userIdSegment.length === 10) {
+            // Set tier based on verification segment
+            if (verificationSegment === '16j59') {
+                tierFromXtl = 'pro';
+                console.log("Verified pro tier access for user:", userIdSegment);
+            } else if (verificationSegment === '83n45') {
+                tierFromXtl = 'basic';
+                console.log("Verified basic tier access for user:", userIdSegment);
             } else {
-                console.error("xtl parameter has invalid format in segments (expected 5 code + 10 ID).");
-                userIdFromXtl = null; // Invalidate
-                tierFromXtl = 'basic'; // Reset tier
-                handleInvalidAccess("Invalid Access Parameter Format");
+                console.error("Unrecognized verification segment:", verificationSegment);
+                handleInvalidAccess("Invalid Access Code");
+                return;
             }
+            
+            // Set the user ID since verification passed
+            userIdFromXtl = userIdSegment;
         } else {
-            console.warn("xtl parameter not found or incorrect length (expected 21 digits).");
-            userIdFromXtl = null; // Invalidate
-            tierFromXtl = 'basic'; // Reset tier
-            handleInvalidAccess("Missing or Invalid Access Parameter");
+            console.error("Invalid XTL format: verification segment or user ID segment has wrong format");
+            handleInvalidAccess("Invalid XTL Format");
+            return;
         }
+    } else {
+        console.error("XTL parameter missing or wrong length:", xtlParam);
+        handleInvalidAccess("Missing or Invalid XTL");
+        return;
+    }
 
-        // Set global variables IF valid user was found
-        if (userIdFromXtl) {
-            currentUserId = userIdFromXtl;
-            effectiveTier = tierFromXtl;
-            // Trigger fetching initial usage info now that we have a valid user/tier
-            fetchInitialUsage(currentUserId);
+    // Only set globals if we passed all validation
+    if (userIdFromXtl) {
+        console.log("Setting current user ID to:", userIdFromXtl, "with tier:", tierFromXtl);
+        currentUserId = userIdFromXtl;
+        effectiveTier = tierFromXtl;
+        // Trigger fetching initial usage info
+        fetchInitialUsage(currentUserId);
+    }
+}
         } else {
             // If user ID is null ensure globals reflect invalid state
             currentUserId = null;
@@ -974,6 +980,9 @@
 
         console.log(`Fetching initial usage for user ${userId}...`);
 
+        console.log("Attempting to fetch user data for ID:", userId);
+console.log("Supabase client ready:", !!supabase);
+        
         try {
             const { data, error } = await supabase
                 .from('users')
@@ -1024,47 +1033,70 @@
         }
     }
 
-    // Function to update UI elements based on determined access
-    function updateUIBasedOnAccess() {
-        const tierDisplay = document.getElementById('userTierDisplay');
-        const chatInput = document.getElementById('chatInput');
-        const chatSendButton = document.getElementById('chatSendButton');
+   function updateUIBasedOnAccess() {
+    console.log("Executing updateUIBasedOnAccess with info:", initialUsageInfo);
+    const tierDisplay = document.getElementById('userTierDisplay');
+    const chatInput = document.getElementById('chatInput');
+    const chatSendButton = document.getElementById('chatSendButton');
+    const chatInterfaceCard = document.getElementById('chatInterfaceCard');
 
-        if (initialUsageInfo && initialUsageInfo.error) {
-            if (tierDisplay) tierDisplay.textContent = `Error: ${initialUsageInfo.error}`;
-            console.warn("UI update skipped or showing error due to errored usage info.");
-            enableChatInput(false);
-            setChatStatus("Error loading access info", false);
-            return;
-        }
-
-        if (!initialUsageInfo) {
-            console.warn("Skipping UI update - initialUsageInfo is not available.");
-            return;
-        }
-
-        if (tierDisplay) {
-            let infoText = `Access: ${initialUsageInfo.tier} | Model: ${initialUsageInfo.model} | Usage: ${initialUsageInfo.usage.toLocaleString()} / ${initialUsageInfo.limit.toLocaleString()}`;
-            if(initialUsageInfo.resetDue) infoText += " (Reset Pending)";
-            tierDisplay.textContent = infoText;
-        }
-
-        if (chatInput && chatSendButton) {
-            if (initialUsageInfo.usage >= initialUsageInfo.limit && !initialUsageInfo.resetDue) {
-                console.log("Initial check: Usage limit reached. Disabling chat.");
-                enableChatInput(false);
-                setChatStatus("Weekly token limit reached", false);
-                chatInput.placeholder = "Weekly token limit reached.";
-            }
-        } else {
-            console.warn("Chat input or send button not found for initial access update.");
-        }
-
-        const proFeatureButton = document.getElementById('proFeatureButton');
-        if (proFeatureButton) {
-            proFeatureButton.style.display = (initialUsageInfo.tier === 'pro') ? 'inline-block' : 'none';
-        }
+    // Display detailed debug info in console
+    console.log("Current user ID:", currentUserId);
+    console.log("Effective tier:", effectiveTier);
+    console.log("Initial usage info:", initialUsageInfo);
+    
+    // Check if we have a valid user ID
+    if (!currentUserId) {
+        console.warn("No valid user ID available");
+        if (chatInterfaceCard) chatInterfaceCard.style.display = 'none';
+        enableChatInput(false);
+        setChatStatus("Authentication failed", false);
+        return;
     }
+
+    // Handle error cases first
+    if (initialUsageInfo && initialUsageInfo.error) {
+        console.warn("Error in usage info:", initialUsageInfo.error);
+        if (tierDisplay) tierDisplay.textContent = `Error: ${initialUsageInfo.error}`;
+        enableChatInput(false);
+        setChatStatus("Error loading access info - Check console for details", false);
+        return;
+    }
+
+    if (!initialUsageInfo) {
+        console.warn("No usage info available yet - might still be loading");
+        // Don't disable chat yet, it might still be loading
+        setChatStatus("Loading access info...", true);
+        return;
+    }
+
+    // We have valid usage info, update UI accordingly
+    if (tierDisplay) {
+        let infoText = `Access: ${initialUsageInfo.tier} | Model: ${initialUsageInfo.model} | Usage: ${initialUsageInfo.usage.toLocaleString()} / ${initialUsageInfo.limit.toLocaleString()}`;
+        if(initialUsageInfo.resetDue) infoText += " (Reset Pending)";
+        tierDisplay.textContent = infoText;
+    }
+
+    // Check usage limits
+    if (initialUsageInfo.usage >= initialUsageInfo.limit && !initialUsageInfo.resetDue) {
+        console.log("Usage limit reached. Disabling chat.");
+        enableChatInput(false);
+        setChatStatus("Weekly token limit reached", false);
+        if (chatInput) chatInput.placeholder = "Weekly token limit reached.";
+    } else {
+        // Usage is within limits, enable chat
+        console.log("Usage within limits. Enabling chat interface.");
+        if (chatInterfaceCard) chatInterfaceCard.style.display = 'block';
+        enableChatInput(true);
+        setChatStatus("Ready to chat", false);
+    }
+
+    // Update any pro-specific UI elements
+    const proFeatureButton = document.getElementById('proFeatureButton');
+    if (proFeatureButton) {
+        proFeatureButton.style.display = (initialUsageInfo.tier === 'pro') ? 'inline-block' : 'none';
+    }
+}
 
     // Function to handle cases where access should be denied
     function handleInvalidAccess(reason) {
