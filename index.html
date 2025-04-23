@@ -585,6 +585,9 @@
     let chatMessages = []; // Holds chat history for API calls
     const CHAT_MODEL = 'gpt-4o-mini'; // Or your preferred model
     const plotlyConfig = { displaylogo: false, modeBarButtonsToRemove: ['sendDataToCloud', 'select2d', 'lasso2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d', 'resetScale2d', 'hoverClosestPie', 'toggleSpikelines', 'hoverCompareCartesian'] };
+let currentUserId = null;
+let effectiveTier = 'basic'; // Default to basic
+let initialUsageInfo = null; // To store fetched usage/limit info for initial UI setup
 
     // --- Supabase Client (CONFIGURE THESE) ---
     const SUPABASE_URL = 'https://tfnwwpksieluzvxqdiiq.supabase.co'; // *** REPLACE WITH YOUR ACTUAL SUPABASE URL ***
@@ -638,28 +641,7 @@
         }
     }
 
-    // --- IMPROVED Data Loading Logic ---
-    function loadInitialData() {
-        console.log("Starting loadInitialData function");
-
-        // Reference DOM elements (already cached in DOMContentLoaded)
-
-        // Set initial UI states
-        if (loadingSpinner) loadingSpinner.style.display = 'flex';
-        if (errorMessageElement) errorMessageElement.style.display = 'none';
-        if (mainContentElement) mainContentElement.style.display = 'none';
-        if (initialMessageElement) initialMessageElement.style.display = 'none';
-        if (initialUploadPrompt) initialUploadPrompt.style.display = 'none';
-
-        // Get URL parameters
-        const params = new URLSearchParams(window.location.search);
-
-        // Debug: Log all URL parameters
-        console.log("URL Parameters:");
-        for (const [key, value] of params.entries()) {
-            console.log(`  ${key}: ${value}`);
-        }
-
+   
         // Check for data=null parameter (special case)
         if (params.has('data') && params.get('data') === 'null') {
              console.warn("URL parameter 'data=null' detected. Showing initial upload prompt.");
@@ -721,25 +703,6 @@
             handleError("Failed to load initial data", error);
         }
     }
-
-    // --- Function to parse data from URL parameters ---
-    // <<< THIS IS THE KEY FUNCTION TO ENSURE IT MATCHES YOUR URL PARAMS >>>
-    function parseDataFromUrlParams(params) {
-        console.log("Starting parameter parsing from URLSearchParams object");
-
-        // Helper function to safely get and decode parameters
-        const getParam = (key) => {
-            if (!params.has(key)) return null;
-            const rawValue = params.get(key);
-            if (!rawValue) return null;
-            try {
-                // Decode URI components and replace '+' with space (common in query strings)
-                return decodeURIComponent(rawValue.replace(/\+/g, ' ')).trim();
-            } catch (e) {
-                console.warn(`Error decoding parameter ${key} with value "${rawValue}":`, e);
-                return rawValue.trim(); // Return raw if decoding fails
-            }
-        };
 
         // Helper function to parse numeric values
         const parseNumeric = (value, defaultValue = 0) => {
@@ -1708,7 +1671,8 @@
 
         try {
              // Invoke the Supabase Function using fetch (as invoke might have issues without auth sometimes)
-             const response = await fetch(`${SUPABASE_URL}/functions/v1/${functionName}`, {
+            
+            const response = await fetch(`${SUPABASE_URL}/functions/v1/${functionName}`, {
                  method: 'POST',
                  headers: {
                      'Content-Type': 'application/json',
@@ -2085,90 +2049,565 @@
         }
     }
 
-    // --- MAIN Document Ready Event ---
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log("DOM fully loaded. Initializing application...");
+    // ... your existing code ...
 
-        // --- 1. Cache Global DOM Elements ---
-        // It's generally better to query elements when needed or within specific init functions,
-        // but caching upfront is okay if they are guaranteed to exist.
-        loadingSpinner = document.getElementById('loadingSpinner');
-        errorMessageElement = document.getElementById('errorMessage');
-        mainContentElement = document.getElementById('mainContent');
-        initialMessageElement = document.getElementById('initialMessage');
-        initialUploadPrompt = document.getElementById('initialUploadPrompt');
-        errorTextElement = document.getElementById('errorText');
-        debugInfoElement = document.getElementById('debugInfo');
-        fileInput = document.getElementById('fileInput'); // Crucial for uploads
+    } // <--- This should be the closing brace } of your initInfoPopups function
 
+// *** REPLACE the existing parseXtlParameter function with this CORRECTED version ***
+function parseXtlParameter() {
+    const params = new URLSearchParams(window.location.search);
+    const xtlParam = params.get('xtl');
+    let userIdFromXtl = null;
+    let tierFromXtl = 'basic'; // Default assumption
 
-        // --- 2. Set Initial UI State ---
-        if (loadingSpinner) loadingSpinner.style.display = 'flex'; else console.error("Loading spinner not found!");
-        if (errorMessageElement) errorMessageElement.style.display = 'none';
-        if (mainContentElement) mainContentElement.style.display = 'none';
-        if (initialMessageElement) initialMessageElement.style.display = 'none';
-        if (initialUploadPrompt) initialUploadPrompt.style.display = 'none';
+    // *** CHANGE: Check for length 21 ***
+    if (xtlParam && xtlParam.length === 21) {
+        console.log("Found xtl parameter (length 21):", xtlParam);
+        const verificationSegment = xtlParam.substring(6, 11); // Digits 7-11 (index 6, length 5) - NO CHANGE HERE
+        const userIdSegment = xtlParam.substring(11); // Last 10 digits (index 11 to end) - NO CHANGE HERE, substring goes to end
 
+        // *** CHANGE: Validate userIdSegment length is 10 ***
+        if (/^[a-zA-Z0-9]{5}$/.test(verificationSegment) && userIdSegment.length === 10) {
+            userIdFromXtl = userIdSegment; // Store valid User ID
 
-        try {
-            // --- 3. Initialize Supabase ---
-            // Basic checks for Supabase configuration and library presence
-            if (!SUPABASE_URL || !SUPABASE_URL.startsWith('https://')) {
-                 throw new Error("Supabase URL is not configured or is invalid.");
+            // The Core Tier Logic (remains the same)
+            if (verificationSegment === '16j59') {
+                tierFromXtl = 'pro';
+                console.log(`xtl code '${verificationSegment}' = PRO tier for user ID: ${userIdFromXtl}`);
+            } else if (verificationSegment === '83n45') {
+                tierFromXtl = 'basic';
+                console.log(`xtl code '${verificationSegment}' = BASIC tier for user ID: ${userIdFromXtl}`);
+            } else {
+                // Code is 5 valid chars, but not recognized pro/basic
+                console.error(`xtl parameter has unrecognized verification segment: ${verificationSegment}`);
+                userIdFromXtl = null; // Invalidate if code is unknown
+                tierFromXtl = 'basic'; // Reset tier
+                handleInvalidAccess("Invalid Access Code Segment");
             }
-            if (!SUPABASE_ANON_KEY || SUPABASE_ANON_KEY.length < 50) { // Basic length check
-                 throw new Error("Supabase Anon Key is not configured or seems invalid.");
-            }
-            if (typeof window.supabase === 'undefined' || !window.supabase?.createClient) {
-                 throw new Error("Supabase library (supabase-js) failed to load. Check the script tag.");
-            }
+        } else {
+             // *** CHANGE: Update error message slightly if desired ***
+            console.error("xtl parameter has invalid format in segments (expected 5 code + 10 ID).");
+            userIdFromXtl = null; // Invalidate
+            tierFromXtl = 'basic'; // Reset tier
+            handleInvalidAccess("Invalid Access Parameter Format");
+        }
+    } else {
+         // *** CHANGE: Update warning message slightly if desired ***
+        console.warn("xtl parameter not found or incorrect length (expected 21 digits).");
+        userIdFromXtl = null; // Invalidate
+        tierFromXtl = 'basic'; // Reset tier
+        handleInvalidAccess("Missing or Invalid Access Parameter");
+    }
 
-            // Initialize the client
-            const { createClient } = window.supabase;
-            supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            console.log("Supabase client initialized successfully.");
+    // Set global variables IF valid user was found (remains the same)
+    if (userIdFromXtl) {
+        currentUserId = userIdFromXtl;
+        effectiveTier = tierFromXtl;
+        // Trigger fetching initial usage info now that we have a valid user/tier
+        fetchInitialUsage(currentUserId);
+    } else {
+         // If user ID is null ensure globals reflect invalid state
+         currentUserId = null;
+         effectiveTier = 'basic';
+         initialUsageInfo = null; // Clear any potentially stale info
+    }
+}
+// *** END OF REPLACEMENT for parseXtlParameter ***
 
-            // --- 4. Setup Core Button Listeners & UI Interactions ---
-            document.getElementById('retryButton')?.addEventListener('click', () => {
-                console.log("Retry button clicked. Reloading page.");
-                location.reload();
-            });
-            document.getElementById('manualEntryButton')?.addEventListener('click', useDemoData);
-            initSaveButton(); // Attaches listener to #saveButton
-            initUploadButton(); // Attaches listeners to #uploadButton, #initialUploadButton, and #fileInput
-            initModals(); // Sets up modal closing behavior
-            initInfoPopups(); // Sets up click listeners for elements with [data-desc]
+// *** PASTE THIS FUNCTION DEFINITION (e.g., after parseXtlParameter) ***
 
-            // Setup save summary button listener
-             const saveSummaryBtn = document.getElementById('saveSummaryBtn');
-             if(saveSummaryBtn) {
-                 saveSummaryBtn.addEventListener('click', generateAndSaveSummary);
-             } else {
-                 console.warn("Save Summary button (#saveSummaryBtn) not found.");
+// Function to parse financial data parameters from URL into dashboardData
+function parseFinancialUrlParams(params, dataObject) {
+    console.log("Starting financial parameter parsing...");
+
+    // Ensure the target data structure exists
+    if (!dataObject.userInput) dataObject.userInput = {};
+    if (!dataObject.userInput.personalInfo) dataObject.userInput.personalInfo = {};
+    if (!dataObject.userInput.income) dataObject.userInput.income = {};
+    if (!dataObject.userInput.expenses) dataObject.userInput.expenses = {};
+    if (!dataObject.userInput.savings) dataObject.userInput.savings = {};
+    if (!dataObject.userInput.debts) dataObject.userInput.debts = [];
+    if (!dataObject.userInput.financials) dataObject.userInput.financials = {};
+    if (!dataObject.aiOutput) dataObject.aiOutput = {}; // Ensure aiOutput exists too
+
+    // Helper: Get parameter safely (assuming getParam exists globally or redefine here if needed)
+     const getParam = (key) => {
+         if (!params.has(key)) return null;
+         const rawValue = params.get(key);
+         if (!rawValue) return null;
+         try { return decodeURIComponent(rawValue.replace(/\+/g, ' ')).trim(); }
+         catch (e) { console.warn(`Error decoding parameter ${key}`); return rawValue.trim(); }
+     };
+
+    // Helper: Parse numeric parameter safely (assuming parseNumeric exists globally or redefine)
+     const parseNumeric = (value, defaultValue = 0) => {
+         if (value === null || value === undefined) return defaultValue;
+         const cleaned = String(value).replace(/[^0-9.-]+/g, '');
+         const number = parseFloat(cleaned);
+         return isNaN(number) ? defaultValue : number;
+     };
+
+    // --- Map URL Params to dashboardData Object ---
+    // Personal Info
+    dataObject.userInput.personalInfo.userName = getParam('userName') ?? dataObject.userInput.personalInfo.userName;
+    dataObject.userInput.personalInfo.age = parseNumeric(getParam('age'), dataObject.userInput.personalInfo.age || 0);
+
+    // Income
+    dataObject.userInput.income.mainJobIncome = parseNumeric(getParam('mainJobIncome'), dataObject.userInput.income.mainJobIncome || 0);
+    dataObject.userInput.income.secondJob = parseNumeric(getParam('secondJobIncome'), dataObject.userInput.income.secondJob || 0);
+    dataObject.userInput.income.otherIncome = parseNumeric(getParam('otherIncome'), dataObject.userInput.income.otherIncome || 0);
+
+    // Expenses
+    dataObject.userInput.expenses.housing = parseNumeric(getParam('housing'), dataObject.userInput.expenses.housing || 0);
+    dataObject.userInput.expenses.transportation = parseNumeric(getParam('transportation'), dataObject.userInput.expenses.transportation || 0);
+    dataObject.userInput.expenses.utilities = parseNumeric(getParam('utilities'), dataObject.userInput.expenses.utilities || 0);
+    dataObject.userInput.expenses.groceriesEssentials = parseNumeric(getParam('groceriesessentials'), dataObject.userInput.expenses.groceriesEssentials || 0);
+    dataObject.userInput.expenses.insurance = parseNumeric(getParam('insurance'), dataObject.userInput.expenses.insurance || 0);
+    dataObject.userInput.expenses.medical = parseNumeric(getParam('medical'), dataObject.userInput.expenses.medical || 0);
+    dataObject.userInput.expenses.care = parseNumeric(getParam('care'), dataObject.userInput.expenses.care || 0);
+    dataObject.userInput.expenses.subscriptions = parseNumeric(getParam('subscriptions'), dataObject.userInput.expenses.subscriptions || 0);
+    dataObject.userInput.expenses.taxes = parseNumeric(getParam('taxes'), dataObject.userInput.expenses.taxes || 0);
+
+    // Savings
+    dataObject.userInput.savings.emergency = parseNumeric(getParam('emergencySavings'), dataObject.userInput.savings.emergency || 0);
+    dataObject.userInput.savings.savings = parseNumeric(getParam('currentSavings'), dataObject.userInput.savings.savings || 0);
+    dataObject.userInput.savings.retirement = parseNumeric(getParam('retirementFund'), dataObject.userInput.savings.retirement || 0);
+    dataObject.userInput.savings.emergencyFundTarget = parseNumeric(getParam('emergencyFundTarget'), dataObject.userInput.savings.emergencyFundTarget || 0);
+    dataObject.userInput.savings.monthlySavingsGoal = parseNumeric(getParam('monthlySavingsGoal'), dataObject.userInput.savings.monthlySavingsGoal || 0);
+
+    // Debts
+    dataObject.userInput.debts = []; // Start fresh
+    const creditCardDebt = parseNumeric(getParam('creditCardDebt'));
+    if (creditCardDebt > 0) { dataObject.userInput.debts.push({ type: "Credit Card", balance: creditCardDebt, interestRate: parseNumeric(getParam('creditCardRate'), 22.5), minPayment: parseNumeric(getParam('creditCardMinPayment'), Math.max(creditCardDebt * 0.03, 25)) }); }
+    const bankLoans = parseNumeric(getParam('bankLoans'));
+    if (bankLoans > 0) { dataObject.userInput.debts.push({ type: "Bank Loans", balance: bankLoans, interestRate: parseNumeric(getParam('bankLoanRate'), 6.5), minPayment: parseNumeric(getParam('bankLoanMinPayment'), Math.max(bankLoans * 0.015, 50)) }); }
+    // Add others (studentLoanDebt, carLoanBalance etc.)
+
+    // Financials & Goals
+    dataObject.userInput.financials.financialTools = getParam('financialTools') ?? dataObject.userInput.financials.financialTools;
+    dataObject.userInput.financials.challenges = getParam('challenges') ?? dataObject.userInput.financials.challenges;
+    dataObject.userInput.financials.upcomingPurchase = getParam('upcomingPurchases') ?? dataObject.userInput.financials.upcomingPurchase;
+
+    // AI Output (Populate from params if they exist)
+    dataObject.aiOutput.analysis = getParam('aiAnalysis') ?? dataObject.aiOutput.analysis ?? 'Analysis not available.';
+    dataObject.aiOutput.recommendations = getParam('recommendations') ?? dataObject.aiOutput.recommendations ?? 'Recommendations not available.';
+    dataObject.aiOutput.userProgress = getParam('userProgressHistory') ?? dataObject.aiOutput.userProgress ?? 'No progress history available.';
+
+    console.log("Financial parameters parsed. Updated dashboardData:", dataObject);
+}
+// *** END OF FUNCTION DEFINITION ***
+    
+// Optional: Function to fetch initial usage for UI feedback
+async function fetchInitialUsage(userId) {
+    // Ensure elements needed by potential UI updates inside this function are ready
+    // If called very early, might need deferral or checks
+
+    if (!userId) {
+        console.log("Skipping initial usage fetch: No user ID.");
+        if (loadingSpinner) loadingSpinner.style.display = 'none'; // Hide spinner if we bail early
+        return;
+    }
+    // Wait briefly for Supabase to potentially initialize if called extremely early
+    if (!supabase) {
+        console.warn("Supabase client not ready for initial usage fetch, will retry shortly.");
+        await new Promise(resolve => setTimeout(resolve, 100)); // Wait 100ms
+        if (!supabase) {
+             console.error("Supabase client failed to initialize in time for usage fetch.");
+             if (loadingSpinner) loadingSpinner.style.display = 'none';
+             // Optionally show an error that usage info couldn't load
+             initialUsageInfo = { error: "Could not connect to service for usage info." };
+             updateUIBasedOnAccess(); // Update UI to show potential error
+             return;
+        }
+    }
+
+    console.log(`Workspaceing initial usage for user ${userId}...`);
+    // setLoadingState(true); // You might manage loading state differently now
+
+    try {
+         const { data, error } = await supabase
+             .from('users')
+             .select('token_usage, last_token_reset, tier') // Fetch actual tier too for comparison/logging
+             .eq('id', userId)
+             .maybeSingle(); // Use maybeSingle in case user ID from URL is invalid
+
+         if (error) {
+             console.error("Error fetching initial usage:", error.message);
+             initialUsageInfo = { error: "Could not load usage data." };
+             updateUIBasedOnAccess(); // Update UI to show error
+         } else if (data) {
+             console.log("Initial usage data fetched:", data);
+             const determinedLimit = (effectiveTier === 'pro') ? 500000 : 10000; // Use actual limits
+             const determinedModel = (effectiveTier === 'pro') ? 'gpt-4o-mini' : 'gpt-3.5-turbo';
+
+             const now = new Date();
+             const lastReset = data.last_token_reset ? new Date(data.last_token_reset) : null;
+             let currentUsage = data.token_usage || 0;
+             let needsReset = !lastReset || (now.getTime() - lastReset.getTime()) / (1000 * 60 * 60 * 24) >= 7;
+             if (needsReset) {
+                 currentUsage = 0; // Reflect reset state
              }
 
+             initialUsageInfo = {
+                 usage: currentUsage,
+                 limit: determinedLimit,
+                 model: determinedModel,
+                 tier: effectiveTier, // Store the tier determined by xtl
+                 actualDbTier: data.tier, // Store actual tier for logging/comparison
+                 lastReset: data.last_token_reset,
+                 resetDue: needsReset
+             };
+             console.log("Initial Usage Info Calculated:", initialUsageInfo);
+             updateUIBasedOnAccess(); // Update UI elements now
+         } else {
+              console.warn(`User ID ${userId} not found in users table during initial fetch.`);
+              // This means the userId from xtl is invalid according to the DB
+              handleInvalidAccess("User Not Found"); // Treat as invalid access
+              initialUsageInfo = { error: "User ID not found." }; // Set error state
+              updateUIBasedOnAccess(); // Update UI to show error
+         }
+    } catch (err) {
+         console.error("Unexpected error fetching initial usage:", err);
+         initialUsageInfo = { error: "Unexpected error loading usage data." };
+         updateUIBasedOnAccess(); // Update UI to show error
+    } finally {
+         // Ensure spinner is hidden AFTER attempt
+         if (loadingSpinner) loadingSpinner.style.display = 'none';
+         // setLoadingState(false);
+    }
+}
 
-            console.log("Core event listeners and UI interactions initialized.");
+// Function to update UI elements based on determined access early on
+function updateUIBasedOnAccess() {
+    // Ensure elements exist before trying to update them
+    const tierDisplay = document.getElementById('userTierDisplay'); // Add an element like this
+    const chatInput = document.getElementById('chatInput');
+    const chatSendButton = document.getElementById('chatSendButton'); // Needed for enable/disable logic
 
-            // --- 5. Load Initial Data ---
-            // This function now handles checking URL params, embedded data, or showing the initial message.
-             console.log("Starting initial data load process...");
-             loadInitialData();
+    if (initialUsageInfo && initialUsageInfo.error) {
+        // Display error if fetching usage failed
+        if (tierDisplay) tierDisplay.textContent = `Error: ${initialUsageInfo.error}`;
+        console.warn("UI update skipped or showing error due to errored usage info.");
+        enableChatInput(false); // Ensure chat is disabled if usage check failed critically
+        setChatStatus("Error loading access info", false);
+        return;
+    }
 
-        } catch (error) {
-            console.error("CRITICAL Error during initial page setup:", error);
-            // Attempt to use the handleError function, but it might fail if elements aren't ready
-            try {
-                 handleError("Failed during initial page setup", error);
-            } catch (fallbackError) {
-                 console.error("Fallback error handler:", fallbackError);
-                 alert(`Critical Setup Error: ${error.message}\n\nPlease check the console for details.`); // Ultimate fallback
-            }
-            // Ensure spinner is hidden if setup fails critically
+    if (!initialUsageInfo) {
+        // Called before info is fetched? Or fetch failed silently?
+        console.warn("Skipping UI update - initialUsageInfo is not available.");
+        return;
+    }
+
+
+    // Example: Display tier/limit info
+    if (tierDisplay) {
+        let infoText = `Access: ${initialUsageInfo.tier} | Model: ${initialUsageInfo.model} | Usage: ${initialUsageInfo.usage.toLocaleString()} / ${initialUsageInfo.limit.toLocaleString()}`;
+         if(initialUsageInfo.resetDue) infoText += " (Reset Pending)";
+        tierDisplay.textContent = infoText;
+    }
+
+    // Example: Disable chat if limit reached based on initial check
+    // Need to check chatInput/Button exist first
+    if (chatInput && chatSendButton) {
+       if (initialUsageInfo.usage >= initialUsageInfo.limit && !initialUsageInfo.resetDue) {
+           console.log("Initial check: Usage limit reached. Disabling chat.");
+           enableChatInput(false); // Use your existing function
+           setChatStatus("Weekly token limit reached", false);
+           chatInput.placeholder = "Weekly token limit reached.";
+       } else {
+           // Don't enable here - let initializeChat handle final enable state
+           // based on Supabase connection etc.
+           // chatInput.placeholder = "Ask about your finances..."; // Reset placeholder maybe
+       }
+    } else {
+         console.warn("Chat input or send button not found for initial access update.");
+    }
+    // Add other UI updates here - e.g., show/hide "Pro Feature" buttons etc.
+    // Based on initialUsageInfo.tier === 'pro'
+    const proFeatureButton = document.getElementById('proFeatureButton'); // Example element
+    if (proFeatureButton) {
+        proFeatureButton.style.display = (initialUsageInfo.tier === 'pro') ? 'inline-block' : 'none';
+    }
+}
+
+// Function to handle cases where access should be denied based on xtl parameter
+function handleInvalidAccess(reason) {
+    console.error("Access Denied or Invalid:", reason);
+    currentUserId = null; // Ensure userId is null
+    effectiveTier = 'basic'; // Reset tier
+    initialUsageInfo = null; // Clear usage info
+
+    // Hide main content, show error message, disable chat etc.
+    if (loadingSpinner) loadingSpinner.style.display = 'none'; // Ensure spinner is hidden
+    if (mainContentElement) mainContentElement.style.display = 'none';
+    if (initialUploadPrompt) initialUploadPrompt.style.display = 'none'; // Ensure prompt is hidden
+
+    // Use your existing error display mechanism if available
+    // Make sure handleError exists and is defined before this function
+    if (typeof handleError === 'function') {
+        handleError(`Access Error: ${reason}`, new Error(reason));
+    } else {
+        // Fallback if handleError isn't defined yet or has issues
+        const errorDiv = document.getElementById('errorMessage');
+        const errorTextEl = document.getElementById('errorText');
+        if (errorDiv && errorTextEl) {
+            errorTextEl.textContent = `Access Error: ${reason}. Please check the URL or contact support.`;
+            errorDiv.style.display = 'flex';
+        } else {
+            alert(`Access Error: ${reason}. Please check the URL or contact support.`);
+        }
+    }
+
+
+    // Explicitly disable chat features
+    enableChatInput(false); // Make sure this function exists
+    setChatStatus("Access Denied", false); // Make sure this function exists
+    const chatInterfaceCard = document.getElementById('chatInterfaceCard');
+    if (chatInterfaceCard) chatInterfaceCard.style.display = 'none';
+}
+
+// Function to bundle Supabase/Core initializations
+function initializeSupabaseAndCoreFeatures() {
+     console.log("Initializing Supabase client and core features...");
+     try {
+         // Initialize Supabase client
+         if (!supabase && typeof window.supabase !== 'undefined' && window.supabase?.createClient) {
+             const { createClient } = window.supabase;
+             // Use ANON key for client-side initialization
+             supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+             console.log("Supabase client initialized successfully.");
+         } else if (!supabase) {
+              // It might have been initialized before this function was called in some scenarios
+              console.warn("Supabase client could not be initialized or library not loaded.");
+               // We might still continue to init other features that don't depend on Supabase
+         } else {
+              console.log("Supabase client already initialized.");
+         }
+
+         // Initialize buttons, modals, popups etc. (These should be safe to init)
+         // Check if functions exist before calling
+         if (typeof initSaveButton === 'function') initSaveButton();
+         if (typeof initUploadButton === 'function') initUploadButton();
+         if (typeof initModals === 'function') initModals();
+         if (typeof initInfoPopups === 'function') initInfoPopups(); // Call the original one
+         document.getElementById('retryButton')?.addEventListener('click', () => { location.reload(); });
+         // Setup save summary button
+         document.getElementById('saveSummaryBtn')?.addEventListener('click', generateAndSaveSummary);
+         // Demo button - keep or remove based on your logic for xtl users
+         document.getElementById('manualEntryButton')?.addEventListener('click', useDemoData);
+
+         // Initialize Chat ONLY if we have a valid user ID AND initial usage check PASSED or is pending
+         if (currentUserId && (!initialUsageInfo || (initialUsageInfo && !initialUsageInfo.error && initialUsageInfo.usage < initialUsageInfo.limit)) ) {
+             console.log("Conditions met, initializing chat interface...");
+              if (typeof initializeChat === 'function') initializeChat(); // Call the original chat initializer
+         } else {
+              console.log("Skipping chat initialization (No valid user ID or initial limit check failed).");
+              if (typeof enableChatInput === 'function') enableChatInput(false); // Ensure it's disabled
+              if (typeof setChatStatus === 'function') setChatStatus("Chat unavailable", false);
+         }
+
+         // If we have a valid user from xtl, show the main content structure
+         // even if no dashboard data is loaded yet (anticipating file upload)
+         if (currentUserId && !dashboardData?.userInput) {
+             console.log("User identified via xtl, showing main content structure.");
+             if (mainContentElement) mainContentElement.style.display = 'block'; // Show the basic layout
+             // Initial Message or Upload Prompt should be hidden if xtl was valid
+              if (initialMessageElement) initialMessageElement.style.display = 'none';
+              if (initialUploadPrompt) initialUploadPrompt.style.display = 'none';
+         } else if (dashboardData?.userInput) {
+             // If dashboardData *was* loaded (e.g. maybe fetchInitialUsage loaded it fully?)
+             // Ensure main content is visible
+             if (mainContentElement) mainContentElement.style.display = 'block';
+         }
+         // If no valid user, error/access denied should have been handled already
+
+         // Ensure spinner is hidden finally if not already handled
+         if (loadingSpinner && loadingSpinner.style.display !== 'none') {
+             loadingSpinner.style.display = 'none';
+             console.log("Hiding spinner in core init final check.");
+         }
+
+
+     } catch (initError) {
+          console.error("Error initializing Supabase/core features:", initError);
+          if (typeof handleInvalidAccess === 'function') {
+               handleInvalidAccess("Core Initialization Failed: " + initError.message);
+          } else if (typeof handleError === 'function') {
+               handleError("Core Initialization Failed", initError);
+          } else {
+               alert("Critical Error during Core Initialization.");
+          }
+         // Ensure spinner is hidden on error
+         if (loadingSpinner) loadingSpinner.style.display = 'none';
+     }
+}
+
+    // --- MAIN Document Ready Event ---
+document.addEventListener('', function() { // KEEP THIS LINE
+    // *** START OF CODE TO PASTE INSIDE DOMContentLoaded {} ***
+    console.log("DOM fully loaded. Initializing application with XTL logic...");
+
+    // --- 1. Cache Global DOM Elements ---
+    loadingSpinner = document.getElementById('loadingSpinner');
+    errorMessageElement = document.getElementById('errorMessage');
+    mainContentElement = document.getElementById('mainContent');
+    initialMessageElement = document.getElementById('initialMessage');
+    initialUploadPrompt = document.getElementById('initialUploadPrompt');
+    errorTextElement = document.getElementById('errorText');
+    debugInfoElement = document.getElementById('debugInfo');
+    fileInput = document.getElementById('fileInput');
+    // Add any other elements you cache globally here
+
+    // --- 2. Set Initial UI State ---
+    if (loadingSpinner) loadingSpinner.style.display = 'flex'; else console.error("Loading spinner not found!");
+    if (errorMessageElement) errorMessageElement.style.display = 'none';
+    if (mainContentElement) mainContentElement.style.display = 'none';
+    if (initialMessageElement) initialMessageElement.style.display = 'none';
+    if (initialUploadPrompt) initialUploadPrompt.style.display = 'none';
+
+    // --- 3. Initialization Flow ---
+    try {
+        // Parse the xtl parameter FIRST to get userId and effectiveTier
+        // This function will also trigger fetchInitialUsage if parsing succeeds
+        parseXtlParameter();
+
+        // Initialize Supabase and core features (buttons, modals, potentially chat)
+        // This needs to run even if xtl parsing fails, to set up basic page functions
+        // or handle the error state gracefully.
+        initializeSupabaseAndCoreFeatures();
+
+        // NOTE: processAndDisplayData() is NOT called here automatically anymore.
+        // It will only be called if the user uploads a PSR JSON file via handleFileUpload.
+        // The initial UI state is now handled by updateUIBasedOnAccess().
+
+        // Spinner hiding is now handled inside fetchInitialUsage or handleInvalidAccess or initializeSupabaseAndCoreFeatures
+
+    } catch (error) {
+        console.error("CRITICAL Error during initial setup:", error);
+        try {
+             handleInvalidAccess("Initialization Error: " + error.message);
+        } catch (fallbackError) {
+             console.error("Fallback error handler:", fallbackError);
+             alert(`Critical Setup Error: ${error.message}\n\nPlease check the console for details.`);
              if (loadingSpinner) loadingSpinner.style.display = 'none';
         }
-    });
+    }
+    // *** END OF CODE TO PASTE INSIDE DOMContentLoaded {} ***
+}); // KEEP THIS CLOSING );
 
+    // *** PASTE THIS ENTIRE BLOCK BEFORE THE CLOSING </script> TAG ***
+
+// --- MAIN Document Ready Event ---
+document.addEventListener('DOMContentLoaded', function() { // <-- Ensure 'DOMContentLoaded' is here
+    // *** START: THIS IS THE CORRECT CONTENT THAT SHOULD BE INSIDE {} ***
+    console.log("DOM fully loaded. Initializing application with Updated XTL logic...");
+
+    // --- 1. Cache Global DOM Elements ---
+    loadingSpinner = document.getElementById('loadingSpinner');
+    errorMessageElement = document.getElementById('errorMessage');
+    mainContentElement = document.getElementById('mainContent');
+    initialMessageElement = document.getElementById('initialMessage');
+    initialUploadPrompt = document.getElementById('initialUploadPrompt');
+    errorTextElement = document.getElementById('errorText');
+    debugInfoElement = document.getElementById('debugInfo');
+    fileInput = document.getElementById('fileInput');
+    // Add any other elements you cache globally here
+
+    // --- 2. Set Initial UI State ---
+    if (loadingSpinner) loadingSpinner.style.display = 'flex'; else console.error("Loading spinner not found!");
+    if (errorMessageElement) errorMessageElement.style.display = 'none';
+    if (mainContentElement) mainContentElement.style.display = 'none';
+    if (initialMessageElement) initialMessageElement.style.display = 'none';
+    if (initialUploadPrompt) initialUploadPrompt.style.display = 'none';
+
+    // --- 3. Initialization Flow ---
+    try {
+        // Get URL parameters once
+        const params = new URLSearchParams(window.location.search);
+
+        // Parse the xtl parameter FIRST to get userId and effectiveTier
+        // This also triggers fetchInitialUsage asynchronously if parsing succeeds
+        parseXtlParameter(); // Uses window.location.search internally
+
+        // Check if we got a valid user from xtl before proceeding
+        if (currentUserId) { // <<< --- Check if user was identified --- <<<
+            console.log(`Valid user ${currentUserId} identified with tier ${effectiveTier}. Parsing financial params...`);
+
+            // Now parse the FINANCIAL parameters from the URL into dashboardData
+            // Make sure the 'parseFinancialUrlParams' function exists
+            if (typeof parseFinancialUrlParams === 'function') {
+                parseFinancialUrlParams(params, dashboardData); // Pass params and the global object
+            } else {
+                 console.error("parseFinancialUrlParams function is missing!");
+                 throw new Error("Configuration error: Financial parser missing.");
+            }
+
+            // Initialize Supabase and core features (buttons, modals, chat etc.)
+            // Make sure 'initializeSupabaseAndCoreFeatures' function exists
+             if (typeof initializeSupabaseAndCoreFeatures === 'function') {
+                 initializeSupabaseAndCoreFeatures(); // This might use currentUserId/effectiveTier
+             } else {
+                  console.error("initializeSupabaseAndCoreFeatures function is missing!");
+                  throw new Error("Configuration error: Core initializer missing.");
+             }
+
+            // *** Display the dashboard content ***
+            // Ensure 'dashboardData' is populated and 'processAndDisplayData' exists
+            if (dashboardData.userInput && typeof processAndDisplayData === 'function') {
+                console.log("Calling processAndDisplayData with data parsed from URL params...");
+                processAndDisplayData(dashboardData); // Renders the dashboard content
+            } else {
+                 console.error("Cannot display dashboard - dashboardData or processAndDisplayData missing/invalid after parsing.");
+                 // Use the invalid access handler to show error and stop
+                 if(typeof handleInvalidAccess === 'function') {
+                    handleInvalidAccess("Failed to process dashboard data from URL");
+                 } else {
+                    // Fallback if handler missing
+                    alert("Error: Failed to process dashboard data from URL");
+                    if (mainContentElement) mainContentElement.style.display = 'none'; // Hide content area
+                 }
+            }
+
+        } else { // <<< --- Handle case where xtl was invalid --- <<<
+            // parseXtlParameter already called handleInvalidAccess if xtl was missing/invalid
+            console.log("No valid user ID from xtl, full dashboard display skipped.");
+             // Initialize core features even if user is invalid? (Optional, depends on desired flow)
+             // You might still want basic button/modal setup even on error pages if handleInvalidAccess doesn't fully stop things.
+             if (typeof initializeSupabaseAndCoreFeatures === 'function') {
+                  console.log("Initializing core features even without valid user...")
+                  initializeSupabaseAndCoreFeatures(); // Call this to setup retry buttons etc. even on error page
+             }
+             // Ensure spinner is hidden if initialization stops here
+             if (loadingSpinner) loadingSpinner.style.display = 'none';
+        }
+
+    } catch (error) { // <<< --- Catch initialization errors --- <<<
+        // This catch block handles errors during the parsing/init process
+        console.error("CRITICAL Error during initial setup:", error);
+        try {
+             if (typeof handleInvalidAccess === 'function') {
+                 handleInvalidAccess("Initialization Error: " + error.message);
+             } else if (typeof handleError === 'function') { // Fallback to general handler
+                  handleError("Initialization Failed", error);
+             } else { // Ultimate fallback
+                  alert(`Critical Setup Error: ${error.message}\n\nPlease check the console.`);
+             }
+        } catch (fallbackError) {
+             console.error("Fallback error handler failed:", fallbackError);
+             alert(`Critical Setup Error: ${error.message}\n\nError handler also failed.`);
+        }
+    } finally { // <<< --- Ensure spinner is hidden --- <<<
+         // This block ensures the spinner is always hidden eventually
+         if (loadingSpinner && loadingSpinner.style.display !== 'none') {
+             loadingSpinner.style.display = 'none';
+             console.log("Hiding spinner in DOMContentLoaded finally block.");
+         }
+    }
+    // *** END OF THE CORRECT CONTENT ***
+}); // <-- This closing ); ends the addEventListener call
+
+// *** END OF BLOCK TO PASTE ***
 </script>
 </body>
 </html>
