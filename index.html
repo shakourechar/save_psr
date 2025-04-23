@@ -2071,17 +2071,21 @@
 
             console.log(`Invoking Supabase function '${summaryFunctionName}' for summary.`);
 
-            const response = await fetch(`${SUPABASE_URL}/functions/v1/${summaryFunctionName}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                },
-                body: JSON.stringify({
-                    financialContext: summaryContext,
-                    model: CHAT_MODEL
-                })
-            });
+        // Invoke the Supabase Function using fetch with proper headers
+const response = await fetch(`${SUPABASE_URL}/functions/v1/${functionName}`, {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        // Add these crucial headers that the backend expects
+        'x-user-id': currentUserId,
+        'x-user-tier': effectiveTier
+    },
+    body: JSON.stringify({
+        messages: messagesForBackend,
+        model: CHAT_MODEL
+    })
+});
 
             const result = await response.json();
 
