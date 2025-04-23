@@ -894,7 +894,7 @@
     }
 
     // --- Parse XTL Parameter for Authentication ---
-function parseXtlParameter() {
+    function parseXtlParameter() {
     const params = new URLSearchParams(window.location.search);
     const xtlParam = params.get('xtl');
     let userIdFromXtl = null;
@@ -947,13 +947,6 @@ function parseXtlParameter() {
         fetchInitialUsage(currentUserId);
     }
 }
-        } else {
-            // If user ID is null ensure globals reflect invalid state
-            currentUserId = null;
-            effectiveTier = 'basic';
-            initialUsageInfo = null; // Clear any potentially stale info
-        }
-    }
 
     // Function to fetch initial usage for UI feedback
     async function fetchInitialUsage(userId) {
@@ -1833,51 +1826,23 @@ console.log("Supabase client ready:", !!supabase);
 
         console.log(`Invoking Supabase function '${functionName}' with ${messagesForBackend.length} messages.`);
 
-        try {
-            // Invoke the Supabase Function using fetch
-            const response = await fetch(`${SUPABASE_URL}/functions/v1/${functionName}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, // Use Anon key for basic auth
-                },
-                body: JSON.stringify({
-                    messages: messagesForBackend,
-                    model: CHAT_MODEL
-                })
-            });
-
-            const data = await response.json(); // Attempt to parse JSON response
-
-            setChatStatus("", false); // Clear "Thinking..." indicator
-
-            if (!response.ok) {
-                console.error("Error response from backend function:", { status: response.status, body: data });
-                // Try to get a meaningful error message from the response body
-                const errorMsg = data?.error || data?.message || `Backend function returned status ${response.status}`;
-                throw new Error(errorMsg);
-            }
-
-            // --- Process successful response ---
-            if (data && data.assistantResponse && data.assistantResponse.content) {
-                const assistantMsg = data.assistantResponse;
-                addMessageToChat("Assistant", assistantMsg.content);
-                chatMessages.push(assistantMsg); // Add AI response to local history
-            } else {
-                console.error("Unexpected response format from backend function:", data);
-                throw new Error("Received an unexpected or empty response from the AI service.");
-            }
-
-        } catch (error) {
-            console.error("Error during chat function invocation:", error);
-            // Provide a user-friendly error message in chat
-            addMessageToChat("System", `Sorry, I encountered an error communicating with the AI service. Please try again later. (Error: ${error.message})`, true);
-            setChatStatus("Error communicating with AI", false); // Set error status
-        } finally {
-            enableChatInput(true); // Always re-enable input after attempt
-        }
-    }
-
+      try {
+    // Invoke the Supabase Function using fetch with proper headers
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/${functionName}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+            // Add these crucial headers that the backend expects
+            'x-user-id': currentUserId,
+            'x-user-tier': effectiveTier
+        },
+        body: JSON.stringify({
+            messages: messagesForBackend,
+            model: CHAT_MODEL
+        })
+    });
+          
     // --- Event Handlers & Button Initializers ---
     function handleChatSubmit() {
         const chatInput = document.getElementById('chatInput');
