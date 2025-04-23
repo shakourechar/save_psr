@@ -2221,7 +2221,7 @@ async function fetchInitialUsage(userId) {
         }
     }
 
-    console.log(`Workspaceing initial usage for user ${userId}...`);
+    console.log(`Fetching initial usage for user ${userId}...`);
     // setLoadingState(true); // You might manage loading state differently now
 
     try {
@@ -2444,7 +2444,7 @@ function initializeSupabaseAndCoreFeatures() {
 }
 
     // --- MAIN Document Ready Event ---
-document.addEventListener('', function() { // KEEP THIS LINE
+document.addEventListener('DOMContentLoaded', function() { // KEEP THIS LINE
     // *** START OF CODE TO PASTE INSIDE DOMContentLoaded {} ***
     console.log("DOM fully loaded. Initializing application with XTL logic...");
 
