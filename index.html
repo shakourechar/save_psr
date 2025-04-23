@@ -10,12 +10,11 @@
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* --- All your existing CSS --- */
         /* Base Styles */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f5f7fa; /* Slightly softer background */
-            color: #374151; /* Tailwind gray-700 */
+            background-color: #f5f7fa;
+            color: #374151;
             margin: 0;
             padding: 0;
             line-height: 1.6;
@@ -23,123 +22,114 @@
         /* Garamond for Headers */
         h1, h2, h3, h4, .header-font {
             font-family: 'EB Garamond', serif;
-            color: #111827; /* Tailwind gray-900 */
+            color: #111827;
             font-weight: bold;
         }
-        h1 { font-size: 1.8em; } /* Adjusted sizes */
+        h1 { font-size: 1.8em; }
         h2 { font-size: 1.5em; }
-        h3 { font-size: 1.2em; color: #333; } /* Original h3 color */
+        h3 { font-size: 1.2em; color: #333; }
         h4 { font-size: 1.1em; }
 
         /* Main Container */
-        .main-container { /* Renamed from .container for clarity */
-            max-width: 1400px; /* Wider container */
-            margin: 2rem auto; /* More vertical space */
-            padding: 1.5rem 2rem; /* More padding */
+        .main-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 1.5rem 2rem;
             background: #ffffff;
-            border-radius: 12px; /* Softer corners */
-            box-shadow: 0 5px 15px rgba(0,0,0,0.07); /* Subtle shadow */
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.07);
         }
 
         /* Header */
         header {
             display: flex;
             align-items: center;
-            margin-bottom: 2rem; /* More space below header */
-            padding-bottom: 1rem; /* Padding for border */
-            border-bottom: 1px solid #e5e7eb; /* Tailwind gray-200 */
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e5e7eb;
             flex-wrap: wrap;
         }
         header img {
-            height: 72px; /* Slightly smaller logo */
+            height: 72px;
             margin-right: 15px;
             border-radius: 8px;
             object-fit: contain;
         }
         header h1 {
-            color: #4f46e5; /* Tailwind indigo-600 */
+            color: #4f46e5;
             margin: 0;
             flex-grow: 1;
-            font-size: 2.2em; /* Larger title */
+            font-size: 2.2em;
             line-height: 1.2;
         }
 
         /* Header Buttons */
         header button {
             margin-left: 10px;
-            padding: 0.6rem 1.2rem; /* Adjusted padding */
-            background-color: #4f46e5; /* Tailwind indigo-600 */
+            padding: 0.6rem 1.2rem;
+            background-color: #4f46e5;
             color: white;
             border: none;
             border-radius: 6px;
             cursor: pointer;
             font-size: 0.9em;
             transition: background-color 0.3s ease;
-            font-family: 'Inter', sans-serif; /* Ensure consistent font */
-            font-weight: 500; /* Medium weight */
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
         }
-        header button#uploadButton { background-color: #059669; } /* Tailwind green-600 */
-        header button:hover { background-color: #4338ca; } /* Darker indigo */
-        header button#uploadButton:hover { background-color: #047857; } /* Darker green */
+        header button#uploadButton { background-color: #059669; }
+        header button:hover { background-color: #4338ca; }
+        header button#uploadButton:hover { background-color: #047857; }
         #fileInput { display: none; }
 
         /* Grid Layout */
         .grid-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px; /* Increased gap */
-            margin-bottom: 25px; /* Increased gap */
+            gap: 25px;
+            margin-bottom: 25px;
         }
 
         /* Dashboard Cards */
-        .dashboard-card { /* Renamed from .card */
+        .dashboard-card {
             background: #fff;
-            padding: 1.5rem; /* More padding */
-            border-radius: 10px; /* Softer corners */
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05); /* Consistent subtle shadow */
-            border: 1px solid #e5e7eb; /* Tailwind gray-200 border */
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid #e5e7eb;
             display: flex;
             flex-direction: column;
-            min-height: 160px; /* Min height for consistency */
+            min-height: 160px;
         }
 
         /* Card Headers */
-        .card-header { /* New class for consistent card headers */
-            font-family: 'Inter', sans-serif; /* Match body font */
+        .card-header {
+            font-family: 'Inter', sans-serif;
             font-size: 1.1rem;
-            font-weight: 600; /* Semi-bold */
-            color: #374151; /* Tailwind gray-700 */
-            margin: -1.5rem -1.5rem 1.25rem -1.5rem; /* Pull header to edges */
+            font-weight: 600;
+            color: #374151;
+            margin: -1.5rem -1.5rem 1.25rem -1.5rem;
             padding: 0.75rem 1.5rem;
-            border-bottom: 1px solid #e5e7eb; /* Separator */
-            background-color: #f9fafb; /* Tailwind gray-50 */
-            border-radius: 10px 10px 0 0; /* Match card radius */
+            border-bottom: 1px solid #e5e7eb;
+            background-color: #f9fafb;
+            border-radius: 10px 10px 0 0;
         }
-        /* Override default h3 within card if needed, prefer .card-header */
         .dashboard-card h3 {
-             /* Inherit from .card-header or set specific styles */
-             /* Example: Keeping original style if preferred over new header */
-             /* color: #4CAF50; */
-             /* border-bottom: 1px solid #eee; */
-             /* padding-bottom: 5px; */
-             /* margin-bottom: 10px; */
-             /* Remove if using .card-header consistently */
-             margin: 0 0 1rem 0; /* Reset margin if h3 used instead of header */
+             margin: 0 0 1rem 0;
              padding: 0; border: none; background: none;
         }
 
         .card-content { flex-grow: 1; font-size: 0.95em; }
         .card-content p { margin-bottom: 0.6rem; }
-        .card-content p strong { font-weight: 500; color: #1f2937; margin-right: 5px; } /* Tailwind gray-800 */
+        .card-content p strong { font-weight: 500; color: #1f2937; margin-right: 5px; }
 
         /* Chart Card Specifics */
         .chart-card {
             min-height: 400px;
             overflow: hidden;
         }
-        /* Wrapper div for chart itself to center placeholder text */
         .chart-container-div {
-            min-height: 350px; /* Allow space for header */
+            min-height: 350px;
             width: 100%;
             flex-grow: 1;
             display: flex;
@@ -149,32 +139,32 @@
 
         /* Ratio Bar Styles */
         .ratio-item { margin-bottom: 12px; }
-        .ratio-label { display: block; font-weight: 500; margin-bottom: 3px; font-size: 0.9em; color: #4b5563; } /* Tailwind gray-600 */
-        .ratio-value { display: inline-block; margin-bottom: 5px; font-size: 1.1em; font-weight: 600; color: #1f2937; } /* Tailwind gray-800 */
+        .ratio-label { display: block; font-weight: 500; margin-bottom: 3px; font-size: 0.9em; color: #4b5563; }
+        .ratio-value { display: inline-block; margin-bottom: 5px; font-size: 1.1em; font-weight: 600; color: #1f2937; }
         .ratio-bar-container { background-color: #e5e7eb; border-radius: 4px; overflow: hidden; height: 8px; width: 100%; }
         .ratio-bar { height: 100%; width: 0%; transition: width 0.5s ease-in-out; border-radius: 4px; }
-        /* Define colors based on status (good, ok, poor/warning/high) */
-        .ratio-bar.savings-rate { background-color: #ef4444; } /* Red-500 (poor) */
-        .ratio-bar.savings-rate.ok { background-color: #f59e0b; } /* Amber-500 (ok) */
-        .ratio-bar.savings-rate.good { background-color: #10b981; } /* Emerald-500 (good) */
-        .ratio-bar.emergency-coverage { background-color: #ef4444; } /* Red-500 (poor) */
-        .ratio-bar.emergency-coverage.ok { background-color: #f59e0b; } /* Amber-500 (ok) */
-        .ratio-bar.emergency-coverage.good { background-color: #10b981; } /* Emerald-500 (good) */
-        .ratio-bar.dti-ratio { background-color: #10b981; } /* Emerald-500 (good) */
-        .ratio-bar.dti-ratio.warning { background-color: #f59e0b; } /* Amber-500 (warning) */
-        .ratio-bar.dti-ratio.high { background-color: #ef4444; } /* Red-500 (high) */
+        /* Define colors based on status */
+        .ratio-bar.savings-rate { background-color: #ef4444; }
+        .ratio-bar.savings-rate.ok { background-color: #f59e0b; }
+        .ratio-bar.savings-rate.good { background-color: #10b981; }
+        .ratio-bar.emergency-coverage { background-color: #ef4444; }
+        .ratio-bar.emergency-coverage.ok { background-color: #f59e0b; }
+        .ratio-bar.emergency-coverage.good { background-color: #10b981; }
+        .ratio-bar.dti-ratio { background-color: #10b981; }
+        .ratio-bar.dti-ratio.warning { background-color: #f59e0b; }
+        .ratio-bar.dti-ratio.high { background-color: #ef4444; }
 
         /* Debt Table Styles */
         #debtsTable { width: 100%; margin-top: 10px; border-collapse: collapse; }
-        #debtsTable th, #debtsTable td { text-align: left; padding: 8px 5px; border-bottom: 1px solid #f3f4f6; /* Tailwind gray-100 */ font-size: 0.9em; }
-        #debtsTable th { font-weight: 500; color: #6b7280; background-color: #f9fafb; } /* Tailwind gray-500 text, gray-50 bg */
+        #debtsTable th, #debtsTable td { text-align: left; padding: 8px 5px; border-bottom: 1px solid #f3f4f6; font-size: 0.9em; }
+        #debtsTable th { font-weight: 500; color: #6b7280; background-color: #f9fafb; }
         #debtsTable tr:last-child td { border-bottom: none; }
-        #debtsTable .balance-col { text-align: right; font-weight: 500; } /* Make balance bold */
+        #debtsTable .balance-col { text-align: right; font-weight: 500; }
 
         /* Progress Bar Styles */
         .progress-bar-container { background-color: #e5e7eb; border-radius: 6px; overflow: hidden; height: 20px; margin-top: 5px; margin-bottom: 10px; }
         .progress-bar { background-color: #4f46e5; height: 100%; width: 0%; transition: width 0.5s ease-in-out; text-align: center; color: white; font-size: 0.8em; line-height: 20px; font-weight: 500; }
-        .goal-status { font-weight: 500; color: #1f2937; } /* Tailwind gray-800 */
+        .goal-status { font-weight: 500; color: #1f2937; }
 
         /* Recommendations List Styles */
         #recommendationsList { list-style: none; padding-left: 0; margin-top: 10px; }
@@ -190,84 +180,71 @@
         .close-button:hover, .close-button:focus { color: black; text-decoration: none; }
 
         /* Loading / Error / Initial Messages */
-        /* Use Tailwind fixed positioning and flex centering for overlays */
         #loadingSpinner, #errorMessage {
-             display: none; /* Hide by default */
+             display: none;
              position: fixed;
              top: 0; left: 0;
              width: 100%; height: 100%;
-             z-index: 1050; /* Ensure on top */
-             background-color: rgba(255, 255, 255, 0.95); /* Slightly transparent white */
+             z-index: 1050;
+             background-color: rgba(255, 255, 255, 0.95);
              align-items: center;
              justify-content: center;
              padding: 1rem;
         }
-         /* Style for the error message box itself */
          #errorMessage > div {
-             background-color: #fee2e2; /* Red-100 */
-             border: 1px solid #f87171; /* Red-400 */
-             color: #b91c1c; /* Red-700 */
+             background-color: #fee2e2;
+             border: 1px solid #f87171;
+             color: #b91c1c;
              padding: 1.5rem;
-             border-radius: 0.5rem; /* 8px */
+             border-radius: 0.5rem;
              max-width: 600px;
              box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
              text-align: center;
          }
-         #errorMessage h3 { color: #991b1b; } /* Red-800 */
+         #errorMessage h3 { color: #991b1b; }
          #debugInfo {
              margin-top: 1rem; margin-bottom: 1rem;
              max-height: 200px; overflow-y: auto;
-             text-align: left; background-color: #f3f4f6; /* Gray-100 */
-             padding: 0.75rem; border-radius: 0.375rem; /* 6px */
-             border: 1px solid #d1d5db; /* Gray-300 */
-             font-size: 0.75rem; /* text-xs */
+             text-align: left; background-color: #f3f4f6;
+             padding: 0.75rem; border-radius: 0.375rem;
+             border: 1px solid #d1d5db;
+             font-size: 0.75rem;
              line-height: 1.2;
-             color: #4b5563; /* Gray-600 */
-             white-space: pre-wrap; /* Allow wrapping */
-             word-break: break-all; /* Break long lines */
+             color: #4b5563;
+             white-space: pre-wrap;
+             word-break: break-all;
          }
-         #debugInfo strong { color: #1f2937; } /* Gray-800 */
-         #errorMessage button { /* Style retry/demo buttons */
-             background-color: #dc2626; /* Red-600 */
+         #debugInfo strong { color: #1f2937; }
+         #errorMessage button {
+             background-color: #dc2626;
              color: white; padding: 0.5rem 1rem;
              border: none; border-radius: 0.375rem; cursor: pointer;
              font-size: 0.875rem; margin: 0 0.5rem;
              transition: background-color 0.2s;
          }
-          #errorMessage button:hover { background-color: #b91c1c; } /* Red-700 */
+          #errorMessage button:hover { background-color: #b91c1c; }
           #errorMessage button.secondary-button { background-color: #d1d5db; color: #374151; }
           #errorMessage button.secondary-button:hover { background-color: #9ca3af; }
 
-        #initialUploadPrompt { display: none; } /* Hide by default */
-
-        #initialMessage {
-            display: none; /* Hide by default */
-            text-align: center; padding: 40px;
-            font-size: 1.2em; color: #555;
-        }
-
+        #initialUploadPrompt { display: none; }
+        #initialMessage { display: none; text-align: center; padding: 40px; font-size: 1.2em; color: #555; }
         #mainContent.hidden { display: none; }
-        #mainContent { display: none; } /* Start hidden, JS will show */
+        #mainContent { display: none; }
 
         /* Chat Interface Card */
-        #chatInterfaceCard { display: none; } /* Hide by default */
+        #chatInterfaceCard { display: none; }
 
         /* Chat Styles */
-        #chatInterfaceCard {
-            /* background: linear-gradient(135deg, #f9fafb 0%, #eef2ff 100%); */ /* Example gradient */
-            /* border: 1px solid #e0e7ff; */
-            grid-column: 1 / -1; /* Make chat span full width if needed */
-        }
+        #chatInterfaceCard { grid-column: 1 / -1; }
         .chat-container {
-            display: flex; flex-direction: column; height: 550px; /* Fixed height */
+            display: flex; flex-direction: column; height: 550px;
             border: 1px solid #d1d5db; border-radius: 10px; overflow: hidden;
             background-color: #ffffff; box-shadow: inset 0 2px 4px rgba(0,0,0,0.03);
         }
         .chat-history {
             flex-grow: 1; padding: 1.5rem; overflow-y: auto;
-            scrollbar-width: thin; scrollbar-color: #d1d5db transparent; /* Firefox */
+            scrollbar-width: thin; scrollbar-color: #d1d5db transparent;
         }
-        /* Webkit Scrollbar Styles */
         .chat-history::-webkit-scrollbar { width: 8px; }
         .chat-history::-webkit-scrollbar-track { background: transparent; }
         .chat-history::-webkit-scrollbar-thumb { background-color: #d1d5db; border-radius: 10px; border: 2px solid transparent; background-clip: content-box; }
@@ -282,13 +259,13 @@
         }
         .chat-message.user .message-bubble {
             background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%); color: white;
-            border-radius: 18px 18px 4px 18px; /* User bubble shape */
+            border-radius: 18px 18px 4px 18px;
         }
         .chat-message.assistant .message-bubble {
-            background-color: #eef2ff; /* Light indigo */ color: #374151;
-            border: 1px solid #e0e7ff; border-radius: 18px 18px 18px 4px; /* Assistant bubble shape */
+            background-color: #eef2ff; color: #374151;
+            border: 1px solid #e0e7ff; border-radius: 18px 18px 18px 4px;
         }
-        .chat-message.system .message-bubble { /* System message style */
+        .chat-message.system .message-bubble {
             background-color: #f3f4f6; color: #6b7280; font-size: 0.85em;
             text-align: center; max-width: 100%; border-radius: 8px;
             padding: 0.5rem 1rem; border: 1px solid #e5e7eb;
@@ -296,13 +273,12 @@
         }
         .chat-message.system { justify-content: center; margin: 0.5rem 0; }
 
-
-        .message-sender { display: none; } /* Simplify - bubbles indicate sender */
+        .message-sender { display: none; }
 
         /* Chat Status & Input */
         .chat-status {
             font-size: 0.8rem; color: #6b7280; padding: 0.5rem 1rem;
-            text-align: center; height: 25px; /* Fixed height */
+            text-align: center; height: 25px;
             background-color: #f9fafb; border-top: 1px solid #e5e7eb;
             overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
         }
@@ -334,14 +310,14 @@
         }
         .chat-input-area button {
             padding: 0.6rem 1rem; white-space: nowrap; flex-shrink: 0;
-            border-radius: 20px; /* Match textarea */
+            border-radius: 20px;
             background-color: #4f46e5; color: white; border: none; cursor: pointer;
             transition: background-color 0.2s;
             display: flex; align-items: center; justify-content: center;
         }
         .chat-input-area button:hover { background-color: #4338ca; }
         .chat-input-area button:disabled { background-color: #a5b4fc; cursor: not-allowed; }
-        .chat-input-area button svg { width: 1.25rem; height: 1.25rem; } /* Adjust icon size */
+        .chat-input-area button svg { width: 1.25rem; height: 1.25rem; }
         .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0; }
 
         /* Responsive */
@@ -585,13 +561,13 @@
     let chatMessages = []; // Holds chat history for API calls
     const CHAT_MODEL = 'gpt-4o-mini'; // Or your preferred model
     const plotlyConfig = { displaylogo: false, modeBarButtonsToRemove: ['sendDataToCloud', 'select2d', 'lasso2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d', 'resetScale2d', 'hoverClosestPie', 'toggleSpikelines', 'hoverCompareCartesian'] };
-let currentUserId = null;
-let effectiveTier = 'basic'; // Default to basic
-let initialUsageInfo = null; // To store fetched usage/limit info for initial UI setup
+    let currentUserId = null;
+    let effectiveTier = 'basic'; // Default to basic
+    let initialUsageInfo = null; // To store fetched usage/limit info for initial UI setup
 
     // --- Supabase Client (CONFIGURE THESE) ---
-    const SUPABASE_URL = 'https://tfnwwpksieluzvxqdiiq.supabase.co'; // *** REPLACE WITH YOUR ACTUAL SUPABASE URL ***
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRmbnd3cGtzaWVsdXp2eHFkaWlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ1ODQ3MjgsImV4cCI6MjA2MDE2MDcyOH0.xbtjiQ65vCggjj35qtlCZ0S5mJa4muSZcHXhaU4qvrE'; // *** REPLACE WITH YOUR ACTUAL SUPABASE ANON KEY ***
+    const SUPABASE_URL = 'https://tfnwwpksieluzvxqdiiq.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRmbnd3cGtzaWVsdXp2eHFkaWlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ1ODQ3MjgsImV4cCI6MjA2MDE2MDcyOH0.xbtjiQ65vCggjj35qtlCZ0S5mJa4muSZcHXhaU4qvrE';
     let supabase = null;
 
     // --- Cached DOM Elements ---
@@ -641,68 +617,40 @@ let initialUsageInfo = null; // To store fetched usage/limit info for initial UI
         }
     }
 
-   
+    // Helper function to parse URL parameters
+    function parseUrlParams() {
+        const params = new URLSearchParams(window.location.search);
         // Check for data=null parameter (special case)
         if (params.has('data') && params.get('data') === 'null') {
-             console.warn("URL parameter 'data=null' detected. Showing initial upload prompt.");
-             if (loadingSpinner) loadingSpinner.style.display = 'none';
-             if (initialUploadPrompt) initialUploadPrompt.style.display = 'block';
-             //Ensure the button inside the prompt is clickable
-             const initialUploadButton = document.getElementById('initialUploadButton');
-             if(initialUploadButton && fileInput){
-                 initialUploadButton.addEventListener('click', () => { fileInput.click(); });
-             }
-              // Exit early
-         }
-
-        // Try to parse data from URL parameters
-        try {
-            console.log("Attempting to parse data from URL parameters...");
-            const parsedData = parseDataFromUrlParams(params);
-
-            // Debug: Log the parsed data structure
-            console.log("Parsed data structure from URL:", parsedData);
-
-            // Check if we got valid data (specifically looking for userName as a key indicator)
-            if (parsedData &&
-                parsedData.userInput &&
-                parsedData.userInput.personalInfo &&
-                (parsedData.userInput.personalInfo.userName !== undefined && parsedData.userInput.personalInfo.userName !== null) ) { // Check if userName exists and is not null/undefined
-
-                console.log("Valid data found in URL parameters, processing...");
-                dashboardData = parsedData;
-                processAndDisplayData(dashboardData);
-            } else {
-                // If no valid data structure from URL params, check for embedded data as a fallback
-                console.warn("No valid data structure found in URL parameters. Checking for embedded data...");
-                const embeddedDataElement = document.getElementById('embeddedPsrData');
-                if (embeddedDataElement && embeddedDataElement.textContent.trim().length > 20) { // Basic check if it has content
-                    console.log("Attempting to parse embedded data...");
-                    try {
-                        const embeddedJson = embeddedDataElement.textContent.replace('/* EMBEDDED_JSON_DATA_HERE */', '').trim();
-                        const embeddedParsedData = JSON.parse(embeddedJson);
-                        if (embeddedParsedData && embeddedParsedData.userInput && embeddedParsedData.userInput.personalInfo) {
-                             console.log("Valid embedded data found, processing...");
-                             dashboardData = embeddedParsedData;
-                             processAndDisplayData(dashboardData);
-                        } else {
-                             console.warn("Embedded data found but structure is invalid.");
-                             showInitialMessage(); // Show initial upload prompt if embedded data is bad
-                        }
-                    } catch (embedError) {
-                         console.error("Error parsing embedded data:", embedError);
-                         handleError("Failed to parse embedded data", embedError);
-                    }
-                } else {
-                    console.warn("No valid URL parameters and no embedded data found.");
-                    showInitialMessage(); // Show the message to upload or use params
-                }
+            console.warn("URL parameter 'data=null' detected. Showing initial upload prompt.");
+            if (loadingSpinner) loadingSpinner.style.display = 'none';
+            if (initialUploadPrompt) initialUploadPrompt.style.display = 'block';
+            // Ensure the button inside the prompt is clickable
+            const initialUploadButton = document.getElementById('initialUploadButton');
+            if (initialUploadButton && fileInput) {
+                initialUploadButton.addEventListener('click', () => { fileInput.click(); });
             }
-        } catch (error) {
-            console.error("Error processing initial data source (URL or Embedded):", error);
-            handleError("Failed to load initial data", error);
+            return null; // Exit early - no data to parse
         }
+        return params;
+    }
 
+    // Function to parse all financial data from URL parameters
+    function parseDataFromUrlParams(params) {
+        if (!params) return null;
+
+        // Helper function to get parameter values
+        const getParam = (key) => {
+            if (!params.has(key)) return null;
+            const rawValue = params.get(key);
+            if (!rawValue) return null;
+            try { 
+                return decodeURIComponent(rawValue.replace(/\+/g, ' ')).trim(); 
+            } catch (e) { 
+                console.warn(`Error decoding parameter ${key}`); 
+                return rawValue.trim(); 
+            }
+        };
 
         // Helper function to parse numeric values
         const parseNumeric = (value, defaultValue = 0) => {
@@ -713,16 +661,14 @@ let initialUsageInfo = null; // To store fetched usage/limit info for initial UI
             return isNaN(number) ? defaultValue : number;
         };
 
-        // --- Log key parameters for debugging ---
-        console.log("  Reading 'userName':", getParam('userName'));
-        console.log("  Reading 'age':", getParam('age'));
-        console.log("  Reading 'mainJobIncome':", getParam('mainJobIncome'));
-        console.log("  Reading 'housing':", getParam('housing'));
-        // *** IMPORTANT: Corrected parameter name here ***
-        console.log("  Reading 'groceriesessentials':", getParam('groceriesessentials'));
-        console.log("  Reading 'creditCardDebt':", getParam('creditCardDebt'));
-        console.log("  Reading 'aiAnalysis':", getParam('aiAnalysis')); // Check a longer text field
-        // Add logs for any other parameters you are troubleshooting
+        // Log key parameters for debugging
+        console.log("Reading 'userName':", getParam('userName'));
+        console.log("Reading 'age':", getParam('age'));
+        console.log("Reading 'mainJobIncome':", getParam('mainJobIncome'));
+        console.log("Reading 'housing':", getParam('housing'));
+        console.log("Reading 'groceriesessentials':", getParam('groceriesessentials'));
+        console.log("Reading 'creditCardDebt':", getParam('creditCardDebt'));
+        console.log("Reading 'aiAnalysis':", getParam('aiAnalysis'));
 
         // Construct and return the data object based on URL parameters
         const parsedData = {
@@ -733,60 +679,55 @@ let initialUsageInfo = null; // To store fetched usage/limit info for initial UI
                 },
                 income: {
                     mainJobIncome: parseNumeric(getParam('mainJobIncome')),
-                    secondJob: parseNumeric(getParam('secondJobIncome')), // Parameter might be 'secondJob' or 'secondJobIncome'
+                    secondJob: parseNumeric(getParam('secondJobIncome')),
                     otherIncome: parseNumeric(getParam('otherIncome'))
                 },
                 expenses: {
                     housing: parseNumeric(getParam('housing')),
                     transportation: parseNumeric(getParam('transportation')),
                     utilities: parseNumeric(getParam('utilities')),
-                    // *** IMPORTANT: Corrected parameter name here ***
                     groceriesEssentials: parseNumeric(getParam('groceriesessentials')),
                     insurance: parseNumeric(getParam('insurance')),
                     medical: parseNumeric(getParam('medical')),
-                    care: parseNumeric(getParam('care')), // Check if param is 'care' or 'childCare' etc.
+                    care: parseNumeric(getParam('care')),
                     subscriptions: parseNumeric(getParam('subscriptions')),
                     taxes: parseNumeric(getParam('taxes'))
-                    // Add any other expense categories from your form/URL parameters
                 },
                 savings: {
                     emergency: parseNumeric(getParam('emergencySavings')),
                     savings: parseNumeric(getParam('currentSavings')),
                     retirement: parseNumeric(getParam('retirementFund')),
-                    emergencyFundTarget: parseNumeric(getParam('emergencyFundTarget')), // Optional target from params
-                    monthlySavingsGoal: parseNumeric(getParam('monthlySavingsGoal')) // Optional goal from params
+                    emergencyFundTarget: parseNumeric(getParam('emergencyFundTarget')),
+                    monthlySavingsGoal: parseNumeric(getParam('monthlySavingsGoal'))
                 },
                 debts: [], // Debts will be populated below
                 financials: {
                     financialTools: getParam('financialTools'),
                     challenges: getParam('challenges'),
-                    upcomingPurchase: getParam('upcomingPurchases') // Parameter might be 'upcomingPurchase' or 'upcomingPurchases'
+                    upcomingPurchase: getParam('upcomingPurchases')
                 }
             },
             aiOutput: {
-                // Get AI fields, default to neutral strings if not provided
                 analysis: getParam('aiAnalysis') || 'Analysis not available.',
                 recommendations: getParam('recommendations') || 'Recommendations not available.',
                 userProgress: getParam('userProgressHistory') || 'No progress history available.'
             }
         };
 
-        // --- Populate Debts Array ---
-        // Example for Credit Card Debt (assuming parameter name 'creditCardDebt')
+        // Populate Debts Array
+        // Credit Card Debt
         const creditCardDebt = parseNumeric(getParam('creditCardDebt'));
         if (creditCardDebt > 0) {
             parsedData.userInput.debts.push({
                 type: "Credit Card",
                 balance: creditCardDebt,
-                // You might need parameters for interestRate and minPayment if they vary,
-                // otherwise use defaults or derive them.
-                interestRate: parseNumeric(getParam('creditCardRate'), 22.5), // Example: Get rate or default
-                minPayment: parseNumeric(getParam('creditCardMinPayment'), Math.max(creditCardDebt * 0.03, 25)) // Example: Get min payment or derive
+                interestRate: parseNumeric(getParam('creditCardRate'), 22.5),
+                minPayment: parseNumeric(getParam('creditCardMinPayment'), Math.max(creditCardDebt * 0.03, 25))
             });
-            console.log("  Added Credit Card Debt from param:", creditCardDebt);
+            console.log("Added Credit Card Debt from param:", creditCardDebt);
         }
 
-        // Example for Bank Loans (assuming parameter name 'bankLoans')
+        // Bank Loans
         const bankLoans = parseNumeric(getParam('bankLoans'));
         if (bankLoans > 0) {
             parsedData.userInput.debts.push({
@@ -795,16 +736,34 @@ let initialUsageInfo = null; // To store fetched usage/limit info for initial UI
                 interestRate: parseNumeric(getParam('bankLoanRate'), 6.5),
                 minPayment: parseNumeric(getParam('bankLoanMinPayment'), Math.max(bankLoans * 0.015, 50))
             });
-             console.log("  Added Bank Loans from param:", bankLoans);
+            console.log("Added Bank Loans from param:", bankLoans);
         }
 
-        // Add similar blocks for other debt types (Student Loans, Car Loans, etc.)
-        // using their respective parameter names (e.g., 'studentLoanDebt', 'carLoanBalance')
+        // Student Loans
+        const studentLoans = parseNumeric(getParam('studentLoanDebt'));
+        if (studentLoans > 0) {
+            parsedData.userInput.debts.push({
+                type: "Student Loans",
+                balance: studentLoans,
+                interestRate: parseNumeric(getParam('studentLoanRate'), 5.5),
+                minPayment: parseNumeric(getParam('studentLoanMinPayment'), Math.max(studentLoans * 0.01, 50))
+            });
+        }
+
+        // Car Loans
+        const carLoans = parseNumeric(getParam('carLoanBalance'));
+        if (carLoans > 0) {
+            parsedData.userInput.debts.push({
+                type: "Car Loan",
+                balance: carLoans,
+                interestRate: parseNumeric(getParam('carLoanRate'), 6.0),
+                minPayment: parseNumeric(getParam('carLoanMinPayment'), Math.max(carLoans * 0.015, 100))
+            });
+        }
 
         console.log("Parsed data object created from URL params:", parsedData);
         return parsedData;
     }
-
 
     // Helper function to show initial message when no data is found
     function showInitialMessage() {
@@ -814,9 +773,9 @@ let initialUsageInfo = null; // To store fetched usage/limit info for initial UI
         // Only show the initial message if no error message is already visible
         if (errorMessageElement && errorMessageElement.style.display !== 'flex') {
             if (initialMessageElement) initialMessageElement.style.display = 'block';
-             console.log("Displayed initial message element.");
+            console.log("Displayed initial message element.");
         } else {
-             console.log("Initial message display skipped (error message might be visible).");
+            console.log("Initial message display skipped (error message might be visible).");
         }
         // Ensure chat is hidden if we revert to the initial message state
         const chatCard = document.getElementById('chatInterfaceCard');
@@ -843,9 +802,9 @@ let initialUsageInfo = null; // To store fetched usage/limit info for initial UI
             paramsText += '</tbody></table>';
         }
         // Append to existing debug info safely
-         const currentDebugHTML = debugInfoElement.innerHTML;
-         // Add params at the top, remove old params if present
-         debugInfoElement.innerHTML = paramsText + '<hr style="margin: 5px 0;">' + currentDebugHTML.replace(/^<strong>URL Params:.*?<hr style="margin: 5px 0;">/s, '');
+        const currentDebugHTML = debugInfoElement.innerHTML;
+        // Add params at the top, remove old params if present
+        debugInfoElement.innerHTML = paramsText + '<hr style="margin: 5px 0;">' + currentDebugHTML.replace(/^<strong>URL Params:.*?<hr style="margin: 5px 0;">/s, '');
     }
 
     function handleError(message, error) {
@@ -906,7 +865,7 @@ let initialUsageInfo = null; // To store fetched usage/limit info for initial UI
                 personalInfo: { userName: "Demo User", age: 35 },
                 income: { mainJobIncome: 5500, secondJob: 1200, otherIncome: 300 },
                 expenses: { housing: 1800, utilities: 250, transportation: 450, groceriesEssentials: 600, insurance: 350, medical: 150, care: 100, subscriptions: 80, taxes: 1100 },
-                savings: { emergency: 8000, savings: 15000, retirement: 75000, emergencyFundTarget: 15000, monthlySavingsGoal: 500 }, // Added monthly goal
+                savings: { emergency: 8000, savings: 15000, retirement: 75000, emergencyFundTarget: 15000, monthlySavingsGoal: 500 },
                 debts: [
                     { type: "Credit Card", balance: 4500, interestRate: 22.5, minPayment: 150 },
                     { type: "Student Loan", balance: 25000, interestRate: 5.5, minPayment: 280 },
@@ -916,9 +875,6 @@ let initialUsageInfo = null; // To store fetched usage/limit info for initial UI
                     financialTools: "Budgeting App (YNAB), Credit Monitor (Credit Karma)",
                     challenges: "Saving consistently for down payment, Reducing high-interest CC debt",
                     upcomingPurchase: "#1) House Down Payment, $25000, 24 months"
-                    // Example structure if goals were more detailed:
-                    // purchaseGoalTarget: 25000,
-                    // purchaseGoalSaved: 15000,
                 }
             },
             aiOutput: {
@@ -937,6 +893,209 @@ let initialUsageInfo = null; // To store fetched usage/limit info for initial UI
         processAndDisplayData(dashboardData); // Process the demo data
     }
 
+    // --- Parse XTL Parameter for Authentication ---
+    function parseXtlParameter() {
+        const params = new URLSearchParams(window.location.search);
+        const xtlParam = params.get('xtl');
+        let userIdFromXtl = null;
+        let tierFromXtl = 'basic'; // Default assumption
+
+        if (xtlParam && xtlParam.length === 21) {
+            console.log("Found xtl parameter (length 21):", xtlParam);
+            const verificationSegment = xtlParam.substring(6, 11); // Digits 7-11 (index 6, length 5)
+            const userIdSegment = xtlParam.substring(11); // Last 10 digits (index 11 to end)
+
+            if (/^[a-zA-Z0-9]{5}$/.test(verificationSegment) && userIdSegment.length === 10) {
+                userIdFromXtl = userIdSegment; // Store valid User ID
+
+                // The Core Tier Logic
+                if (verificationSegment === '16j59') {
+                    tierFromXtl = 'pro';
+                    console.log(`xtl code '${verificationSegment}' = PRO tier for user ID: ${userIdFromXtl}`);
+                } else if (verificationSegment === '83n45') {
+                    tierFromXtl = 'basic';
+                    console.log(`xtl code '${verificationSegment}' = BASIC tier for user ID: ${userIdFromXtl}`);
+                } else {
+                    // Code is 5 valid chars, but not recognized pro/basic
+                    console.error(`xtl parameter has unrecognized verification segment: ${verificationSegment}`);
+                    userIdFromXtl = null; // Invalidate if code is unknown
+                    tierFromXtl = 'basic'; // Reset tier
+                    handleInvalidAccess("Invalid Access Code Segment");
+                }
+            } else {
+                console.error("xtl parameter has invalid format in segments (expected 5 code + 10 ID).");
+                userIdFromXtl = null; // Invalidate
+                tierFromXtl = 'basic'; // Reset tier
+                handleInvalidAccess("Invalid Access Parameter Format");
+            }
+        } else {
+            console.warn("xtl parameter not found or incorrect length (expected 21 digits).");
+            userIdFromXtl = null; // Invalidate
+            tierFromXtl = 'basic'; // Reset tier
+            handleInvalidAccess("Missing or Invalid Access Parameter");
+        }
+
+        // Set global variables IF valid user was found
+        if (userIdFromXtl) {
+            currentUserId = userIdFromXtl;
+            effectiveTier = tierFromXtl;
+            // Trigger fetching initial usage info now that we have a valid user/tier
+            fetchInitialUsage(currentUserId);
+        } else {
+            // If user ID is null ensure globals reflect invalid state
+            currentUserId = null;
+            effectiveTier = 'basic';
+            initialUsageInfo = null; // Clear any potentially stale info
+        }
+    }
+
+    // Function to fetch initial usage for UI feedback
+    async function fetchInitialUsage(userId) {
+        if (!userId) {
+            console.log("Skipping initial usage fetch: No user ID.");
+            if (loadingSpinner) loadingSpinner.style.display = 'none'; // Hide spinner if we bail early
+            return;
+        }
+        
+        // Initialize Supabase if needed
+        if (!supabase) {
+            try {
+                const { createClient } = window.supabase;
+                supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                console.log("Supabase client initialized.");
+            } catch (err) {
+                console.error("Error initializing Supabase:", err);
+                if (loadingSpinner) loadingSpinner.style.display = 'none';
+                initialUsageInfo = { error: "Could not connect to service." };
+                updateUIBasedOnAccess();
+                return;
+            }
+        }
+
+        console.log(`Fetching initial usage for user ${userId}...`);
+
+        try {
+            const { data, error } = await supabase
+                .from('users')
+                .select('token_usage, last_token_reset, tier')
+                .eq('id', userId)
+                .maybeSingle();
+
+            if (error) {
+                console.error("Error fetching initial usage:", error.message);
+                initialUsageInfo = { error: "Could not load usage data." };
+                updateUIBasedOnAccess();
+            } else if (data) {
+                console.log("Initial usage data fetched:", data);
+                const determinedLimit = (effectiveTier === 'pro') ? 500000 : 10000;
+                const determinedModel = (effectiveTier === 'pro') ? 'gpt-4o-mini' : 'gpt-3.5-turbo';
+
+                const now = new Date();
+                const lastReset = data.last_token_reset ? new Date(data.last_token_reset) : null;
+                let currentUsage = data.token_usage || 0;
+                let needsReset = !lastReset || (now.getTime() - lastReset.getTime()) / (1000 * 60 * 60 * 24) >= 7;
+                if (needsReset) {
+                    currentUsage = 0; // Reflect reset state
+                }
+
+                initialUsageInfo = {
+                    usage: currentUsage,
+                    limit: determinedLimit,
+                    model: determinedModel,
+                    tier: effectiveTier,
+                    actualDbTier: data.tier,
+                    lastReset: data.last_token_reset,
+                    resetDue: needsReset
+                };
+                console.log("Initial Usage Info Calculated:", initialUsageInfo);
+                updateUIBasedOnAccess();
+            } else {
+                console.warn(`User ID ${userId} not found in users table during initial fetch.`);
+                handleInvalidAccess("User Not Found");
+                initialUsageInfo = { error: "User ID not found." };
+                updateUIBasedOnAccess();
+            }
+        } catch (err) {
+            console.error("Unexpected error fetching initial usage:", err);
+            initialUsageInfo = { error: "Unexpected error loading usage data." };
+            updateUIBasedOnAccess();
+        } finally {
+            if (loadingSpinner) loadingSpinner.style.display = 'none';
+        }
+    }
+
+    // Function to update UI elements based on determined access
+    function updateUIBasedOnAccess() {
+        const tierDisplay = document.getElementById('userTierDisplay');
+        const chatInput = document.getElementById('chatInput');
+        const chatSendButton = document.getElementById('chatSendButton');
+
+        if (initialUsageInfo && initialUsageInfo.error) {
+            if (tierDisplay) tierDisplay.textContent = `Error: ${initialUsageInfo.error}`;
+            console.warn("UI update skipped or showing error due to errored usage info.");
+            enableChatInput(false);
+            setChatStatus("Error loading access info", false);
+            return;
+        }
+
+        if (!initialUsageInfo) {
+            console.warn("Skipping UI update - initialUsageInfo is not available.");
+            return;
+        }
+
+        if (tierDisplay) {
+            let infoText = `Access: ${initialUsageInfo.tier} | Model: ${initialUsageInfo.model} | Usage: ${initialUsageInfo.usage.toLocaleString()} / ${initialUsageInfo.limit.toLocaleString()}`;
+            if(initialUsageInfo.resetDue) infoText += " (Reset Pending)";
+            tierDisplay.textContent = infoText;
+        }
+
+        if (chatInput && chatSendButton) {
+            if (initialUsageInfo.usage >= initialUsageInfo.limit && !initialUsageInfo.resetDue) {
+                console.log("Initial check: Usage limit reached. Disabling chat.");
+                enableChatInput(false);
+                setChatStatus("Weekly token limit reached", false);
+                chatInput.placeholder = "Weekly token limit reached.";
+            }
+        } else {
+            console.warn("Chat input or send button not found for initial access update.");
+        }
+
+        const proFeatureButton = document.getElementById('proFeatureButton');
+        if (proFeatureButton) {
+            proFeatureButton.style.display = (initialUsageInfo.tier === 'pro') ? 'inline-block' : 'none';
+        }
+    }
+
+    // Function to handle cases where access should be denied
+    function handleInvalidAccess(reason) {
+        console.error("Access Denied or Invalid:", reason);
+        currentUserId = null;
+        effectiveTier = 'basic';
+        initialUsageInfo = null;
+
+        if (loadingSpinner) loadingSpinner.style.display = 'none';
+        if (mainContentElement) mainContentElement.style.display = 'none';
+        if (initialUploadPrompt) initialUploadPrompt.style.display = 'none';
+
+        if (typeof handleError === 'function') {
+            handleError(`Access Error: ${reason}`, new Error(reason));
+        } else {
+            const errorDiv = document.getElementById('errorMessage');
+            const errorTextEl = document.getElementById('errorText');
+            if (errorDiv && errorTextEl) {
+                errorTextEl.textContent = `Access Error: ${reason}. Please check the URL or contact support.`;
+                errorDiv.style.display = 'flex';
+            } else {
+                alert(`Access Error: ${reason}. Please check the URL or contact support.`);
+            }
+        }
+
+        enableChatInput(false);
+        setChatStatus("Access Denied", false);
+        const chatInterfaceCard = document.getElementById('chatInterfaceCard');
+        if (chatInterfaceCard) chatInterfaceCard.style.display = 'none';
+    }
+
     // --- Main Data Processing & Display Function ---
     function processAndDisplayData(data) {
         if (!data || typeof data !== 'object' || !data.userInput) {
@@ -944,7 +1103,7 @@ let initialUsageInfo = null; // To store fetched usage/limit info for initial UI
             handleError("Invalid data format for processing", new Error("Data structure is missing userInput."));
             return;
         }
-        console.log("--- processAndDisplayData START ---", data); // Log the data being processed
+        console.log("--- processAndDisplayData START ---", data);
         dashboardData = data; // Update global reference
 
         try {
@@ -975,19 +1134,18 @@ let initialUsageInfo = null; // To store fetched usage/limit info for initial UI
             console.log("7. Scheduling chart rendering...");
             // Use requestAnimationFrame to ensure DOM is ready for Plotly
             requestAnimationFrame(() => {
-                 console.log("7a. Executing chart rendering (inside requestAnimationFrame)...");
-                 try {
-                     renderCharts(data);
-                     console.log("Charts rendered successfully.");
-                 } catch (chartError) {
-                     console.error("--- Error during renderCharts ---", chartError);
-                     // Display error within the chart divs
-                     const incomeChartDiv = document.getElementById('incomeChart');
-                     const expenseChartDiv = document.getElementById('expenseChart');
-                     if(incomeChartDiv) incomeChartDiv.innerHTML = `<p class="text-red-600 text-center p-4">Error loading income chart:<br>${chartError.message}</p>`;
-                     if(expenseChartDiv) expenseChartDiv.innerHTML = `<p class="text-red-600 text-center p-4">Error loading expense chart:<br>${chartError.message}</p>`;
-                     // Don't necessarily call the main handleError here, as the rest of the page might be fine.
-                 }
+                console.log("7a. Executing chart rendering (inside requestAnimationFrame)...");
+                try {
+                    renderCharts(data);
+                    console.log("Charts rendered successfully.");
+                } catch (chartError) {
+                    console.error("--- Error during renderCharts ---", chartError);
+                    // Display error within the chart divs
+                    const incomeChartDiv = document.getElementById('incomeChart');
+                    const expenseChartDiv = document.getElementById('expenseChart');
+                    if(incomeChartDiv) incomeChartDiv.innerHTML = `<p class="text-red-600 text-center p-4">Error loading income chart:<br>${chartError.message}</p>`;
+                    if(expenseChartDiv) expenseChartDiv.innerHTML = `<p class="text-red-600 text-center p-4">Error loading expense chart:<br>${chartError.message}</p>`;
+                }
             });
 
             console.log("8. Updating AI display UI...");
@@ -1013,14 +1171,14 @@ let initialUsageInfo = null; // To store fetched usage/limit info for initial UI
             handleError("Error processing or displaying data", processingError);
         } finally {
             // Ensure spinner is hidden regardless of success/failure within the try block
-             console.log("Executing finally block in processAndDisplayData.");
-             if (loadingSpinner) {
-                 loadingSpinner.style.display = 'none';
-                 console.log("Spinner hidden by processAndDisplayData finally block.");
-             } else {
-                 console.warn("Spinner element not found in finally block.");
-             }
-             console.log("--- processAndDisplayData END ---");
+            console.log("Executing finally block in processAndDisplayData.");
+            if (loadingSpinner) {
+                loadingSpinner.style.display = 'none';
+                console.log("Spinner hidden by processAndDisplayData finally block.");
+            } else {
+                console.warn("Spinner element not found in finally block.");
+            }
+            console.log("--- processAndDisplayData END ---");
         }
     }
 
@@ -1041,7 +1199,7 @@ let initialUsageInfo = null; // To store fetched usage/limit info for initial UI
 
         // Expenses & Core Expenses: Iterate through expenses object
         // Define core expenses - ADJUST THESE KEYS TO MATCH YOUR DATA EXACTLY
-        const coreExpenseKeys = ['housing', 'utilities', 'transportation', 'groceriesEssentials', 'insurance', 'medical', 'care', 'taxes', 'minPayments']; // Include min debt payments as core? Decide based on definition.
+        const coreExpenseKeys = ['housing', 'utilities', 'transportation', 'groceriesEssentials', 'insurance', 'medical', 'care', 'taxes', 'minPayments'];
         for (const key in expenses) {
             const value = Number(expenses[key]) || 0;
             totals.totalExpenses += value;
@@ -1053,29 +1211,22 @@ let initialUsageInfo = null; // To store fetched usage/limit info for initial UI
 
         // Debts: Sum balance and minimum payments from the debts array
         if (Array.isArray(debts)) {
-             debts.forEach(debt => {
-                 totals.totalDebt += Number(debt.balance) || 0;
-                 const minPayment = Number(debt.minPayment) || 0;
-                 totals.totalMinPayments += minPayment;
-                 // Option: Add total minimum payments to core expenses if not already included
-                 // if (!coreExpenseKeys.includes('minPayments')) {
-                 //     totals.monthlyCoreExpenses += minPayment;
-                 // }
-             });
+            debts.forEach(debt => {
+                totals.totalDebt += Number(debt.balance) || 0;
+                const minPayment = Number(debt.minPayment) || 0;
+                totals.totalMinPayments += minPayment;
+            });
         }
         // If min payments are treated as a core expense, add the total here.
         if (coreExpenseKeys.includes('minPayments')) {
-             totals.monthlyCoreExpenses += totals.totalMinPayments;
+            totals.monthlyCoreExpenses += totals.totalMinPayments;
         }
-
 
         // Add total minimum debt payments to total expenses
         // This assumes min payments aren't already listed under 'expenses'
         totals.totalExpenses += totals.totalMinPayments;
 
-
         totals.netFlow = totals.totalIncome - totals.totalExpenses;
-
 
         // Savings: Sum known savings types
         totals.totalSavings = (Number(savings.emergency) || 0) + (Number(savings.savings) || 0) + (Number(savings.retirement) || 0);
@@ -1086,7 +1237,6 @@ let initialUsageInfo = null; // To store fetched usage/limit info for initial UI
     function calculateRatios(data, totals) {
         const ratios = { savingsRate: 0, emergencyCoverage: 0, dtiRatio: 0 };
         const savingsInput = data?.userInput?.savings || {};
-        // We use totals.totalIncome and totals.totalMinPayments calculated in calculateTotals
 
         // Savings Rate: Use explicit monthly goal if available, otherwise use positive net flow proxy
         const monthlySavingsGoal = Number(savingsInput.monthlySavingsGoal);
@@ -1094,25 +1244,23 @@ let initialUsageInfo = null; // To store fetched usage/limit info for initial UI
         const contribution = (monthlySavingsGoal > 0) ? monthlySavingsGoal : Math.max(0, totals.netFlow);
 
         if (totals.totalIncome > 0) {
-             // Savings rate = (Amount Saved Per Month / Gross Monthly Income)
+            // Savings rate = (Amount Saved Per Month / Gross Monthly Income)
             ratios.savingsRate = (contribution / totals.totalIncome); // Rate as decimal
         } else {
             ratios.savingsRate = 0; // Avoid division by zero
         }
-
 
         // Emergency Fund Coverage (Months based on CORE expenses)
         const currentEmergencyFund = Number(savingsInput.emergency) || 0;
         if (totals.monthlyCoreExpenses > 0) {
             ratios.emergencyCoverage = currentEmergencyFund / totals.monthlyCoreExpenses; // Result in months
         } else if (totals.totalExpenses > 0) {
-             // Fallback if core expenses somehow end up zero but total expenses > 0
+            // Fallback if core expenses somehow end up zero but total expenses > 0
             ratios.emergencyCoverage = currentEmergencyFund / totals.totalExpenses;
-             console.warn("Using total expenses for emergency coverage calculation as core expenses were zero.")
+            console.warn("Using total expenses for emergency coverage calculation as core expenses were zero.")
         } else {
             ratios.emergencyCoverage = Infinity; // If no expenses, coverage is infinite (or handle as special case)
         }
-
 
         // Debt-to-Income (DTI) Ratio (using minimum payments from totals)
         // DTI = (Total Monthly Minimum Debt Payments / Gross Monthly Income)
@@ -1121,7 +1269,6 @@ let initialUsageInfo = null; // To store fetched usage/limit info for initial UI
         } else {
             ratios.dtiRatio = 0; // Or Infinity if debts exist but income is zero? Define behavior.
         }
-
 
         return ratios;
     }
@@ -1182,7 +1329,7 @@ let initialUsageInfo = null; // To store fetched usage/limit info for initial UI
         if (dtiBar) {
             dtiBar.style.width = `${dtiPercent}%`;
             // General guideline: Good < 36%, Warning 36-43%, High > 43% (Adjust thresholds)
-             dtiBar.className = `ratio-bar dti-ratio ${dtiRatioValue > 0.43 ? 'high' : dtiRatioValue >= 0.36 ? 'warning' : 'good'}`;
+            dtiBar.className = `ratio-bar dti-ratio ${dtiRatioValue > 0.43 ? 'high' : dtiRatioValue >= 0.36 ? 'warning' : 'good'}`;
         }
     }
 
@@ -1237,20 +1384,20 @@ let initialUsageInfo = null; // To store fetched usage/limit info for initial UI
                     hasVisibleGoal = true;
                     purchaseGoalDisplay.style.display = 'block';
                     purchaseGoalNameEl.textContent = goalName;
-                     // Calculate progress using general savings balance towards this goal amount
+                    // Calculate progress using general savings balance towards this goal amount
                     const progress = Math.min(100, Math.max(0, (generalSavings / goalAmount) * 100));
                     purchaseProgressBar.style.width = `${progress}%`;
                     purchaseProgressBar.textContent = `${progress.toFixed(0)}%`;
                     const statusEl = purchaseGoalDisplay.querySelector('.goal-status');
-                     if (statusEl) statusEl.textContent = `Target: ${formatCurrency(goalAmount)} (${formatCurrency(generalSavings)} saved)`;
+                    if (statusEl) statusEl.textContent = `Target: ${formatCurrency(goalAmount)} (${formatCurrency(generalSavings)} saved)`;
                 } else if (purchaseGoalDisplay) {
                     purchaseGoalDisplay.style.display = 'none'; // Hide if parsing results in invalid goal
                 }
             } else if (purchaseGoalDisplay) {
-                 purchaseGoalDisplay.style.display = 'none'; // Hide if parsing fails
+                purchaseGoalDisplay.style.display = 'none'; // Hide if parsing fails
             }
         } else if (purchaseGoalDisplay) {
-             purchaseGoalDisplay.style.display = 'none'; // Hide if no string or elements
+            purchaseGoalDisplay.style.display = 'none'; // Hide if no string or elements
         }
 
         // Show 'No goals' message only if neither goal section is visible
@@ -1292,7 +1439,6 @@ let initialUsageInfo = null; // To store fetched usage/limit info for initial UI
     }
 
     function renderCharts(data) {
-        // This function now runs inside requestAnimationFrame via processAndDisplayData
         try {
             const incomeData = data?.userInput?.income || {};
             const expenseData = data?.userInput?.expenses || {};
@@ -1316,9 +1462,9 @@ let initialUsageInfo = null; // To store fetched usage/limit info for initial UI
             Object.entries(expenseData).forEach(([key, value]) => {
                 const numValue = Number(value);
                 if (numValue > 0) {
-                     let label = key.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase());
-                     // Handle specific case like 'Groceries Essentials' if needed
-                     if (key === 'groceriesEssentials') label = 'Groceries/Essentials';
+                    let label = key.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase());
+                    // Handle specific case like 'Groceries Essentials' if needed
+                    if (key === 'groceriesEssentials') label = 'Groceries/Essentials';
                     expenseLabels.push(label);
                     expenseValues.push(numValue);
                 }
@@ -1331,54 +1477,52 @@ let initialUsageInfo = null; // To store fetched usage/limit info for initial UI
             const incomeChartDiv = document.getElementById('incomeChart');
             const expenseChartDiv = document.getElementById('expenseChart');
 
-             // Common layout adjustments for Pie charts
-             const commonPieLayout = {
-                 height: 350, // Reduced height slightly
-                 margin: { t: 30, b: 60, l: 20, r: 20 }, // Adjusted margins (less top, more bottom for legend)
-                 showlegend: true,
-                 legend: {
-                     orientation: "h", // Horizontal legend
-                     yanchor: "bottom", y: -0.2, // Position below chart
-                     xanchor: 'center', x: 0.5
-                 },
-                 paper_bgcolor: 'rgba(0,0,0,0)', // Transparent background
-                 plot_bgcolor: 'rgba(0,0,0,0)',
-                 font: { family: 'Inter, sans-serif', size: 11, color: '#374151' } // Match page font
-                 // automargin: true // May help with labels, but can conflict with fixed margins
-             };
+            // Common layout adjustments for Pie charts
+            const commonPieLayout = {
+                height: 350, // Reduced height slightly
+                margin: { t: 30, b: 60, l: 20, r: 20 }, // Adjusted margins (less top, more bottom for legend)
+                showlegend: true,
+                legend: {
+                    orientation: "h", // Horizontal legend
+                    yanchor: "bottom", y: -0.2, // Position below chart
+                    xanchor: 'center', x: 0.5
+                },
+                paper_bgcolor: 'rgba(0,0,0,0)', // Transparent background
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                font: { family: 'Inter, sans-serif', size: 11, color: '#374151' } // Match page font
+            };
 
-             // Define specific Plotly config options if needed
-             const plotlyConfig = {
+            // Define specific Plotly config options if needed
+            const plotlyConfig = {
                 displaylogo: false,
                 responsive: true, // Make chart responsive
                 modeBarButtonsToRemove: ['sendDataToCloud', 'select2d', 'lasso2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d', 'resetScale2d', 'hoverClosestPie', 'toggleSpikelines', 'hoverCompareCartesian']
-             };
-
+            };
 
             // Income Chart (Pie)
-             if (incomeChartDiv) {
-                 Plotly.purge(incomeChartDiv); // Clear previous chart first
-                 if (incomeValues.length > 0) {
-                     const incomeTrace = [{ // Wrap trace in an array
-                         values: incomeValues,
-                         labels: incomeLabels,
-                         type: 'pie',
-                         hole: .4,
-                         hoverinfo: 'label+percent', // Show label and percentage on hover
-                         textinfo: 'value', // Show currency value on slice
-                         texttemplate: '%{value:$,.0f}', // Format text as currency
-                         textfont_size: 11,
-                         marker: {
-                             colors: ['#10b981', '#34d399', '#6ee7b7', '#a7f3d0'], // Example green shades
-                             line: { color: '#ffffff', width: 1 } // White line between slices
-                         },
-                         domain: { y: [0, 0.9] } // Add space at the top to avoid title overlap if needed
-                     }];
-                     Plotly.newPlot(incomeChartDiv, incomeTrace, { ...commonPieLayout, title: { text: 'Income Sources', y:0.95 } }, plotlyConfig);
-                 } else {
-                     incomeChartDiv.innerHTML = '<p class="text-center text-gray-500 pt-10">No income data to display.</p>';
-                 }
-             } else { console.error("Income chart div not found"); }
+            if (incomeChartDiv) {
+                Plotly.purge(incomeChartDiv); // Clear previous chart first
+                if (incomeValues.length > 0) {
+                    const incomeTrace = [{ // Wrap trace in an array
+                        values: incomeValues,
+                        labels: incomeLabels,
+                        type: 'pie',
+                        hole: .4,
+                        hoverinfo: 'label+percent', // Show label and percentage on hover
+                        textinfo: 'value', // Show currency value on slice
+                        texttemplate: '%{value:$,.0f}', // Format text as currency
+                        textfont_size: 11,
+                        marker: {
+                            colors: ['#10b981', '#34d399', '#6ee7b7', '#a7f3d0'], // Example green shades
+                            line: { color: '#ffffff', width: 1 } // White line between slices
+                        },
+                        domain: { y: [0, 0.9] } // Add space at the top to avoid title overlap if needed
+                    }];
+                    Plotly.newPlot(incomeChartDiv, incomeTrace, { ...commonPieLayout, title: { text: 'Income Sources', y:0.95 } }, plotlyConfig);
+                } else {
+                    incomeChartDiv.innerHTML = '<p class="text-center text-gray-500 pt-10">No income data to display.</p>';
+                }
+            } else { console.error("Income chart div not found"); }
 
             // Expense Chart (Pie)
             if (expenseChartDiv) {
@@ -1402,17 +1546,16 @@ let initialUsageInfo = null; // To store fetched usage/limit info for initial UI
                     }];
                     Plotly.newPlot(expenseChartDiv, expenseTrace, { ...commonPieLayout, title: { text: 'Expense Categories', y:0.95 } }, plotlyConfig);
                 } else {
-                     expenseChartDiv.innerHTML = '<p class="text-center text-gray-500 pt-10">No expense data to display.</p>';
+                    expenseChartDiv.innerHTML = '<p class="text-center text-gray-500 pt-10">No expense data to display.</p>';
                 }
             } else { console.error("Expense chart div not found"); }
 
         } catch (chartError) {
-             console.error("Error during Plotly rendering:", chartError);
-             // Rethrow the error so it can be caught by the caller in requestAnimationFrame
-             throw new Error(`Chart rendering failed: ${chartError.message}`);
+            console.error("Error during Plotly rendering:", chartError);
+            // Rethrow the error so it can be caught by the caller in requestAnimationFrame
+            throw new Error(`Chart rendering failed: ${chartError.message}`);
         }
     }
-
 
     function updateUIDisplayFromAI(data) {
         const aiOutput = data?.aiOutput || {};
@@ -1422,13 +1565,13 @@ let initialUsageInfo = null; // To store fetched usage/limit info for initial UI
 
         if (analysisEl) {
             // Replace literal '\n' and actual newlines with <br> for HTML display
-             const formattedAnalysis = (aiOutput.analysis || 'Analysis not provided.').replace(/\\n/g, '<br>').replace(/\n/g, '<br>');
+            const formattedAnalysis = (aiOutput.analysis || 'Analysis not provided.').replace(/\\n/g, '<br>').replace(/\n/g, '<br>');
             analysisEl.innerHTML = formattedAnalysis;
         } else { console.error("AI Analysis element not found"); }
 
         if (progressContentEl) {
-             const formattedProgress = (aiOutput.userProgress || 'No progress history available.').replace(/\\n/g, '\n'); // Keep actual newlines for pre-wrap
-             progressContentEl.textContent = formattedProgress;
+            const formattedProgress = (aiOutput.userProgress || 'No progress history available.').replace(/\\n/g, '\n'); // Keep actual newlines for pre-wrap
+            progressContentEl.textContent = formattedProgress;
         } else { console.error("Progress Content element not found"); }
 
         if (recommendationsList) {
@@ -1436,8 +1579,8 @@ let initialUsageInfo = null; // To store fetched usage/limit info for initial UI
             const recsText = aiOutput.recommendations || '';
             // Split by literal '\n' or actual newline, trim, remove list markers, filter empty
             const recsArray = recsText.split(/\\n|\n/)
-                                      .map(r => r.trim().replace(/^[\*\-\d\.]+\s*/, ''))
-                                      .filter(r => r.length > 0);
+                                     .map(r => r.trim().replace(/^[\*\-\d\.]+\s*/, ''))
+                                     .filter(r => r.length > 0);
 
             // Check if the only item indicates no recommendations
             if (recsArray.length > 0 && !(recsArray.length === 1 && /not available|not provided/i.test(recsArray[0]))) {
@@ -1460,7 +1603,6 @@ let initialUsageInfo = null; // To store fetched usage/limit info for initial UI
         } else { console.error("Recommendations list element not found"); }
     }
 
-
     // --- Chat Functionality ---
     function initializeChat() {
         console.log("--- initializeChat START ---");
@@ -1481,39 +1623,37 @@ let initialUsageInfo = null; // To store fetched usage/limit info for initial UI
 
         // Show chat card only if data was successfully processed and Supabase is available
         if (isSupabaseReady && dashboardData?.userInput?.personalInfo) { // Also check if dashboardData is loaded
-             chatInterfaceCard.style.display = 'block'; // Or 'grid' depending on your layout
-             enableChatInput(true);
-             chatHistory.innerHTML = ''; // Clear previous messages on re-initialization
+            chatInterfaceCard.style.display = 'block'; // Or 'grid' depending on your layout
+            enableChatInput(true);
+            chatHistory.innerHTML = ''; // Clear previous messages on re-initialization
 
-             // Add initial assistant message only if chat history is empty
-             if (chatMessages.length === 0) {
-                 addMessageToChat("Assistant", "Hello! Ask me anything about the financial data shown on your dashboard.", false);
-                 // Add the initial message to the chatMessages array as well
-                 chatMessages.push({ role: "assistant", content: "Hello! Ask me anything about the financial data shown on your dashboard." });
-             } else {
-                 // Restore previous messages if chatMessages array is not empty (e.g., after error/retry)
-                 chatMessages.forEach(msg => addMessageToChat(msg.role.charAt(0).toUpperCase() + msg.role.slice(1), msg.content));
-             }
-             setChatStatus("", false); // Clear any previous status
+            // Add initial assistant message only if chat history is empty
+            if (chatMessages.length === 0) {
+                addMessageToChat("Assistant", "Hello! Ask me anything about the financial data shown on your dashboard.", false);
+                // Add the initial message to the chatMessages array as well
+                chatMessages.push({ role: "assistant", content: "Hello! Ask me anything about the financial data shown on your dashboard." });
+            } else {
+                // Restore previous messages if chatMessages array is not empty (e.g., after error/retry)
+                chatMessages.forEach(msg => addMessageToChat(msg.role.charAt(0).toUpperCase() + msg.role.slice(1), msg.content));
+            }
+            setChatStatus("", false); // Clear any previous status
 
-             // Ensure listeners are attached only once or re-attached correctly
-             chatSendButton.removeEventListener('click', handleChatSubmit); // Remove previous listener if any
-             chatInput.removeEventListener('keydown', handleChatEnterKey); // Remove previous listener if any
-             chatSendButton.addEventListener('click', handleChatSubmit);
-             chatInput.addEventListener('keydown', handleChatEnterKey);
+            // Ensure listeners are attached only once or re-attached correctly
+            chatSendButton.removeEventListener('click', handleChatSubmit); // Remove previous listener if any
+            chatInput.removeEventListener('keydown', handleChatEnterKey); // Remove previous listener if any
+            chatSendButton.addEventListener('click', handleChatSubmit);
+            chatInput.addEventListener('keydown', handleChatEnterKey);
 
-             // Auto-resize textarea
-             chatInput.removeEventListener('input', autoGrowTextarea); // Remove previous
-             chatInput.addEventListener('input', autoGrowTextarea);
+            // Auto-resize textarea
+            chatInput.removeEventListener('input', autoGrowTextarea); // Remove previous
+            chatInput.addEventListener('input', autoGrowTextarea);
 
-             console.log("Chat UI initialized and enabled.");
+            console.log("Chat UI initialized and enabled.");
         } else {
-             chatInterfaceCard.style.display = 'none'; // Hide if Supabase not ready or data not loaded
-             // Optionally add a system message even if hidden, for internal state
-             // addMessageToChat("System", "Chat service connection failed or data missing.", true);
-             enableChatInput(false);
-             setChatStatus("Chat unavailable", false);
-             console.warn("Chat initialization skipped: Supabase client/functions not available or dashboard data missing.");
+            chatInterfaceCard.style.display = 'none'; // Hide if Supabase not ready or data not loaded
+            enableChatInput(false);
+            setChatStatus("Chat unavailable", false);
+            console.warn("Chat initialization skipped: Supabase client/functions not available or dashboard data missing.");
         }
         console.log("--- initializeChat END ---");
     }
@@ -1526,12 +1666,11 @@ let initialUsageInfo = null; // To store fetched usage/limit info for initial UI
     }
 
     function autoGrowTextarea(event) {
-         const textarea = event.target;
-         textarea.style.height = 'auto'; // Temporarily shrink to base height
-         // Set height based on scroll height, but limit max height
-         textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px'; // Max height e.g., 120px
+        const textarea = event.target;
+        textarea.style.height = 'auto'; // Temporarily shrink to base height
+        // Set height based on scroll height, but limit max height
+        textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px'; // Max height e.g., 120px
     }
-
 
     function enableChatInput(enabled) {
         const chatInput = document.getElementById('chatInput');
@@ -1545,18 +1684,16 @@ let initialUsageInfo = null; // To store fetched usage/limit info for initial UI
             chatSendButton.style.opacity = enabled ? '1' : '0.6';
             chatSendButton.style.cursor = enabled ? 'pointer' : 'not-allowed';
         } else {
-             console.warn("Could not find chat input or send button to enable/disable.");
+            console.warn("Could not find chat input or send button to enable/disable.");
         }
     }
-
 
     function addMessageToChat(sender, message, isError = false) {
         const chatHistory = document.getElementById('chatHistory');
         if (!chatHistory) {
-             console.error("Chat history element not found.");
-             return;
+            console.error("Chat history element not found.");
+            return;
         }
-
 
         const messageContainer = document.createElement('div');
         const senderClass = sender.toLowerCase(); // 'user', 'assistant', or 'system'
@@ -1576,12 +1713,10 @@ let initialUsageInfo = null; // To store fetched usage/limit info for initial UI
         // Basic Markdown-like link handling: [text](url) -> <a href="url">text</a>
         // Basic bold handling: **text** -> <strong>text</strong>
         // Convert newlines to <br> for HTML display
-        // CAUTION: Using innerHTML. Ensure backend sanitizes responses if they could contain malicious script tags.
         const formattedMessage = message
             .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-indigo-600 hover:underline font-medium">$1</a>')
             .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Handle bold
             .replace(/\n/g, '<br>'); // Convert newlines
-
 
         bubble.innerHTML = formattedMessage; // Assign the processed HTML
         messageContainer.appendChild(bubble);
@@ -1590,7 +1725,6 @@ let initialUsageInfo = null; // To store fetched usage/limit info for initial UI
         // Scroll to the bottom smoothly
         chatHistory.scrollTo({ top: chatHistory.scrollHeight, behavior: 'smooth' });
     }
-
 
     function setChatStatus(message, isLoading = false) {
         const chatStatus = document.getElementById('chatStatus');
@@ -1603,7 +1737,7 @@ let initialUsageInfo = null; // To store fetched usage/limit info for initial UI
             // Auto-clear status message after a few seconds unless it's an error or empty
             if (message && !/error|failed|unavailable/i.test(message)) {
                 setTimeout(() => {
-                     // Only clear if the message hasn't changed in the meantime
+                    // Only clear if the message hasn't changed in the meantime
                     if (chatStatus.textContent === message) chatStatus.textContent = '';
                 }, 4000);
             }
@@ -1649,9 +1783,8 @@ let initialUsageInfo = null; // To store fetched usage/limit info for initial UI
         // Include prior analysis/recs if available and not default text
         const priorAnalysis = getSafe(() => dashboardData.aiOutput.analysis);
         const priorRecs = getSafe(() => dashboardData.aiOutput.recommendations);
-        if (priorAnalysis !== 'N/A' && !/not available/i.test(priorAnalysis)) financialContext += `Prior Analysis Summary: ${priorAnalysis.substring(0, 200)}...\n`; // Keep context concise
-        if (priorRecs !== 'N/A' && !/not available/i.test(priorRecs)) financialContext += `Prior Recommendations Summary: ${priorRecs.substring(0, 200)}...\n`; // Keep context concise
-
+        if (priorAnalysis !== 'N/A' && !/not available/i.test(priorAnalysis)) financialContext += `Prior Analysis Summary: ${priorAnalysis.substring(0, 200)}...\n`;
+        if (priorRecs !== 'N/A' && !/not available/i.test(priorRecs)) financialContext += `Prior Recommendations Summary: ${priorRecs.substring(0, 200)}...\n`;
 
         // --- Construct messages payload for Supabase function ---
         // Limit history length to keep payload reasonable (e.g., last 10 messages + system prompt)
@@ -1667,26 +1800,20 @@ let initialUsageInfo = null; // To store fetched usage/limit info for initial UI
         const functionName = 'smooth-function'; // *** Ensure this matches your deployed Supabase function name ***
 
         console.log(`Invoking Supabase function '${functionName}' with ${messagesForBackend.length} messages.`);
-         // console.log("Payload:", JSON.stringify({ messages: messagesForBackend })); // Log full payload for deep debug if needed
 
         try {
-             // Invoke the Supabase Function using fetch (as invoke might have issues without auth sometimes)
-            
+            // Invoke the Supabase Function using fetch
             const response = await fetch(`${SUPABASE_URL}/functions/v1/${functionName}`, {
-                 method: 'POST',
-                 headers: {
-                     'Content-Type': 'application/json',
-                     'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, // Use Anon key for basic auth
-                     // Add custom headers if your function expects them (e.g., user ID)
-                     // 'x-user-id': 'some-user-id',
-                 },
-                 body: JSON.stringify({
-                     messages: messagesForBackend,
-                     // You can pass other parameters your function might need
-                     // e.g., model: CHAT_MODEL
-                 })
-             });
-
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, // Use Anon key for basic auth
+                },
+                body: JSON.stringify({
+                    messages: messagesForBackend,
+                    model: CHAT_MODEL
+                })
+            });
 
             const data = await response.json(); // Attempt to parse JSON response
 
@@ -1700,7 +1827,6 @@ let initialUsageInfo = null; // To store fetched usage/limit info for initial UI
             }
 
             // --- Process successful response ---
-             // Expecting response format like: { assistantResponse: { role: "assistant", content: "..." } }
             if (data && data.assistantResponse && data.assistantResponse.content) {
                 const assistantMsg = data.assistantResponse;
                 addMessageToChat("Assistant", assistantMsg.content);
@@ -1720,7 +1846,6 @@ let initialUsageInfo = null; // To store fetched usage/limit info for initial UI
         }
     }
 
-
     // --- Event Handlers & Button Initializers ---
     function handleChatSubmit() {
         const chatInput = document.getElementById('chatInput');
@@ -1733,8 +1858,7 @@ let initialUsageInfo = null; // To store fetched usage/limit info for initial UI
         chatMessages.push({ role: "user", content: userMessage }); // Add user message to history array
         chatInput.value = ''; // Clear input field
         chatInput.style.height = 'auto'; // Reset height after send
-         chatInput.style.height = '44px'; // Force back to original size
-
+        chatInput.style.height = '44px'; // Force back to original size
 
         sendToBackendChatFunction(); // Call backend function
     }
@@ -1750,7 +1874,10 @@ let initialUsageInfo = null; // To store fetched usage/limit info for initial UI
                 // Create a deep copy to avoid modifying the original object
                 const dataToSave = JSON.parse(JSON.stringify(dashboardData));
 
-                // Optional: Add a timestamp to the saved data
+                // Add chat history to the saved data
+                dataToSave.chatHistory = chatMessages;
+                
+                // Add a timestamp to the saved data
                 dataToSave.savedAt = new Date().toISOString();
 
                 const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataToSave, null, 2)); // Pretty print JSON
@@ -1778,29 +1905,27 @@ let initialUsageInfo = null; // To store fetched usage/limit info for initial UI
         const fileInputElement = document.getElementById('fileInput'); // The hidden file input
 
         if (!fileInputElement) {
-             console.error("File input element (#fileInput) not found! Upload will not work.");
-             return; // Can't proceed without file input
+            console.error("File input element (#fileInput) not found! Upload will not work.");
+            return; // Can't proceed without file input
         }
-
 
         // Listener for the header button
         if (uploadButtonHeader) {
             uploadButtonHeader.addEventListener('click', () => { fileInputElement.click(); });
         } else {
-             console.warn("Header upload button (#uploadButton) not found.");
+            console.warn("Header upload button (#uploadButton) not found.");
         }
 
         // Listener for the button inside the initial prompt
         if (initialUploadButtonPrompt) {
-             initialUploadButtonPrompt.addEventListener('click', () => { fileInputElement.click(); });
+            initialUploadButtonPrompt.addEventListener('click', () => { fileInputElement.click(); });
         } else {
-             console.warn("Initial upload prompt button (#initialUploadButton) not found.");
+            console.warn("Initial upload prompt button (#initialUploadButton) not found.");
         }
 
         // Listener for the actual file input change event
         fileInputElement.addEventListener('change', handleFileUpload);
     }
-
 
     function handleFileUpload(event) {
         const file = event.target.files[0];
@@ -1810,11 +1935,10 @@ let initialUsageInfo = null; // To store fetched usage/limit info for initial UI
 
         // Ensure it's a JSON file (basic check)
         if (file.type !== 'application/json' && !file.name.toLowerCase().endsWith('.json')) {
-             handleError("Invalid file type", new Error("Please upload a valid JSON file (.json)."));
-             event.target.value = null; // Reset file input
-             return;
+            handleError("Invalid file type", new Error("Please upload a valid JSON file (.json)."));
+            event.target.value = null; // Reset file input
+            return;
         }
-
 
         // Show loading, hide others immediately
         if (loadingSpinner) loadingSpinner.style.display = 'flex';
@@ -1823,22 +1947,27 @@ let initialUsageInfo = null; // To store fetched usage/limit info for initial UI
         if (initialUploadPrompt) initialUploadPrompt.style.display = 'none'; // Hide prompt
         if (mainContentElement) mainContentElement.style.display = 'none'; // Hide main content
 
-
         const reader = new FileReader();
         reader.onload = function(e) {
             let uploadedData = null;
             try {
                 uploadedData = JSON.parse(e.target.result);
-                // Basic validation of uploaded structure - Adapt based on your required fields
+                // Basic validation of uploaded structure
                 if (typeof uploadedData !== 'object' || uploadedData === null ||
                     !uploadedData.userInput || !uploadedData.userInput.personalInfo || !uploadedData.userInput.income) {
-                     // Be more specific about what's missing if possible
                     throw new Error("Invalid file content. Expected a JSON object with 'userInput' containing 'personalInfo', 'income', etc.");
                 }
 
                 console.log("Successfully parsed uploaded JSON file.");
                 dashboardData = uploadedData; // Replace current data
-                chatMessages = []; // Clear chat history for new data
+                
+                // Restore chat history if it exists in the uploaded file
+                if (Array.isArray(uploadedData.chatHistory)) {
+                    chatMessages = uploadedData.chatHistory;
+                } else {
+                    chatMessages = []; // Clear chat history if not found
+                }
+                
                 processAndDisplayData(dashboardData); // Display the new data
 
             } catch (error) {
@@ -1860,7 +1989,7 @@ let initialUsageInfo = null; // To store fetched usage/limit info for initial UI
             dashboardData = {}; // Reset data
             chatMessages = []; // Clear chat
             event.target.value = null; // Reset file input
-             if (loadingSpinner) loadingSpinner.style.display = 'none'; // Ensure spinner hides on read error
+            if (loadingSpinner) loadingSpinner.style.display = 'none'; // Ensure spinner hides on read error
         };
         reader.readAsText(file); // Read the file as text
     }
@@ -1877,28 +2006,16 @@ let initialUsageInfo = null; // To store fetched usage/limit info for initial UI
             }
         });
         // Add ESC key listener to close modals
-         document.addEventListener('keydown', function(event) {
-             if (event.key === "Escape") {
-                 const modals = document.getElementsByClassName('modal');
-                 for (let i = 0; i < modals.length; i++) {
-                     if (modals[i].style.display === "block") {
-                         closeModal(modals[i].id);
-                         // Optionally break if you only want ESC to close one modal at a time
-                         // break;
-                     }
-                 }
-             }
-         });
-
-
-        // Explicit close button handlers are already set via inline onclick,
-        // but could be attached here if preferred:
-        // document.querySelectorAll('.close-button').forEach(button => {
-        //     const modalId = button.closest('.modal')?.id;
-        //     if (modalId) {
-        //         button.addEventListener('click', () => closeModal(modalId));
-        //     }
-        // });
+        document.addEventListener('keydown', function(event) {
+            if (event.key === "Escape") {
+                const modals = document.getElementsByClassName('modal');
+                for (let i = 0; i < modals.length; i++) {
+                    if (modals[i].style.display === "block") {
+                        closeModal(modals[i].id);
+                    }
+                }
+            }
+        });
     }
 
     function openModal(modalId) {
@@ -1908,12 +2025,11 @@ let initialUsageInfo = null; // To store fetched usage/limit info for initial UI
             if(modalId === 'progressModal' && dashboardData?.aiOutput) {
                 const progressContentEl = document.getElementById('progressContent');
                 if(progressContentEl) {
-                     const formattedProgress = (dashboardData.aiOutput.userProgress || 'No progress history available.').replace(/\\n/g, '\n');
-                     progressContentEl.textContent = formattedProgress;
-                 }
+                    const formattedProgress = (dashboardData.aiOutput.userProgress || 'No progress history available.').replace(/\\n/g, '\n');
+                    progressContentEl.textContent = formattedProgress;
+                }
             }
             modal.style.display = "block";
-            // Optional: Trap focus within the modal for accessibility
         } else { console.warn(`Modal with ID ${modalId} not found.`); }
     }
 
@@ -1921,68 +2037,60 @@ let initialUsageInfo = null; // To store fetched usage/limit info for initial UI
         const modal = document.getElementById(modalId);
         if (modal) {
             modal.style.display = "none";
-            // Optional: Return focus to the element that opened the modal
         }
     }
 
     /* --- Save Summary workflow --- */
     async function generateAndSaveSummary() {
         if (!dashboardData || !dashboardData.userInput) {
-             alert("Please load financial data before generating a summary.");
-             return;
+            alert("Please load financial data before generating a summary.");
+            return;
         }
         if (!supabase || typeof supabase.functions?.invoke !== 'function') {
-             addMessageToChat("System", "Error: Cannot generate summary. Service connection unavailable.", true);
-             setChatStatus("Summary generation failed", false);
-             return;
+            addMessageToChat("System", "Error: Cannot generate summary. Service connection unavailable.", true);
+            setChatStatus("Summary generation failed", false);
+            return;
         }
-
 
         try {
             setChatStatus("Generating & Saving Summary…", true);
             enableChatInput(false); // Disable chat during this operation
 
-
             // --- Prepare context for summary generation ---
-            // Similar context as chat, but maybe more focused on overall picture
-             let summaryContext = `User: ${getSafe(() => dashboardData.userInput.personalInfo.userName)}\n`;
-             const totals = calculateTotals(dashboardData);
-             const ratios = calculateRatios(dashboardData, totals);
-             summaryContext += `Income: ${formatCurrency(totals.totalIncome)}, Expenses: ${formatCurrency(totals.totalExpenses)}, Net: ${formatCurrency(totals.netFlow)}\n`;
-             summaryContext += `Savings: ${formatCurrency(totals.totalSavings)}, Debt: ${formatCurrency(totals.totalDebt)}\n`;
-             summaryContext += `Key Ratios: Savings Rate: ${formatPercentage(ratios.savingsRate)}, DTI: ${formatPercentage(ratios.dtiRatio)}, Emergency: ${ratios.emergencyCoverage.toFixed(1)} months\n`;
-             summaryContext += `Challenges: ${getSafe(()=>dashboardData.userInput.financials.challenges)}\n`;
-             summaryContext += `Goals: ${getSafe(()=>dashboardData.userInput.financials.upcomingPurchase)}\n`;
+            let summaryContext = `User: ${getSafe(() => dashboardData.userInput.personalInfo.userName)}\n`;
+            const totals = calculateTotals(dashboardData);
+            const ratios = calculateRatios(dashboardData, totals);
+            summaryContext += `Income: ${formatCurrency(totals.totalIncome)}, Expenses: ${formatCurrency(totals.totalExpenses)}, Net: ${formatCurrency(totals.netFlow)}\n`;
+            summaryContext += `Savings: ${formatCurrency(totals.totalSavings)}, Debt: ${formatCurrency(totals.totalDebt)}\n`;
+            summaryContext += `Key Ratios: Savings Rate: ${formatPercentage(ratios.savingsRate)}, DTI: ${formatPercentage(ratios.dtiRatio)}, Emergency: ${ratios.emergencyCoverage.toFixed(1)} months\n`;
+            summaryContext += `Challenges: ${getSafe(()=>dashboardData.userInput.financials.challenges)}\n`;
+            summaryContext += `Goals: ${getSafe(()=>dashboardData.userInput.financials.upcomingPurchase)}\n`;
 
-             // --- Call a specific Supabase function for SUMMARY ---
-             // It's good practice to have a separate function for different core tasks
-             const summaryFunctionName = 'generate-financial-summary'; // *** Use your summary function name ***
+            // --- Call a specific Supabase function for SUMMARY ---
+            const summaryFunctionName = 'generate-financial-summary';
 
-             console.log(`Invoking Supabase function '${summaryFunctionName}' for summary.`);
+            console.log(`Invoking Supabase function '${summaryFunctionName}' for summary.`);
 
-             const response = await fetch(`${SUPABASE_URL}/functions/v1/${summaryFunctionName}`, {
-                 method: 'POST',
-                 headers: {
-                     'Content-Type': 'application/json',
-                     'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                 },
-                 body: JSON.stringify({
-                     financialContext: summaryContext,
-                     // Pass the existing analysis/recs if the summary function should build upon them
-                     // existingAnalysis: dashboardData.aiOutput?.analysis,
-                     // existingRecommendations: dashboardData.aiOutput?.recommendations
-                 })
-             });
+            const response = await fetch(`${SUPABASE_URL}/functions/v1/${summaryFunctionName}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                },
+                body: JSON.stringify({
+                    financialContext: summaryContext,
+                    model: CHAT_MODEL
+                })
+            });
 
-             const result = await response.json();
+            const result = await response.json();
 
-             if (!response.ok) {
-                 throw new Error(result?.error || `Summary generation failed with status ${response.status}`);
-             }
+            if (!response.ok) {
+                throw new Error(result?.error || `Summary generation failed with status ${response.status}`);
+            }
 
-             // --- Update UI and Data Object ---
-             // Assuming the function returns { summary: "...", recommendations: "..." }
-             if (result && result.summary) {
+            // --- Update UI and Data Object ---
+            if (result && result.summary) {
                 // Update the aiOutput section of your main data object
                 if (dashboardData && dashboardData.aiOutput) {
                     dashboardData.aiOutput.analysis = result.summary; // Replace analysis with new summary
@@ -1991,18 +2099,17 @@ let initialUsageInfo = null; // To store fetched usage/limit info for initial UI
                         dashboardData.aiOutput.recommendations = result.recommendations;
                     }
                     // Add a timestamp to progress history
-                     const now = new Date();
-                     const progressUpdate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}: AI Summary generated.`;
-                     dashboardData.aiOutput.userProgress = (dashboardData.aiOutput.userProgress || '') + '\n' + progressUpdate;
-
+                    const now = new Date();
+                    const progressUpdate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}: AI Summary generated.`;
+                    dashboardData.aiOutput.userProgress = (dashboardData.aiOutput.userProgress || '') + '\n' + progressUpdate;
 
                     updateUIDisplayFromAI(dashboardData); // Refresh the AI section display
                     setChatStatus("Summary saved to report ✅", false);
-                    addMessageToChat("System", "A new AI summary has been generated and saved to the report data."); // Inform user via chat
+                    addMessageToChat("System", "A new AI summary has been generated and saved to the report data.");
                 }
-             } else {
-                 throw new Error("Summary function returned an unexpected format.");
-             }
+            } else {
+                throw new Error("Summary function returned an unexpected format.");
+            }
 
         } catch (err) {
             console.error("Summary generation/saving failed:", err);
@@ -2029,625 +2136,169 @@ let initialUsageInfo = null; // To store fetched usage/limit info for initial UI
         // Use event delegation on a parent container for potentially dynamic elements
         const mainContainer = document.getElementById('mainContent');
         if (mainContainer) {
-             mainContainer.addEventListener('click', function(event) {
-                 // Find the closest ancestor with data-desc attribute
-                 const targetElement = event.target.closest('[data-desc]');
-                 if (targetElement) {
-                     const description = targetElement.dataset.desc;
-                     if (description) {
-                         showInfo(description);
-                     }
-                 }
-             });
-             // Add cursor pointer style via CSS if needed, or here:
-             // document.querySelectorAll('[data-desc]').forEach(el => {
-             //    el.style.cursor = 'pointer';
-             // });
-             console.log("Info popups initialized via event delegation.");
+            mainContainer.addEventListener('click', function(event) {
+                // Find the closest ancestor with data-desc attribute
+                const targetElement = event.target.closest('[data-desc]');
+                if (targetElement) {
+                    const description = targetElement.dataset.desc;
+                    if (description) {
+                        showInfo(description);
+                    }
+                }
+            });
+            console.log("Info popups initialized via event delegation.");
         } else {
-             console.warn("Main content container not found for info popup delegation.");
+            console.warn("Main content container not found for info popup delegation.");
         }
     }
 
-    // ... your existing code ...
-
-    } // <--- This should be the closing brace } of your initInfoPopups function
-
-// *** REPLACE the existing parseXtlParameter function with this CORRECTED version ***
-function parseXtlParameter() {
-    const params = new URLSearchParams(window.location.search);
-    const xtlParam = params.get('xtl');
-    let userIdFromXtl = null;
-    let tierFromXtl = 'basic'; // Default assumption
-
-    // *** CHANGE: Check for length 21 ***
-    if (xtlParam && xtlParam.length === 21) {
-        console.log("Found xtl parameter (length 21):", xtlParam);
-        const verificationSegment = xtlParam.substring(6, 11); // Digits 7-11 (index 6, length 5) - NO CHANGE HERE
-        const userIdSegment = xtlParam.substring(11); // Last 10 digits (index 11 to end) - NO CHANGE HERE, substring goes to end
-
-        // *** CHANGE: Validate userIdSegment length is 10 ***
-        if (/^[a-zA-Z0-9]{5}$/.test(verificationSegment) && userIdSegment.length === 10) {
-            userIdFromXtl = userIdSegment; // Store valid User ID
-
-            // The Core Tier Logic (remains the same)
-            if (verificationSegment === '16j59') {
-                tierFromXtl = 'pro';
-                console.log(`xtl code '${verificationSegment}' = PRO tier for user ID: ${userIdFromXtl}`);
-            } else if (verificationSegment === '83n45') {
-                tierFromXtl = 'basic';
-                console.log(`xtl code '${verificationSegment}' = BASIC tier for user ID: ${userIdFromXtl}`);
-            } else {
-                // Code is 5 valid chars, but not recognized pro/basic
-                console.error(`xtl parameter has unrecognized verification segment: ${verificationSegment}`);
-                userIdFromXtl = null; // Invalidate if code is unknown
-                tierFromXtl = 'basic'; // Reset tier
-                handleInvalidAccess("Invalid Access Code Segment");
-            }
-        } else {
-             // *** CHANGE: Update error message slightly if desired ***
-            console.error("xtl parameter has invalid format in segments (expected 5 code + 10 ID).");
-            userIdFromXtl = null; // Invalidate
-            tierFromXtl = 'basic'; // Reset tier
-            handleInvalidAccess("Invalid Access Parameter Format");
-        }
-    } else {
-         // *** CHANGE: Update warning message slightly if desired ***
-        console.warn("xtl parameter not found or incorrect length (expected 21 digits).");
-        userIdFromXtl = null; // Invalidate
-        tierFromXtl = 'basic'; // Reset tier
-        handleInvalidAccess("Missing or Invalid Access Parameter");
-    }
-
-    // Set global variables IF valid user was found (remains the same)
-    if (userIdFromXtl) {
-        currentUserId = userIdFromXtl;
-        effectiveTier = tierFromXtl;
-        // Trigger fetching initial usage info now that we have a valid user/tier
-        fetchInitialUsage(currentUserId);
-    } else {
-         // If user ID is null ensure globals reflect invalid state
-         currentUserId = null;
-         effectiveTier = 'basic';
-         initialUsageInfo = null; // Clear any potentially stale info
-    }
-}
-// *** END OF REPLACEMENT for parseXtlParameter ***
-
-// *** PASTE THIS FUNCTION DEFINITION (e.g., after parseXtlParameter) ***
-
-// Function to parse financial data parameters from URL into dashboardData
-function parseFinancialUrlParams(params, dataObject) {
-    console.log("Starting financial parameter parsing...");
-
-    // Ensure the target data structure exists
-    if (!dataObject.userInput) dataObject.userInput = {};
-    if (!dataObject.userInput.personalInfo) dataObject.userInput.personalInfo = {};
-    if (!dataObject.userInput.income) dataObject.userInput.income = {};
-    if (!dataObject.userInput.expenses) dataObject.userInput.expenses = {};
-    if (!dataObject.userInput.savings) dataObject.userInput.savings = {};
-    if (!dataObject.userInput.debts) dataObject.userInput.debts = [];
-    if (!dataObject.userInput.financials) dataObject.userInput.financials = {};
-    if (!dataObject.aiOutput) dataObject.aiOutput = {}; // Ensure aiOutput exists too
-
-    // Helper: Get parameter safely (assuming getParam exists globally or redefine here if needed)
-     const getParam = (key) => {
-         if (!params.has(key)) return null;
-         const rawValue = params.get(key);
-         if (!rawValue) return null;
-         try { return decodeURIComponent(rawValue.replace(/\+/g, ' ')).trim(); }
-         catch (e) { console.warn(`Error decoding parameter ${key}`); return rawValue.trim(); }
-     };
-
-    // Helper: Parse numeric parameter safely (assuming parseNumeric exists globally or redefine)
-     const parseNumeric = (value, defaultValue = 0) => {
-         if (value === null || value === undefined) return defaultValue;
-         const cleaned = String(value).replace(/[^0-9.-]+/g, '');
-         const number = parseFloat(cleaned);
-         return isNaN(number) ? defaultValue : number;
-     };
-
-    // --- Map URL Params to dashboardData Object ---
-    // Personal Info
-    dataObject.userInput.personalInfo.userName = getParam('userName') ?? dataObject.userInput.personalInfo.userName;
-    dataObject.userInput.personalInfo.age = parseNumeric(getParam('age'), dataObject.userInput.personalInfo.age || 0);
-
-    // Income
-    dataObject.userInput.income.mainJobIncome = parseNumeric(getParam('mainJobIncome'), dataObject.userInput.income.mainJobIncome || 0);
-    dataObject.userInput.income.secondJob = parseNumeric(getParam('secondJobIncome'), dataObject.userInput.income.secondJob || 0);
-    dataObject.userInput.income.otherIncome = parseNumeric(getParam('otherIncome'), dataObject.userInput.income.otherIncome || 0);
-
-    // Expenses
-    dataObject.userInput.expenses.housing = parseNumeric(getParam('housing'), dataObject.userInput.expenses.housing || 0);
-    dataObject.userInput.expenses.transportation = parseNumeric(getParam('transportation'), dataObject.userInput.expenses.transportation || 0);
-    dataObject.userInput.expenses.utilities = parseNumeric(getParam('utilities'), dataObject.userInput.expenses.utilities || 0);
-    dataObject.userInput.expenses.groceriesEssentials = parseNumeric(getParam('groceriesessentials'), dataObject.userInput.expenses.groceriesEssentials || 0);
-    dataObject.userInput.expenses.insurance = parseNumeric(getParam('insurance'), dataObject.userInput.expenses.insurance || 0);
-    dataObject.userInput.expenses.medical = parseNumeric(getParam('medical'), dataObject.userInput.expenses.medical || 0);
-    dataObject.userInput.expenses.care = parseNumeric(getParam('care'), dataObject.userInput.expenses.care || 0);
-    dataObject.userInput.expenses.subscriptions = parseNumeric(getParam('subscriptions'), dataObject.userInput.expenses.subscriptions || 0);
-    dataObject.userInput.expenses.taxes = parseNumeric(getParam('taxes'), dataObject.userInput.expenses.taxes || 0);
-
-    // Savings
-    dataObject.userInput.savings.emergency = parseNumeric(getParam('emergencySavings'), dataObject.userInput.savings.emergency || 0);
-    dataObject.userInput.savings.savings = parseNumeric(getParam('currentSavings'), dataObject.userInput.savings.savings || 0);
-    dataObject.userInput.savings.retirement = parseNumeric(getParam('retirementFund'), dataObject.userInput.savings.retirement || 0);
-    dataObject.userInput.savings.emergencyFundTarget = parseNumeric(getParam('emergencyFundTarget'), dataObject.userInput.savings.emergencyFundTarget || 0);
-    dataObject.userInput.savings.monthlySavingsGoal = parseNumeric(getParam('monthlySavingsGoal'), dataObject.userInput.savings.monthlySavingsGoal || 0);
-
-    // Debts
-    dataObject.userInput.debts = []; // Start fresh
-    const creditCardDebt = parseNumeric(getParam('creditCardDebt'));
-    if (creditCardDebt > 0) { dataObject.userInput.debts.push({ type: "Credit Card", balance: creditCardDebt, interestRate: parseNumeric(getParam('creditCardRate'), 22.5), minPayment: parseNumeric(getParam('creditCardMinPayment'), Math.max(creditCardDebt * 0.03, 25)) }); }
-    const bankLoans = parseNumeric(getParam('bankLoans'));
-    if (bankLoans > 0) { dataObject.userInput.debts.push({ type: "Bank Loans", balance: bankLoans, interestRate: parseNumeric(getParam('bankLoanRate'), 6.5), minPayment: parseNumeric(getParam('bankLoanMinPayment'), Math.max(bankLoans * 0.015, 50)) }); }
-    // Add others (studentLoanDebt, carLoanBalance etc.)
-
-    // Financials & Goals
-    dataObject.userInput.financials.financialTools = getParam('financialTools') ?? dataObject.userInput.financials.financialTools;
-    dataObject.userInput.financials.challenges = getParam('challenges') ?? dataObject.userInput.financials.challenges;
-    dataObject.userInput.financials.upcomingPurchase = getParam('upcomingPurchases') ?? dataObject.userInput.financials.upcomingPurchase;
-
-    // AI Output (Populate from params if they exist)
-    dataObject.aiOutput.analysis = getParam('aiAnalysis') ?? dataObject.aiOutput.analysis ?? 'Analysis not available.';
-    dataObject.aiOutput.recommendations = getParam('recommendations') ?? dataObject.aiOutput.recommendations ?? 'Recommendations not available.';
-    dataObject.aiOutput.userProgress = getParam('userProgressHistory') ?? dataObject.aiOutput.userProgress ?? 'No progress history available.';
-
-    console.log("Financial parameters parsed. Updated dashboardData:", dataObject);
-}
-// *** END OF FUNCTION DEFINITION ***
-    
-// Optional: Function to fetch initial usage for UI feedback
-async function fetchInitialUsage(userId) {
-    // Ensure elements needed by potential UI updates inside this function are ready
-    // If called very early, might need deferral or checks
-
-    if (!userId) {
-        console.log("Skipping initial usage fetch: No user ID.");
-        if (loadingSpinner) loadingSpinner.style.display = 'none'; // Hide spinner if we bail early
-        return;
-    }
-    // Wait briefly for Supabase to potentially initialize if called extremely early
-    if (!supabase) {
-        console.warn("Supabase client not ready for initial usage fetch, will retry shortly.");
-        await new Promise(resolve => setTimeout(resolve, 100)); // Wait 100ms
-        if (!supabase) {
-             console.error("Supabase client failed to initialize in time for usage fetch.");
-             if (loadingSpinner) loadingSpinner.style.display = 'none';
-             // Optionally show an error that usage info couldn't load
-             initialUsageInfo = { error: "Could not connect to service for usage info." };
-             updateUIBasedOnAccess(); // Update UI to show potential error
-             return;
-        }
-    }
-
-    console.log(`Fetching initial usage for user ${userId}...`);
-    // setLoadingState(true); // You might manage loading state differently now
-
-    try {
-         const { data, error } = await supabase
-             .from('users')
-             .select('token_usage, last_token_reset, tier') // Fetch actual tier too for comparison/logging
-             .eq('id', userId)
-             .maybeSingle(); // Use maybeSingle in case user ID from URL is invalid
-
-         if (error) {
-             console.error("Error fetching initial usage:", error.message);
-             initialUsageInfo = { error: "Could not load usage data." };
-             updateUIBasedOnAccess(); // Update UI to show error
-         } else if (data) {
-             console.log("Initial usage data fetched:", data);
-             const determinedLimit = (effectiveTier === 'pro') ? 500000 : 10000; // Use actual limits
-             const determinedModel = (effectiveTier === 'pro') ? 'gpt-4o-mini' : 'gpt-3.5-turbo';
-
-             const now = new Date();
-             const lastReset = data.last_token_reset ? new Date(data.last_token_reset) : null;
-             let currentUsage = data.token_usage || 0;
-             let needsReset = !lastReset || (now.getTime() - lastReset.getTime()) / (1000 * 60 * 60 * 24) >= 7;
-             if (needsReset) {
-                 currentUsage = 0; // Reflect reset state
-             }
-
-             initialUsageInfo = {
-                 usage: currentUsage,
-                 limit: determinedLimit,
-                 model: determinedModel,
-                 tier: effectiveTier, // Store the tier determined by xtl
-                 actualDbTier: data.tier, // Store actual tier for logging/comparison
-                 lastReset: data.last_token_reset,
-                 resetDue: needsReset
-             };
-             console.log("Initial Usage Info Calculated:", initialUsageInfo);
-             updateUIBasedOnAccess(); // Update UI elements now
-         } else {
-              console.warn(`User ID ${userId} not found in users table during initial fetch.`);
-              // This means the userId from xtl is invalid according to the DB
-              handleInvalidAccess("User Not Found"); // Treat as invalid access
-              initialUsageInfo = { error: "User ID not found." }; // Set error state
-              updateUIBasedOnAccess(); // Update UI to show error
-         }
-    } catch (err) {
-         console.error("Unexpected error fetching initial usage:", err);
-         initialUsageInfo = { error: "Unexpected error loading usage data." };
-         updateUIBasedOnAccess(); // Update UI to show error
-    } finally {
-         // Ensure spinner is hidden AFTER attempt
-         if (loadingSpinner) loadingSpinner.style.display = 'none';
-         // setLoadingState(false);
-    }
-}
-
-// Function to update UI elements based on determined access early on
-function updateUIBasedOnAccess() {
-    // Ensure elements exist before trying to update them
-    const tierDisplay = document.getElementById('userTierDisplay'); // Add an element like this
-    const chatInput = document.getElementById('chatInput');
-    const chatSendButton = document.getElementById('chatSendButton'); // Needed for enable/disable logic
-
-    if (initialUsageInfo && initialUsageInfo.error) {
-        // Display error if fetching usage failed
-        if (tierDisplay) tierDisplay.textContent = `Error: ${initialUsageInfo.error}`;
-        console.warn("UI update skipped or showing error due to errored usage info.");
-        enableChatInput(false); // Ensure chat is disabled if usage check failed critically
-        setChatStatus("Error loading access info", false);
-        return;
-    }
-
-    if (!initialUsageInfo) {
-        // Called before info is fetched? Or fetch failed silently?
-        console.warn("Skipping UI update - initialUsageInfo is not available.");
-        return;
-    }
-
-
-    // Example: Display tier/limit info
-    if (tierDisplay) {
-        let infoText = `Access: ${initialUsageInfo.tier} | Model: ${initialUsageInfo.model} | Usage: ${initialUsageInfo.usage.toLocaleString()} / ${initialUsageInfo.limit.toLocaleString()}`;
-         if(initialUsageInfo.resetDue) infoText += " (Reset Pending)";
-        tierDisplay.textContent = infoText;
-    }
-
-    // Example: Disable chat if limit reached based on initial check
-    // Need to check chatInput/Button exist first
-    if (chatInput && chatSendButton) {
-       if (initialUsageInfo.usage >= initialUsageInfo.limit && !initialUsageInfo.resetDue) {
-           console.log("Initial check: Usage limit reached. Disabling chat.");
-           enableChatInput(false); // Use your existing function
-           setChatStatus("Weekly token limit reached", false);
-           chatInput.placeholder = "Weekly token limit reached.";
-       } else {
-           // Don't enable here - let initializeChat handle final enable state
-           // based on Supabase connection etc.
-           // chatInput.placeholder = "Ask about your finances..."; // Reset placeholder maybe
-       }
-    } else {
-         console.warn("Chat input or send button not found for initial access update.");
-    }
-    // Add other UI updates here - e.g., show/hide "Pro Feature" buttons etc.
-    // Based on initialUsageInfo.tier === 'pro'
-    const proFeatureButton = document.getElementById('proFeatureButton'); // Example element
-    if (proFeatureButton) {
-        proFeatureButton.style.display = (initialUsageInfo.tier === 'pro') ? 'inline-block' : 'none';
-    }
-}
-
-// Function to handle cases where access should be denied based on xtl parameter
-function handleInvalidAccess(reason) {
-    console.error("Access Denied or Invalid:", reason);
-    currentUserId = null; // Ensure userId is null
-    effectiveTier = 'basic'; // Reset tier
-    initialUsageInfo = null; // Clear usage info
-
-    // Hide main content, show error message, disable chat etc.
-    if (loadingSpinner) loadingSpinner.style.display = 'none'; // Ensure spinner is hidden
-    if (mainContentElement) mainContentElement.style.display = 'none';
-    if (initialUploadPrompt) initialUploadPrompt.style.display = 'none'; // Ensure prompt is hidden
-
-    // Use your existing error display mechanism if available
-    // Make sure handleError exists and is defined before this function
-    if (typeof handleError === 'function') {
-        handleError(`Access Error: ${reason}`, new Error(reason));
-    } else {
-        // Fallback if handleError isn't defined yet or has issues
-        const errorDiv = document.getElementById('errorMessage');
-        const errorTextEl = document.getElementById('errorText');
-        if (errorDiv && errorTextEl) {
-            errorTextEl.textContent = `Access Error: ${reason}. Please check the URL or contact support.`;
-            errorDiv.style.display = 'flex';
-        } else {
-            alert(`Access Error: ${reason}. Please check the URL or contact support.`);
-        }
-    }
-
-
-    // Explicitly disable chat features
-    enableChatInput(false); // Make sure this function exists
-    setChatStatus("Access Denied", false); // Make sure this function exists
-    const chatInterfaceCard = document.getElementById('chatInterfaceCard');
-    if (chatInterfaceCard) chatInterfaceCard.style.display = 'none';
-}
-
-// Function to bundle Supabase/Core initializations
-function initializeSupabaseAndCoreFeatures() {
-     console.log("Initializing Supabase client and core features...");
-     try {
-         // Initialize Supabase client
-         if (!supabase && typeof window.supabase !== 'undefined' && window.supabase?.createClient) {
-             const { createClient } = window.supabase;
-             // Use ANON key for client-side initialization
-             supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-             console.log("Supabase client initialized successfully.");
-         } else if (!supabase) {
-              // It might have been initialized before this function was called in some scenarios
-              console.warn("Supabase client could not be initialized or library not loaded.");
-               // We might still continue to init other features that don't depend on Supabase
-         } else {
-              console.log("Supabase client already initialized.");
-         }
-
-         // Initialize buttons, modals, popups etc. (These should be safe to init)
-         // Check if functions exist before calling
-         if (typeof initSaveButton === 'function') initSaveButton();
-         if (typeof initUploadButton === 'function') initUploadButton();
-         if (typeof initModals === 'function') initModals();
-         if (typeof initInfoPopups === 'function') initInfoPopups(); // Call the original one
-         document.getElementById('retryButton')?.addEventListener('click', () => { location.reload(); });
-         // Setup save summary button
-         document.getElementById('saveSummaryBtn')?.addEventListener('click', generateAndSaveSummary);
-         // Demo button - keep or remove based on your logic for xtl users
-         document.getElementById('manualEntryButton')?.addEventListener('click', useDemoData);
-
-         // Initialize Chat ONLY if we have a valid user ID AND initial usage check PASSED or is pending
-         if (currentUserId && (!initialUsageInfo || (initialUsageInfo && !initialUsageInfo.error && initialUsageInfo.usage < initialUsageInfo.limit)) ) {
-             console.log("Conditions met, initializing chat interface...");
-              if (typeof initializeChat === 'function') initializeChat(); // Call the original chat initializer
-         } else {
-              console.log("Skipping chat initialization (No valid user ID or initial limit check failed).");
-              if (typeof enableChatInput === 'function') enableChatInput(false); // Ensure it's disabled
-              if (typeof setChatStatus === 'function') setChatStatus("Chat unavailable", false);
-         }
-
-         // If we have a valid user from xtl, show the main content structure
-         // even if no dashboard data is loaded yet (anticipating file upload)
-         if (currentUserId && !dashboardData?.userInput) {
-             console.log("User identified via xtl, showing main content structure.");
-             if (mainContentElement) mainContentElement.style.display = 'block'; // Show the basic layout
-             // Initial Message or Upload Prompt should be hidden if xtl was valid
-              if (initialMessageElement) initialMessageElement.style.display = 'none';
-              if (initialUploadPrompt) initialUploadPrompt.style.display = 'none';
-         } else if (dashboardData?.userInput) {
-             // If dashboardData *was* loaded (e.g. maybe fetchInitialUsage loaded it fully?)
-             // Ensure main content is visible
-             if (mainContentElement) mainContentElement.style.display = 'block';
-         }
-         // If no valid user, error/access denied should have been handled already
-
-         // Ensure spinner is hidden finally if not already handled
-         if (loadingSpinner && loadingSpinner.style.display !== 'none') {
-             loadingSpinner.style.display = 'none';
-             console.log("Hiding spinner in core init final check.");
-         }
-
-
-     } catch (initError) {
-          console.error("Error initializing Supabase/core features:", initError);
-          if (typeof handleInvalidAccess === 'function') {
-               handleInvalidAccess("Core Initialization Failed: " + initError.message);
-          } else if (typeof handleError === 'function') {
-               handleError("Core Initialization Failed", initError);
-          } else {
-               alert("Critical Error during Core Initialization.");
-          }
-         // Ensure spinner is hidden on error
-         if (loadingSpinner) loadingSpinner.style.display = 'none';
-     }
-}
-
-  // <<< START: FINAL CORRECT CODE FOR INSIDE DOMContentLoaded {} >>>
-    console.log("DOM fully loaded. Initializing application with Final XTL logic...");
-
-    // --- 1. Cache Global DOM Elements ---
-    loadingSpinner = document.getElementById('loadingSpinner');
-    errorMessageElement = document.getElementById('errorMessage');
-    mainContentElement = document.getElementById('mainContent');
-    initialMessageElement = document.getElementById('initialMessage');
-    initialUploadPrompt = document.getElementById('initialUploadPrompt');
-    errorTextElement = document.getElementById('errorText');
-    debugInfoElement = document.getElementById('debugInfo');
-    fileInput = document.getElementById('fileInput');
-    // Add any other elements you cache globally here
-
-    // --- 2. Set Initial UI State ---
-    if (loadingSpinner) loadingSpinner.style.display = 'flex'; else console.error("Loading spinner not found!");
-    if (errorMessageElement) errorMessageElement.style.display = 'none';
-    if (mainContentElement) mainContentElement.style.display = 'none';
-    if (initialMessageElement) initialMessageElement.style.display = 'none';
-    if (initialUploadPrompt) initialUploadPrompt.style.display = 'none';
-
-    // --- 3. Initialization Flow ---
-    try {
-        // Get URL parameters once
-        const params = new URLSearchParams(window.location.search);
-
-        // Parse the xtl parameter FIRST to get userId and effectiveTier
-        // This also triggers fetchInitialUsage asynchronously if parsing succeeds
-        parseXtlParameter(); // Uses window.location.search internally
-
-        // Check if we got a valid user from xtl before proceeding
-        if (currentUserId) { // <<< --- Checks if xtl parsing found a user --- <<<
-            console.log(`Valid user ${currentUserId} identified with tier ${effectiveTier}. Parsing financial params...`);
-
-            // Now parse the FINANCIAL parameters from the URL into dashboardData
-            // Make sure the 'parseFinancialUrlParams' function exists
-            if (typeof parseFinancialUrlParams === 'function') {
-                parseFinancialUrlParams(params, dashboardData); // Pass params and the global object
-            } else {
-                 console.error("parseFinancialUrlParams function is missing!");
-                 throw new Error("Configuration error: Financial parser missing.");
-            }
-
-            // Initialize Supabase and core features (buttons, modals, chat etc.)
-            // Make sure 'initializeSupabaseAndCoreFeatures' function exists
-             if (typeof initializeSupabaseAndCoreFeatures === 'function') {
-                 initializeSupabaseAndCoreFeatures(); // This might use currentUserId/effectiveTier
-             } else {
-                  console.error("initializeSupabaseAndCoreFeatures function is missing!");
-                  throw new Error("Configuration error: Core initializer missing.");
-             }
-
-            // *** Display the dashboard content ***
-            // Ensure 'dashboardData' is populated and 'processAndDisplayData' exists
-            if (dashboardData.userInput && typeof processAndDisplayData === 'function') {
-                console.log("Calling processAndDisplayData with data parsed from URL params...");
-                processAndDisplayData(dashboardData); // Renders the dashboard content
-            } else {
-                 console.error("Cannot display dashboard - dashboardData or processAndDisplayData missing/invalid after parsing.");
-                 // Use the invalid access handler to show error and stop
-                 if(typeof handleInvalidAccess === 'function') {
-                    handleInvalidAccess("Failed to process dashboard data from URL");
-                 } else {
-                    // Fallback if handler missing
-                    alert("Error: Failed to process dashboard data from URL");
-                    if (mainContentElement) mainContentElement.style.display = 'none'; // Hide content area
-                 }
-            }
-
-        } else { // <<< --- Runs if xtl was missing or invalid --- <<<
-            // parseXtlParameter already called handleInvalidAccess if xtl was missing/invalid
-            console.log("No valid user ID from xtl, full dashboard display skipped.");
-             // Initialize core features even if user is invalid? (e.g., to show error message UI properly)
-             if (typeof initializeSupabaseAndCoreFeatures === 'function') {
-                  console.log("Initializing core features even without valid user...")
-                  initializeSupabaseAndCoreFeatures(); // Call this to setup retry buttons etc. even on error page
-             }
-             // Ensure spinner is hidden if initialization stops here
-             if (loadingSpinner) loadingSpinner.style.display = 'none';
-        }
-
-    } catch (error) { // <<< --- Catches errors in the above process --- <<<
-        console.error("CRITICAL Error during initial setup:", error);
+    // Function to bundle Supabase/Core initializations
+    function initializeSupabaseAndCoreFeatures() {
+        console.log("Initializing Supabase client and core features...");
         try {
-             if (typeof handleInvalidAccess === 'function') {
-                 handleInvalidAccess("Initialization Error: " + error.message);
-             } else if (typeof handleError === 'function') { // Fallback to general handler
-                  handleError("Initialization Failed", error);
-             } else { // Ultimate fallback
-                  alert(`Critical Setup Error: ${error.message}\n\nPlease check the console.`);
-             }
-        } catch (fallbackError) {
-             console.error("Fallback error handler failed:", fallbackError);
-             alert(`Critical Setup Error: ${error.message}\n\nError handler also failed.`);
+            // Initialize Supabase client
+            if (!supabase && typeof window.supabase !== 'undefined' && window.supabase?.createClient) {
+                const { createClient } = window.supabase;
+                // Use ANON key for client-side initialization
+                supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                console.log("Supabase client initialized successfully.");
+            } else if (!supabase) {
+                console.warn("Supabase client could not be initialized or library not loaded.");
+            } else {
+                console.log("Supabase client already initialized.");
+            }
+
+            // Initialize buttons, modals, popups etc.
+            if (typeof initSaveButton === 'function') initSaveButton();
+            if (typeof initUploadButton === 'function') initUploadButton();
+            if (typeof initModals === 'function') initModals();
+            if (typeof initInfoPopups === 'function') initInfoPopups();
+            document.getElementById('retryButton')?.addEventListener('click', () => { location.reload(); });
+            // Setup save summary button
+            document.getElementById('saveSummaryBtn')?.addEventListener('click', generateAndSaveSummary);
+            // Demo button
+            document.getElementById('manualEntryButton')?.addEventListener('click', useDemoData);
+
+            // Initialize Chat ONLY if we have a valid user ID AND initial usage check PASSED or is pending
+            if (currentUserId && (!initialUsageInfo || (initialUsageInfo && !initialUsageInfo.error && initialUsageInfo.usage < initialUsageInfo.limit))) {
+                console.log("Conditions met, initializing chat interface...");
+                if (typeof initializeChat === 'function') initializeChat();
+            } else {
+                console.log("Skipping chat initialization (No valid user ID or initial limit check failed).");
+                if (typeof enableChatInput === 'function') enableChatInput(false);
+                if (typeof setChatStatus === 'function') setChatStatus("Chat unavailable", false);
+            }
+
+            // If we have a valid user from xtl, show the main content structure
+            if (currentUserId && !dashboardData?.userInput) {
+                console.log("User identified via xtl, showing main content structure.");
+                if (mainContentElement) mainContentElement.style.display = 'block';
+                if (initialMessageElement) initialMessageElement.style.display = 'none';
+                if (initialUploadPrompt) initialUploadPrompt.style.display = 'none';
+            } else if (dashboardData?.userInput) {
+                // If dashboardData was loaded
+                if (mainContentElement) mainContentElement.style.display = 'block';
+            }
+
+            // Ensure spinner is hidden finally if not already handled
+            if (loadingSpinner && loadingSpinner.style.display !== 'none') {
+                loadingSpinner.style.display = 'none';
+                console.log("Hiding spinner in core init final check.");
+            }
+
+        } catch (initError) {
+            console.error("Error initializing Supabase/core features:", initError);
+            if (typeof handleInvalidAccess === 'function') {
+                handleInvalidAccess("Core Initialization Failed: " + initError.message);
+            } else if (typeof handleError === 'function') {
+                handleError("Core Initialization Failed", initError);
+            } else {
+                alert("Critical Error during Core Initialization.");
+            }
+            // Ensure spinner is hidden on error
+            if (loadingSpinner) loadingSpinner.style.display = 'none';
         }
-    } finally { // <<< --- Runs after try or catch to guarantee spinner hides --- <<<
-         if (loadingSpinner && loadingSpinner.style.display !== 'none') {
-             loadingSpinner.style.display = 'none';
-             console.log("Hiding spinner in DOMContentLoaded finally block.");
-         }
     }
 
-    // *** PASTE THIS ENTIRE BLOCK STARTING HERE - IT ADDS THE MAIN EVENT LISTENER ***
+    // --- MAIN Document Ready Event ---
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log("DOM fully loaded. Initializing application...");
 
-// --- MAIN Document Ready Event ---
-document.addEventListener('DOMContentLoaded', function() {
-    console.log("DOM fully loaded. Initializing application with Final XTL logic...");
+        // --- 1. Cache Global DOM Elements ---
+        loadingSpinner = document.getElementById('loadingSpinner');
+        errorMessageElement = document.getElementById('errorMessage');
+        mainContentElement = document.getElementById('mainContent');
+        initialMessageElement = document.getElementById('initialMessage');
+        initialUploadPrompt = document.getElementById('initialUploadPrompt');
+        errorTextElement = document.getElementById('errorText');
+        debugInfoElement = document.getElementById('debugInfo');
+        fileInput = document.getElementById('fileInput');
 
-    // --- 1. Cache Global DOM Elements ---
-    loadingSpinner = document.getElementById('loadingSpinner');
-    errorMessageElement = document.getElementById('errorMessage');
-    mainContentElement = document.getElementById('mainContent');
-    initialMessageElement = document.getElementById('initialMessage');
-    initialUploadPrompt = document.getElementById('initialUploadPrompt');
-    errorTextElement = document.getElementById('errorText');
-    debugInfoElement = document.getElementById('debugInfo');
-    fileInput = document.getElementById('fileInput');
-    // Add any other elements you cache globally here
+        // --- 2. Set Initial UI State ---
+        if (loadingSpinner) loadingSpinner.style.display = 'flex'; else console.error("Loading spinner not found!");
+        if (errorMessageElement) errorMessageElement.style.display = 'none';
+        if (mainContentElement) mainContentElement.style.display = 'none';
+        if (initialMessageElement) initialMessageElement.style.display = 'none';
+        if (initialUploadPrompt) initialUploadPrompt.style.display = 'none';
 
-    // --- 2. Set Initial UI State ---
-    if (loadingSpinner) loadingSpinner.style.display = 'flex'; else console.error("Loading spinner not found!");
-    if (errorMessageElement) errorMessageElement.style.display = 'none';
-    if (mainContentElement) mainContentElement.style.display = 'none';
-    if (initialMessageElement) initialMessageElement.style.display = 'none';
-    if (initialUploadPrompt) initialUploadPrompt.style.display = 'none';
-
-    // --- 3. Initialization Flow ---
-    try {
-        // Get URL parameters once
-        const params = new URLSearchParams(window.location.search);
-
-        // Parse the xtl parameter FIRST to get userId and effectiveTier
-        // This also triggers fetchInitialUsage asynchronously if parsing succeeds
-        parseXtlParameter(); // Assumes this function is defined above
-
-        // Check if we got a valid user from xtl before proceeding
-        if (currentUserId) { // Checks if xtl parsing found a user
-            console.log(`Valid user ${currentUserId} identified with tier ${effectiveTier}. Parsing financial params...`);
-
-            // Now parse the FINANCIAL parameters from the URL into dashboardData
-            // Make sure the 'parseFinancialUrlParams' function exists
-            if (typeof parseFinancialUrlParams === 'function') {
-                parseFinancialUrlParams(params, dashboardData); // Pass params and the global object
-            } else {
-                 console.error("parseFinancialUrlParams function is missing!");
-                 throw new Error("Configuration error: Financial parser missing.");
-            }
-
-            // Initialize Supabase and core features (buttons, modals, chat etc.)
-            // Make sure 'initializeSupabaseAndCoreFeatures' function exists
-             if (typeof initializeSupabaseAndCoreFeatures === 'function') {
-                 initializeSupabaseAndCoreFeatures(); // This might use currentUserId/effectiveTier
-             } else {
-                  console.error("initializeSupabaseAndCoreFeatures function is missing!");
-                  throw new Error("Configuration error: Core initializer missing.");
-             }
-
-            // Display the dashboard content
-            // Ensure 'dashboardData' is populated and 'processAndDisplayData' exists
-            if (dashboardData.userInput && typeof processAndDisplayData === 'function') {
-                console.log("Calling processAndDisplayData with data parsed from URL params...");
-                processAndDisplayData(dashboardData); // Renders the dashboard content
-            } else {
-                 console.error("Cannot display dashboard - dashboardData or processAndDisplayData missing/invalid after parsing.");
-                 if(typeof handleInvalidAccess === 'function') {
-                    handleInvalidAccess("Failed to process dashboard data from URL");
-                 } else {
-                    alert("Error: Failed to process dashboard data from URL");
-                    if (mainContentElement) mainContentElement.style.display = 'none';
-                 }
-            }
-
-        } else { // Runs if xtl was missing or invalid
-            // parseXtlParameter already called handleInvalidAccess
-            console.log("No valid user ID from xtl, full dashboard display skipped.");
-             if (typeof initializeSupabaseAndCoreFeatures === 'function') {
-                  console.log("Initializing core features even without valid user...")
-                  initializeSupabaseAndCoreFeatures(); // Call to setup retry buttons etc.
-             }
-             if (loadingSpinner) loadingSpinner.style.display = 'none';
-        }
-
-    } catch (error) { // Catches errors in the above process
-        console.error("CRITICAL Error during initial setup:", error);
+        // --- 3. Initialization Flow ---
         try {
-             if (typeof handleInvalidAccess === 'function') {
-                 handleInvalidAccess("Initialization Error: " + error.message);
-             } else if (typeof handleError === 'function') {
-                  handleError("Initialization Failed", error);
-             } else {
-                  alert(`Critical Setup Error: ${error.message}\n\nPlease check the console.`);
-             }
-        } catch (fallbackError) {
-             console.error("Fallback error handler failed:", fallbackError);
-             alert(`Critical Setup Error: ${error.message}\n\nError handler also failed.`);
-        }
-    } finally { // Ensures spinner is hidden
-         if (loadingSpinner && loadingSpinner.style.display !== 'none') {
-             loadingSpinner.style.display = 'none';
-             console.log("Hiding spinner in DOMContentLoaded finally block.");
-         }
-    }
-}); // <-- This closing ); ends the addEventListener call
+            // Get URL parameters once
+            const params = parseUrlParams();
+            
+            if (params === null) {
+                // Special case for "data=null" parameter, already handled in parseUrlParams
+                return;
+            }
 
-// *** END OF BLOCK TO PASTE ***
+            // Parse the xtl parameter FIRST to get userId and effectiveTier
+            parseXtlParameter();
+
+            // Check if we got a valid user from xtl before proceeding
+            if (currentUserId) {
+                console.log(`Valid user ${currentUserId} identified with tier ${effectiveTier}. Parsing financial params...`);
+
+                // Parse financial data from URL parameters
+                dashboardData = parseDataFromUrlParams(params) || {};
+
+                // Initialize Supabase and core features
+                initializeSupabaseAndCoreFeatures();
+
+                // Display the dashboard if we have data
+                if (dashboardData && dashboardData.userInput) {
+                    console.log("Calling processAndDisplayData with data parsed from URL params...");
+                    processAndDisplayData(dashboardData);
+                } else {
+                    console.error("Cannot display dashboard - dashboardData missing/invalid after parsing.");
+                    handleInvalidAccess("Failed to process dashboard data from URL");
+                }
+            } else {
+                // No valid user ID from xtl
+                console.log("No valid user ID from xtl, full dashboard display skipped.");
+                initializeSupabaseAndCoreFeatures(); // Initialize core features for error handling
+                if (loadingSpinner) loadingSpinner.style.display = 'none';
+            }
+        } catch (error) {
+            console.error("CRITICAL Error during initial setup:", error);
+            try {
+                if (typeof handleInvalidAccess === 'function') {
+                    handleInvalidAccess("Initialization Error: " + error.message);
+                } else if (typeof handleError === 'function') {
+                    handleError("Initialization Failed", error);
+                } else {
+                    alert(`Critical Setup Error: ${error.message}\n\nPlease check the console.`);
+                }
+            } catch (fallbackError) {
+                console.error("Fallback error handler failed:", fallbackError);
+                alert(`Critical Setup Error: ${error.message}\n\nError handler also failed.`);
+            }
+        } finally {
+            if (loadingSpinner && loadingSpinner.style.display !== 'none') {
+                loadingSpinner.style.display = 'none';
+                console.log("Hiding spinner in DOMContentLoaded finally block.");
+            }
+        }
+    });
 </script>
 </body>
-</html>
+</html> 'auto
