@@ -2443,10 +2443,8 @@ function initializeSupabaseAndCoreFeatures() {
      }
 }
 
-    // --- MAIN Document Ready Event ---
-document.addEventListener('DOMContentLoaded', function() { // KEEP THIS LINE
-    // *** START OF CODE TO PASTE INSIDE DOMContentLoaded {} ***
-    console.log("DOM fully loaded. Initializing application with XTL logic...");
+  // <<< START: FINAL CORRECT CODE FOR INSIDE DOMContentLoaded {} >>>
+    console.log("DOM fully loaded. Initializing application with Final XTL logic...");
 
     // --- 1. Cache Global DOM Elements ---
     loadingSpinner = document.getElementById('loadingSpinner');
@@ -2468,34 +2466,85 @@ document.addEventListener('DOMContentLoaded', function() { // KEEP THIS LINE
 
     // --- 3. Initialization Flow ---
     try {
+        // Get URL parameters once
+        const params = new URLSearchParams(window.location.search);
+
         // Parse the xtl parameter FIRST to get userId and effectiveTier
-        // This function will also trigger fetchInitialUsage if parsing succeeds
-        parseXtlParameter();
+        // This also triggers fetchInitialUsage asynchronously if parsing succeeds
+        parseXtlParameter(); // Uses window.location.search internally
 
-        // Initialize Supabase and core features (buttons, modals, potentially chat)
-        // This needs to run even if xtl parsing fails, to set up basic page functions
-        // or handle the error state gracefully.
-        initializeSupabaseAndCoreFeatures();
+        // Check if we got a valid user from xtl before proceeding
+        if (currentUserId) { // <<< --- Checks if xtl parsing found a user --- <<<
+            console.log(`Valid user ${currentUserId} identified with tier ${effectiveTier}. Parsing financial params...`);
 
-        // NOTE: processAndDisplayData() is NOT called here automatically anymore.
-        // It will only be called if the user uploads a PSR JSON file via handleFileUpload.
-        // The initial UI state is now handled by updateUIBasedOnAccess().
+            // Now parse the FINANCIAL parameters from the URL into dashboardData
+            // Make sure the 'parseFinancialUrlParams' function exists
+            if (typeof parseFinancialUrlParams === 'function') {
+                parseFinancialUrlParams(params, dashboardData); // Pass params and the global object
+            } else {
+                 console.error("parseFinancialUrlParams function is missing!");
+                 throw new Error("Configuration error: Financial parser missing.");
+            }
 
-        // Spinner hiding is now handled inside fetchInitialUsage or handleInvalidAccess or initializeSupabaseAndCoreFeatures
+            // Initialize Supabase and core features (buttons, modals, chat etc.)
+            // Make sure 'initializeSupabaseAndCoreFeatures' function exists
+             if (typeof initializeSupabaseAndCoreFeatures === 'function') {
+                 initializeSupabaseAndCoreFeatures(); // This might use currentUserId/effectiveTier
+             } else {
+                  console.error("initializeSupabaseAndCoreFeatures function is missing!");
+                  throw new Error("Configuration error: Core initializer missing.");
+             }
 
-    } catch (error) {
-        console.error("CRITICAL Error during initial setup:", error);
-        try {
-             handleInvalidAccess("Initialization Error: " + error.message);
-        } catch (fallbackError) {
-             console.error("Fallback error handler:", fallbackError);
-             alert(`Critical Setup Error: ${error.message}\n\nPlease check the console for details.`);
+            // *** Display the dashboard content ***
+            // Ensure 'dashboardData' is populated and 'processAndDisplayData' exists
+            if (dashboardData.userInput && typeof processAndDisplayData === 'function') {
+                console.log("Calling processAndDisplayData with data parsed from URL params...");
+                processAndDisplayData(dashboardData); // Renders the dashboard content
+            } else {
+                 console.error("Cannot display dashboard - dashboardData or processAndDisplayData missing/invalid after parsing.");
+                 // Use the invalid access handler to show error and stop
+                 if(typeof handleInvalidAccess === 'function') {
+                    handleInvalidAccess("Failed to process dashboard data from URL");
+                 } else {
+                    // Fallback if handler missing
+                    alert("Error: Failed to process dashboard data from URL");
+                    if (mainContentElement) mainContentElement.style.display = 'none'; // Hide content area
+                 }
+            }
+
+        } else { // <<< --- Runs if xtl was missing or invalid --- <<<
+            // parseXtlParameter already called handleInvalidAccess if xtl was missing/invalid
+            console.log("No valid user ID from xtl, full dashboard display skipped.");
+             // Initialize core features even if user is invalid? (e.g., to show error message UI properly)
+             if (typeof initializeSupabaseAndCoreFeatures === 'function') {
+                  console.log("Initializing core features even without valid user...")
+                  initializeSupabaseAndCoreFeatures(); // Call this to setup retry buttons etc. even on error page
+             }
+             // Ensure spinner is hidden if initialization stops here
              if (loadingSpinner) loadingSpinner.style.display = 'none';
         }
-    }
-    // *** END OF CODE TO PASTE INSIDE DOMContentLoaded {} ***
-}); // KEEP THIS CLOSING );
 
+    } catch (error) { // <<< --- Catches errors in the above process --- <<<
+        console.error("CRITICAL Error during initial setup:", error);
+        try {
+             if (typeof handleInvalidAccess === 'function') {
+                 handleInvalidAccess("Initialization Error: " + error.message);
+             } else if (typeof handleError === 'function') { // Fallback to general handler
+                  handleError("Initialization Failed", error);
+             } else { // Ultimate fallback
+                  alert(`Critical Setup Error: ${error.message}\n\nPlease check the console.`);
+             }
+        } catch (fallbackError) {
+             console.error("Fallback error handler failed:", fallbackError);
+             alert(`Critical Setup Error: ${error.message}\n\nError handler also failed.`);
+        }
+    } finally { // <<< --- Runs after try or catch to guarantee spinner hides --- <<<
+         if (loadingSpinner && loadingSpinner.style.display !== 'none') {
+             loadingSpinner.style.display = 'none';
+             console.log("Hiding spinner in DOMContentLoaded finally block.");
+         }
+    }
+    // <<< END: FINAL CORRECT CODE FOR INSIDE DOMContentLoaded {} >>>
 </script>
 </body>
 </html>
