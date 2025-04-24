@@ -2682,7 +2682,6 @@
             // This is also done by handleError and processAndDisplayData finally blocks,
             // but a final check here can't hurt if logic somehow bypasses others.
             // Removed this from here, let the specific flows manage the spinner.
-        }
             
         } catch (initError) {
             console.error("Error initializing Supabase/core features:", initError);
