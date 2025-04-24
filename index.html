@@ -1266,27 +1266,33 @@
     }
 
     // This function now updates the chat status display info AND calls initializeChat
+    // This function now updates the chat status display info AND calls initializeChat
     function updateUIBasedOnAccess() {
-        console.log("Executing updateUIBasedOnAccess to update Tier/Usage display info");
+        console.log("Executing updateUIBasedOnAccess to update Tier/Usage display info START");
+        console.log("  currentUserId:", currentUserId);
+        console.log("  effectiveTier:", effectiveTier);
+        console.log("  initialUsageInfo:", initialUsageInfo); // Log the state of the data object
 
         // Get references to the new display elements inside the chat status bar
         const tierDisplay = document.getElementById('chatTierDisplay');
         const modelDisplay = document.getElementById('chatModelDisplay');
         const usageDisplay = document.getElementById('chatUsageDisplay');
-        // Note: The old optional tierDisplay ('userTierDisplay') outside the chat card is separate and can be removed if not used elsewhere.
 
-        // Log current state for debugging
-        console.log("Current user ID:", currentUserId);
-        console.log("Effective tier:", effectiveTier);
-        console.log("Initial usage info:", initialUsageInfo);
+        console.log("  Found chat status elements:", {
+            tierDisplay: !!tierDisplay, // Check if element was found (true/false)
+            modelDisplay: !!modelDisplay,
+            usageDisplay: !!usageDisplay
+        });
 
         // Default display values
-        let tierText = 'Loading...';
+        let tierText = 'Loading...'; // Use 'Loading...' as an explicit state
         let modelText = '-';
         let usageText = '- / -';
 
         if (initialUsageInfo) { // Check if initialUsageInfo object exists at all
-             if (!initialUsageInfo.error) {
+             console.log("  initialUsageInfo exists.");
+             if (!initialUsageInfo.error) { // Check if there was an error fetching info
+                   console.log("  initialUsageInfo has no error.");
                    // We have valid usage info
                     const usage = initialUsageInfo.usage !== undefined ? initialUsageInfo.usage : NaN;
                     const limit = initialUsageInfo.limit !== undefined ? initialUsageInfo.limit : NaN;
@@ -1295,51 +1301,67 @@
                     tierText = getSafe(() => initialUsageInfo.tier, effectiveTier);
                     modelText = getSafe(() => initialUsageInfo.model, 'N/A'); // Model is set by backend based on tier
 
+                    console.log("  Calculated raw values:", { usage, limit, tierText, modelText });
+
+
                     if (!isNaN(usage) && isFinite(usage) && !isNaN(limit) && isFinite(limit)) {
-                         usageText = `${Math.floor(usage).toLocaleString()} / ${Math.floor(limit).toLocaleString()}`; // Floor usage/limit
+                         usageText = `${Math.floor(usage).toLocaleString()} / ${Math.floor(limit).toLocaleString()}`; // Floor usage/limit for display
                     } else {
-                         usageText = 'Error'; // Indicate if usage/limit numbers are invalid
+                         usageText = 'ErrorCalculating'; // Indicate if usage/limit numbers are invalid
                     }
 
                     if(initialUsageInfo.resetDue) usageText += " (Reset Pending)";
                     if(!initialUsageInfo.userFoundInDb) tierText += " (New)"; // Append note if needed (e.g., 'basic (New)')
 
+                    console.log("  Formatted text values:", { tierText, modelText, usageText });
+
              } else {
                    // Error loading usage info
-                    tierText = 'Error';
-                    modelText = 'Error';
-                    usageText = 'Error';
-                    console.warn("Displaying Error state due to initialUsageInfo.error:", initialUsageInfo.error);
+                    tierText = 'ErrorFetch'; // Indicate error state
+                    modelText = 'ErrorFetch';
+                    usageText = 'ErrorFetch';
+                    console.warn("  Displaying Error state due to initialUsageInfo.error:", initialUsageInfo.error);
              }
         } else if (!currentUserId) {
-            // No valid user
-            tierText = 'N/A';
-            modelText = 'N/A';
-            usageText = 'N/A';
+            // No valid user ID available (XTL parsing failed or missing)
+            tierText = 'NoUser'; // Indicate no user
+            modelText = 'NoUser';
+            usageText = 'NoUser';
+             console.log("  No currentUserId available.");
+        } else {
+             // initialUsageInfo is null/undefined, but user ID is present.
+             // This means fetchInitialUsage hasn't completed yet or failed silently before setting initialUsageInfo.error.
+             console.log("  initialUsageInfo is null/undefined, user ID present. Still loading?");
+             // The "Loading..." defaults set initially will cover this.
+             tierText = 'Loading...'; // Explicitly show loading state
+             modelText = 'Loading...';
+             usageText = 'Loading...';
         }
-        // Else: initialUsageInfo is null, implies still loading or authentication failed very early.
-        // The "Loading..." defaults set initially will cover this.
 
         // Update the text content of the new spans in the chat status bar
         if (tierDisplay) tierDisplay.textContent = tierText;
-        else console.warn("Chat tier display element (#chatTierDisplay) not found.");
+        else console.error("Chat tier display element (#chatTierDisplay) not found - critical for status display."); // Changed warn to error for clarity
 
         if (modelDisplay) modelDisplay.textContent = modelText;
-        else console.warn("Chat model display element (#chatModelDisplay) not found.");
+        else console.error("Chat model display element (#chatModelDisplay) not found - critical for status display."); // Changed warn to error
 
         if (usageDisplay) usageDisplay.textContent = usageText;
-        else console.warn("Chat usage display element (#chatUsageDisplay) not found.");
+        else console.error("Chat usage display element (#chatUsageDisplay) not found - critical for status display."); // Changed warn to error
 
 
         // Update any pro-specific UI elements (e.g., buttons) based on the effectiveTier
         const proFeatureButton = document.getElementById('proFeatureButton'); // Assuming you have such a button
         if (proFeatureButton) {
             proFeatureButton.style.display = (effectiveTier === 'pro') ? 'inline-block' : 'none';
-        }
+        } else { console.warn("Pro feature button element not found."); } // Keep as warn
+
 
         // Trigger chat initialization/update AFTER usage info is processed and displayed
         // This ensures the chat UI visibility/state (enabled/disabled) reflects the latest access status
+        console.log("  Calling initializeChat() from updateUIBasedOnAccess.");
         initializeChat(); // This remains crucial
+
+        console.log("Executing updateUIBasedOnAccess END");
     }
     
     // --- Main Data Processing & Display Function ---
