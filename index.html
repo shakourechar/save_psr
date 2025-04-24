@@ -1265,10 +1265,7 @@
         console.log("--- initializeChat END ---");
     }
 
-
-    // This function now ONLY updates the display info text,
-    // and relies on initializeChat to handle showing/hiding/enabling the chat UI itself.
-   // This function now updates the chat status display info AND calls initializeChat
+    // This function now updates the chat status display info AND calls initializeChat
     function updateUIBasedOnAccess() {
         console.log("Executing updateUIBasedOnAccess to update Tier/Usage display info");
 
@@ -1276,7 +1273,7 @@
         const tierDisplay = document.getElementById('chatTierDisplay');
         const modelDisplay = document.getElementById('chatModelDisplay');
         const usageDisplay = document.getElementById('chatUsageDisplay');
-        // Note: The old optional tierDisplay ('userTierDisplay') outside the chat card is separate
+        // Note: The old optional tierDisplay ('userTierDisplay') outside the chat card is separate and can be removed if not used elsewhere.
 
         // Log current state for debugging
         console.log("Current user ID:", currentUserId);
@@ -1288,35 +1285,40 @@
         let modelText = '-';
         let usageText = '- / -';
 
-        if (initialUsageInfo && !initialUsageInfo.error) {
-            // We have valid usage info
-            const usage = initialUsageInfo.usage !== undefined ? initialUsageInfo.usage : NaN;
-            const limit = initialUsageInfo.limit !== undefined ? initialUsageInfo.limit : NaN;
-            tierText = getSafe(() => initialUsageInfo.tier, 'N/A');
-            modelText = getSafe(() => initialUsageInfo.model, 'N/A');
+        if (initialUsageInfo) { // Check if initialUsageInfo object exists at all
+             if (!initialUsageInfo.error) {
+                   // We have valid usage info
+                    const usage = initialUsageInfo.usage !== undefined ? initialUsageInfo.usage : NaN;
+                    const limit = initialUsageInfo.limit !== undefined ? initialUsageInfo.limit : NaN;
 
-            if (!isNaN(usage) && !isNaN(limit)) {
-                 usageText = `${usage.toLocaleString()} / ${limit.toLocaleString()}`;
-            } else {
-                 usageText = 'Error'; // Indicate if usage/limit numbers are invalid
-            }
+                    // Use the tier/model from initialUsageInfo if available, fallback to effectiveTier
+                    tierText = getSafe(() => initialUsageInfo.tier, effectiveTier);
+                    modelText = getSafe(() => initialUsageInfo.model, 'N/A'); // Model is set by backend based on tier
 
-            if(initialUsageInfo.resetDue) usageText += " (Reset Pending)";
-            if(!initialUsageInfo.userFoundInDb) tierText += " (New User)"; // Append note if needed
+                    if (!isNaN(usage) && isFinite(usage) && !isNaN(limit) && isFinite(limit)) {
+                         usageText = `${Math.floor(usage).toLocaleString()} / ${Math.floor(limit).toLocaleString()}`; // Floor usage/limit
+                    } else {
+                         usageText = 'Error'; // Indicate if usage/limit numbers are invalid
+                    }
 
-        } else if (initialUsageInfo && initialUsageInfo.error) {
-            // Error loading usage info
-            tierText = 'Error';
-            modelText = 'Error';
-            usageText = 'Error';
-            console.warn("Displaying Error state due to initialUsageInfo.error:", initialUsageInfo.error);
+                    if(initialUsageInfo.resetDue) usageText += " (Reset Pending)";
+                    if(!initialUsageInfo.userFoundInDb) tierText += " (New)"; // Append note if needed (e.g., 'basic (New)')
+
+             } else {
+                   // Error loading usage info
+                    tierText = 'Error';
+                    modelText = 'Error';
+                    usageText = 'Error';
+                    console.warn("Displaying Error state due to initialUsageInfo.error:", initialUsageInfo.error);
+             }
         } else if (!currentUserId) {
             // No valid user
             tierText = 'N/A';
             modelText = 'N/A';
             usageText = 'N/A';
         }
-        // Else: Still loading, defaults defined above will be used
+        // Else: initialUsageInfo is null, implies still loading or authentication failed very early.
+        // The "Loading..." defaults set initially will cover this.
 
         // Update the text content of the new spans in the chat status bar
         if (tierDisplay) tierDisplay.textContent = tierText;
@@ -1329,14 +1331,14 @@
         else console.warn("Chat usage display element (#chatUsageDisplay) not found.");
 
 
-        // Update any pro-specific UI elements based on effectiveTier (if needed elsewhere)
-        const proFeatureButton = document.getElementById('proFeatureButton');
+        // Update any pro-specific UI elements (e.g., buttons) based on the effectiveTier
+        const proFeatureButton = document.getElementById('proFeatureButton'); // Assuming you have such a button
         if (proFeatureButton) {
             proFeatureButton.style.display = (effectiveTier === 'pro') ? 'inline-block' : 'none';
         }
 
         // Trigger chat initialization/update AFTER usage info is processed and displayed
-        // This ensures the chat UI visibility/state reflects the latest access status
+        // This ensures the chat UI visibility/state (enabled/disabled) reflects the latest access status
         initializeChat(); // This remains crucial
     }
     
