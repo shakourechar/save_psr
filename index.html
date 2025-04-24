@@ -1354,11 +1354,9 @@
             updateUIDisplayFromAI(data);
             console.log("AI display UI updated.");
 
-            console.log("9. Initializing chat...");
-            // Chat initialization now happens *after* the main content is shown and usage info is processed
-            // initializeChat(); // Moved call logic to DOMContentLoaded/updateUIBasedOnAccess
-            console.log("Chat initialization managed by updateUIBasedOnAccess.");
-
+             console.log("9. Re-checking chat access now that data is loaded…");
+       updateUIBasedOnAccess();      // <<< Add this crucial second call
+       console.log("Chat initialization (second pass) updated UI based on data.");
 
             console.log("10. Making main content visible...");
             hideAllMainContentAreas(); // Hide other states
@@ -1370,7 +1368,6 @@
                  console.error("Main content element not found!");
                  handleError("Critical: Main content element not found.", new Error("DOM element #mainContent is missing."));
             }
-
 
         } catch (processingError) {
             console.error("--- processAndDisplayData ERROR ---", processingError);
