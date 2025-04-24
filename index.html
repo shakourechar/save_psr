@@ -1769,80 +1769,129 @@ console.log("Supabase client ready:", !!supabase);
         }
     }
 
-    async function sendToBackendChatFunction() {
-        // Ensure dashboard data is loaded before proceeding
-        if (!dashboardData?.userInput?.personalInfo) {
-            addMessageToChat("System", "Error: Financial data seems incomplete. Cannot process chat request.", true);
-            setChatStatus("Error: Data missing", false);
-            return;
+   async function sendToBackendChatFunction() {
+    // Ensure dashboard data is loaded before proceeding
+    if (!dashboardData?.userInput?.personalInfo) {
+        addMessageToChat("System", "Error: Financial data seems incomplete. Cannot process chat request.", true);
+        setChatStatus("Error: Data missing", false);
+        return;
+    }
+    // Ensure Supabase client is ready
+    if (!supabase || typeof supabase.functions?.invoke !== 'function') {
+        // Check if fetch is available (modern browsers) even if invoke isn't used directly here
+        if (typeof fetch !== 'function'){
+             addMessageToChat("System", "Error: Chat service connection dependencies missing. Please reload.", true);
+             setChatStatus("Chat unavailable", false);
+             return;
         }
-        // Ensure Supabase client is ready
-        if (!supabase || typeof supabase.functions?.invoke !== 'function') {
-            addMessageToChat("System", "Error: Chat service connection lost. Please reload.", true);
-            setChatStatus("Chat unavailable", false);
-            return;
+         console.warn("Supabase invoke method not found, proceeding with standard fetch.");
+         // Allow proceeding if fetch exists, as we use standard fetch now.
+    }
+
+
+    setChatStatus("Thinking...", true); // Show loading indicator
+    enableChatInput(false); // Disable input while processing
+
+    // --- Prepare Context String (More Comprehensive) ---
+    let financialContext = `User: ${getSafe(() => dashboardData.userInput.personalInfo.userName)}, Age: ${getSafe(() => dashboardData.userInput.personalInfo.age)}\n`;
+    const totals = calculateTotals(dashboardData); // Recalculate for fresh context
+    const ratios = calculateRatios(dashboardData, totals); // Calculate ratios for context
+
+    financialContext += `Monthly Totals: Income: ${formatCurrency(totals.totalIncome)}, Expenses: ${formatCurrency(totals.totalExpenses)}, Net Flow: ${formatCurrency(totals.netFlow)}\n`;
+    financialContext += `Savings Balances: Emergency: ${formatCurrency(getSafe(()=>dashboardData.userInput.savings.emergency))}, General: ${formatCurrency(getSafe(()=>dashboardData.userInput.savings.savings))}, Retirement: ${formatCurrency(getSafe(()=>dashboardData.userInput.savings.retirement))}\n`;
+    financialContext += `Debt: Total Balance: ${formatCurrency(totals.totalDebt)}, Total Min Payments: ${formatCurrency(totals.totalMinPayments)}\n`;
+    financialContext += `Ratios: Savings Rate: ${formatPercentage(ratios.savingsRate, 1)}, Emergency Coverage: ${ratios.emergencyCoverage.toFixed(1)} months, DTI: ${formatPercentage(ratios.dtiRatio, 1)}\n`;
+
+    if (dashboardData.userInput.debts && dashboardData.userInput.debts.length > 0) {
+        financialContext += "Debts Breakdown:\n";
+        dashboardData.userInput.debts.forEach(d => {
+            financialContext += ` - ${d.type}: Bal ${formatCurrency(d.balance)}, Rate ${d.interestRate}%, Min Pmt ${formatCurrency(d.minPayment)}\n`;
+        });
+    }
+    const priorAnalysis = getSafe(() => dashboardData.aiOutput.analysis);
+    const priorRecs = getSafe(() => dashboardData.aiOutput.recommendations);
+    if (priorAnalysis !== 'N/A' && !/not available/i.test(priorAnalysis)) financialContext += `Prior Analysis Summary: ${priorAnalysis.substring(0, 200)}...\n`;
+    if (priorRecs !== 'N/A' && !/not available/i.test(priorRecs)) financialContext += `Prior Recommendations Summary: ${priorRecs.substring(0, 200)}...\n`;
+
+    // --- Construct messages payload ---
+    const maxHistory = 10;
+    const recentMessages = chatMessages.slice(-maxHistory);
+    const systemMessage = {
+        role: "system",
+        content: `You are SmartWealth AI, a helpful financial assistant. Use the provided financial context ONLY to answer the user's questions concisely and directly related to their financial situation. Do not provide generic financial advice unless asked. Financial Context:\n${financialContext}`
+    };
+    const messagesForBackend = [systemMessage, ...recentMessages];
+
+    const functionName = 'smooth-function'; // Ensure this matches your deployed Supabase function name
+
+    console.log(`Invoking Supabase function '${functionName}' with ${messagesForBackend.length} messages.`);
+
+    try {
+        // Invoke the Supabase Function using fetch with proper headers
+        const response = await fetch(`${SUPABASE_URL}/functions/v1/${functionName}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                'x-user-id': currentUserId, // Added header
+                'x-user-tier': effectiveTier // Added header
+            },
+            body: JSON.stringify({
+                messages: messagesForBackend,
+                model: CHAT_MODEL // Using the tier-appropriate model from tierConfigs via backend
+            })
+        }); // <<< fetch ends here
+
+        // --- ADDED RESPONSE HANDLING ---
+        if (!response.ok) {
+            // Try to parse error from backend, provide fallback message
+            let errorMsg = `Request failed with status ${response.status}`;
+            try {
+                // Use .json() to get the error message sent from the Edge Function
+                const errorData = await response.json();
+                errorMsg = errorData?.error || errorMsg; // Use backend error message if available
+            } catch (e) {
+                // If parsing error body fails, use the status text
+                errorMsg = response.statusText || errorMsg;
+                console.warn("Could not parse error response body:", e);
+            }
+            // Log the detailed error before throwing
+            console.error(`Backend returned error: ${response.status} - ${errorMsg}`);
+            throw new Error(errorMsg); // Throw error to be caught below
         }
 
-        setChatStatus("Thinking...", true); // Show loading indicator
-        enableChatInput(false); // Disable input while processing
+        // Parse the successful response
+        const result = await response.json();
 
-        // --- Prepare Context String (More Comprehensive) ---
-        let financialContext = `User: ${getSafe(() => dashboardData.userInput.personalInfo.userName)}, Age: ${getSafe(() => dashboardData.userInput.personalInfo.age)}\n`;
-        const totals = calculateTotals(dashboardData); // Recalculate for fresh context
-        const ratios = calculateRatios(dashboardData, totals); // Calculate ratios for context
+        // Check the expected response structure from 'smooth-function'
+        if (result && result.assistantResponse && typeof result.assistantResponse.content === 'string') {
+            addMessageToChat("Assistant", result.assistantResponse.content);
+            // Add the assistant response to the history array as well
+            chatMessages.push({ role: "assistant", content: result.assistantResponse.content });
+            setChatStatus("", false); // Clear "Thinking..." status
 
-        financialContext += `Monthly Totals: Income: ${formatCurrency(totals.totalIncome)}, Expenses: ${formatCurrency(totals.totalExpenses)}, Net Flow: ${formatCurrency(totals.netFlow)}\n`;
-        financialContext += `Savings Balances: Emergency: ${formatCurrency(getSafe(()=>dashboardData.userInput.savings.emergency))}, General: ${formatCurrency(getSafe(()=>dashboardData.userInput.savings.savings))}, Retirement: ${formatCurrency(getSafe(()=>dashboardData.userInput.savings.retirement))}\n`;
-        financialContext += `Debt: Total Balance: ${formatCurrency(totals.totalDebt)}, Total Min Payments: ${formatCurrency(totals.totalMinPayments)}\n`;
-        // Add key ratios to context
-        financialContext += `Ratios: Savings Rate: ${formatPercentage(ratios.savingsRate, 1)}, Emergency Coverage: ${ratios.emergencyCoverage.toFixed(1)} months, DTI: ${formatPercentage(ratios.dtiRatio, 1)}\n`;
+            // Optional: If your backend function returned updated usage info, display it
+            // if (result.newUsage !== undefined && result.limit !== undefined) {
+            //    updateUsageDisplay(result.newUsage, result.limit); // You would need to implement this function
+            // }
 
-        // Include debt details
-        if (dashboardData.userInput.debts && dashboardData.userInput.debts.length > 0) {
-            financialContext += "Debts Breakdown:\n";
-            dashboardData.userInput.debts.forEach(d => {
-                financialContext += ` - ${d.type}: Bal ${formatCurrency(d.balance)}, Rate ${d.interestRate}%, Min Pmt ${formatCurrency(d.minPayment)}\n`;
-            });
+        } else {
+            // Handle cases where the response is OK (200) but the format isn't right
+            console.error("Invalid response format from backend:", result);
+            throw new Error("Received an invalid response format from the chat service.");
         }
+        // --- END OF ADDED RESPONSE HANDLING ---
 
-        // Include prior analysis/recs if available and not default text
-        const priorAnalysis = getSafe(() => dashboardData.aiOutput.analysis);
-        const priorRecs = getSafe(() => dashboardData.aiOutput.recommendations);
-        if (priorAnalysis !== 'N/A' && !/not available/i.test(priorAnalysis)) financialContext += `Prior Analysis Summary: ${priorAnalysis.substring(0, 200)}...\n`;
-        if (priorRecs !== 'N/A' && !/not available/i.test(priorRecs)) financialContext += `Prior Recommendations Summary: ${priorRecs.substring(0, 200)}...\n`;
-
-        // --- Construct messages payload for Supabase function ---
-        // Limit history length to keep payload reasonable (e.g., last 10 messages + system prompt)
-        const maxHistory = 10;
-        const recentMessages = chatMessages.slice(-maxHistory);
-
-        const systemMessage = {
-            role: "system",
-            content: `You are SmartWealth AI, a helpful financial assistant. Use the provided financial context ONLY to answer the user's questions concisely and directly related to their financial situation. Do not provide generic financial advice unless asked. Financial Context:\n${financialContext}`
-        };
-        const messagesForBackend = [systemMessage, ...recentMessages]; // Include system prompt + recent history
-
-        const functionName = 'smooth-function'; // *** Ensure this matches your deployed Supabase function name ***
-
-        console.log(`Invoking Supabase function '${functionName}' with ${messagesForBackend.length} messages.`);
-
-      try {
-    // Invoke the Supabase Function using fetch with proper headers
-    const response = await fetch(`${SUPABASE_URL}/functions/v1/${functionName}`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-            // Add these crucial headers that the backend expects
-            'x-user-id': currentUserId,
-            'x-user-tier': effectiveTier
-        },
-        body: JSON.stringify({
-            messages: messagesForBackend,
-            model: CHAT_MODEL
-        })
-    });
-          
+    } catch (err) { // Catch errors from fetch() or the handling block above
+        console.error("Chat function invocation failed:", err);
+        // Display the error message from the caught error
+        addMessageToChat("System", "Error calling chat service: " + (err.message || "Unknown error"), true);
+        setChatStatus("Error sending message", false);
+    } finally {
+        enableChatInput(true); // Re-enable input
+        console.log("Chat request finished.");
+    }
+}         
     // --- Event Handlers & Button Initializers ---
     function handleChatSubmit() {
         const chatInput = document.getElementById('chatInput');
