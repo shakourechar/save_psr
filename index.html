@@ -2046,50 +2046,6 @@
         console.log("--- initializeChat END ---");
     }
 
-
-    // This function now ONLY updates the display info text,
-    // and relies on initializeChat to handle showing/hiding/enabling the chat UI itself.
-    function updateUIBasedOnAccess() {
-        console.log("Executing updateUIBasedOnAccess to update Tier/Usage display info");
-        const tierDisplay = document.getElementById('userTierDisplay'); // Assuming you add this element somewhere
-
-        // Log current state for debugging
-        console.log("Current user ID:", currentUserId);
-        console.log("Effective tier:", effectiveTier);
-        console.log("Initial usage info:", initialUsageInfo);
-
-        if (tierDisplay) { // Only update if the display element exists
-             if (initialUsageInfo && !initialUsageInfo.error) {
-                   // We have valid usage info
-                    let infoText = `Access: ${initialUsageInfo.tier} | Usage: ${initialUsageInfo.usage.toLocaleString()} / ${initialUsageInfo.limit.toLocaleString()}`;
-                    if(initialUsageInfo.resetDue) infoText += " (Reset Pending)";
-                    if(!initialUsageInfo.userFoundInDb) infoText += " (New User)";
-                    tierDisplay.textContent = infoText;
-             } else if (initialUsageInfo && initialUsageInfo.error) {
-                   // Error loading usage info
-                    tierDisplay.textContent = `Access Error: ${initialUsageInfo.error}`;
-             } else if (!currentUserId) {
-                    // No valid user
-                    tierDisplay.textContent = 'Access: Not Authenticated';
-             } else {
-                   // Still loading or other state
-                    tierDisplay.textContent = 'Access: Loading...';
-             }
-        } else {
-             console.warn("Element with ID 'userTierDisplay' not found. Cannot display access info.");
-        }
-
-        // Update any pro-specific UI elements
-        const proFeatureButton = document.getElementById('proFeatureButton'); // Assuming you have such a button
-        if (proFeatureButton) {
-            proFeatureButton.style.display = (effectiveTier === 'pro') ? 'inline-block' : 'none';
-        }
-
-        // Trigger chat initialization/update AFTER usage info is processed
-        // This ensures the chat UI reflects the latest access status
-        initializeChat();
-    }
-
     function handleChatEnterKey(event) {
         if (event.key === 'Enter' && !event.shiftKey) { // Send on Enter, allow Shift+Enter for newline
             event.preventDefault(); // Prevent default newline insertion
