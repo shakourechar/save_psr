@@ -1156,64 +1156,134 @@
         handleError(`Access Error: ${reason}`, new Error(reason), true); // Pass true for isAccessError
     }
 
-   function updateUIBasedOnAccess() {
-        console.log("Executing updateUIBasedOnAccess with info:", initialUsageInfo);
-        const tierDisplay = document.getElementById('userTierDisplay');
+  // --- Chat Functionality ---
+    function initializeChat() { // Renamed from updateUIBasedOnAccess temporarily for clarity
+        console.log("--- initializeChat START ---");
+
+        // Cache chat elements here if not already done in DOMContentLoaded
+        chatInterfaceCardElement = chatInterfaceCardElement || document.getElementById('chatInterfaceCard');
         const chatInput = document.getElementById('chatInput');
         const chatSendButton = document.getElementById('chatSendButton');
+        const chatHistory = document.getElementById('chatHistory');
 
-        // Display detailed debug info in console
+        if (!chatInput || !chatSendButton || !chatHistory || !chatInterfaceCardElement) {
+            console.error("One or more Chat UI elements not found! Aborting chat initialization.");
+            if (chatInterfaceCardElement) chatInterfaceCardElement.style.display = 'none';
+            enableChatInput(false);
+            setChatStatus("Chat UI elements missing", false);
+            return;
+        }
+
+        // SIMPLIFIED CHECK: Ensure Supabase client exists and fetch is available
+        const isReadyForChat = supabase && typeof fetch === 'function';
+        console.log("Is environment ready for chat (Supabase client + fetch)?", isReadyForChat);
+
+        // Determine if chat CAN be enabled based on user/usage (from global state)
+        const canEnableChat = currentUserId && initialUsageInfo && !initialUsageInfo.error && (!initialUsageInfo.limit || initialUsageInfo.usage < initialUsageInfo.limit); // Check limit exists before comparing
+        console.log("Can chat be enabled based on user/usage state?", canEnableChat);
+
+        if (isReadyForChat && canEnableChat) {
+            chatInterfaceCardElement.style.display = 'block'; // Show the card
+            enableChatInput(true); // Enable input fields
+            setChatStatus("Ready to chat", false); // Set status
+
+            // Clear and rebuild chat history display based on chatMessages array
+            chatHistory.innerHTML = '';
+            if (chatMessages.length === 0) {
+                // Add initial assistant message only if chat history is empty
+                const initialMsgContent = "Hello! Ask me anything about the financial data shown on your dashboard.";
+                addMessageToChat("Assistant", initialMsgContent, false);
+                // Don't push initial greeting to history array unless you want it saved/resent
+                // chatMessages.push({ role: "assistant", content: initialMsgContent });
+            } else {
+                // Restore previous messages from history array
+                chatMessages.forEach(msg => addMessageToChat(msg.role.charAt(0).toUpperCase() + msg.role.slice(1), msg.content));
+            }
+            // Scroll to the latest message after loading history
+            if (chatHistory.scrollHeight) { // Check scrollHeight is available
+               chatHistory.scrollTop = chatHistory.scrollHeight;
+            }
+
+
+            // Ensure listeners are attached only once or re-attached correctly
+            chatSendButton.removeEventListener('click', handleChatSubmit);
+            chatInput.removeEventListener('keydown', handleChatEnterKey);
+            chatInput.removeEventListener('input', autoGrowTextarea);
+
+            chatSendButton.addEventListener('click', handleChatSubmit);
+            chatInput.addEventListener('keydown', handleChatEnterKey);
+            chatInput.addEventListener('input', autoGrowTextarea);
+            // Safely attempt initial height adjustment
+            try {
+               autoGrowTextarea({ target: chatInput }); // Adjust height initially
+            } catch(e) { console.warn("Initial autoGrowTextarea failed", e); }
+
+
+            console.log("Chat UI initialized and enabled.");
+
+        } else {
+            // Chat cannot be enabled - figure out why and set status
+            console.log("Chat setup skipped or disabled. Reasons:", {
+                 isReadyForChat: isReadyForChat,
+                 canEnableChat: canEnableChat,
+                 hasUserId: !!currentUserId,
+                 hasUsageInfo: !!initialUsageInfo,
+                 usageInfoError: initialUsageInfo?.error,
+                 limitReached: initialUsageInfo && initialUsageInfo.limit && initialUsageInfo.usage >= initialUsageInfo.limit, // Check limit exists
+            });
+            if (chatInterfaceCardElement) chatInterfaceCardElement.style.display = 'none'; // Ensure hidden
+            enableChatInput(false);
+
+            // Set appropriate status message
+            if (!initialUsageInfo) {
+                 setChatStatus("Loading access info...", true);
+            } else if (initialUsageInfo.error) {
+                 setChatStatus("Chat unavailable - Access Error", false);
+            } else if (!isReadyForChat) {
+                 setChatStatus("Chat unavailable - Service Offline", false);
+            } else if (!currentUserId) {
+                 setChatStatus("Chat unavailable - Authentication needed", false);
+            } else if (initialUsageInfo.limit && initialUsageInfo.usage >= initialUsageInfo.limit) { // Check limit exists
+                 setChatStatus("Weekly token limit reached", false);
+                 if (chatInterfaceCardElement) chatInterfaceCardElement.style.display = 'block'; // Show card but disabled
+            } else {
+                  setChatStatus("Chat unavailable", false); // Generic fallback
+            }
+        }
+        console.log("--- initializeChat END ---");
+    }
+
+
+    // This function now ONLY updates the display info text,
+    // and relies on initializeChat to handle showing/hiding/enabling the chat UI itself.
+    function updateUIBasedOnAccess() {
+        console.log("Executing updateUIBasedOnAccess to update Tier/Usage display info");
+        const tierDisplay = document.getElementById('userTierDisplay'); // Assuming you add this element somewhere
+
+        // Log current state for debugging
         console.log("Current user ID:", currentUserId);
         console.log("Effective tier:", effectiveTier);
         console.log("Initial usage info:", initialUsageInfo);
 
-        // Check if we have a valid user ID *and* initial usage info has been processed
-        const canAttemptChat = currentUserId && initialUsageInfo;
-
-        // Handle error cases first
-        if (initialUsageInfo && initialUsageInfo.error) {
-            console.warn("Error in usage info:", initialUsageInfo.error);
-            if (tierDisplay) tierDisplay.textContent = `Access Error: ${initialUsageInfo.error}`;
-            enableChatInput(false);
-            setChatStatus("Chat unavailable - See error message", false);
-             if (chatInterfaceCardElement) chatInterfaceCardElement.style.display = 'none';
-            return; // Stop here if there's an error with usage info
-        }
-
-        // If no user ID or usage info not processed yet
-        if (!canAttemptChat) {
-             console.warn("Cannot attempt chat initialization: No user ID or usage info pending.");
-             if (tierDisplay) tierDisplay.textContent = 'Access: Loading...';
-             enableChatInput(false);
-             setChatStatus("Loading access info...", true); // Show loading status
-            if (chatInterfaceCardElement) chatInterfaceCardElement.style.display = 'none';
-            return; // Stop here, chat can't be enabled yet
-        }
-
-        // We have valid usage info and a user ID, update UI accordingly
-        if (tierDisplay) {
-            let infoText = `Access: ${initialUsageInfo.tier} | Model: ${initialUsageInfo.model} | Usage: ${initialUsageInfo.usage.toLocaleString()} / ${initialUsageInfo.limit.toLocaleString()}`;
-            if(initialUsageInfo.resetDue) infoText += " (Reset Pending)";
-            if(!initialUsageInfo.userFoundInDb) infoText += " (New User)"; // Indicate if user wasn't found in initial fetch
-            tierDisplay.textContent = infoText;
-        }
-
-        // Check usage limits (only if userFoundInDb is true or insert logic is confirmed on backend)
-        // The backend is the ultimate source of truth on limits, but we reflect the state here.
-         const limitReached = initialUsageInfo.usage >= initialUsageInfo.limit && !initialUsageInfo.resetDue;
-
-        if (limitReached) {
-            console.log("Usage limit reached. Disabling chat.");
-            enableChatInput(false);
-            setChatStatus("Weekly token limit reached", false);
-            if (chatInput) chatInput.placeholder = "Weekly token limit reached.";
-            if (chatInterfaceCardElement) chatInterfaceCardElement.style.display = 'block'; // Still show the card but disabled
+        if (tierDisplay) { // Only update if the display element exists
+             if (initialUsageInfo && !initialUsageInfo.error) {
+                   // We have valid usage info
+                    let infoText = `Access: ${initialUsageInfo.tier || 'N/A'} | Usage: ${(initialUsageInfo.usage !== undefined ? initialUsageInfo.usage.toLocaleString() : 'N/A')} / ${(initialUsageInfo.limit !== undefined ? initialUsageInfo.limit.toLocaleString() : 'N/A')}`;
+                    if(initialUsageInfo.resetDue) infoText += " (Reset Pending)";
+                    if(!initialUsageInfo.userFoundInDb) infoText += " (New User)";
+                    tierDisplay.textContent = infoText;
+             } else if (initialUsageInfo && initialUsageInfo.error) {
+                   // Error loading usage info
+                    tierDisplay.textContent = `Access Error: ${initialUsageInfo.error}`;
+             } else if (!currentUserId) {
+                    // No valid user
+                    tierDisplay.textContent = 'Access: Not Authenticated';
+             } else {
+                   // Still loading or other state
+                    tierDisplay.textContent = 'Access: Loading...';
+             }
         } else {
-            // Usage is within limits, enable chat interface and input
-            console.log("Usage within limits. Enabling chat interface.");
-            if (chatInterfaceCardElement) chatInterfaceCardElement.style.display = 'block';
-            enableChatInput(true);
-            setChatStatus("Ready to chat", false);
+             console.warn("Element with ID 'userTierDisplay' not found. Cannot display access info.");
         }
 
         // Update any pro-specific UI elements based on effectiveTier
@@ -1221,8 +1291,12 @@
         if (proFeatureButton) {
             proFeatureButton.style.display = (effectiveTier === 'pro') ? 'inline-block' : 'none';
         }
-    }
 
+        // Trigger chat initialization/update AFTER usage info is processed
+        // This ensures the chat UI reflects the latest access status
+        initializeChat(); // <<< IMPORTANT: This now calls the setup function
+    }
+    
     // --- Main Data Processing & Display Function ---
     function processAndDisplayData(data) {
         console.log("--- processAndDisplayData START ---", data);
@@ -1818,93 +1892,139 @@
     }
 
     // --- Chat Functionality ---
-    function initializeChat() {
+    // --- Chat Functionality ---
+    function initializeChat() { // Renamed from updateUIBasedOnAccess temporarily for clarity
         console.log("--- initializeChat START ---");
 
-        // Cache chat elements here if not already done in DOMContentLoaded
+        // Cache chat elements here if not already done
         chatInterfaceCardElement = chatInterfaceCardElement || document.getElementById('chatInterfaceCard');
         const chatInput = document.getElementById('chatInput');
         const chatSendButton = document.getElementById('chatSendButton');
         const chatHistory = document.getElementById('chatHistory');
 
-
         if (!chatInput || !chatSendButton || !chatHistory || !chatInterfaceCardElement) {
             console.error("One or more Chat UI elements not found! Aborting chat initialization.");
-             // Hide the card explicitly if elements are missing
-            if(chatInterfaceCardElement) chatInterfaceCardElement.style.display = 'none';
+            if (chatInterfaceCardElement) chatInterfaceCardElement.style.display = 'none';
             enableChatInput(false);
             setChatStatus("Chat UI elements missing", false);
             return;
         }
 
-        // Check if Supabase client is initialized and fetchInitialUsage has run
-        const isSupabaseReady = supabase && typeof supabase.functions?.invoke === 'function'; // Check for invoke method availability
-        console.log("Is Supabase client ready for chat?", isSupabaseReady);
-        console.log("Has initial usage info been processed?", !!initialUsageInfo);
-        console.log("Current user ID available?", !!currentUserId);
+        // SIMPLIFIED CHECK: Ensure Supabase client exists and fetch is available
+        const isReadyForChat = supabase && typeof fetch === 'function';
+        console.log("Is environment ready for chat (Supabase client + fetch)?", isReadyForChat);
 
-
-        // Show chat card and enable input ONLY if we have a user ID, usage info, and no errors/limits
+        // Determine if chat CAN be enabled based on user/usage (from global state)
         const canEnableChat = currentUserId && initialUsageInfo && !initialUsageInfo.error && initialUsageInfo.usage < initialUsageInfo.limit;
+        console.log("Can chat be enabled based on user/usage state?", canEnableChat);
 
-        if (canEnableChat && isSupabaseReady) {
-            chatInterfaceCardElement.style.display = 'block'; // Or 'grid' depending on your layout
-            enableChatInput(true);
-            setChatStatus("Ready to chat", false); // Clear any previous status
+        if (isReadyForChat && canEnableChat) {
+            chatInterfaceCardElement.style.display = 'block'; // Show the card
+            enableChatInput(true); // Enable input fields
+            setChatStatus("Ready to chat", false); // Set status
 
             // Clear and rebuild chat history display based on chatMessages array
             chatHistory.innerHTML = '';
             if (chatMessages.length === 0) {
-                 // Add initial assistant message only if chat history is empty
-                 const initialMsgContent = "Hello! Ask me anything about the financial data shown on your dashboard.";
-                 addMessageToChat("Assistant", initialMsgContent, false);
-                 chatMessages.push({ role: "assistant", content: initialMsgContent });
-             } else {
-                 // Restore previous messages from history array
-                 chatMessages.forEach(msg => addMessageToChat(msg.role.charAt(0).toUpperCase() + msg.role.slice(1), msg.content));
-             }
-             // Scroll to the latest message after loading history
-             chatHistory.scrollTop = chatHistory.scrollHeight;
-
+                // Add initial assistant message only if chat history is empty
+                const initialMsgContent = "Hello! Ask me anything about the financial data shown on your dashboard.";
+                addMessageToChat("Assistant", initialMsgContent, false);
+                // Don't push initial greeting to history array unless you want it saved/resent
+                // chatMessages.push({ role: "assistant", content: initialMsgContent });
+            } else {
+                // Restore previous messages from history array
+                chatMessages.forEach(msg => addMessageToChat(msg.role.charAt(0).toUpperCase() + msg.role.slice(1), msg.content));
+            }
+            // Scroll to the latest message after loading history
+            chatHistory.scrollTop = chatHistory.scrollHeight;
 
             // Ensure listeners are attached only once or re-attached correctly
-            chatSendButton.removeEventListener('click', handleChatSubmit); // Remove previous
-            chatInput.removeEventListener('keydown', handleChatEnterKey); // Remove previous
-            chatInput.removeEventListener('input', autoGrowTextarea); // Remove previous
+            chatSendButton.removeEventListener('click', handleChatSubmit);
+            chatInput.removeEventListener('keydown', handleChatEnterKey);
+            chatInput.removeEventListener('input', autoGrowTextarea);
 
             chatSendButton.addEventListener('click', handleChatSubmit);
             chatInput.addEventListener('keydown', handleChatEnterKey);
             chatInput.addEventListener('input', autoGrowTextarea);
             autoGrowTextarea({ target: chatInput }); // Adjust height initially
 
-
             console.log("Chat UI initialized and enabled.");
+
         } else {
-            console.log("Chat disabled. Reasons: ", {
-                hasUserId: !!currentUserId,
-                hasUsageInfo: !!initialUsageInfo,
-                usageInfoError: initialUsageInfo?.error,
-                limitReached: initialUsageInfo && initialUsageInfo.usage >= initialUsageInfo.limit,
-                isSupabaseReady: isSupabaseReady
+            // Chat cannot be enabled - figure out why and set status
+            console.log("Chat setup skipped or disabled. Reasons:", {
+                 isReadyForChat,
+                 canEnableChat,
+                 hasUserId: !!currentUserId,
+                 hasUsageInfo: !!initialUsageInfo,
+                 usageInfoError: initialUsageInfo?.error,
+                 limitReached: initialUsageInfo && initialUsageInfo.usage >= initialUsageInfo.limit
             });
             if (chatInterfaceCardElement) chatInterfaceCardElement.style.display = 'none'; // Ensure hidden
             enableChatInput(false);
-             if (!initialUsageInfo) {
-                  setChatStatus("Loading access info...", true);
-             } else if (initialUsageInfo.error) {
+
+            // Set appropriate status message
+            if (!initialUsageInfo) {
+                 setChatStatus("Loading access info...", true);
+            } else if (initialUsageInfo.error) {
                  setChatStatus("Chat unavailable - Access Error", false);
-             } else if (!isSupabaseReady) {
+            } else if (!isReadyForChat) {
                  setChatStatus("Chat unavailable - Service Offline", false);
-             } else if (initialUsageInfo.usage >= initialUsageInfo.limit) {
+            } else if (!currentUserId) {
+                 setChatStatus("Chat unavailable - Authentication needed", false);
+            } else if (initialUsageInfo.usage >= initialUsageInfo.limit) {
                  setChatStatus("Weekly token limit reached", false);
-                  if (chatInterfaceCardElement) chatInterfaceCardElement.style.display = 'block'; // Still show the card but disabled
-             } else {
+                 if (chatInterfaceCardElement) chatInterfaceCardElement.style.display = 'block'; // Show card but disabled
+            } else {
                   setChatStatus("Chat unavailable", false); // Generic fallback
-             }
+            }
         }
         console.log("--- initializeChat END ---");
     }
 
+
+    // This function now ONLY updates the display info text,
+    // and relies on initializeChat to handle showing/hiding/enabling the chat UI itself.
+    function updateUIBasedOnAccess() {
+        console.log("Executing updateUIBasedOnAccess to update Tier/Usage display info");
+        const tierDisplay = document.getElementById('userTierDisplay'); // Assuming you add this element somewhere
+
+        // Log current state for debugging
+        console.log("Current user ID:", currentUserId);
+        console.log("Effective tier:", effectiveTier);
+        console.log("Initial usage info:", initialUsageInfo);
+
+        if (tierDisplay) { // Only update if the display element exists
+             if (initialUsageInfo && !initialUsageInfo.error) {
+                   // We have valid usage info
+                    let infoText = `Access: ${initialUsageInfo.tier} | Usage: ${initialUsageInfo.usage.toLocaleString()} / ${initialUsageInfo.limit.toLocaleString()}`;
+                    if(initialUsageInfo.resetDue) infoText += " (Reset Pending)";
+                    if(!initialUsageInfo.userFoundInDb) infoText += " (New User)";
+                    tierDisplay.textContent = infoText;
+             } else if (initialUsageInfo && initialUsageInfo.error) {
+                   // Error loading usage info
+                    tierDisplay.textContent = `Access Error: ${initialUsageInfo.error}`;
+             } else if (!currentUserId) {
+                    // No valid user
+                    tierDisplay.textContent = 'Access: Not Authenticated';
+             } else {
+                   // Still loading or other state
+                    tierDisplay.textContent = 'Access: Loading...';
+             }
+        } else {
+             console.warn("Element with ID 'userTierDisplay' not found. Cannot display access info.");
+        }
+
+        // Update any pro-specific UI elements
+        const proFeatureButton = document.getElementById('proFeatureButton'); // Assuming you have such a button
+        if (proFeatureButton) {
+            proFeatureButton.style.display = (effectiveTier === 'pro') ? 'inline-block' : 'none';
+        }
+
+        // Trigger chat initialization/update AFTER usage info is processed
+        // This ensures the chat UI reflects the latest access status
+        initializeChat();
+    }
 
     function handleChatEnterKey(event) {
         if (event.key === 'Enter' && !event.shiftKey) { // Send on Enter, allow Shift+Enter for newline
