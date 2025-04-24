@@ -556,6 +556,9 @@
     </div>
 
 <script>
+    // Ensure hidden if elements missing
+    if(chatInterfaceCard) chatInterfaceCard.style.display = 'none';
+
     // --- Globals ---
     let dashboardData = {}; // Holds the main data object
     let chatMessages = []; // Holds chat history for API calls
@@ -1583,49 +1586,32 @@ console.log("Supabase client ready:", !!supabase);
     }
 
     function updateUIDisplayFromAI(data) {
-        const aiOutput = data?.aiOutput || {};
-        const analysisEl = document.getElementById('aiAnalysis');
+        const aiOutput            = data?.aiOutput || {};
+        const analysisEl          = document.getElementById('aiAnalysis');
         const recommendationsList = document.getElementById('recommendationsList');
-        const progressContentEl = document.getElementById('progressContent'); // For modal
-
-        if (analysisEl) {
-            // Replace literal '\n' and actual newlines with <br> for HTML display
-            const formattedAnalysis = (aiOutput.analysis || 'Analysis not provided.').replace(/\\n/g, '<br>').replace(/\n/g, '<br>');
-            analysisEl.innerHTML = formattedAnalysis;
-        } else { console.error("AI Analysis element not found"); }
-
-        if (progressContentEl) {
-            const formattedProgress = (aiOutput.userProgress || 'No progress history available.').replace(/\\n/g, '\n'); // Keep actual newlines for pre-wrap
-            progressContentEl.textContent = formattedProgress;
-        } else { console.error("Progress Content element not found"); }
-
+        const progressContentEl   = document.getElementById('progressContent');
+    
+        /* ---- AI analysis text ---- */
+        const formattedAnalysis = (aiOutput.analysis || '')
+            .replace(/\\n/g, '\n')   // literal “\n” → newline
+            .replace(/\n/g, '<br>'); // newline      → <br>
+        if (analysisEl) analysisEl.innerHTML = formattedAnalysis;
+    
+        /* ---- Recommendations ---- */
         if (recommendationsList) {
-            recommendationsList.innerHTML = ''; // Clear previous
-            const recsText = aiOutput.recommendations || '';
-            // Split by literal '\n' or actual newline, trim, remove list markers, filter empty
-            const recsArray = recsText.split(/\\n|\n/)
-                                     .map(r => r.trim().replace(/^[\*\-\d\.]+\s*/, ''))
-                                     .filter(r => r.length > 0);
-
-            // Check if the only item indicates no recommendations
-            if (recsArray.length > 0 && !(recsArray.length === 1 && /not available|not provided/i.test(recsArray[0]))) {
-                recsArray.forEach(rec => {
-                    const li = document.createElement('li');
-                    // Add classes based on keywords for styling
-                    if (/\b(critical|urgent|immediately|highest priority)\b/i.test(rec)) {
-                        li.className = 'critical';
-                    } else if (/\b(warning|consider|should|recommend|important)\b/i.test(rec)) {
-                        li.className = 'warning';
-                    }
-                    // Use textContent to prevent potential XSS from recommendation text
-                    li.textContent = rec;
-                    recommendationsList.appendChild(li);
-                });
-            } else {
-                // Display a standard message if no recommendations are found
-                recommendationsList.innerHTML = '<li>No specific recommendations available.</li>';
-            }
-        } else { console.error("Recommendations list element not found"); }
+            const items = (aiOutput.recommendations || '')
+                .split(/\r?\n/)
+                .map(t => t.trim())
+                .filter(Boolean);
+            recommendationsList.innerHTML = items.length
+                ? items.map(txt => `<li>${txt}</li>`).join('')
+                : '<li class="text-gray-500">No recommendations available.</li>';
+        }
+    
+        /* ---- Progress history ---- */
+        if (progressContentEl)
+            progressContentEl.textContent =
+                aiOutput.userProgress || 'No progress history available.';
     }
 
     // --- Chat Functionality ---
@@ -1638,9 +1624,9 @@ console.log("Supabase client ready:", !!supabase);
 
         if (!chatInput || !chatSendButton || !chatHistory || !chatInterfaceCard) {
             console.error("One or more Chat UI elements not found! Aborting chat initialization.");
-            if(chatInterfaceCard) chatInterfaceCard.style.display = 'none'; // Ensure hidden if elements missing
+            if(chatInterfaceCard) chatInterfaceCard.style.display = 'none';
             return;
-        }
+        } // Ensure hidden if elements missing
 
         // Check if Supabase client is initialized and has the invoke method
         const isSupabaseReady = supabase && typeof supabase.functions?.invoke === 'function';
