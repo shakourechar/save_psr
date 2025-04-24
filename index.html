@@ -1078,7 +1078,7 @@
             // to allow reading 'token_usage', 'last_token_reset', 'tier' for the user matching 'auth.uid()'
             // OR, if you're not using auth.uid() for matching, make sure RLS allows read access based on 'id' column
             const { data, error } = await supabase
-                .from('users')
+                .from('SWN_Users')
                 .select('token_usage, last_token_reset, tier')
                 .eq('id', currentUserId) // Using the ID derived from XTL
                 .maybeSingle();
