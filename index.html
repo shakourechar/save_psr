@@ -1267,35 +1267,77 @@
 
     // This function now ONLY updates the display info text,
     // and relies on initializeChat to handle showing/hiding/enabling the chat UI itself.
+   // This function now updates the chat status display info AND calls initializeChat
     function updateUIBasedOnAccess() {
         console.log("Executing updateUIBasedOnAccess to update Tier/Usage display info");
-        const tierDisplay = document.getElementById('userTierDisplay'); // Assuming you add this element somewhere
+
+        // Get references to the new display elements inside the chat status bar
+        const tierDisplay = document.getElementById('chatTierDisplay');
+        const modelDisplay = document.getElementById('chatModelDisplay');
+        const usageDisplay = document.getElementById('chatUsageDisplay');
+        // Note: The old optional tierDisplay ('userTierDisplay') outside the chat card is separate
 
         // Log current state for debugging
         console.log("Current user ID:", currentUserId);
         console.log("Effective tier:", effectiveTier);
         console.log("Initial usage info:", initialUsageInfo);
 
-        if (tierDisplay) { // Only update if the display element exists
-             if (initialUsageInfo && !initialUsageInfo.error) {
-                   // We have valid usage info
-                    let infoText = `Access: ${initialUsageInfo.tier || 'N/A'} | Usage: ${(initialUsageInfo.usage !== undefined ? initialUsageInfo.usage.toLocaleString() : 'N/A')} / ${(initialUsageInfo.limit !== undefined ? initialUsageInfo.limit.toLocaleString() : 'N/A')}`;
-                    if(initialUsageInfo.resetDue) infoText += " (Reset Pending)";
-                    if(!initialUsageInfo.userFoundInDb) infoText += " (New User)";
-                    tierDisplay.textContent = infoText;
-             } else if (initialUsageInfo && initialUsageInfo.error) {
-                   // Error loading usage info
-                    tierDisplay.textContent = `Access Error: ${initialUsageInfo.error}`;
-             } else if (!currentUserId) {
-                    // No valid user
-                    tierDisplay.textContent = 'Access: Not Authenticated';
-             } else {
-                   // Still loading or other state
-                    tierDisplay.textContent = 'Access: Loading...';
-             }
-        } else {
-             console.warn("Element with ID 'userTierDisplay' not found. Cannot display access info.");
+        // Default display values
+        let tierText = 'Loading...';
+        let modelText = '-';
+        let usageText = '- / -';
+
+        if (initialUsageInfo && !initialUsageInfo.error) {
+            // We have valid usage info
+            const usage = initialUsageInfo.usage !== undefined ? initialUsageInfo.usage : NaN;
+            const limit = initialUsageInfo.limit !== undefined ? initialUsageInfo.limit : NaN;
+            tierText = getSafe(() => initialUsageInfo.tier, 'N/A');
+            modelText = getSafe(() => initialUsageInfo.model, 'N/A');
+
+            if (!isNaN(usage) && !isNaN(limit)) {
+                 usageText = `${usage.toLocaleString()} / ${limit.toLocaleString()}`;
+            } else {
+                 usageText = 'Error'; // Indicate if usage/limit numbers are invalid
+            }
+
+            if(initialUsageInfo.resetDue) usageText += " (Reset Pending)";
+            if(!initialUsageInfo.userFoundInDb) tierText += " (New User)"; // Append note if needed
+
+        } else if (initialUsageInfo && initialUsageInfo.error) {
+            // Error loading usage info
+            tierText = 'Error';
+            modelText = 'Error';
+            usageText = 'Error';
+            console.warn("Displaying Error state due to initialUsageInfo.error:", initialUsageInfo.error);
+        } else if (!currentUserId) {
+            // No valid user
+            tierText = 'N/A';
+            modelText = 'N/A';
+            usageText = 'N/A';
         }
+        // Else: Still loading, defaults defined above will be used
+
+        // Update the text content of the new spans in the chat status bar
+        if (tierDisplay) tierDisplay.textContent = tierText;
+        else console.warn("Chat tier display element (#chatTierDisplay) not found.");
+
+        if (modelDisplay) modelDisplay.textContent = modelText;
+        else console.warn("Chat model display element (#chatModelDisplay) not found.");
+
+        if (usageDisplay) usageDisplay.textContent = usageText;
+        else console.warn("Chat usage display element (#chatUsageDisplay) not found.");
+
+
+        // Update any pro-specific UI elements based on effectiveTier (if needed elsewhere)
+        const proFeatureButton = document.getElementById('proFeatureButton');
+        if (proFeatureButton) {
+            proFeatureButton.style.display = (effectiveTier === 'pro') ? 'inline-block' : 'none';
+        }
+
+        // Trigger chat initialization/update AFTER usage info is processed and displayed
+        // This ensures the chat UI visibility/state reflects the latest access status
+        initializeChat(); // This remains crucial
+    }
 
         // Update any pro-specific UI elements based on effectiveTier
         const proFeatureButton = document.getElementById('proFeatureButton'); // Assuming you have such a button
