@@ -1328,17 +1328,6 @@
         // This ensures the chat UI visibility/state reflects the latest access status
         initializeChat(); // This remains crucial
     }
-
-        // Update any pro-specific UI elements based on effectiveTier
-        const proFeatureButton = document.getElementById('proFeatureButton'); // Assuming you have such a button
-        if (proFeatureButton) {
-            proFeatureButton.style.display = (effectiveTier === 'pro') ? 'inline-block' : 'none';
-        }
-
-        // Trigger chat initialization/update AFTER usage info is processed
-        // This ensures the chat UI reflects the latest access status
-        initializeChat(); // <<< IMPORTANT: This now calls the setup function
-    }
     
     // --- Main Data Processing & Display Function ---
     function processAndDisplayData(data) {
