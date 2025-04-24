@@ -521,7 +521,18 @@
             <div class="chat-container">
                 <div class="chat-history" id="chatHistory">
                     </div>
-                <div class="chat-status" id="chatStatus"></div>
+                <div class="chat-status flex justify-between items-center px-4" id="chatStatusContainer">
+                 <span>
+                     Tier: <strong id="chatTierDisplay">-</strong> |
+                     Model: <span id="chatModelDisplay" class="text-xs">-</span>
+                 </span>
+                 <span id="chatThinkingIndicator" style="display: none; margin-left: auto; margin-right: auto;">
+                     <div class="typing-indicator"><span style="background-color: #4f46e5;"></span><span style="background-color: #4f46e5;"></span><span style="background-color: #4f46e5;"></span></div> Thinking...
+                 </span>
+                 <span class="ml-auto"> Usage: <strong id="chatUsageDisplay">- / -</strong>
+                 </span>
+            </div>
+            ```
                 <div class="chat-input-area">
                     <textarea id="chatInput" placeholder="Ask about your finances..." rows="1" disabled></textarea>
                     <button id="chatSendButton" disabled>
