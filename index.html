@@ -1682,6 +1682,94 @@
         }
     }
 
+        function updateGoalsDisplay(data, totals) {
+        console.log("Updating goals display UI...");
+        try {
+            const savingsInput = getSafe(() => data.userInput.savings, {});
+            const financialsInput = getSafe(() => data.userInput.financials, {});
+            const upcomingPurchaseString = getSafe(() => financialsInput.upcomingPurchase, '');
+
+            const emergencyGoalDisplay = document.getElementById('emergencyGoalDisplay');
+            const purchaseGoalDisplay = document.getElementById('purchaseGoalDisplay');
+            const noGoalsMessage = document.getElementById('noGoalsMessage');
+            let hasVisibleGoal = false;
+
+            // --- Emergency Fund Goal ---
+            const emergencyCurrent = Number(getSafe(() => savingsInput.emergency)) || 0;
+            // Use target from data if available, otherwise default to 3 months CORE expenses
+            const emergencyGoalTargetExplicit = Number(getSafe(() => savingsInput.emergencyFundTarget));
+            const emergencyGoalTargetCalculated = totals.monthlyCoreExpenses > 0 ? totals.monthlyCoreExpenses * 3 : 0;
+            // Prefer explicit target if valid (>0), else use calculated (>0), else target is 0
+            const emergencyGoalTarget = (emergencyGoalTargetExplicit > 0) ? emergencyGoalTargetExplicit : (emergencyGoalTargetCalculated > 0 ? emergencyGoalTargetCalculated : 0);
+
+            const emergencyProgressBar = document.getElementById('emergencyProgressBar');
+
+            if (emergencyGoalTarget > 0 && emergencyGoalDisplay && emergencyProgressBar) {
+                hasVisibleGoal = true;
+                emergencyGoalDisplay.style.display = 'block';
+                const progress = Math.min(100, Math.max(0, (emergencyCurrent / emergencyGoalTarget) * 100));
+                emergencyProgressBar.style.width = `${progress}%`;
+                emergencyProgressBar.textContent = `${progress.toFixed(0)}%`;
+                const statusEl = emergencyGoalDisplay.querySelector('.goal-status');
+                if (statusEl) statusEl.textContent = `Target: ${formatCurrency(emergencyGoalTarget)} (${formatPercentage(emergencyCurrent / emergencyGoalTarget, 0)} funded)`;
+            } else if (emergencyGoalDisplay) {
+                emergencyGoalDisplay.style.display = 'none'; // Hide if target is not valid
+            } else { console.warn("Emergency goal elements not found."); }
+
+
+            // --- Upcoming Purchase Goal (Attempt to parse first one) ---
+            const purchaseProgressBar = document.getElementById('purchaseProgressBar');
+            const purchaseGoalNameEl = document.getElementById('purchaseGoalName');
+
+            // Check if all necessary elements exist before attempting to parse/display purchase goal
+            if (upcomingPurchaseString && purchaseGoalDisplay && purchaseProgressBar && purchaseGoalNameEl) {
+                 // Look for pattern like: #1) Name, $Amount[, X months] - make months optional
+                 // Made regex slightly more robust to handle spaces, commas, dollar signs better
+                 const match = upcomingPurchaseString.match(/#\d+\)\s*(.*?),\s*\$?\s*([\d,.]+)(?:,\s*\d+\s*months?)?/i); // Added case-insensitive flag
+                 console.log("Purchase goal regex match:", match);
+
+                if (match && match[1] && match[2]) {
+                    const goalName = match[1].trim();
+                    const goalAmountStr = match[2].replace(/,/g, '');
+                    const goalAmount = parseFloat(goalAmountStr);
+                    // Use general savings for progress unless specific goal savings provided in data
+                    const generalSavings = Number(getSafe(() => savingsInput.savings)) || 0;
+
+                    if (goalName && !isNaN(goalAmount) && goalAmount > 0) {
+                        hasVisibleGoal = true;
+                        purchaseGoalDisplay.style.display = 'block';
+                        purchaseGoalNameEl.textContent = goalName;
+                        // Calculate progress using general savings balance towards this goal amount
+                        const progress = Math.min(100, Math.max(0, (generalSavings / goalAmount) * 100));
+                        purchaseProgressBar.style.width = `${progress}%`;
+                        purchaseProgressBar.textContent = `${progress.toFixed(0)}%`;
+                        const statusEl = purchaseGoalDisplay.querySelector('.goal-status');
+                        if (statusEl) statusEl.textContent = `Target: ${formatCurrency(goalAmount)} (${formatCurrency(generalSavings)} saved)`;
+                    } else {
+                        console.warn("Purchase goal parsed but name or amount invalid:", { goalName, goalAmount });
+                        purchaseGoalDisplay.style.display = 'none'; // Hide if parsing results in invalid goal
+                    }
+                } else {
+                     console.log("Upcoming purchase string does not match expected format, displaying raw text:", upcomingPurchaseString);
+                     // If parsing fails, display the raw text in the Financial Tools & Goals card instead
+                     // This is already done by updateReportBasics, so just hide this progress bar section
+                    purchaseGoalDisplay.style.display = 'none';
+                }
+            } else if (purchaseGoalDisplay) { // Hide if no string or elements
+                purchaseGoalDisplay.style.display = 'none';
+                 if (!purchaseGoalDisplay) console.warn("Purchase goal display elements not found.");
+            }
+
+            // Show 'No goals' message only if neither goal section is visible
+            if (noGoalsMessage) {
+                noGoalsMessage.style.display = hasVisibleGoal ? 'none' : 'block';
+            } else { console.warn("No goals message element not found.");}
+             console.log("Goals display UI updated.");
+        } catch (e) {
+            console.error("Error updating goals display UI:", e);
+        }
+    }
+    
     function updateDebtsDisplay(data, totals) {
         console.log("--- updateDebtsDisplay FUNCTION ENTERED ---");
         console.log("--- updateDebtsDisplay START ---");
