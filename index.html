@@ -469,7 +469,7 @@
                     </ul>
                 </div>
             </div>
-                       <div class="dashboard-card">
+                                   <div class="dashboard-card">
                 <h3 class="card-header">AI Analysis Summary</h3>
                 <div class="card-content">
                     <div id="aiAnalysis" class="prose prose-sm max-w-none mb-4" style="white-space: pre-wrap;">
@@ -477,10 +477,6 @@
                     </div>
                     <button onclick="openModal('progressModal')" class="text-indigo-600 hover:underline text-sm font-medium">
                         View Full Progress History
-                    </button>
-                    <!-- Added new button here -->
-                    <button id="generateAnalysisBtn" class="bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-3 py-1 rounded mt-2 mr-2">
-                         Generate New Analysis
                     </button>
                     <button id="saveSummaryBtn" class="bg-indigo-600 text-white text-sm font-medium px-3 py-1 rounded mt-2">
                         Save Summary to Report
@@ -521,7 +517,14 @@
         </div>
 
            <section id="chatInterfaceCard" class="dashboard-card" style="display: none;">
-            <h3 class="card-header">Ask SmartWealth AI</h3>
+            <!-- MODIFIED HEADER WITH FLEX AND BUTTON -->
+            <h3 class="card-header flex items-center justify-between">
+                <span>Ask SmartWealth AI</span>
+                <button id="generateAnalysisBtn" class="bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-3 py-1 rounded">
+                     Generate New Analysis
+                </button>
+            </h3>
+            <!-- END MODIFIED HEADER -->
             <div class="chat-container">
                 <div class="chat-history" id="chatHistory">
                     </div>
@@ -536,7 +539,7 @@
                  <span class="ml-auto"> Usage: <strong id="chatUsageDisplay">- / -</strong>
                  </span>
             </div>
-            <!-- THIS IS THE CHAT INPUT AREA THAT WAS MISSING -->
+            <!-- THIS IS THE CHAT INPUT AREA -->
             <div class="chat-input-area">
                 <textarea id="chatInput" placeholder="Ask about your finances..." rows="1" disabled></textarea>
                 <button id="chatSendButton" disabled>
