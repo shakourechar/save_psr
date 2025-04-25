@@ -1786,18 +1786,6 @@
          console.log("--- updateDebtsDisplay END ---");
     }
 
-        // Update totals using the calculated totals object - ensure totals exist and are valid
-        if (totals && typeof totals === 'object' && isFinite(totals.totalDebt) && isFinite(totals.totalMinPayments)) {
-             updateElementText('totalDebtBalance', totals.totalDebt, formatCurrency);
-             updateElementText('totalMinPayments', totals.totalMinPayments, formatCurrency);
-        } else {
-             console.warn("Totals object invalid, skipping total debt display update.");
-             updateElementText('totalDebtBalance', 'N/A');
-             updateElementText('totalMinPayments', 'N/A');
-        
-         console.log("Debts display UI updated.");
-    }
-
     function renderCharts(data) {
         console.log("Rendering charts...");
         // Check if Plotly library is loaded
