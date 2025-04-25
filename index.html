@@ -469,7 +469,7 @@
                     </ul>
                 </div>
             </div>
-            <div class="dashboard-card">
+                       <div class="dashboard-card">
                 <h3 class="card-header">AI Analysis Summary</h3>
                 <div class="card-content">
                     <div id="aiAnalysis" class="prose prose-sm max-w-none mb-4" style="white-space: pre-wrap;">
@@ -477,6 +477,10 @@
                     </div>
                     <button onclick="openModal('progressModal')" class="text-indigo-600 hover:underline text-sm font-medium">
                         View Full Progress History
+                    </button>
+                    <!-- Added new button here -->
+                    <button id="generateAnalysisBtn" class="bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-3 py-1 rounded mt-2 mr-2">
+                         Generate New Analysis
                     </button>
                     <button id="saveSummaryBtn" class="bg-indigo-600 text-white text-sm font-medium px-3 py-1 rounded mt-2">
                         Save Summary to Report
@@ -2667,6 +2671,187 @@
         }
     }
 
+        /* --- Generate New Analysis Workflow --- */
+    async function generateAndDisplayNewSummary() {
+        console.log("Generating and displaying new analysis/recommendations...");
+
+        if (!dashboardData || !dashboardData.userInput) {
+            alert("Please load financial data before generating an analysis.");
+            return;
+        }
+
+        // Check chat prerequisites (same as chat/save summary)
+         if (!supabase || typeof supabase.functions?.invoke !== 'function' || !currentUserId || !effectiveTier || !initialUsageInfo || initialUsageInfo.error || initialUsageInfo.usage >= initialUsageInfo.limit) {
+             console.error("Analysis generation prerequisites not met:", { supabaseReady: !!supabase, hasInvoke: typeof supabase?.functions?.invoke === 'function', hasUserId: !!currentUserId, hasTier: !!effectiveTier, hasUsageInfo: !!initialUsageInfo, usageError: initialUsageInfo?.error, limitReached: initialUsageInfo?.usage >= initialUsageInfo?.limit });
+             addMessageToChat("System", "Error: Cannot generate analysis. Service is unavailable or limit reached.", true);
+             setChatStatus("Analysis failed", false);
+             return;
+         }
+
+        const generateButton = document.getElementById('generateAnalysisBtn');
+        const saveButton = document.getElementById('saveSummaryBtn'); // Also disable save while generating
+
+        try {
+            setChatStatus("Generating Analysis...", true);
+            enableChatInput(false); // Disable chat input during generation
+            if (generateButton) generateButton.disabled = true;
+            if (saveButton) saveButton.disabled = true; // Disable save button
+
+            // --- Prepare Comprehensive Context for AI ---
+            let fullContext = `Generate a financial analysis summary (around 100-150 words) and 3-5 key recommendations based on the following user's financial data AND their conversation history. Focus on strengths, weaknesses (like debt or low savings), actionable steps discussed in chat, and incorporate information from the prior analysis if relevant. Use simple language. Format the summary first, then list recommendations starting with '- '. Include a timestamp in the summary text.\n\n`;
+
+            // Add financial data context
+            fullContext += `--- Financial Data ---\n`;
+            try {
+                const totals = calculateTotals(dashboardData); // Recalculate for fresh context
+                const ratios = calculateRatios(dashboardData, totals); // Calculate ratios for context
+                fullContext += `User: ${getSafe(() => dashboardData.userInput.personalInfo.userName)}, Age: ${getSafe(() => dashboardData.userInput.personalInfo.age)}\n`;
+                fullContext += `Monthly Totals: Income: ${formatCurrency(totals.totalIncome)}, Expenses: ${formatCurrency(totals.totalExpenses)}, Net Flow: ${formatCurrency(totals.netFlow)}\n`;
+                fullContext += `Savings Balances: Emergency: ${formatCurrency(getSafe(()=>dashboardData.userInput.savings.emergency))}, General: ${formatCurrency(getSafe(()=>dashboardData.userInput.savings.savings))}, Retirement: ${formatCurrency(getSafe(()=>dashboardData.userInput.retirement))}\n`;
+                fullContext += `Debt: Total Balance: ${formatCurrency(totals.totalDebt)}, Total Min Payments: ${formatCurrency(totals.totalMinPayments)}\n`;
+                fullContext += `Ratios: Savings Rate: ${formatPercentage(ratios.savingsRate, 1)}, Emergency Coverage: ${ratios.emergencyCoverage === Infinity ? 'N/A' : ratios.emergencyCoverage.toFixed(1)} months, DTI: ${formatPercentage(ratios.dtiRatio, 1)}\n`;
+                 if (dashboardData.userInput.debts && dashboardData.userInput.debts.length > 0) {
+                     fullContext += "Debts Breakdown:\n";
+                     dashboardData.userInput.debts.forEach(d => {
+                         fullContext += ` - ${getSafe(() => d.type, 'Debt')}: Bal ${formatCurrency(getSafe(() => d.balance))}, Rate ${getSafe(() => d.interestRate, 0)}%, Min Pmt ${formatCurrency(getSafe(() => d.minPayment))}\n`;
+                     });
+                 }
+                 fullContext += `Challenges: ${getSafe(()=>dashboardData.userInput.financials.challenges)}\n`;
+                 fullContext += `Goals: ${getSafe(()=>dashboardData.userInput.financials.upcomingPurchase)}\n`;
+                 const priorAnalysis = getSafe(() => dashboardData.aiOutput.analysis);
+                 const priorRecs = getSafe(() => dashboardData.aiOutput.recommendations);
+                 if (priorAnalysis && !/not available|to be determined/i.test(priorAnalysis)) fullContext += `Prior Dashboard Analysis: ${priorAnalysis.substring(0, 500)}...\n`; // Include prior analysis
+                 if (priorRecs && !/not available|to be determined/i.test(priorRecs)) fullContext += `Prior Dashboard Recommendations: ${priorRecs.substring(0, 500)}...\n`; // Include prior recommendations
+
+            } catch (e) {
+                console.error("Error generating financial context for analysis:", e);
+                fullContext += "Error generating detailed financial context.\n";
+            }
+
+            // Add chat history context
+            fullContext += `\n--- Chat History ---\n`;
+            if (chatMessages.length > 0) {
+                 // Include relevant parts of chat history, possibly summarizing it if very long
+                 const chatHistoryContext = chatMessages
+                    .map(msg => `${msg.role.toUpperCase()}: ${msg.content}`) // Format messages
+                    .slice(-15) // Limit to last 15 messages to keep context manageable
+                    .join('\n');
+                 fullContext += chatHistoryContext;
+            } else {
+                 fullContext += "No chat history in this session.\n";
+            }
+             fullContext += `\n---\n`;
+
+
+            // --- Construct messages payload for backend (using the full context in a system message) ---
+            const messagesForBackend = [
+                 { role: "system", content: fullContext },
+                 // A user message prompting the AI to perform the task based on the system context
+                 { role: "user", content: "Generate the financial analysis summary and recommendations based on the provided financial data and chat history. Format the summary first, then list recommendations starting with '- '." }
+            ];
+
+
+            const functionName = 'smooth-function'; // Assuming smooth-function can handle this prompt structure
+
+            console.log(`Invoking Supabase function '${functionName}' for analysis generation.`);
+            console.log("Context sent to backend:", messagesForBackend[0].content); // Log context
+            console.log("Prompt sent to backend:", messagesForBackend[1].content); // Log prompt
+
+
+            const response = await fetch(`${SUPABASE_URL}/functions/v1/${functionName}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                    'x-user-id': currentUserId, // Crucial header
+                    'x-user-tier': effectiveTier // Crucial header
+                },
+                body: JSON.stringify({
+                    messages: messagesForBackend,
+                    // model: CHAT_MODEL // Backend determines model
+                })
+            });
+
+            // --- Handle Backend Response ---
+            if (!response.ok) {
+                let errorMsg = `Analysis generation failed with status ${response.status}`;
+                 try {
+                     const errorData = await response.json();
+                     errorMsg = errorData?.error || errorMsg;
+                 } catch (e) { /* ignore parse error */ }
+                console.error(`Backend returned error during analysis generation: ${response.status} - ${errorMsg}`);
+                throw new Error(errorMsg);
+            }
+
+            const result = await response.json();
+
+            // Expecting the backend to return the generated text in assistantResponse.content
+            if (result && result.assistantResponse && typeof result.assistantResponse.content === 'string') {
+                const fullText = result.assistantResponse.content;
+
+                // Attempt to split the AI's response into Analysis and Recommendations
+                const recsMarker = fullText.indexOf('- '); // Look for the start of recommendations
+                let analysis = fullText;
+                let recommendations = '';
+
+                if (recsMarker > -1) {
+                     // If '-' is found, split into analysis (before '-') and recommendations (from '-')
+                     analysis = fullText.substring(0, recsMarker).trim();
+                     recommendations = fullText.substring(recsMarker).trim();
+                }
+                // Fallback: If splitting resulted in an empty analysis but there was text, use the full text as analysis
+                if (analysis === '' && fullText.length > 0) {
+                     analysis = fullText;
+                     recommendations = ''; // Clear recommendations if splitting failed
+                }
+
+
+                console.log("AI Analysis Generated:", analysis);
+                console.log("AI Recommendations Generated:", recommendations);
+
+
+                // --- Update UI and Data Object ---
+                if (dashboardData && dashboardData.aiOutput) {
+                    dashboardData.aiOutput.analysis = analysis; // Update analysis
+                    dashboardData.aiOutput.recommendations = recommendations; // Update recommendations
+
+                    // Add a timestamp and note to user progress history
+                    const now = new Date();
+                    const progressUpdate = `\n${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}: New AI Analysis generated.`;
+                    dashboardData.aiOutput.userProgress = (dashboardData.aiOutput.userProgress || '').trim() + progressUpdate; // Append to existing history
+
+                    // Refresh the AI section display on the dashboard
+                    updateUIDisplayFromAI(dashboardData);
+
+                    setChatStatus("Analysis generated and updated ✅", false);
+                    // Add a system message to chat history indicating the update
+                    addMessageToChat("System", "A new financial analysis and recommendations have been generated and updated on your dashboard.");
+
+                } else {
+                     console.error("dashboardData or aiOutput structure missing for saving analysis/recs.");
+                     throw new Error("Could not update dashboard data with generated analysis.");
+                }
+
+                 // Re-fetch usage info after generation (as this costs tokens)
+                 setTimeout(fetchInitialUsage, 1000); // Add slight delay
+
+            } else {
+                console.error("Analysis function returned an unexpected format:", result);
+                throw new Error("Received an invalid response format from the analysis service.");
+            }
+
+        } catch (err) {
+            console.error("Analysis generation failed:", err);
+            addMessageToChat("System", "Couldn't generate analysis: " + (err.message || "Unknown error"), true);
+            setChatStatus("Analysis failed", false);
+        } finally {
+            enableChatInput(true); // Re-enable chat input
+             if (generateButton) generateButton.disabled = false; // Re-enable button
+             if (saveButton) saveButton.disabled = false; // Re-enable save button
+             // setChatStatus("", false); // Clear status message after a delay - done by setChatStatus itself
+        }
+    }
+    
     /* --- Info popup support --- */
     function showInfo(text) {
         const infoModalText = document.getElementById('infoModalText');
@@ -2732,7 +2917,7 @@
             document.getElementById('manualEntryButton')?.addEventListener('click', useDemoData);
              // Setup save summary button
             document.getElementById('saveSummaryBtn')?.addEventListener('click', generateAndSaveSummary);
-
+document.getElementById('generateAnalysisBtn')?.addEventListener('click', generateAndDisplayNewSummary);
 
             // Initial fetch for usage info and then update UI based on that access
             // This also handles initializing the chat UI
