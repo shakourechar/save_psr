@@ -156,10 +156,43 @@
 
         /* Debt Table Styles */
         #debtsTable { width: 100%; margin-top: 10px; border-collapse: collapse; }
-        #debtsTable th, #debtsTable td { text-align: left; padding: 8px 5px; border-bottom: 1px solid #f3f4f6; font-size: 0.9em; }
-        #debtsTable th { font-weight: 500; color: #6b7280; background-color: #f9fafb; }
-        #debtsTable tr:last-child td { border-bottom: none; }
-        #debtsTable .balance-col { text-align: right; font-weight: 500; }
+        /* Shared styles for headers and data cells */
+        #debtsTable th, #debtsTable td {
+            padding: 8px 5px;
+            border-bottom: 1px solid #f3f4f6;
+            font-size: 0.9em;
+        }
+        /* Header styles */
+        #debtsTable th {
+            font-weight: 500;
+            color: #6b7280;
+            background-color: #f9fafb;
+            text-align: left; /* Default header alignment */
+             cursor: pointer; /* Indicate clickable for popups */
+        }
+        #debtsTable tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Data cell default alignment (most columns left) and font weight */
+        #debtsTable td {
+            text-align: left;
+            font-weight: normal; /* Ensure data is not bold by default */
+        }
+
+        /* Specific data column styling for alignment and bolding */
+        #debtsTable td.balance-col {
+             text-align: right; /* Align Balance data right */
+             font-weight: 700; /* Make Balance data bold */
+        }
+         #debtsTable td.rate-col {
+             /* text-align: left; is default td alignment */
+             font-weight: 700; /* Make Rate data bold */
+         }
+         #debtsTable td.min-pmt-col {
+             text-align: right; /* Align Min. Payment data right */
+             font-weight: 700; /* Make Min. Payment data bold */
+         }
 
         /* Progress Bar Styles */
         .progress-bar-container { background-color: #e5e7eb; border-radius: 6px; overflow: hidden; height: 20px; margin-top: 5px; margin-bottom: 10px; }
@@ -302,7 +335,7 @@
         .chat-input-area textarea {
             flex-grow: 1; padding: 0.7rem 1rem; border: 1px solid #d1d5db;
             border-radius: 20px; resize: none; font-size: 0.95rem; line-height: 1.4;
-            height: 44px; background-color: white;
+            height: 88px; background-color: white;
             transition: border-color 0.2s ease, box-shadow 0.2s ease; outline: none;
         }
         .chat-input-area textarea:focus {
@@ -493,11 +526,12 @@
                         <thead>
                             <tr>
                                 <th>Type</th>
-                                <th>Balance</th>
-                                <th>Rate (%)</th>
-                                <th>Min. Pmt</th>
+                                <th data-desc="Total amount currently owed on this debt.">Balance</th>
+                                <th data-desc="Annual interest rate for this debt.">Rate (%)</th>
+                                <th data-desc="Minimum monthly payment required for this debt.">Min. Pmt</th>
                             </tr>
                         </thead>
+
                         <tbody>
                             <tr><td colspan="4" class="text-center p-4 text-gray-500">Loading debt data...</td></tr>
                         </tbody>
@@ -1404,7 +1438,7 @@
             console.log("Goals UI updated.");
 
             console.log("6. Updating debts UI...");
-            updateDebtsDisplay(data, totals);
+            (data, totals);
             console.log("Debts UI updated.");
 
             console.log("7. Scheduling chart rendering...");
@@ -1750,7 +1784,7 @@
             if (debts.length === 0) {
                 debtsTableBody.innerHTML = '<tr><td colspan="4" class="text-center text-gray-500 py-4">No debt information provided.</td></tr>';
             } else {
-                debts.forEach(debt => {
+                               debts.forEach(debt => {
                     try {
                         const row = debtsTableBody.insertRow();
                         // Use getSafe for potentially missing debt properties within the loop
@@ -1761,14 +1795,11 @@
                         row.innerHTML = `
                             <td>${getSafe(() => debt.type, 'N/A')}</td>
                             <td class="balance-col">${formatCurrency(balance)}</td>
-                            <td>${(Number(interestRate)).toFixed(1)}%</td>
-                            <td class="balance-col">${formatCurrency(minPayment)}</td>
+                            <td class="rate-col">${(Number(interestRate)).toFixed(1)}%</td> {/* ADDED class="rate-col" */}
+                            <td class="min-pmt-col">${formatCurrency(minPayment)}</td> {/* ADDED class="min-pmt-col" */}
                         `;
                     } catch (e) {
-                        console.error("Error adding debt row:", debt, e);
-                        // Add an error row or skip this debt item
-                        const row = debtsTableBody.insertRow();
-                         row.innerHTML = `<td colspan="4" class="text-center text-red-500">Error displaying debt data.</td>`;
+                       // ... error handling ...
                     }
                 });
             }
