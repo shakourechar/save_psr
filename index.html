@@ -1438,6 +1438,7 @@
             console.log("Goals UI updated.");
 
             console.log("6. Updating debts UI...");
+            console.log("  About to call updateDebtsDisplay...");
             (data, totals);
             console.log("Debts UI updated.");
 
@@ -1682,6 +1683,7 @@
     }
 
     function updateDebtsDisplay(data, totals) {
+        console.log("--- updateDebtsDisplay FUNCTION ENTERED ---");
         console.log("--- updateDebtsDisplay START ---");
         console.log("  Received data object:", data);
         console.log("  Received totals object:", totals);
