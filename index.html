@@ -2355,13 +2355,13 @@
          console.log("Upload buttons initialized.");
     }
 
-    function handleFileUpload(event) {
+       function handleFileUpload(event) {
         const file = event.target.files[0];
         if (!file) {
              console.log("File upload cancelled.");
              // If no file was selected, and no data was previously loaded,
              // ensure the initial prompt/message is still shown.
-             if (!dashboardData || Object.keys(dashboardData).length === 0) {
+             if (!dashboardData || Object.keys(getSafe(() => dashboardData.userInput, {})).length === 0) { // More robust check for empty data
                  // Use a small timeout to avoid race conditions with other init logic
                  setTimeout(() => showInitialPromptOrMessage(), 50);
              } else {
@@ -2390,16 +2390,59 @@
             let uploadedData = null;
             try {
                 uploadedData = JSON.parse(e.target.result);
-                // Basic validation of uploaded structure
-                if (typeof uploadedData !== 'object' || uploadedData === null ||
-                    !uploadedData.userInput || !uploadedData.userInput.personalInfo || !uploadedData.userInput.income) {
-                    throw new Error("Invalid file content. Expected a JSON object with 'userInput' containing 'personalInfo', 'income', etc.");
+                // Basic validation of uploaded structure - ensure userInput exists
+                if (typeof uploadedData !== 'object' || uploadedData === null || !uploadedData.userInput) {
+                    throw new Error("Invalid file content. Expected a JSON object with 'userInput'.");
                 }
+                 // Optional deeper check: ensure personalInfo and income exist minimally
+                 if (!uploadedData.userInput.personalInfo || !uploadedData.userInput.income) {
+                      console.warn("Uploaded file missing expected nested structure (personalInfo/income), attempting to process anyway.");
+                 }
+
 
                 console.log("Successfully parsed uploaded JSON file.");
-                dashboardData = uploadedData; // Replace current data
 
-                // Restore chat history if it exists in the uploaded file
+                // --- START NEW LOGIC: Restore User ID, Tier, and Usage from file metadata ---
+                console.log("Checking uploaded file for user/usage metadata...");
+                const fileUserId = getSafe(() => uploadedData.userId, null);
+                const fileUserTier = getSafe(() => uploadedData.userTier, null);
+                const fileUsageInfo = getSafe(() => uploadedData.usageInfoAtSave, null);
+                const fileXtlMetadata = getSafe(() => uploadedData.metadata?.xtl, null); // Also check metadata xtl
+
+                 // Decide which info to prioritize: file's explicit fields OR metadata's xtl
+                 // Let's prioritize the explicit userId, userTier, usageInfoAtSave if they exist
+                if (fileUserId && fileUserTier && fileUsageInfo) {
+                    currentUserId = fileUserId;
+                    effectiveTier = fileUserTier;
+                    initialUsageInfo = fileUsageInfo; // Restore the saved usage state
+                    console.log("Restored user ID, tier, and usage info from uploaded file's explicit fields.");
+                    console.log("  Restored currentUserId:", currentUserId);
+                    console.log("  Restored effectiveTier:", effectiveTier);
+                    console.log("  Restored initialUsageInfo:", initialUsageInfo);
+
+                } else if (fileXtlMetadata) {
+                    // If explicit fields aren't there, try deriving from metadata.xtl
+                    // This re-uses the parseXtlParameter logic but on the file's xtl
+                    console.log("Explicit user/usage fields not found in file, attempting to parse from metadata.xtl...");
+                    const tempParams = new URLSearchParams(`?xtl=${encodeURIComponent(fileXtlMetadata)}`);
+                    const xtlParsedFromFile = parseXtlParameter(tempParams); // This function updates globals currentUserId, effectiveTier
+
+                    // We don't have saved initialUsageInfo in this case, so we'd need to fetch it.
+                    // For simplicity, let's just log that we got the user/tier but usage is unknown.
+                    // A real app might trigger a fetchInitialUsage here based on the file's user ID.
+                    console.warn("Could not restore usageInfoAtSave from file. Usage display might be inaccurate until chat is used.");
+                    // Keep currentUserId and effectiveTier as set by parseXtlParameter(tempParams)
+
+                } else {
+                    console.warn("Uploaded file does not contain complete user/usage metadata (userId, userTier, usageInfoAtSave, or metadata.xtl). Keeping current session's user/usage info from URL/initial fetch.");
+                    // Keep currentUserId, effectiveTier, initialUsageInfo as they were set during initial page load from URL
+                }
+                // --- END NEW LOGIC ---
+
+
+                dashboardData = uploadedData; // Assign the parsed data to the global dashboardData
+
+                // Restore chat history from the file
                 if (Array.isArray(uploadedData.chatHistory)) {
                     chatMessages = uploadedData.chatHistory;
                     console.log(`Restored ${chatMessages.length} chat messages from file.`);
@@ -2408,12 +2451,8 @@
                     console.log("No valid chat history found in file, starting with empty chat.");
                 }
 
-                 // Note: File upload does NOT re-parse xtl or fetch usage.
-                 // User ID and tier from URL params/xtl persist.
-                 // If you need file upload to override user/tier, add logic here.
-                 // For now, it only updates dashboardData and chatMessages.
-
-                processAndDisplayData(dashboardData); // Display the new data
+                // Process and display the financial data and AI output from the file
+                processAndDisplayData(dashboardData); // This calls updateUIBasedOnAccess at the end
 
             } catch (error) {
                 console.error("Error processing uploaded file:", error);
@@ -2422,12 +2461,14 @@
                 handleError(`Error loading file: ${userMessage}`, error);
                 dashboardData = {}; // Reset data on error
                 chatMessages = []; // Clear chat history on error
+                 // Reset user info if file processing failed severely? Depends on desired behavior.
+                 // For now, keep current user info from URL if available.
             } finally {
                 // Reset file input regardless of success/failure to allow re-uploading the same file
                 event.target.value = null;
                 // Spinner hiding is handled by processAndDisplayData or handleError
-                 // Re-initialize chat display based on current state (user ID from URL, usage info, etc.)
-                 initializeChat();
+                 // The call to updateUIBasedOnAccess inside processAndDisplayData will refresh the chat status.
+                 // We don't need a separate initializeChat() call here if processAndDisplayData always calls updateUIBasedOnAccess
             }
         };
         reader.onerror = function(e) {
@@ -2437,11 +2478,11 @@
             chatMessages = []; // Clear chat history
             event.target.value = null; // Reset file input
             if (loadingSpinner) loadingSpinner.style.display = 'none'; // Ensure spinner hides on read error
-             initializeChat(); // Re-initialize chat display
+             // If file reading fails, keep current user info from URL
+             updateUIBasedOnAccess(); // Update chat status based on whatever user info is currently set
         };
         reader.readAsText(file); // Read the file as text
     }
-
     // --- Modals ---
     function initModals() {
         console.log("Initializing modals...");
