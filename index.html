@@ -1770,111 +1770,129 @@
         }
     }
     
-    function updateDebtsDisplay(data, totals) {
-        console.log("--- updateDebtsDisplay FUNCTION ENTERED ---");
-        console.log("--- updateDebtsDisplay START ---");
-        console.log("  Received data object:", data);
-        console.log("  Received totals object:", totals);
+     function updateDebtsDisplay(data, totals) {
+        console.log("--- updateDebtsDisplay FUNCTION ENTERED ---"); // Very first log inside {}
 
-        const debts = getSafe(() => data.userInput.debts, []); // Get debts array safely
-        console.log("  Parsed debts array:", debts);
-        console.log("  Is debts an array?", Array.isArray(debts));
-        console.log("  Debts array length:", debts.length);
+        try { // Wrap the main logic in try block
+            console.log("--- updateDebtsDisplay START ---");
+            console.log("  Received data object:", data);
+            console.log("  Received totals object:", totals);
 
-
-        const debtsTable = document.getElementById('debtsTable');
-        if (!debtsTable) {
-            console.error("Debt table element (#debtsTable) not found!");
-            // Still attempt to update totals even if table is missing
-             // Update totals using the calculated totals object - ensure totals exist and are valid
-            if (totals && typeof totals === 'object' && isFinite(totals.totalDebt) && isFinite(totals.totalMinPayments)) {
-                 updateElementText('totalDebtBalance', totals.totalDebt, formatCurrency);
-                 updateElementText('totalMinPayments', totals.totalMinPayments, formatCurrency);
-            } else {
-                 console.warn("Totals object invalid, skipping total debt display update.");
-                 updateElementText('totalDebtBalance', 'N/A');
-                 updateElementText('totalMinPayments', 'N/A');
-            }
-            console.log("--- updateDebtsDisplay END (Table not found) ---");
-            return; // Exit function if table is missing
-        }
-
-        const debtsTableBody = debtsTable.getElementsByTagName('tbody')[0];
-         if (!debtsTableBody) {
-             console.error("Debt table body element (tbody) not found inside #debtsTable!");
-             // Update totals even if tbody is missing
-             if (totals && typeof totals === 'object' && isFinite(totals.totalDebt) && isFinite(totals.totalMinPayments)) {
-                 updateElementText('totalDebtBalance', totals.totalDebt, formatCurrency);
-                 updateElementText('totalMinPayments', totals.totalMinPayments, formatCurrency);
-            } else {
-                 console.warn("Totals object invalid, skipping total debt display update.");
-                 updateElementText('totalDebtBalance', 'N/A');
-                 updateElementText('totalMinPayments', 'N/A');
-            }
-             console.log("--- updateDebtsDisplay END (Tbody not found) ---");
-             return; // Exit function if tbody is missing
-         }
-
-        console.log("  Debt table body found.");
-        debtsTableBody.innerHTML = ''; // Clear existing rows
-        console.log("  Cleared existing table rows.");
-
-        if (!Array.isArray(debts) || debts.length === 0) {
-            console.log("  No debt data or debts array is not an array. Displaying 'No debt information'.");
-            debtsTableBody.innerHTML = '<tr><td colspan="4" class="text-center text-gray-500 py-4">No debt information provided.</td></tr>';
-        } else {
-            console.log(`  Processing ${debts.length} debt items.`);
-            debts.forEach((debt, index) => {
-                console.log(`    Processing debt item ${index}:`, debt);
-                try {
-                    const row = debtsTableBody.insertRow();
-
-                    // Use getSafe for potentially missing debt properties
-                    const type = getSafe(() => debt.type, 'N/A');
-                    const balance = getSafe(() => debt.balance); // Use getSafe for balance
-                    const minPayment = getSafe(() => debt.minPayment); // Use getSafe for minPayment
-                    const interestRate = getSafe(() => debt.interestRate, 0); // Default rate to 0 if missing
-
-                    console.log(`      Values for row ${index}:`, { type, balance, minPayment, interestRate });
-                    console.log(`      Formatted values:`, {
-                         balance: formatCurrency(balance),
-                         minPayment: formatCurrency(minPayment),
-                         interestRate: (Number(interestRate)).toFixed(1) + '%'
-                    });
+            const debts = getSafe(() => data.userInput.debts, []); // Get debts array safely
+            console.log("  Parsed debts array:", debts);
+            console.log("  Is debts an array?", Array.isArray(debts));
+            console.log("  Debts array length:", debts.length);
 
 
-                    // Correctly map data to the appropriate columns and add CSS classes
-                    row.innerHTML = `
-                        <td>${type}</td>                                          <!-- Column 1: Type -->
-                        <td class="balance-col">${formatCurrency(balance)}</td>    <!-- Column 2: Balance -->
-                        <td class="rate-col">${(Number(interestRate)).toFixed(1)}%</td>    <!-- Column 3: Rate -->
-                        <td class="min-pmt-col">${formatCurrency(minPayment)}</td>    <!-- Column 4: Min Payment -->
-                    `;
-                     console.log(`      Row ${index} HTML set.`);
-                } catch (e) {
-                    console.error(`  Error adding debt row for item ${index}:`, debt, e);
-                    // Add an error row if processing a specific debt item fails
-                    const row = debtsTableBody.insertRow();
-                     row.innerHTML = `<td colspan="4" class="text-center text-red-500">Error displaying data for this debt item.</td>`;
+            const debtsTable = document.getElementById('debtsTable');
+            if (!debtsTable) {
+                console.error("Debt table element (#debtsTable) not found!");
+                // Still attempt to update totals even if table is missing
+                 // Update totals using the calculated totals object - ensure totals exist and are valid
+                if (totals && typeof totals === 'object' && isFinite(totals.totalDebt) && isFinite(totals.totalMinPayments)) {
+                     updateElementText('totalDebtBalance', totals.totalDebt, formatCurrency);
+                     updateElementText('totalMinPayments', totals.totalMinPayments, formatCurrency);
+                } else {
+                     console.warn("Totals object invalid, skipping total debt display update.");
+                     updateElementText('totalDebtBalance', 'N/A');
+                     updateElementText('totalMinPayments', 'N/A');
                 }
-            });
-             console.log("  Finished processing debt items.");
-        }
+                console.log("--- updateDebtsDisplay END (Table not found) ---");
+                return; // Exit function if table is missing
+            }
 
-        // Update totals using the calculated totals object - ensure totals exist and are valid
-        if (totals && typeof totals === 'object' && isFinite(totals.totalDebt) && isFinite(totals.totalMinPayments)) {
-            console.log("  Updating total debt elements:", { totalDebt: totals.totalDebt, totalMinPayments: totals.totalMinPayments });
-             updateElementText('totalDebtBalance', totals.totalDebt, formatCurrency);
-             updateElementText('totalMinPayments', totals.totalMinPayments, formatCurrency);
-        } else {
-             console.warn("  Totals object invalid or missing, skipping total debt display update.");
+            const debtsTableBody = debtsTable.getElementsByTagName('tbody')[0];
+             if (!debtsTableBody) {
+                 console.error("Debt table body element (tbody) not found inside #debtsTable!");
+                 // Update totals even if tbody is missing
+                 if (totals && typeof totals === 'object' && isFinite(totals.totalDebt) && isFinite(totals.totalMinPayments)) {
+                     updateElementText('totalDebtBalance', totals.totalDebt, formatCurrency);
+                     updateElementText('totalMinPayments', totals.totalMinPayments, formatCurrency);
+                } else {
+                     console.warn("Totals object invalid, skipping total debt display update.");
+                     updateElementText('totalDebtBalance', 'N/A');
+                     updateElementText('totalMinPayments', 'N/A');
+                }
+                 console.log("--- updateDebtsDisplay END (Tbody not found) ---");
+                 return; // Exit function if tbody is missing
+             }
+
+            console.log("  Debt table body found.");
+            debtsTableBody.innerHTML = ''; // Clear existing rows
+            console.log("  Cleared existing table rows.");
+
+            if (!Array.isArray(debts) || debts.length === 0) {
+                console.log("  No debt data or debts array is not an array. Displaying 'No debt information'.");
+                debtsTableBody.innerHTML = '<tr><td colspan="4" class="text-center text-gray-500 py-4">No debt information provided.</td></tr>';
+            } else {
+                console.log(`  Processing ${debts.length} debt items.`);
+                debts.forEach((debt, index) => {
+                    console.log(`    Processing debt item ${index}:`, debt);
+                    // Inner try/catch already exists here for individual rows - keep it
+
+                    try { // Existing inner try block
+                        const row = debtsTableBody.insertRow();
+
+                        // Use getSafe for potentially missing debt properties
+                        const type = getSafe(() => debt.type, 'N/A');
+                        const balance = getSafe(() => debt.balance); // Use getSafe for balance
+                        const minPayment = getSafe(() => debt.minPayment); // Use getSafe for minPayment
+                        const interestRate = getSafe(() => debt.interestRate, 0); // Default rate to 0 if missing
+
+                        console.log(`      Values for row ${index}:`, { type, balance, minPayment, interestRate });
+                        console.log(`      Formatted values:`, {
+                             balance: formatCurrency(balance),
+                             minPayment: formatCurrency(minPayment),
+                             interestRate: (Number(interestRate)).toFixed(1) + '%'
+                        });
+
+
+                        // Correctly map data to the appropriate columns and add CSS classes
+                        row.innerHTML = `
+                            <td>${type}</td>                                          <!-- Column 1: Type -->
+                            <td class="balance-col">${formatCurrency(balance)}</td>    <!-- Column 2: Balance -->
+                            <td class="rate-col">${(Number(interestRate)).toFixed(1)}%</td>    <!-- Column 3: Rate -->
+                            <td class="min-pmt-col">${formatCurrency(minPayment)}</td>    <!-- Column 4: Min Payment -->
+                        `;
+                         console.log(`      Row ${index} HTML set.`);
+                    } catch (e) { // Existing inner catch block
+                        console.error(`  Error adding debt row for item ${index}:`, debt, e);
+                        // Add an error row if processing a specific debt item fails
+                        const row = debtsTableBody.insertRow();
+                         row.innerHTML = `<td colspan="4" class="text-center text-red-500">Error displaying data for this debt item.</td>`;
+                    }
+                });
+                 console.log("  Finished processing debt items.");
+            }
+
+            // Update totals using the calculated totals object - ensure totals exist and are valid
+            if (totals && typeof totals === 'object' && isFinite(totals.totalDebt) && isFinite(totals.totalMinPayments)) {
+                console.log("  Updating total debt elements:", { totalDebt: totals.totalDebt, totalMinPayments: totals.totalMinPayments });
+                 updateElementText('totalDebtBalance', totals.totalDebt, formatCurrency);
+                 updateElementText('totalMinPayments', totals.totalMinPayments, formatCurrency);
+            } else {
+                 console.warn("  Totals object invalid or missing, skipping total debt display update.");
+                 updateElementText('totalDebtBalance', 'N/A');
+                 updateElementText('totalMinPayments', 'N/A');
+            }
+             console.log("--- updateDebtsDisplay END ---"); // Last log before function exits normally
+
+        } catch (outerError) { // Outer catch block
+            console.error("--- updateDebtsDisplay OUTER CATCH ERROR ---", outerError);
+            // Optionally display a generic error message in the table body if it wasn't cleared
+            if(debtsTableBody && debtsTableBody.innerHTML === '') {
+                 debtsTableBody.innerHTML = '<tr><td colspan="4" class="text-center text-red-500 py-4">Error loading debt data. Check console.</td></tr>';
+            } else if (debtsTableBody && debtsTableBody.innerHTML.includes('Loading debt data')) {
+                // If still showing "Loading...", replace it
+                 debtsTableBody.innerHTML = '<tr><td colspan="4" class="text-center text-red-500 py-4">Error loading debt data. Check console.</td></tr>';
+            }
+             // Update totals to N/A on error
              updateElementText('totalDebtBalance', 'N/A');
              updateElementText('totalMinPayments', 'N/A');
         }
-         console.log("--- updateDebtsDisplay END ---");
-    }
-
-    function renderCharts(data) {
+        // Function implicitly ends here if no outer catch error, or returns above
+         console.log("--- updateDebtsDisplay FUNCTION EXIT ---"); // Log right before the function truly exits
+    }    function renderCharts(data) {
         console.log("Rendering charts...");
         // Check if Plotly library is loaded
         if (typeof Plotly === 'undefined') {
