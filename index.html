@@ -1965,37 +1965,31 @@
         // Function implicitly ends here if no outer catch error, or returns above
          console.log("--- updateDebtsDisplay FUNCTION EXIT ---"); // Log right before the function truly exits
     }    
+    
     function renderCharts(data) {
-        console.log("Rendering charts...");
+        console.log("--- renderCharts START ---");
+        console.log("  Received data object for charts:", data);
+
         // Check if Plotly library is loaded
         if (typeof Plotly === 'undefined') {
-            console.error("Plotly library not found. Cannot render charts.");
+            console.error("  Plotly library not found. Cannot render charts.");
             const incomeChartDiv = document.getElementById('incomeChart');
             const expenseChartDiv = document.getElementById('expenseChart');
             if(incomeChartDiv) incomeChartDiv.innerHTML = '<p class="text-red-600 text-center p-4">Error: Plotly library not loaded.</p>';
             if(expenseChartDiv) expenseChartDiv.innerHTML = '<p class="text-red-600 text-center p-4">Error: Plotly library not loaded.</p>';
+            console.log("--- renderCharts END (Plotly not loaded) ---");
             return; // Exit function
         }
+        console.log("  Plotly library found.");
 
-        // --- Function to handle window resize and redraw charts --- // Optional comment
-function handleResize() { // <-- PASTE THE handleResize FUNCTION DEFINITION STARTING HERE
-    // Get references to the chart divs
-    const incomeChartDiv = document.getElementById('incomeChart');
-    const expenseChartDiv = document.getElementById('expenseChart');
-
-    // Check if Plotly and the chart divs exist, then redraw
-    if (typeof Plotly !== 'undefined' && incomeChartDiv && incomeChartDiv.data) {
-        Plotly.relayout(incomeChartDiv, { autosize: true });
-    }
-    if (typeof Plotly !== 'undefined' && expenseChartDiv && expenseChartDiv.data) {
-        Plotly.relayout(expenseChartDiv, { autosize: true });
-    }
-     console.log("Window resized, attempting to redraw charts.");
-}
 
         try {
             const incomeData = getSafe(() => data.userInput.income, {});
             const expenseData = getSafe(() => data.userInput.expenses, {});
+
+            console.log("  Parsed income data:", incomeData);
+            console.log("  Parsed expense data:", expenseData);
+
 
             // --- Filter and prepare income labels/values ---
             const incomeLabels = [];
@@ -2003,12 +1997,12 @@ function handleResize() { // <-- PASTE THE handleResize FUNCTION DEFINITION STAR
             Object.entries(incomeData).forEach(([key, value]) => {
                 const numValue = Number(getSafe(() => value)); // Use getSafe for value
                 if (numValue > 0) {
-                    // Convert camelCase to Title Case for labels
                     let label = key.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase());
                     incomeLabels.push(label);
                     incomeValues.push(numValue);
                 }
             });
+            console.log("  Prepared income data for chart:", { labels: incomeLabels, values: incomeValues });
 
             // --- Filter and prepare expense labels/values ---
             const expenseLabels = [];
@@ -2017,26 +2011,23 @@ function handleResize() { // <-- PASTE THE handleResize FUNCTION DEFINITION STAR
                 const numValue = Number(getSafe(() => value)); // Use getSafe for value
                 if (numValue > 0) {
                     let label = key.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase());
-                    // Handle specific case like 'Groceries Essentials' if needed
                     if (key === 'groceriesEssentials') label = 'Groceries/Essentials';
                     expenseLabels.push(label);
                     expenseValues.push(numValue);
                 }
             });
+             console.log("  Prepared expense data for chart:", { labels: expenseLabels, values: expenseValues });
 
-            // Debug logs for label/value arrays
-            console.log("Income Chart Data:", { labels: incomeLabels, values: incomeValues });
-            console.log("Expense Chart Data:", { labels: expenseLabels, values: expenseValues });
 
             const incomeChartDiv = document.getElementById('incomeChart');
             const expenseChartDiv = document.getElementById('expenseChart');
 
+             console.log("  Found chart divs:", { incomeChartDiv: !!incomeChartDiv, expenseChartDiv: !!expenseChartDiv });
+
             // Common layout adjustments for Pie charts
             const commonPieLayout = {
-                // Keep autosize: true
-                autosize: true,
-                // Set outer margins to 0, padding controlled by container CSS
-                margin: { l: 0, r: 0, b: 0, t: 0 }, // Remove pad: 15 here
+                autosize: true, // Use autosize: true
+                margin: { l: 0, r: 0, b: 0, t: 0 }, // Set outer margins to 0
                 showlegend: true,
                 legend: {
                     orientation: "h",
@@ -2050,38 +2041,58 @@ function handleResize() { // <-- PASTE THE handleResize FUNCTION DEFINITION STAR
                     font: { family: 'Inter, sans-serif', size: 12 }
                  }
             };
+             console.log("  Common Pie Layout:", commonPieLayout);
+
+            // Plotly config
+             const plotlyConfig = {
+                 displaylogo: false,
+                 responsive: true, // Ensure responsive is true in config
+                 modeBarButtonsToRemove: ['sendDataToCloud', 'select2d', 'lasso2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d', 'resetScale2d', 'hoverClosestPie', 'toggleSpikelines', 'hoverCompareCartesian']
+             };
+             console.log("  Plotly Config:", plotlyConfig);
+
 
             // Income Chart (Pie)
             if (incomeChartDiv) {
+                console.log("  Processing Income Chart.");
                 Plotly.purge(incomeChartDiv); // Clear previous chart first
                 if (incomeValues.length > 0) {
-                    const incomeTrace = [{ // Wrap trace in an array
+                    console.log("  Income data found, attempting to plot.");
+                    const incomeTrace = [{
                         values: incomeValues,
                         labels: incomeLabels,
                         type: 'pie',
                         hole: .4,
-                        hoverinfo: 'label+percent+value', // Show label, percentage, and value on hover
-                        textinfo: 'percent', // Show percentage on slice by default
-                        texttemplate: '%{percent}', // Format text as currency
-                        textposition: 'inside', // Position text inside slices
+                        hoverinfo: 'label+percent+value',
+                        textinfo: 'percent',
+                        texttemplate: '%{percent}',
+                        textposition: 'inside',
                         textfont_size: 11,
                         marker: {
-                            colors: ['#10b981', '#34d399', '#6ee7b7', '#a7f3d0', '#d1fae5'], // Example green shades
-                            line: { color: '#ffffff', width: 1 } // White line between slices
+                            colors: ['#10b981', '#34d399', '#6ee7b7', '#a7f3d0', '#d1fae5'],
+                            line: { color: '#ffffff', width: 1 }
                         },
-                        domain: { y: [0, 0.9] } // Add space at the top to avoid title overlap if needed
+                        domain: { y: [0, 1] } // Domain should cover full height [0, 1]
                     }];
-                    Plotly.newPlot(incomeChartDiv, incomeTrace, { ...commonPieLayout, title: { text: 'Income Sources', y:0.95, font: { size: 14, family: 'EB Garamond, serif', color: '#111827' } } }, plotlyConfig); // Added title font
+                    console.log("  Income Trace:", incomeTrace);
+                    Plotly.newPlot(incomeChartDiv, incomeTrace, { ...commonPieLayout, title: { text: 'Income Sources', y:0.98, font: { size: 14, family: 'EB Garamond, serif', color: '#111827' } } }, plotlyConfig)
+                        .then(() => { console.log("  Income Chart plotted successfully."); })
+                        .catch((plotErr) => { console.error("  Error during Income Plotly.newPlot:", plotErr); incomeChartDiv.innerHTML = `<p class="text-red-600 text-center p-4">Error plotting income chart:<br>${getSafe(() => plotErr.message, 'Unknown plot error')}</p>`; });
+
                 } else {
+                    console.log("  No income data to plot. Displaying message.");
                     incomeChartDiv.innerHTML = '<p class="text-center text-gray-500 pt-10">No income data to display.</p>';
                 }
-            } else { console.warn("Income chart div not found"); }
+            } else { console.error("  Income chart div (#incomeChart) not found."); }
+
 
             // Expense Chart (Pie)
             if (expenseChartDiv) {
+                 console.log("  Processing Expense Chart.");
                 Plotly.purge(expenseChartDiv); // Clear previous chart
                 if (expenseValues.length > 0) {
-                    const expenseTrace = [{ // Wrap trace in an array
+                    console.log("  Expense data found, attempting to plot.");
+                    const expenseTrace = [{
                         values: expenseValues,
                         labels: expenseLabels,
                         type: 'pie',
@@ -2091,28 +2102,33 @@ function handleResize() { // <-- PASTE THE handleResize FUNCTION DEFINITION STAR
                         texttemplate: '%{percent}',
                         textposition: 'inside',
                         textfont_size: 11,
-                        // Example color sequence for expenses
                         marker: {
-                            colors: ['#ef4444', '#f87171', '#fca5a5', '#fecaca', '#fb923c', '#fdba74', '#fed7aa', '#ffedd5', '#d1d5db', '#9ca3af', '#a78bfa', '#c4b5fd'], // More colors
+                            colors: ['#ef4444', '#f87171', '#fca5a5', '#fecaca', '#fb923c', '#fdba74', '#fed7aa', '#ffedd5', '#d1d5db', '#9ca3af', '#a78bfa', '#c4b5fd'],
                             line: { color: '#ffffff', width: 1 }
                         },
-                        domain: { y: [0, 0.9] }
+                        domain: { y: [0, 1] } // Domain should cover full height [0, 1]
                     }];
-                    Plotly.newPlot(expenseChartDiv, expenseTrace, { ...commonPieLayout, title: { text: 'Expense Categories', y:0.95, font: { size: 14, family: 'EB Garamond, serif', color: '#111827' } } }, plotlyConfig); // Added title font
+                     console.log("  Expense Trace:", expenseTrace);
+                    Plotly.newPlot(expenseChartDiv, expenseTrace, { ...commonPieLayout, title: { text: 'Expense Categories', y:0.98, font: { size: 14, family: 'EB Garamond, serif', color: '#111827' } } }, plotlyConfig)
+                        .then(() => { console.log("  Expense Chart plotted successfully."); })
+                        .catch((plotErr) => { console.error("  Error during Expense Plotly.newPlot:", plotErr); expenseChartDiv.innerHTML = `<p class="text-red-600 text-center p-4">Error plotting expense chart:<br>${getSafe(() => plotErr.message, 'Unknown plot error')}</p>`; });
+
                 } else {
+                    console.log("  No expense data to plot. Displaying message.");
                     expenseChartDiv.innerHTML = '<p class="text-center text-gray-500 pt-10">No expense data to display.</p>';
                 }
-            } else { console.warn("Expense chart div not found"); }
-             console.log("Charts rendering process completed.");
+            } else { console.error("  Expense chart div (#expenseChart) not found."); }
+
+             console.log("--- renderCharts END ---"); // Last log before function exits
         } catch (chartError) {
-            console.error("Error during Plotly rendering:", chartError);
+            console.error("--- renderCharts OUTER CATCH ERROR ---", chartError);
             // Display generic error in chart divs if a general error occurred above Plotly.newPlot
             const incomeChartDiv = document.getElementById('incomeChart');
             const expenseChartDiv = document.getElementById('expenseChart');
              if(incomeChartDiv) incomeChartDiv.innerHTML = `<p class="text-red-600 text-center p-4">Error loading chart.</p>`;
              if(expenseChartDiv) expenseChartDiv.innerHTML = `<p class="text-red-600 text-center p-4">Error loading chart.</p>`;
             // Rethrow the error so it can be caught by the caller in requestAnimationFrame
-            throw new Error(`Chart rendering failed: ${chartError.message}`);
+            // throw new Error(`Chart rendering failed: ${getSafe(() => chartError.message, 'Unknown error')}`); // Don't re-throw, just log
         }
     }
 
