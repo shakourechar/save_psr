@@ -1527,6 +1527,9 @@
                     // Display error within the chart divs
                     const incomeChartDiv = document.getElementById('incomeChart');
                     const expenseChartDiv = document.getElementById('expenseChart');
+                    incomeChartDiv.innerHTML  = '';
+                    expenseChartDiv.innerHTML = '';
+
                     if(incomeChartDiv) incomeChartDiv.innerHTML = `<p class="text-red-600 text-center p-4">Error loading income chart:<br>${getSafe(() => chartError.message, 'Unknown chart error')}</p>`;
                     if(expenseChartDiv) expenseChartDiv.innerHTML = `<p class="text-red-600 text-center p-4">Error loading expense chart:<br>${getSafe(() => chartError.message, 'Unknown chart error')}</p>`;
                 }
@@ -2026,14 +2029,14 @@
              console.log("  Found chart divs:", { incomeChartDiv: !!incomeChartDiv, expenseChartDiv: !!expenseChartDiv });
 
             // Common layout adjustments for Pie charts
-            const commonPieLayout = {
+          const commonPieLayout = {
     autosize: true,
-    margin: { l: 40, r: 40, b: 60, t: 80 },   // added breathing room
+    margin: { l: 40, r: 40, b: 60, t: 80 },   // extra space
     showlegend: true,
     legend: {
         orientation: "h",
         yanchor: "top",
-        y: -0.20,          // legend now sits below the chart
+        y: -0.20,                              // legend below the chart
         xanchor: "center",
         x: 0.5
     },
