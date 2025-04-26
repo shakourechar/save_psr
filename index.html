@@ -1200,7 +1200,7 @@
                 // Note: The backend function is the source of truth for tier/limit/model based on header.
                 // This fetch is primarily for displaying client-side usage info.
                 // We'll use the tier determined by XTL for the frontend UI and backend header.
-                const determinedLimit = (effectiveTier === 'pro') ? 500000 : 10000;
+                const determinedLimit = (effectiveTier === 'pro') ? 500000 : 15000;
 
                 const now = new Date();
                 const lastReset = data.last_token_reset ? new Date(data.last_token_reset) : null;
