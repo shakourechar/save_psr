@@ -1363,6 +1363,7 @@
 
     // This function now updates the chat status display info AND calls initializeChat
     // This function now updates the chat status display info AND calls initializeChat
+    // This function now updates the chat status display info AND calls initializeChat
     function updateUIBasedOnAccess() {
         console.log("Executing updateUIBasedOnAccess to update Tier/Usage display info START");
         console.log("  currentUserId:", currentUserId);
@@ -1379,6 +1380,7 @@
             modelDisplay: !!modelDisplay,
             usageDisplay: !!usageDisplay
         });
+
 
         // Default display values
         let tierText = 'Loading...'; // Use 'Loading...' as an explicit state
@@ -1441,8 +1443,15 @@
         if (modelDisplay) modelDisplay.textContent = modelText;
         else console.error("Chat model display element (#chatModelDisplay) not found - critical for status display."); // Changed warn to error
 
-        if (usageDisplay) usageDisplay.textContent = usageText;
-        else console.error("Chat usage display element (#chatUsageDisplay) not found - critical for status display."); // Changed warn to error
+        console.log("  Attempting to update Usage display with:", usageText); // <-- LOG BEFORE SETTING TEXT
+        if (usageDisplay) {
+            usageDisplay.textContent = usageText; // <-- This line updates the usage display
+            console.log("  Successfully updated Usage display."); // <-- LOG AFTER SETTING TEXT
+        } else {
+            console.error("Chat usage display element (#chatUsageDisplay) not found - critical for status display.");
+        }
+
+        console.log("  Finished updating chat status elements."); // <-- LOG AFTER ALL ELEMENTS ARE HANDLED
 
 
         // Update any pro-specific UI elements (e.g., buttons) based on the effectiveTier
@@ -2360,7 +2369,7 @@
 
 
         // --- Construct messages payload ---
-        const maxHistory = 10; // Keep recent messages + system message
+        const maxHistory = 6; // Keep recent messages + system message
         // Ensure recentMessages are actual message objects with role and content
         const recentMessages = chatMessages.slice(-maxHistory).filter(msg => msg && msg.role && msg.content);
         const systemMessage = {
