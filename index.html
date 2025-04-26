@@ -131,15 +131,17 @@
             overflow: hidden;
         }
         .chart-container-div {
-            min-height: 400px; /* Increased min-height to give more vertical room */
-            width: 100%;
-            flex-grow: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 15px; /* Increased padding slightly */
-            box-sizing: border-box;
-            overflow: hidden; /* Ensure anything outside padding is clipped by the card border */
+            min-height: 380px; /* Keep this height */
+            width: 100%; /* Keep width 100% */
+            flex-grow: 1; /* Allow it to grow in flex container */
+            display: flex; /* Keep flex display for centering */
+            align-items: center; /* Keep centering */
+            justify-content: center; /* Keep centering */
+            padding: 15px; /* Keep padding */
+            box-sizing: border-box; /* Keep box-sizing */
+            overflow: hidden; /* Keep overflow hidden */
+            /* Ensure no specific Plotly width/height overrides from parent */
+            position: relative; /* Add relative positioning if needed for Plotly */
         }
 
         /* Ratio Bar Styles */
@@ -1975,6 +1977,22 @@
             return; // Exit function
         }
 
+        // --- Function to handle window resize and redraw charts --- // Optional comment
+function handleResize() { // <-- PASTE THE handleResize FUNCTION DEFINITION STARTING HERE
+    // Get references to the chart divs
+    const incomeChartDiv = document.getElementById('incomeChart');
+    const expenseChartDiv = document.getElementById('expenseChart');
+
+    // Check if Plotly and the chart divs exist, then redraw
+    if (typeof Plotly !== 'undefined' && incomeChartDiv && incomeChartDiv.data) {
+        Plotly.relayout(incomeChartDiv, { autosize: true });
+    }
+    if (typeof Plotly !== 'undefined' && expenseChartDiv && expenseChartDiv.data) {
+        Plotly.relayout(expenseChartDiv, { autosize: true });
+    }
+     console.log("Window resized, attempting to redraw charts.");
+}
+
         try {
             const incomeData = getSafe(() => data.userInput.income, {});
             const expenseData = getSafe(() => data.userInput.expenses, {});
@@ -2014,22 +2032,23 @@
             const expenseChartDiv = document.getElementById('expenseChart');
 
             // Common layout adjustments for Pie charts
-        const commonPieLayout = {
-            // height: 350, // Removed
-            // margin: { t: 30, b: 60, l: 20, r: 20 }, // Removed
-            showlegend: true,
-            legend: {
-                orientation: "h", // Horizontal legend
-                yanchor: "bottom", y: -0.2, // Position below chart
-                xanchor: 'center', x: 0.5
-            },
-            paper_bgcolor: 'rgba(0,0,0,0)',
-            plot_bgcolor: 'rgba(0,0,0,0)',
-            font: { family: 'Inter, sans-serif', size: 11, color: '#374151' },
-             hoverlabel: {
-                font: { family: 'Inter, sans-serif', size: 12 }
-             }
-        };
+            const commonPieLayout = {
+                // Use autosize: true instead of fixed height/margin
+                autosize: true,
+                margin: { l: 0, r: 0, b: 0, t: 0, pad: 15 }, // Set margins to 0 and use padding for spacing
+                showlegend: true,
+                legend: {
+                    orientation: "h", // Horizontal legend
+                    yanchor: "bottom", y: -0.1, // Position below chart, slightly closer if margins are 0
+                    xanchor: 'center', x: 0.5
+                },
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                font: { family: 'Inter, sans-serif', size: 11, color: '#374151' },
+                 hoverlabel: {
+                    font: { family: 'Inter, sans-serif', size: 12 }
+                 }
+            };
 
             // Income Chart (Pie)
             if (incomeChartDiv) {
@@ -3217,6 +3236,8 @@ document.getElementById('generateAnalysisBtn')?.addEventListener('click', genera
             // The spinner hiding is now managed by the specific display paths (processAndDisplayData, handleError, showInitialPromptOrMessage).
             console.log("DOMContentLoaded finally block finished.");
         }
+         window.addEventListener('resize', handleResize); // <-- ADD THIS LINE HERE
+         console.log("Window resize listener added."); // <-- ADD THIS LOG HERE
     });
 </script>
 </body>
