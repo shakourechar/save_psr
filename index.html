@@ -197,7 +197,30 @@
              text-align: right; /* Align Min. Payment data right */
              font-weight: 700; /* Make Min. Payment data bold */
          }
-
+        /* Debt Table Styles */
+        #debtsTable { /* ... existing styles ... */ }
+        #debtsTable th, #debtsTable td { /* ... existing styles ... */ }
+        #debtsTable th {
+            font-weight: 500;
+            color: #6b7280;
+            background-color: #f9fafb;
+            text-align: left; /* Default header alignment (keep this) */
+            cursor: pointer;
+        }
+        /* --- ADD THESE NEW RULES --- */
+        #debtsTable th.balance-header {
+            text-align: right; /* Align Balance header right */
+        }
+        #debtsTable th.min-pmt-header {
+            text-align: right; /* Align Min. Pmt header right */
+        }
+        /* --- END NEW RULES --- */
+        #debtsTable tr:last-child td { /* ... existing styles ... */ }
+        #debtsTable td { /* ... existing styles ... */ }
+        #debtsTable td.balance-col { /* ... existing styles ... */ }
+        #debtsTable td.rate-col { /* ... existing styles ... */ }
+        #debtsTable td.min-pmt-col { /* ... existing styles ... */ }
+        
         /* Progress Bar Styles */
         .progress-bar-container { background-color: #e5e7eb; border-radius: 6px; overflow: hidden; height: 20px; margin-top: 5px; margin-bottom: 10px; }
         .progress-bar { background-color: #4f46e5; height: 100%; width: 0%; transition: width 0.5s ease-in-out; text-align: center; color: white; font-size: 0.8em; line-height: 20px; font-weight: 500; }
@@ -527,12 +550,12 @@
                 <h3 class="card-header">Debt Overview</h3>
                 <div class="card-content overflow-x-auto">
                     <table id="debtsTable">
-                        <thead>
+                      <thead>
                             <tr>
                                 <th>Type</th>
-                                <th data-desc="Total amount currently owed on this debt.">Balance</th>
+                                <th class="balance-header" data-desc="Total amount currently owed on this debt.">Balance</th> {/* Added class */}
                                 <th data-desc="Annual interest rate for this debt.">Rate (%)</th>
-                                <th data-desc="Minimum monthly payment required for this debt.">Min. Pmt</th>
+                                <th class="min-pmt-header" data-desc="Minimum monthly payment required for this debt.">Min. Pmt</th> {/* Added class */}
                             </tr>
                         </thead>
 
