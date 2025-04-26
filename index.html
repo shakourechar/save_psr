@@ -2027,21 +2027,22 @@
 
             // Common layout adjustments for Pie charts
             const commonPieLayout = {
-                autosize: true, // Use autosize: true
-                margin: { l: 0, r: 0, b: 0, t: 0 }, // Set outer margins to 0
-                showlegend: true,
-                legend: {
-                    orientation: "h",
-                    yanchor: "bottom", y: -0.1,
-                    xanchor: 'center', x: 0.5
-                },
-                paper_bgcolor: 'rgba(0,0,0,0)',
-                plot_bgcolor: 'rgba(0,0,0,0)',
-                font: { family: 'Inter, sans-serif', size: 11, color: '#374151' },
-                 hoverlabel: {
-                    font: { family: 'Inter, sans-serif', size: 12 }
-                 }
-            };
+    autosize: true,
+    margin: { l: 40, r: 40, b: 60, t: 80 },   // added breathing room
+    showlegend: true,
+    legend: {
+        orientation: "h",
+        yanchor: "top",
+        y: -0.20,          // legend now sits below the chart
+        xanchor: "center",
+        x: 0.5
+    },
+    paper_bgcolor: "rgba(0,0,0,0)",
+    plot_bgcolor: "rgba(0,0,0,0)",
+    font: { family: "Inter, sans-serif", size: 12, color: "#374151" },
+    hoverlabel: { font: { family: "Inter, sans-serif", size: 12 } }
+};
+
              console.log("  Common Pie Layout:", commonPieLayout);
 
             // Plotly config
@@ -2083,6 +2084,7 @@
                 } else {
                     console.log("  No income data to plot. Displaying message.");
                     incomeChartDiv.innerHTML = '<p class="text-center text-gray-500 pt-10">No income data to display.</p>';
+                    incomeChartDiv.innerHTML  = '';
                 }
             } else { console.error("  Income chart div (#incomeChart) not found."); }
 
@@ -2117,6 +2119,7 @@
                 } else {
                     console.log("  No expense data to plot. Displaying message.");
                     expenseChartDiv.innerHTML = '<p class="text-center text-gray-500 pt-10">No expense data to display.</p>';
+                    expenseChartDiv.innerHTML = '';
                 }
             } else { console.error("  Expense chart div (#expenseChart) not found."); }
 
