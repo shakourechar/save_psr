@@ -3294,6 +3294,70 @@ document.getElementById('generateAnalysisBtn')?.addEventListener('click', genera
          window.addEventListener('resize', handleResize); // <-- ADD THIS LINE HERE
          console.log("Window resize listener added."); // <-- ADD THIS LOG HERE
     });
+
+    const CLIENT_ID = '351536963710-k1tqdl2v9ddnnb1hgda4r4gm40kpu2sa.apps.googleusercontent.com';
+const SCOPES = 'https://www.googleapis.com/auth/drive.file';
+
+// Initialize GAPI on page load
+function initGapiClient() {
+    gapi.load('client:auth2', () => {
+        gapi.client.init({
+            clientId: CLIENT_ID,
+            scope: SCOPES
+        }).then(() => {
+            console.log('GAPI client initialized successfully ✅');
+
+            // Check sign-in status on load:
+            const isSignedIn = gapi.auth2.getAuthInstance().isSignedIn.get();
+            updateSignInStatus(isSignedIn);
+
+            // Listen for future sign-in changes:
+            gapi.auth2.getAuthInstance().isSignedIn.listen(updateSignInStatus);
+        }, (error) => {
+            console.error('Error initializing GAPI client:', error);
+        });
+    });
+}
+
+// Actual sign-in function triggered by the button:
+function authenticate() {
+    const authInstance = gapi.auth2.getAuthInstance();
+    if (!authInstance) {
+        console.error('Google Auth instance not initialized yet.');
+        return;
+    }
+    authInstance.signIn()
+        .then(() => {
+            console.log('User signed in successfully.');
+        })
+        .catch(err => {
+            console.error('Sign-in error:', err);
+        });
+}
+
+// Enable/disable Save button depending on login state:
+function updateSignInStatus(isSignedIn) {
+    const saveButton = document.getElementById('saveButton');
+    if (saveButton) {
+        saveButton.disabled = !isSignedIn;
+    }
+    if (isSignedIn) {
+        console.log('✅ User is signed in — Save to Drive is enabled.');
+    } else {
+        console.log('⛔ User is not signed in — Save button disabled.');
+    }
+}
+
+// Hook up the sign-in button after the page is fully loaded:
+document.addEventListener('DOMContentLoaded', () => {
+    initGapiClient();
+    const signInBtn = document.getElementById('googleSignInButton');
+    if (signInBtn) {
+        signInBtn.addEventListener('click', authenticate);
+    } else {
+        console.warn('Google Sign-In button not found.');
+    }
+});
 </script>
 
     <!-- Google Identity Services -->
