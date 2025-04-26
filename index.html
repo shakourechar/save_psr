@@ -148,6 +148,21 @@
             position: relative; /* Add relative positioning if needed for Plotly */
         }
 
+            #googleSignInButton {
+        background-color: #4285F4; /* Google blue */
+        color: white;
+        border: none;
+        padding: 10px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+        margin-right: 10px;
+    }
+
+    #googleSignInButton:hover {
+        background-color: #3367D6;
+    }
+
         /* Ratio Bar Styles */
         .ratio-item { margin-bottom: 12px; }
         .ratio-label { display: block; font-weight: 500; margin-bottom: 3px; font-size: 0.9em; color: #4b5563; }
@@ -493,8 +508,9 @@
             <img src="https://static.wixstatic.com/media/c3283f_a9271d9818ba414994d98950da749489~mv2.jpg" alt="SmartWealth Navigator Logo">
             <h1>SmartWealth Navigator</h1>
             <input type="file" id="fileInput" accept=".json">
+            <button id="googleSignInButton">Sign in with Google</button>
             <button id="uploadButton">Upload PSR</button>
-            <button id="saveButton">Download PSR</button>
+            <button id="saveButton">Save PSR</button>
         </header>
 
         <div class="grid-container">
@@ -2530,43 +2546,42 @@
         sendToBackendChatFunction(); // Call backend function
     }
 
-    function initSaveButton() {
-        const saveButton = document.getElementById('saveButton');
-        if (!saveButton) { console.warn("Save button not found."); return; } // Changed to warn
-        saveButton.addEventListener('click', () => {
-            if (!dashboardData || Object.keys(dashboardData).length === 0 || !dashboardData.userInput) {
-                alert("No report data available to save."); return;
-            }
-            try {
-                // Create a deep copy to avoid modifying the original object
-                const dataToSave = JSON.parse(JSON.stringify(dashboardData));
-
-                // Add chat history to the saved data
-                dataToSave.chatHistory = chatMessages;
-
-                // Add a timestamp and potentially user/tier info to the saved data
-                dataToSave.savedAt = new Date().toISOString();
-                if(currentUserId) dataToSave.userId = currentUserId;
-                if(effectiveTier) dataToSave.userTier = effectiveTier;
-                 if(initialUsageInfo) dataToSave.usageInfoAtSave = initialUsageInfo; // Save usage state
-
-
-                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataToSave, null, 2)); // Pretty print JSON
-                const a = document.createElement('a');
-                a.href = dataStr;
-                // Sanitize username for filename
-                const filenameUser = getSafe(() => dataToSave.userInput.personalInfo.userName.replace(/[^a-z0-9]/gi, '_').toLowerCase(), 'user');
-                const dateStamp = new Date().toISOString().slice(0,10); // YYYY-MM-DD
-                a.download = `financial_report_${filenameUser}_${dateStamp}.json`;
-                document.body.appendChild(a); // Required for Firefox
-                a.click();
-                document.body.removeChild(a); // Clean up
-            } catch (saveError) {
-                console.error("Error creating save data:", saveError);
-                handleError("Error saving file", saveError); // Use central error handler
-            }
-        });
+function initSaveButton() {
+    const saveButton = document.getElementById('saveButton');
+    if (!saveButton) { 
+        console.warn("Save button not found."); 
+        return; 
     }
+
+    saveButton.addEventListener('click', () => {
+        if (!dashboardData || Object.keys(dashboardData).length === 0 || !dashboardData.userInput) {
+            alert("No report data available to save."); 
+            return;
+        }
+
+        try {
+            // ✅ Prepare the data to save (same as before)
+            const dataToSave = JSON.parse(JSON.stringify(dashboardData));
+            dataToSave.chatHistory = chatMessages;
+            dataToSave.savedAt = new Date().toISOString();
+            if (currentUserId) dataToSave.userId = currentUserId;
+            if (effectiveTier) dataToSave.userTier = effectiveTier;
+            if (initialUsageInfo) dataToSave.usageInfoAtSave = initialUsageInfo;
+
+            // ✅ These two lines were missing:
+            const filenameUser = getSafe(() => dataToSave.userInput.personalInfo.userName.replace(/[^a-z0-9]/gi, '_').toLowerCase(), 'user');
+            const dateStamp = new Date().toISOString().slice(0,10); // YYYY-MM-DD
+            const fileName = `financial_report_${filenameUser}_${dateStamp}.json`;
+
+            // ✅ Call your new Google Drive upload function here:
+            uploadPSRtoDrive(dataToSave, fileName);
+
+        } catch (saveError) {
+            console.error("Error creating save data:", saveError);
+            handleError("Error saving file", saveError);
+        }
+    });
+}
 
     function initUploadButton() {
         // This initializes BOTH the header upload button and the initial prompt button (if present)
@@ -3280,5 +3295,11 @@ document.getElementById('generateAnalysisBtn')?.addEventListener('click', genera
          console.log("Window resize listener added."); // <-- ADD THIS LOG HERE
     });
 </script>
+
+    <!-- Google Identity Services -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<!-- Google API Client -->
+<script src="https://apis.google.com/js/api.js"></script>
+
 </body>
 </html>
