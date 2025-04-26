@@ -155,40 +155,57 @@
         .ratio-bar.dti-ratio.high { background-color: #ef4444; }
 
         /* Debt Table Styles */
-        #debtsTable { width: 100%; margin-top: 10px; border-collapse: collapse; }
+        #debtsTable {
+            width: 100%;
+            margin-top: 10px;
+            border-collapse: collapse;
+            border: 1px solid #d1d5db; /* Add a light outer border */
+            border-radius: 8px; /* Optional: soften corners */
+            overflow: hidden; /* Helps with border-radius */
+        }
         /* Shared styles for headers and data cells */
         #debtsTable th, #debtsTable td {
-            padding: 8px 5px;
-            border-bottom: 1px solid #f3f4f6;
-            font-size: 0.9em;
+            padding: 8px 12px; /* Increased padding slightly for better spacing */
+            border-bottom: 1px solid #e5e7eb; /* Keep bottom border */
+            border-right: 1px solid #e5e7eb; /* Add vertical borders */
+            font-size: 0.9em; /* Keep same font size for both headers and data */
+            /* Remove default text-align here to control per column/header */
         }
-        /* Header styles */
-        #debtsTable th {
-            font-weight: 500;
-            color: #6b7280;
-            background-color: #f9fafb;
-            text-align: left; /* Default header alignment */
-             cursor: pointer; /* Indicate clickable for popups */
-        }
-        #debtsTable tr:last-child td {
-            border-bottom: none;
+        /* Remove right border from the last column */
+        #debtsTable th:last-child,
+        #debtsTable td:last-child {
+            border-right: none;
         }
 
-        /* Data cell default alignment (most columns left) and font weight */
+        /* Header styles */
+        #debtsTable th {
+            font-weight: 700; /* Make headers bold */
+            color: #374151; /* Set header color */
+            background-color: #f9fafb;
+            text-align: left; /* Default header alignment (keep this) */
+            cursor: pointer; /* Indicate clickable for popups */
+        }
+        /* Align specific headers right to match data */
+         #debtsTable th.balance-header,
+         #debtsTable th.min-pmt-header {
+             text-align: right;
+         }
+
+        #debtsTable tr:last-child td {
+            border-bottom: none; /* Remove bottom border from the last row */
+        }
+
+        /* Data cell default alignment (most columns left, normal weight) */
         #debtsTable td {
             text-align: left;
-            font-weight: normal; /* Ensure data is not bold by default */
+            font-weight: normal;
         }
 
         /* Specific data column styling for alignment and bolding */
-       #debtsTable td.balance-col {
-     text-align: right;
-     font-weight: 700;
-     color: blue !important; /* <-- Add this temporarily */
-     opacity: 1 !important; /* <-- Add this temporarily */
-     visibility: visible !important; /* <-- Add this temporarily */
-     display: table-cell !important; /* <-- Add this temporarily */
-      }
+        #debtsTable td.balance-col {
+             text-align: right; /* Align Balance data right */
+             font-weight: 700; /* Make Balance data bold */
+        }
          #debtsTable td.rate-col {
              /* text-align: left; is default td alignment */
              font-weight: 700; /* Make Rate data bold */
@@ -197,6 +214,7 @@
              text-align: right; /* Align Min. Payment data right */
              font-weight: 700; /* Make Min. Payment data bold */
          }
+
         /* Debt Table Styles */
         #debtsTable { /* ... existing styles ... */ }
         #debtsTable th, #debtsTable td { /* ... existing styles ... */ }
@@ -553,9 +571,9 @@
                       <thead>
                             <tr>
                                 <th>Type</th>
-                                <th class="balance-header" data-desc="Total amount currently owed on this debt.">Balance</th> {/* Added class */}
+                                <th class="balance-header" data-desc="Total amount currently owed on this debt.">Balance</th> 
                                 <th data-desc="Annual interest rate for this debt.">Rate (%)</th>
-                                <th class="min-pmt-header" data-desc="Minimum monthly payment required for this debt.">Min. Pmt</th> {/* Added class */}
+                                <th class="min-pmt-header" data-desc="Minimum monthly payment required for this debt.">Min. Pmt</th> 
                             </tr>
                         </thead>
 
