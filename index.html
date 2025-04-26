@@ -3320,50 +3320,38 @@ function initGapiClient() {
 }
 
 // Actual sign-in function triggered by the button:
+const CLIENT_ID = '351536963710-k1tqdl2v9ddnnb1hgda4r4gm40kpu2sa.apps.googleusercontent.com';
+const SCOPES = 'https://www.googleapis.com/auth/drive.file';
+
+let accessToken = null;
+
 function authenticate() {
-    const authInstance = gapi.auth2.getAuthInstance();
-    if (!authInstance) {
-        console.error('Google Auth instance not initialized yet.');
-        return;
-    }
-    authInstance.signIn()
-        .then(() => {
-            console.log('User signed in successfully.');
-        })
-        .catch(err => {
-            console.error('Sign-in error:', err);
-        });
+    google.accounts.oauth2.initTokenClient({
+        client_id: CLIENT_ID,
+        scope: SCOPES,
+        callback: (response) => {
+            if (response.error) {
+                console.error('OAuth error:', response);
+                return;
+            }
+            console.log('✅ Signed in successfully, access token:', response.access_token);
+            accessToken = response.access_token;
+            enableSaveButton();  // Enable your save button here after login
+        }
+    }).requestAccessToken();
 }
 
-// Enable/disable Save button depending on login state:
-function updateSignInStatus(isSignedIn) {
+function enableSaveButton() {
     const saveButton = document.getElementById('saveButton');
     if (saveButton) {
-        saveButton.disabled = !isSignedIn;
+        saveButton.disabled = false;
     }
-    if (isSignedIn) {
-        console.log('✅ User is signed in — Save to Drive is enabled.');
-    } else {
-        console.log('⛔ User is not signed in — Save button disabled.');
-    }
+    console.log('✅ Save button is now enabled.');
 }
-
-// Hook up the sign-in button after the page is fully loaded:
-document.addEventListener('DOMContentLoaded', () => {
-    initGapiClient();
-    const signInBtn = document.getElementById('googleSignInButton');
-    if (signInBtn) {
-        signInBtn.addEventListener('click', authenticate);
-    } else {
-        console.warn('Google Sign-In button not found.');
-    }
-});
 </script>
 
     <!-- Google Identity Services -->
 <script src="https://accounts.google.com/gsi/client" async defer></script>
-<!-- Google API Client -->
-<script src="https://apis.google.com/js/api.js"></script>
 
 </body>
 </html>
