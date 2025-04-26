@@ -95,8 +95,10 @@
             background: #fff;
             padding: 1.5rem;
             border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            border: 1px solid #e5e7eb;
+            /* Updated Shadow for more prominence */
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            /* Slightly darker border */
+            border: 1px solid #d1d5db; /* Using a slightly darker gray than #e5e7eb */
             display: flex;
             flex-direction: column;
             min-height: 160px;
@@ -129,14 +131,15 @@
             overflow: hidden;
         }
         .chart-container-div {
-            min-height: 350px;
+            min-height: 400px; /* Increased min-height to give more vertical room */
             width: 100%;
             flex-grow: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 10px; /* ADDED padding to give the chart space */
-            box-sizing: border-box; /* Ensure padding doesn't increase total width */
+            padding: 15px; /* Increased padding slightly */
+            box-sizing: border-box;
+            overflow: hidden; /* Ensure anything outside padding is clipped by the card border */
         }
 
         /* Ratio Bar Styles */
@@ -156,7 +159,7 @@
         .ratio-bar.dti-ratio.warning { background-color: #f59e0b; }
         .ratio-bar.dti-ratio.high { background-color: #ef4444; }
 
-        /* Debt Table Styles */
+         /* Debt Table Styles */
         #debtsTable {
             width: 100%;
             margin-top: 10px;
@@ -168,8 +171,8 @@
         /* Shared styles for headers and data cells */
         #debtsTable th, #debtsTable td {
             padding: 8px 12px; /* Increased padding slightly for better spacing */
-            border-bottom: 1px solid #e5e7eb; /* Keep bottom border */
-            border-right: 1px solid #e5e7eb; /* Add vertical borders */
+            border-bottom: 1px solid #e5e7eb; /* Keep bottom border between rows */
+            border-right: 1px solid #e5e7eb; /* Add vertical borders between columns */
             font-size: 0.9em; /* Keep same font size for both headers and data */
             /* Remove default text-align here to control per column/header */
         }
@@ -178,6 +181,11 @@
         #debtsTable td:last-child {
             border-right: none;
         }
+        /* Remove bottom border from the last row */
+        #debtsTable tbody tr:last-child td {
+             border-bottom: none;
+        }
+
 
         /* Header styles */
         #debtsTable th {
@@ -193,17 +201,13 @@
              text-align: right;
          }
 
-        #debtsTable tr:last-child td {
-            border-bottom: none; /* Remove bottom border from the last row */
-        }
-
         /* Data cell default alignment (most columns left, normal weight) */
         #debtsTable td {
             text-align: left;
             font-weight: normal;
         }
 
-        /* Specific data column styling for alignment and bolding */
+        /* Specific data column styling for alignment and bolding (set by JS adding these classes) */
         #debtsTable td.balance-col {
              text-align: right; /* Align Balance data right */
              font-weight: 700; /* Make Balance data bold */
@@ -2010,23 +2014,22 @@
             const expenseChartDiv = document.getElementById('expenseChart');
 
             // Common layout adjustments for Pie charts
-            const commonPieLayout = {
-                height: 350, // Reduced height slightly
-                margin: { t: 30, b: 60, l: 20, r: 20 }, // Adjusted margins (less top, more bottom for legend)
-                showlegend: true,
-                legend: {
-                    orientation: "h", // Horizontal legend
-                    yanchor: "bottom", y: -0.2, // Position below chart
-                    xanchor: 'center', x: 0.5
-                },
-                paper_bgcolor: 'rgba(0,0,0,0)', // Transparent background
-                plot_bgcolor: 'rgba(0,0,0,0)',
-                font: { family: 'Inter, sans-serif', size: 11, color: '#374151' }, // Match page font
-                 hoverlabel: { // Improve hover label font
-                    font: { family: 'Inter, sans-serif', size: 12 }
-                 }
-            };
-
+        const commonPieLayout = {
+            // height: 350, // Removed
+            // margin: { t: 30, b: 60, l: 20, r: 20 }, // Removed
+            showlegend: true,
+            legend: {
+                orientation: "h", // Horizontal legend
+                yanchor: "bottom", y: -0.2, // Position below chart
+                xanchor: 'center', x: 0.5
+            },
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            plot_bgcolor: 'rgba(0,0,0,0)',
+            font: { family: 'Inter, sans-serif', size: 11, color: '#374151' },
+             hoverlabel: {
+                font: { family: 'Inter, sans-serif', size: 12 }
+             }
+        };
 
             // Income Chart (Pie)
             if (incomeChartDiv) {
