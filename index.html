@@ -2225,8 +2225,10 @@
     function autoGrowTextarea(event) {
         const textarea = event.target;
         textarea.style.height = 'auto'; // Temporarily shrink to base height
-        // Set height based on scroll height, but limit max height
-        textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px'; // Max height e.g., 120px
+        // Calculate the desired height: at least 88px, based on scrollHeight, max 120px
+        const minHeight = 88; // Define minimum height here
+        const maxHeight = 120; // Define maximum height here (matches CSS)
+        textarea.style.height = Math.min(Math.max(textarea.scrollHeight, minHeight), maxHeight) + 'px'; // <-- MODIFIED CALCULATION
     }
 
     function enableChatInput(enabled) {
