@@ -1967,161 +1967,155 @@
          console.log("--- updateDebtsDisplay FUNCTION EXIT ---"); // Log right before the function truly exits
     }    
     
-    function renderCharts(data) {
-        console.log("--- renderCharts START ---");
-        console.log("  Received data object for charts:", data);
+function renderCharts(data) {
+    console.log("--- renderCharts START ---");
+    console.log("  Received data object for charts:", data);
 
-        // Check if Plotly library is loaded
-        if (typeof Plotly === 'undefined') {
-            console.error("  Plotly library not found. Cannot render charts.");
-            const incomeChartDiv = document.getElementById('incomeChart');
-            const expenseChartDiv = document.getElementById('expenseChart');
-            if(incomeChartDiv) incomeChartDiv.innerHTML = '<p class="text-red-600 text-center p-4">Error: Plotly library not loaded.</p>';
-            if(expenseChartDiv) expenseChartDiv.innerHTML = '<p class="text-red-600 text-center p-4">Error: Plotly library not loaded.</p>';
-            console.log("--- renderCharts END (Plotly not loaded) ---");
-            return; // Exit function
+    if (typeof Plotly === 'undefined') {
+        console.error("  Plotly library not found. Cannot render charts.");
+        const incomeChartDiv = document.getElementById('incomeChart');
+        const expenseChartDiv = document.getElementById('expenseChart');
+        if (incomeChartDiv) incomeChartDiv.innerHTML = '<p class="text-red-600 text-center p-4">Error: Plotly library not loaded.</p>';
+        if (expenseChartDiv) expenseChartDiv.innerHTML = '<p class="text-red-600 text-center p-4">Error: Plotly library not loaded.</p>';
+        console.log("--- renderCharts END (Plotly not loaded) ---");
+        return;
+    }
+
+    console.log("  Plotly library found.");
+
+    const incomeData = getSafe(() => data.userInput.income, {});
+    const expenseData = getSafe(() => data.userInput.expenses, {});
+
+    console.log("  Parsed income data:", incomeData);
+    console.log("  Parsed expense data:", expenseData);
+
+    const incomeLabels = [];
+    const incomeValues = [];
+    Object.entries(incomeData).forEach(([key, value]) => {
+        const numValue = Number(getSafe(() => value));
+        if (numValue > 0) {
+            let label = key.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase());
+            incomeLabels.push(label);
+            incomeValues.push(numValue);
         }
-        console.log("  Plotly library found.");
+    });
 
+    const expenseLabels = [];
+    const expenseValues = [];
+    Object.entries(expenseData).forEach(([key, value]) => {
+        const numValue = Number(getSafe(() => value));
+        if (numValue > 0) {
+            let label = key.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase());
+            if (key === 'groceriesEssentials') label = 'Groceries/Essentials';
+            expenseLabels.push(label);
+            expenseValues.push(numValue);
+        }
+    });
 
-        try {
-            const incomeData = getSafe(() => data.userInput.income, {});
-            const expenseData = getSafe(() => data.userInput.expenses, {});
+    const incomeChartDiv = document.getElementById('incomeChart');
+    const expenseChartDiv = document.getElementById('expenseChart');
 
-            console.log("  Parsed income data:", incomeData);
-            console.log("  Parsed expense data:", expenseData);
+    const commonPieLayout = {
+        autosize: true,
+        margin: { l: 40, r: 40, b: 60, t: 80 },  // Adjusted margins for space
+        showlegend: true,
+        legend: {
+            orientation: "h",
+            yanchor: "top",
+            y: -0.2,                         // Moves legend below the chart
+            xanchor: 'center',
+            x: 0.5
+        },
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        plot_bgcolor: 'rgba(0,0,0,0)',
+        font: { family: 'Inter, sans-serif', size: 12, color: '#374151' },
+        hoverlabel: { font: { family: 'Inter, sans-serif', size: 12 } }
+    };
 
+    const plotlyConfig = {
+        displaylogo: false,
+        responsive: true,
+        modeBarButtonsToRemove: ['sendDataToCloud', 'select2d', 'lasso2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d', 'resetScale2d', 'hoverClosestPie', 'toggleSpikelines', 'hoverCompareCartesian']
+    };
 
-            // --- Filter and prepare income labels/values ---
-            const incomeLabels = [];
-            const incomeValues = [];
-            Object.entries(incomeData).forEach(([key, value]) => {
-                const numValue = Number(getSafe(() => value)); // Use getSafe for value
-                if (numValue > 0) {
-                    let label = key.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase());
-                    incomeLabels.push(label);
-                    incomeValues.push(numValue);
+    // ✅ Clear "Chart loading..." BEFORE rendering
+    if (incomeChartDiv) incomeChartDiv.innerHTML = '';
+    if (expenseChartDiv) expenseChartDiv.innerHTML = '';
+
+    // --- Income Chart ---
+    if (incomeChartDiv) {
+        Plotly.purge(incomeChartDiv);
+        if (incomeValues.length > 0) {
+            const incomeTrace = [{
+                values: incomeValues,
+                labels: incomeLabels,
+                type: 'pie',
+                hole: .4,
+                hoverinfo: 'label+percent+value',
+                textinfo: 'percent',
+                texttemplate: '%{percent}',
+                textposition: 'inside',
+                textfont_size: 11,
+                marker: {
+                    colors: ['#10b981', '#34d399', '#6ee7b7', '#a7f3d0', '#d1fae5'],
+                    line: { color: '#ffffff', width: 1 }
                 }
-            });
-            console.log("  Prepared income data for chart:", { labels: incomeLabels, values: incomeValues });
-
-            // --- Filter and prepare expense labels/values ---
-            const expenseLabels = [];
-            const expenseValues = [];
-            Object.entries(expenseData).forEach(([key, value]) => {
-                const numValue = Number(getSafe(() => value)); // Use getSafe for value
-                if (numValue > 0) {
-                    let label = key.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase());
-                    if (key === 'groceriesEssentials') label = 'Groceries/Essentials';
-                    expenseLabels.push(label);
-                    expenseValues.push(numValue);
+            }];
+            Plotly.newPlot(incomeChartDiv, incomeTrace, { 
+                ...commonPieLayout, 
+                title: { 
+                    text: 'Income Sources', 
+                    y: 0.95, 
+                    x: 0.5, 
+                    xanchor: 'center', 
+                    yanchor: 'top',
+                    font: { size: 16, family: 'EB Garamond, serif', color: '#111827' }
                 }
-            });
-             console.log("  Prepared expense data for chart:", { labels: expenseLabels, values: expenseValues });
+            }, plotlyConfig);
+        } else {
+            incomeChartDiv.innerHTML = '<p class="text-center text-gray-500 pt-10">No income data to display.</p>';
+        }
+    }
 
-
-            const incomeChartDiv = document.getElementById('incomeChart');
-            const expenseChartDiv = document.getElementById('expenseChart');
-
-             console.log("  Found chart divs:", { incomeChartDiv: !!incomeChartDiv, expenseChartDiv: !!expenseChartDiv });
-
-            // Common layout adjustments for Pie charts
-            const commonPieLayout = {
-                autosize: true, // Use autosize: true
-                margin: { l: 0, r: 0, b: 0, t: 0 }, // Set outer margins to 0
-                showlegend: true,
-                legend: {
-                    orientation: "h",
-                    yanchor: "bottom", y: -0.1,
-                    xanchor: 'center', x: 0.5
-                },
-                paper_bgcolor: 'rgba(0,0,0,0)',
-                plot_bgcolor: 'rgba(0,0,0,0)',
-                font: { family: 'Inter, sans-serif', size: 11, color: '#374151' },
-                 hoverlabel: {
-                    font: { family: 'Inter, sans-serif', size: 12 }
-                 }
-            };
-             console.log("  Common Pie Layout:", commonPieLayout);
-
-            // Plotly config
-             const plotlyConfig = {
-                 displaylogo: false,
-                 responsive: true, // Ensure responsive is true in config
-                 modeBarButtonsToRemove: ['sendDataToCloud', 'select2d', 'lasso2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d', 'resetScale2d', 'hoverClosestPie', 'toggleSpikelines', 'hoverCompareCartesian']
-             };
-             console.log("  Plotly Config:", plotlyConfig);
-
-
-            // Income Chart (Pie)
-            if (incomeChartDiv) {
-                console.log("  Processing Income Chart.");
-                Plotly.purge(incomeChartDiv); // Clear previous chart first
-                if (incomeValues.length > 0) {
-                    console.log("  Income data found, attempting to plot.");
-                    const incomeTrace = [{
-                        values: incomeValues,
-                        labels: incomeLabels,
-                        type: 'pie',
-                        hole: .4,
-                        hoverinfo: 'label+percent+value',
-                        textinfo: 'percent',
-                        texttemplate: '%{percent}',
-                        textposition: 'inside',
-                        textfont_size: 11,
-                        marker: {
-                            colors: ['#10b981', '#34d399', '#6ee7b7', '#a7f3d0', '#d1fae5'],
-                            line: { color: '#ffffff', width: 1 }
-                        },
-                        domain: { y: [0, 1] } // Domain should cover full height [0, 1]
-                    }];
-                    console.log("  Income Trace:", incomeTrace);
-                    Plotly.newPlot(incomeChartDiv, incomeTrace, { ...commonPieLayout, title: { text: 'Income Sources', y:0.98, font: { size: 14, family: 'EB Garamond, serif', color: '#111827' } } }, plotlyConfig)
-                        .then(() => { console.log("  Income Chart plotted successfully."); })
-                        .catch((plotErr) => { console.error("  Error during Income Plotly.newPlot:", plotErr); incomeChartDiv.innerHTML = `<p class="text-red-600 text-center p-4">Error plotting income chart:<br>${getSafe(() => plotErr.message, 'Unknown plot error')}</p>`; });
-
-                } else {
-                    console.log("  No income data to plot. Displaying message.");
-                    incomeChartDiv.innerHTML = '<p class="text-center text-gray-500 pt-10">No income data to display.</p>';
+    // --- Expense Chart ---
+    if (expenseChartDiv) {
+        Plotly.purge(expenseChartDiv);
+        if (expenseValues.length > 0) {
+            const expenseTrace = [{
+                values: expenseValues,
+                labels: expenseLabels,
+                type: 'pie',
+                hole: .4,
+                hoverinfo: 'label+percent+value',
+                textinfo: 'percent',
+                texttemplate: '%{percent}',
+                textposition: 'inside',
+                textfont_size: 11,
+                marker: {
+                    colors: ['#ef4444', '#f87171', '#fca5a5', '#fecaca', '#fb923c', '#fdba74', '#fed7aa', '#ffedd5', '#d1d5db', '#9ca3af', '#a78bfa', '#c4b5fd'],
+                    line: { color: '#ffffff', width: 1 }
                 }
-            } else { console.error("  Income chart div (#incomeChart) not found."); }
-
-
-            // Expense Chart (Pie)
-            if (expenseChartDiv) {
-                 console.log("  Processing Expense Chart.");
-                Plotly.purge(expenseChartDiv); // Clear previous chart
-                if (expenseValues.length > 0) {
-                    console.log("  Expense data found, attempting to plot.");
-                    const expenseTrace = [{
-                        values: expenseValues,
-                        labels: expenseLabels,
-                        type: 'pie',
-                        hole: .4,
-                        hoverinfo: 'label+percent+value',
-                        textinfo: 'percent',
-                        texttemplate: '%{percent}',
-                        textposition: 'inside',
-                        textfont_size: 11,
-                        marker: {
-                            colors: ['#ef4444', '#f87171', '#fca5a5', '#fecaca', '#fb923c', '#fdba74', '#fed7aa', '#ffedd5', '#d1d5db', '#9ca3af', '#a78bfa', '#c4b5fd'],
-                            line: { color: '#ffffff', width: 1 }
-                        },
-                        domain: { y: [0, 1] } // Domain should cover full height [0, 1]
-                    }];
-                     console.log("  Expense Trace:", expenseTrace);
-                    Plotly.newPlot(expenseChartDiv, expenseTrace, { ...commonPieLayout, title: { text: 'Expense Categories', y:0.98, font: { size: 14, family: 'EB Garamond, serif', color: '#111827' } } }, plotlyConfig)
-                        .then(() => { console.log("  Expense Chart plotted successfully."); })
-                        .catch((plotErr) => { console.error("  Error during Expense Plotly.newPlot:", plotErr); expenseChartDiv.innerHTML = `<p class="text-red-600 text-center p-4">Error plotting expense chart:<br>${getSafe(() => plotErr.message, 'Unknown plot error')}</p>`; });
-
-                } else {
-                    console.log("  No expense data to plot. Displaying message.");
-                    expenseChartDiv.innerHTML = '<p class="text-center text-gray-500 pt-10">No expense data to display.</p>';
+            }];
+            Plotly.newPlot(expenseChartDiv, expenseTrace, { 
+                ...commonPieLayout, 
+                title: { 
+                    text: 'Expense Categories', 
+                    y: 0.95, 
+                    x: 0.5, 
+                    xanchor: 'center', 
+                    yanchor: 'top',
+                    font: { size: 16, family: 'EB Garamond, serif', color: '#111827' }
                 }
-            } else { console.error("  Expense chart div (#expenseChart) not found."); }
+            }, plotlyConfig);
+        } else {
+            expenseChartDiv.innerHTML = '<p class="text-center text-gray-500 pt-10">No expense data to display.</p>';
+        }
+    }
 
-             console.log("--- renderCharts END ---"); // Last log before function exits
-        } catch (chartError) {
+    console.log("--- renderCharts END ---");
+}
+        
+        catch (chartError) {
             console.error("--- renderCharts OUTER CATCH ERROR ---", chartError);
             // Display generic error in chart divs if a general error occurred above Plotly.newPlot
             const incomeChartDiv = document.getElementById('incomeChart');
