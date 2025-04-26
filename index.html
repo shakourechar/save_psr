@@ -2570,45 +2570,39 @@
                       console.warn("Uploaded file missing expected nested structure (personalInfo/income), attempting to process anyway.");
                  }
 
-
                 console.log("Successfully parsed uploaded JSON file.");
 
-                // --- START NEW LOGIC: Restore User ID, Tier, and Usage from file metadata ---
-                console.log("Checking uploaded file for user/usage metadata...");
+                // --- START MODIFIED LOGIC: Restore User ID and Tier from file, then fetch usage ---
+                console.log("Checking uploaded file for user identity metadata...");
                 const fileUserId = getSafe(() => uploadedData.userId, null);
                 const fileUserTier = getSafe(() => uploadedData.userTier, null);
-                const fileUsageInfo = getSafe(() => uploadedData.usageInfoAtSave, null);
                 const fileXtlMetadata = getSafe(() => uploadedData.metadata?.xtl, null); // Also check metadata xtl
 
-                 // Decide which info to prioritize: file's explicit fields OR metadata's xtl
-                 // Let's prioritize the explicit userId, userTier, usageInfoAtSave if they exist
-                if (fileUserId && fileUserTier && fileUsageInfo) {
+                 // Prioritize explicit userId/userTier from file if available
+                if (fileUserId && fileUserTier) {
                     currentUserId = fileUserId;
                     effectiveTier = fileUserTier;
-                    initialUsageInfo = fileUsageInfo; // Restore the saved usage state
-                    console.log("Restored user ID, tier, and usage info from uploaded file's explicit fields.");
+                    console.log("Restored user ID and tier from uploaded file's explicit fields.");
                     console.log("  Restored currentUserId:", currentUserId);
                     console.log("  Restored effectiveTier:", effectiveTier);
-                    console.log("  Restored initialUsageInfo:", initialUsageInfo);
 
                 } else if (fileXtlMetadata) {
                     // If explicit fields aren't there, try deriving from metadata.xtl
-                    // This re-uses the parseXtlParameter logic but on the file's xtl
-                    console.log("Explicit user/usage fields not found in file, attempting to parse from metadata.xtl...");
+                    console.log("Explicit user fields not found in file, attempting to parse from metadata.xtl...");
                     const tempParams = new URLSearchParams(`?xtl=${encodeURIComponent(fileXtlMetadata)}`);
-                    const xtlParsedFromFile = parseXtlParameter(tempParams); // This function updates globals currentUserId, effectiveTier
-
-                    // We don't have saved initialUsageInfo in this case, so we'd need to fetch it.
-                    // For simplicity, let's just log that we got the user/tier but usage is unknown.
-                    // A real app might trigger a fetchInitialUsage here based on the file's user ID.
-                    console.warn("Could not restore usageInfoAtSave from file. Usage display might be inaccurate until chat is used.");
-                    // Keep currentUserId and effectiveTier as set by parseXtlParameter(tempParams)
+                    // parseXtlParameter updates globals currentUserId and effectiveTier
+                    parseXtlParameter(tempParams);
+                    console.log("Derived user ID and tier from file's metadata.xtl.");
+                    console.log("  Derived currentUserId:", currentUserId);
+                    console.log("  Derived effectiveTier:", effectiveTier);
 
                 } else {
-                    console.warn("Uploaded file does not contain complete user/usage metadata (userId, userTier, usageInfoAtSave, or metadata.xtl). Keeping current session's user/usage info from URL/initial fetch.");
-                    // Keep currentUserId, effectiveTier, initialUsageInfo as they were set during initial page load from URL
+                    console.warn("Uploaded file does not contain sufficient user identity metadata (userId, userTier, or metadata.xtl). Keeping current session's user info from URL/initial fetch.");
+                    // Keep currentUserId, effectiveTier as they were set during initial page load from URL
                 }
-                // --- END NEW LOGIC ---
+                 // Note: We do NOT restore initialUsageInfo from the file here.
+                 // We will fetch the *current* usage from the DB next.
+                // --- END MODIFIED LOGIC ---
 
 
                 dashboardData = uploadedData; // Assign the parsed data to the global dashboardData
@@ -2623,7 +2617,13 @@
                 }
 
                 // Process and display the financial data and AI output from the file
-                processAndDisplayData(dashboardData); // This calls updateUIBasedOnAccess at the end
+                processAndDisplayData(dashboardData); // This updates the main dashboard UI
+
+                // *** IMPORTANT: NOW FETCH THE CURRENT USAGE FROM THE DATABASE ***
+                // This will update initialUsageInfo and trigger updateUIBasedOnAccess
+                console.log("File processed, fetching current usage from database...");
+                fetchInitialUsage();
+
 
             } catch (error) {
                 console.error("Error processing uploaded file:", error);
@@ -2634,12 +2634,12 @@
                 chatMessages = []; // Clear chat history on error
                  // Reset user info if file processing failed severely? Depends on desired behavior.
                  // For now, keep current user info from URL if available.
+                 updateUIBasedOnAccess(); // Update chat status based on whatever user info is currently set
             } finally {
                 // Reset file input regardless of success/failure to allow re-uploading the same file
                 event.target.value = null;
                 // Spinner hiding is handled by processAndDisplayData or handleError
-                 // The call to updateUIBasedOnAccess inside processAndDisplayData will refresh the chat status.
-                 // We don't need a separate initializeChat() call here if processAndDisplayData always calls updateUIBasedOnAccess
+                 // fetchInitialUsage() called above will trigger the final updateUIBasedOnAccess call
             }
         };
         reader.onerror = function(e) {
