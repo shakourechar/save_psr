@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.plot.ly/plotly-2.29.0.min.js"></script> {/* Updated Plotly version */}
+    <script src="https://cdn.plot.ly/plotly-2.29.0.min.js"></script> 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         /* Base Styles */
@@ -131,7 +131,7 @@
             overflow: hidden;
         }
         .chart-container-div {
-            min-height: 380px; /* Keep this height */
+            min-height: 400px; /* Keep this height */
             width: 100%; /* Keep width 100% */
             flex-grow: 1; /* Allow it to grow in flex container */
             display: flex; /* Keep flex display for centering */
@@ -2033,13 +2033,14 @@ function handleResize() { // <-- PASTE THE handleResize FUNCTION DEFINITION STAR
 
             // Common layout adjustments for Pie charts
             const commonPieLayout = {
-                // Use autosize: true instead of fixed height/margin
+                // Keep autosize: true
                 autosize: true,
-                margin: { l: 0, r: 0, b: 0, t: 0, pad: 15 }, // Set margins to 0 and use padding for spacing
+                // Set outer margins to 0, padding controlled by container CSS
+                margin: { l: 0, r: 0, b: 0, t: 0 }, // Remove pad: 15 here
                 showlegend: true,
                 legend: {
-                    orientation: "h", // Horizontal legend
-                    yanchor: "bottom", y: -0.1, // Position below chart, slightly closer if margins are 0
+                    orientation: "h",
+                    yanchor: "bottom", y: -0.1,
                     xanchor: 'center', x: 0.5
                 },
                 paper_bgcolor: 'rgba(0,0,0,0)',
