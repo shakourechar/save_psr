@@ -817,6 +817,15 @@
     </div>
 
 <script>
+   // Initialize Supabase client at the top of your script
+let supabase;
+if (!supabase) {
+  supabase = window.supabase.createClient(
+    'https://tfnwwpksieluzvxqdiiq.supabase.co', // <-- Replace with your actual Supabase URL
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRmbnd3cGtzaWVsdXp2eHFkaWlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ1ODQ3MjgsImV4cCI6MjA2MDE2MDcyOH0.xbtjiQ65vCggjj35qtlCZ0S5mJa4muSZcHXhaU4qvrE' // <-- Replace with your actual Supabase anon key
+  );
+}
+    
     // --- Globals ---
     let dashboardData = {}; // Holds the main data object
     let chatMessages = []; // Holds chat history for API calls
@@ -835,6 +844,8 @@
     let effectiveTier = 'basic'; // Tier derived from XTL parameter or loaded file
     let initialUsageInfo = null; // To store fetched usage/limit info for initial UI setup
 
+
+    
     // --- Supabase Client (CONFIGURE THESE) ---
     // **IMPORTANT:** Ensure these are correct and your Supabase project is configured
     // with RLS policies that allow anon key reads on 'SWN_Users' (using the 'id' column matching XTL)
