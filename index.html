@@ -2851,35 +2851,35 @@
          } // else { console.warn("Plotly not available for relayout on resize."); } // Commented out - too noisy
      }
 
-       // --- Google API Loading and Initialization ---
+     // --- Google API Loading and Initialization ---
     // Load GIS (for authentication) and Gapi (for API calls) libraries
     function loadGoogleAPIs() {
         console.log("Loading Google APIs...");
-        // GIS script tag added directly in HTML head
-        // Gapi script tag added directly in HTML head
+        // GIS script tag added directly in HTML head with onload="initializeGIS()"
+        // Gapi script tag added directly in HTML head with onload="handleGapiLoad()"
 
-        // Wait for Gapi client to load the auth2 library, which is needed for some methods
-        // Gapi `client` and `auth2` are loaded via the <script async defer src="https://apis.google.com/js/api.js"> tag.
-        // We need to wait for the 'client' and 'drive' module to load.
-        // The `handleGapiLoad` function attached to the script's onload can signal when the *library* is loaded,
-        // but not when specific modules are ready.
-        // The `gapi.client.init` or `gapi.load` pattern is more robust.
+        // We rely primarily on the script tag onload attributes for timing,
+        // but these checks can act as fallbacks if the scripts load before DOMContentLoaded
+        // or if for some reason onload doesn't fire immediately.
 
-        // Check if gapi is already available (might be if script loaded very fast)
+        // Check if gapi library is already available (might be if script loaded very fast)
         if (typeof gapi !== 'undefined') {
-             handleGapiLoad(); // Call the handler if already loaded
+             // If gapi is available, call its onload handler to load the 'client' module
+             handleGapiLoad();
         } else {
              // If gapi is not immediately available, the script's onload will call handleGapiLoad later.
              console.log("Gapi not immediately available, waiting for script load.");
         }
 
-         // GIS initialization is handled by the script's onload callback pointing to 
+         // Check if GIS library is already available
          if (typeof google !== 'undefined' && typeof google.accounts !== 'undefined') {
-             (); // Call the handler if already loaded
+             // If GIS is available, call its onload handler to initialize the token client
+             initializeGIS();
          } else {
+             // If GIS is not immediately available, the script's onload will call initializeGIS later.
              console.log("GIS not immediately available, waiting for script load.");
          }
-    }
+    } // <-- This is the correct closing brace for loadGoogleAPIs
 
 // Handle Gapi library load (triggered by the script tag)
 function handleGapiLoad() {
