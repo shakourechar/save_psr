@@ -2725,7 +2725,10 @@
             if (typeof initInfoPopups === 'function') initInfoPopups(); else console.warn("initInfoPopups function not found.");
 
             // Add listeners for error message buttons
-            document.getElementById('retryButton')?.addEventListener('click', () => { location.reload(); });
+           document.getElementById('retryButton')?.addEventListener('click', () => {
+    console.warn("Retry button clicked. Initiating page reload."); // Add this log
+    location.reload();
+});
             document.getElementById('manualEntryButton')?.addEventListener('click', useDemoData);
 
              // Setup save summary button
