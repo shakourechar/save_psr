@@ -1634,7 +1634,9 @@
                  handleError("Critical: Main content element not found.", new Error("DOM element #mainContent is missing."));
             }
 
-        } catch (processingError) {
+        } // <-- This brace closes the 'try' block of processAndDisplayData
+
+        catch (processingError) {
             console.error("--- processAndDisplayData ERROR ---", processingError);
             handleError("Error processing or displaying data", processingError);
         } finally {
@@ -1649,11 +1651,15 @@
              // Ensure chat is initialized/updated after data processing is complete
             console.log("Calling initializeChat() from processAndDisplayData finally block.");
             initializeChat(); // This will read the updated chatMessages and user context
-             // Update button visibility now that data is loaded
+
+            // --- The silent re-authentication code WAS HERE, BUT IT BELONGS IN initializeGIS ---
+            // --- It has been removed from THIS finally block ---
+
+            // Update button visibility now that data is loaded
              updateDriveButtonVisibility(!!googleAccessToken);
             console.log("--- processAndDisplayData END ---");
         }
-    }
+    } // <-- This brace closes the processAndDisplayData function
 
     // --- Calculation Functions ---
     function calculateTotals(data) {
@@ -1764,7 +1770,6 @@
              console.error("Error during calculateRatios:", e);
              return ratios; // Return partial ratios or re-throw? Returning partial is more robust
         }
-
 
         return ratios;
     }
@@ -2893,93 +2898,119 @@ function handleGapiLoad() {
     // Initialize GIS (Google Identity Services) - Triggered by the GIS script tag onload
     function initializeGIS() {
         console.log("GIS library loaded. Initializing token client...");
+        // Check if the Google Identity Services library is available
         if (typeof google === 'undefined' || typeof google.accounts === 'undefined' || typeof google.accounts.oauth2 === 'undefined') {
              console.error("GIS library not available after load.");
-             // Don't necessarily halt everything, but disable Google features
-             //handleError("Google Sign-In Failed", new Error("Google Identity Services library did not load.")); // Too aggressive for just GIS failing
              console.warn("Google Identity Services library not available. Google Drive features disabled.");
-             updateDriveButtonVisibility(false); // Explicitly hide buttons if GIS failed
-             if (googleSignInButton) googleSignInButton.style.display = 'none'; // Hide the sign-in button if GIS fails
+             // Explicitly hide buttons if GIS failed to load, show sign-in is pointless
+             updateDriveButtonVisibility(false);
+             if (googleSignInButton) googleSignInButton.style.display = 'none';
              return;
         }
 
         try {
-            // Use initTokenClient for the new implicit flow
+            // Initialize the Google Identity Services token client
             googleTokenClient = google.accounts.oauth2.initTokenClient({
                 client_id: GOOGLE_CLIENT_ID,
                 scope: GOOGLE_SCOPES,
-                callback: handleGoogleTokenResponse, // Function to call when a token is received
-                error_callback: (error) => {
+                callback: handleGoogleTokenResponse, // Function to call when a token is received (success or interaction needed)
+                error_callback: (error) => { // Function called on error (e.g., popup blocked, user cancels, silent failure)
                     console.error("GIS initTokenClient error:", error);
-                    // Decide how to handle init errors vs auth errors
-                     if (error.type === 'popup_closed') {
-                         console.log("Google Sign-In popup closed by user during initial token request.");
-                         setChatStatus("Sign-in cancelled", false);
+                    // Handle specific common errors like user cancellation or silent failure
+                     if (error.type === 'popup_closed' || error.type === 'immediate_failed' || error.error === 'immediate_failed') {
+                         console.log("Google Sign-In attempt cancelled or failed silently.", error);
+                         // Update status to prompt user if needed
+                         setChatStatus("Sign-in needed", false);
+                          // Update button visibility to show sign-in button again if silent auth failed
+                         updateDriveButtonVisibility(!!googleAccessToken); // Should evaluate to false here
                      } else {
                          // Treat other errors more seriously
-                         handleError("Google Sign-In Failed", new Error(`Authentication error: ${error.message || 'Unknown error'}`));
+                         handleError("Google Sign-In Failed", new Error(`Authentication error: ${error.message || error.error || 'Unknown error'}`));
                          setChatStatus("Sign-in Failed", false);
                      }
                 }
             });
             console.log("GIS token client initialized.");
 
-                    // --- FIX START: Add the click listener to the sign-in button ---
-        googleSignInButton = googleSignInButton || document.getElementById('googleSignInButton'); // Ensure element is cached
-        if (googleSignInButton && googleTokenClient) {
-            googleSignInButton.addEventListener('click', () => {
-                console.log("Google Sign-In button clicked. Requesting access token...");
-                // Request an access token, which will trigger the popup
-                googleTokenClient.requestAccessToken();
-                setChatStatus("Waiting for sign-in...", true); // Optional: provide user feedback
-            });
-            console.log("Google Sign-In button listener added.");
-        } else {
-             console.warn("Google Sign-In button or token client not available to add listener.");
-        }
-        // --- FIX END ---
-            // Once GIS is initialized, the Sign-In button listener is already added
-            // in initializeSupabaseAndCoreFeatures. Its visibility is managed by
-            // updateDriveButtonVisibility, which is called initially by fetchInitialUsage (indirectly)
-            // and after sign-in/sign-out events.
-             // Explicitly update button visibility here once GIS is ready
-             updateDriveButtonVisibility(!!googleAccessToken); // Show/hide based on initial token state (likely null)
+            // --- FIX START: Add the click listener to the sign-in button ---
+            // Ensure the button element is cached before adding the listener
+            googleSignInButton = googleSignInButton || document.getElementById('googleSignInButton');
+            if (googleSignInButton && googleTokenClient) {
+                googleSignInButton.addEventListener('click', () => {
+                    console.log("Google Sign-In button clicked. Requesting access token...");
+                    // Request an access token, which will trigger the popup for user interaction
+                    // Do NOT use prompt:'none' here; prompt:'none' is for silent re-auth only.
+                    googleTokenClient.requestAccessToken();
+                    setChatStatus("Waiting for sign-in...", true); // Provide user feedback
+                });
+                console.log("Google Sign-In button listener added.");
+            } else {
+                 console.warn("Google Sign-In button element or token client not available to add listener.");
+            }
+            // --- FIX END ---
+
+            // --- NEW: Attempt silent re-authentication on page load ---
+            // This should be called *after* the googleTokenClient is initialized.
+            // It checks if the user has a valid, recent session and attempts to get an access token silently.
+            // If successful, handleGoogleTokenResponse is called with the token.
+            // If not successful (no valid session, user needs to pick an account, etc.), the error_callback is called (typically with 'immediate_failed').
+            if (googleTokenClient) { // Ensure the client object exists before calling its method
+                 console.log("Attempting silent Google re-authentication...");
+                 // Use prompt: 'none' for a silent check.
+                 googleTokenClient.requestAccessToken({ prompt: 'none' });
+            } else {
+                console.warn("Google Token client not available to attempt silent re-auth. Skipping silent check.");
+            }
+            // --- END NEW ---
+
+
+             // Explicitly update button visibility here once GIS is initially ready.
+             // At this point, googleAccessToken is likely null, so this will show the sign-in button.
+             // If the silent re-auth (attempted just above) succeeds, it will call handleGoogleTokenResponse
+             // which will then call updateDriveButtonVisibility(true).
+             updateDriveButtonVisibility(!!googleAccessToken); // Show/hide based on initial token state
 
 
         } catch (e) {
              console.error("Error initializing GIS token client:", e);
              handleError("Google Sign-In Setup Failed", e);
         }
-    }
+    } // <-- End of initializeGIS function
 
     // Handle the response from the Google Token Client (Authorization Response)
+    // This function is called by the Google GIS library after a user interacts
+    // with the sign-in flow or after a successful silent re-authentication.
     function handleGoogleTokenResponse(tokenResponse) {
         console.log("Google token response received:", tokenResponse);
+        // Check if the response contains a valid access token
         if (tokenResponse && tokenResponse.access_token) {
-            googleAccessToken = tokenResponse.access_token;
-            console.log("Access Token obtained (length:", googleAccessToken.length, ")."); // Log length, not full token
+            googleAccessToken = tokenResponse.access_token; // Store the token globally
+            console.log("Access Token obtained (length:", googleAccessToken.length, ")."); // Log length, not full token for security
 
-            // Inject the token into the gapi.client library
-            if (typeof gapi !== 'undefined' && typeof gapi.client !== 'undefined') {
+            // Inject the obtained token into the gapi.client library for making API calls
+            if (typeof gapi !== 'undefined' && typeof gapi.client !== 'undefined' && typeof gapi.client.setToken === 'function') {
                 gapi.client.setToken({ access_token: googleAccessToken });
                 console.log("Token set in gapi.client.");
 
-                // Now that we have a token, load the Drive API library
-                // Use gapi.client.load pattern
+                // Now that we have a token and it's set in gapi.client, load the Drive API library.
+                // gapi.client.load uses promises and handles idempotency (safe to call multiple times).
                  gapi.client.load('drive', 'v3')
                     .then(() => {
                         console.log("Google Drive API v3 loaded successfully.");
-                        // Drive API is ready to use now (gapi.client.drive)
-                        updateDriveButtonVisibility(true); // Show Drive buttons, hide sign-in
-                        fetchGoogleUserInfo(); // Fetch user info for display (optional but good UX)
-                        // Automatically try to load the user's file after successful sign-in
-                         // Only attempt auto-load if there's no data currently displayed
-                         if (!dashboardData || !dashboardData.userInput || Object.keys(dashboardData.userInput).length === 0) {
+                        // The Drive API (gapi.client.drive) is now ready to use.
+                        // Update button visibility to show Drive-related buttons (Load/Save), hide sign-in.
+                        updateDriveButtonVisibility(true);
+                        // Fetch user info for display (e.g., "Signed in as...")
+                        fetchGoogleUserInfo();
+                        // Automatically try to load the user's file after successful sign-in,
+                        // BUT only if no dashboard data has been loaded yet (e.g., from URL params).
+                         if (!dashboardData || !dashboardData.userInput || Object.keys(getSafe(() => dashboardData.userInput, {})).length === 0) {
                              console.log("No data loaded from URL. Attempting auto-load from Drive after sign-in.");
-                             handleLoadFromDriveClick(); // Automatically attempt to load the default file
+                             handleLoadFromDriveClick(); // Call the function to initiate loading from Drive
                          } else {
                              console.log("Data already loaded from URL. Skipping auto-load from Drive.");
-                             setChatStatus("Signed in to Drive", false); // Indicate successful sign-in
+                             // If data was loaded from URL, just indicate successful sign-in
+                             setChatStatus("Signed in to Drive", false);
                              // Ensure buttons are correctly visible when data is loaded and signed in
                               updateDriveButtonVisibility(true);
                          }
@@ -2987,127 +3018,149 @@ function handleGapiLoad() {
                     })
                     .catch((loadError) => {
                          console.error("Error loading Google Drive API:", loadError);
-                         handleError("Google Drive API Load Failed", loadError);
-                         updateDriveButtonVisibility(false); // Ensure Drive buttons are hidden if API fails
+                         handleError("Google Drive API Load Failed", loadError); // Report the error
+                         // Ensure Drive buttons are hidden if the API failed to load
+                         updateDriveButtonVisibility(false);
                          setChatStatus("Drive API Failed", false);
                     });
 
 
             } else {
-                console.error("Gapi client not available to set token.");
-                handleError("Google API Error", new Error("Google API client not fully loaded."));
+                // This case should ideally not happen if gapi.js loaded correctly via onload=handleGapiLoad()
+                // and handleGapiLoad successfully loaded the 'client' module.
+                console.error("Gapi client not available to set token. Ensure api.js is loaded and 'client' module is loaded.");
+                handleError("Google API Error", new Error("Google API client not fully loaded or missing 'setToken' function."));
                 updateDriveButtonVisibility(false); // Hide Drive buttons
                  setChatStatus("Google API Failed", false);
             }
 
         } else {
-            console.error("Google token response did not contain an access token or had an error.");
-             // If the user cancels the sign-in prompt, tokenResponse might be null or have an error.
-             // Don't treat user cancellation as a critical app error, but log it.
-            if (tokenResponse && tokenResponse.error) {
-                 console.warn("Google Sign-In error:", tokenResponse.error);
-                 if (tokenResponse.error !== 'popup_closed_by_user' && tokenResponse.error !== 'immediate_failed') {
-                     // Treat other auth errors as potentially problematic
-                     handleError("Google Sign-In Failed", new Error(`Authentication error: ${tokenResponse.error}`));
-                      setChatStatus("Sign-in Failed", false);
-                 } else {
-                    console.log("Google Sign-In popup closed or immediate failed (expected for first sign-in).");
-                     setChatStatus("Sign-in cancelled", false); // Indicate cancellation
-                 }
+            // If tokenResponse doesn't contain an access token, it's typically a failure.
+            console.error("Google token response did not contain an access token or had an error.", tokenResponse);
+             // Check if the error is user-initiated cancellation ('popup_closed_by_user')
+             // or immediate_failed (silent check failed, user interaction needed).
+            if (tokenResponse && (tokenResponse.error === 'popup_closed_by_user' || tokenResponse.error === 'immediate_failed')) {
+                 console.warn("Google Sign-In attempt cancelled or failed silently.", tokenResponse.error);
+                 // The error_callback of initTokenClient should ideally handle this state update
+                 // but adding a status update here as well doesn't hurt.
+                 setChatStatus("Sign-in cancelled or needed", false);
+            } else if (tokenResponse && tokenResponse.error) {
+                 // Treat other auth errors as problematic
+                 console.error("Google Sign-In error:", tokenResponse.error, tokenResponse.error_description);
+                 handleError("Google Sign-In Failed", new Error(`Authentication error: ${tokenResponse.error || tokenResponse.error_description || 'Unknown error'}`));
+                 setChatStatus("Sign-in Failed", false);
             } else {
-                 console.warn("Google token response was empty or unexpected.");
+                 // Fallback for unexpected empty or malformed responses
+                 console.warn("Google token response was empty or unexpected structure.");
                   setChatStatus("Sign-in failed", false);
             }
             googleAccessToken = null; // Ensure token is null on failure
             updateDriveButtonVisibility(false); // Ensure Drive buttons are hidden
-             // Keep showing the sign-in button
+             // Keep showing the sign-in button if the error was not a critical app error
         }
     }
 
     // Fetch basic Google User Info (optional, for displaying signed-in status)
+    // Called after a successful login/re-auth and Drive API load.
     async function fetchGoogleUserInfo() {
         console.log("Fetching Google user info...");
-        // Need to load oauth2 API first if not already loaded
+        // Need to load oauth2 API module if not already loaded
         try {
-            if (typeof gapi === 'undefined' || typeof gapi.client === 'undefined' || !gapi.client.getToken()) {
-                console.warn("Gapi client not ready or no token to fetch user info.");
-                 return;
+            // Check if gapi.client is available and has a token before attempting API call
+            if (typeof gapi === 'undefined' || typeof gapi.client === 'undefined' || typeof gapi.client.getToken !== 'function' || !gapi.client.getToken()) {
+                console.warn("Gapi client not ready or no token available to fetch user info.");
+                 return; // Exit if prerequisites are not met
             }
-             // Load the oauth2 API if it hasn't been loaded yet
-             // Use gapi.client.load pattern which handles idempotency
+             // Load the oauth2 API module if it hasn't been loaded yet.
+             // gapi.client.load uses promises and handles idempotency.
             await gapi.client.load('oauth2', 'v2')
                  .then(() => console.log("OAuth2 API v2 loaded for user info."))
                  .catch(err => console.error("Error loading OAuth2 API for user info:", err));
 
+            // Check again if the oauth2 API is available after attempting load
+             if (typeof gapi.client.oauth2 === 'undefined' || typeof gapi.client.oauth2.userinfo === 'undefined' || typeof gapi.client.oauth2.userinfo.get !== 'function') {
+                 console.error("Google OAuth2 userinfo API not available after load attempt.");
+                 return; // Exit if API is not available
+             }
 
+            // Make the API request to get user information
             const response = await gapi.client.oauth2.userinfo.get();
-            googleUser = response.result;
+            googleUser = response.result; // Store user info globally
             console.log("Google User Info:", googleUser);
-            // Optionally display user name
+
+            // Display user name if element exists and user info is available
             signedInUserDisplayElement = signedInUserDisplayElement || document.getElementById('signedInUserDisplay');
             if (signedInUserDisplayElement && googleUser?.name) {
                 signedInUserDisplayElement.textContent = `Signed in as: ${googleUser.name}`;
-                signedInUserDisplayElement.style.display = 'inline-block'; // Make it visible
+                signedInUserDisplayElement.style.display = 'inline-block'; // Make the span visible
                 console.log(`Signed in user display updated: ${googleUser.name}`);
             } else if (signedInUserDisplayElement) {
-                 // If element exists but no user name, hide it
+                 // If element exists but no user name (e.g., email only or error), hide it
                  signedInUserDisplayElement.style.display = 'none';
-                 signedInUserDisplayElement.textContent = ''; // Clear text
+                 signedInUserDisplayElement.textContent = ''; // Clear any old text
             }
 
 
         } catch (error) {
             console.error("Error fetching Google user info:", error);
-            // If fetching user info fails, it's not critical, just log
+            // If fetching user info fails, it's not a critical app error, just log it.
+            // The UI will proceed without the user's name displayed.
         }
     }
 
 
     // Handle Google Sign Out
+    // Revokes the access token and clears local Google-related state.
     function handleGoogleSignOut() {
         console.log("Signing out of Google...");
-        if (googleAccessToken && typeof google !== 'undefined' && typeof google.accounts !== 'undefined' && typeof google.accounts.oauth2 !== 'undefined') {
-            // Revoke the access token
-            // Revoke requires the access token itself
+        // Check if we have a token and the GIS library is available to revoke it
+        if (googleAccessToken && typeof google !== 'undefined' && typeof google.accounts !== 'undefined' && typeof google.accounts.oauth2 !== 'undefined' && typeof google.accounts.oauth2.revoke === 'function') {
+            // Revoke the access token to invalidate it on Google's side
             google.accounts.oauth2.revoke(googleAccessToken, (revokeResponse) => {
-                 console.log("Google access token revoke response:", revokeResponse); // Log revoke response
-                console.log("Google access token revoked.");
-                // Clear token and user info
+                 console.log("Google access token revoke response:", revokeResponse); // Log revoke response from Google
+                console.log("Google access token revoked successfully.");
+                // Clear local state after successful revocation
                 googleAccessToken = null;
                 googleUser = null;
-                 if (typeof gapi !== 'undefined' && typeof gapi.client !== 'undefined') {
-                    gapi.client.setToken(null); // Clear token in gapi.client
+                 // Clear the token in gapi.client as well
+                 if (typeof gapi !== 'undefined' && typeof gapi.client !== 'undefined' && typeof gapi.client.setToken === 'function') {
+                    gapi.client.setToken(null);
                     console.log("Token cleared in gapi.client.");
-                    // Optionally clear Drive API instance if needed, though typically not required
+                    // Optionally clear the Drive API instance if needed, though typically not strictly necessary
                     // gapi.client.drive = undefined; // Or null
                  }
-                console.log("Google sign out complete.");
-                updateDriveButtonVisibility(false); // Hide Drive buttons, show sign-in
+                console.log("Google sign out process complete.");
+
+                // Update button visibility to hide Drive buttons and show sign-in button
+                updateDriveButtonVisibility(false);
+                 // Clear and hide the signed-in user display
                  signedInUserDisplayElement = signedInUserDisplayElement || document.getElementById('signedInUserDisplay');
                  if (signedInUserDisplayElement) {
-                     signedInUserDisplayElement.textContent = ''; // Clear display
-                     signedInUserDisplayElement.style.display = 'none'; // Hide display
+                     signedInUserDisplayElement.textContent = '';
+                     signedInUserDisplayElement.style.display = 'none';
                  }
 
-                 // Clear Drive folder ID cache on sign out
+                 // Clear the cached Drive folder ID as it's specific to the signed-in user/session
                  driveFolderId = null;
                  console.log("Drive folder ID cache cleared.");
 
-                 // After signing out of Google, the user might want to load a local file or use demo data
-                 // Show the initial prompt state again
+                 // After signing out of Google, the user is back to a state where they need to load data.
+                 // Show the initial upload prompt state again.
                  showInitialPromptOrMessage();
-                 setChatStatus("Signed out of Drive", false);
+                 setChatStatus("Signed out of Drive", false); // Update chat status
             });
         } else {
-            console.log("No Google access token or GIS library not available to revoke. Clearing local state.");
-            // If we can't revoke, just clear local state and update UI
+            // If we don't have an access token or GIS is not available, we can't revoke.
+            // Just clear local state and update UI.
+            console.log("No Google access token or GIS library not available to revoke. Clearing local state only.");
             googleAccessToken = null;
             googleUser = null;
-             if (typeof gapi !== 'undefined' && typeof gapi.client !== 'undefined') {
+             if (typeof gapi !== 'undefined' && typeof gapi.client !== 'undefined' && typeof gapi.client.setToken === 'function') {
                  gapi.client.setToken(null);
              }
              driveFolderId = null; // Clear cache
-            updateDriveButtonVisibility(false); // Just update visibility
+            // Update UI visibility
+            updateDriveButtonVisibility(false);
              signedInUserDisplayElement = signedInUserDisplayElement || document.getElementById('signedInUserDisplay');
              if (signedInUserDisplayElement) {
                  signedInUserDisplayElement.textContent = '';
@@ -3119,9 +3172,10 @@ function handleGapiLoad() {
         }
     }
 
-    // Update visibility of Google Drive related buttons
+    // Update visibility of Google Drive related buttons and the user display span.
+    // Called whenever the signed-in state or data loading state changes.
     function updateDriveButtonVisibility(isSignedIn) {
-        // Cache elements if not already done
+        // Ensure all relevant button and display elements are cached
         googleSignInButton = googleSignInButton || document.getElementById('googleSignInButton');
         googleSignOutButton = googleSignOutButton || document.getElementById('googleSignOutButton');
         loadFromDriveButton = loadFromDriveButton || document.getElementById('loadFromDriveButton');
@@ -3132,15 +3186,22 @@ function handleGapiLoad() {
 
         console.log("Updating Drive button visibility. Signed in:", isSignedIn);
 
+        // Toggle visibility of Sign-In and Sign-Out buttons based on signed-in state
         if (googleSignInButton) googleSignInButton.style.display = isSignedIn ? 'none' : 'inline-block';
         if (googleSignOutButton) googleSignOutButton.style.display = isSignedIn ? 'inline-block' : 'none';
 
-        // Load/Save buttons are only visible when signed in AND data is currently loaded (for save)
-        const isDataLoaded = dashboardData && dashboardData.userInput && Object.keys(dashboardData.userInput).length > 0;
+        // Determine if dashboard data is currently loaded (needed for Save/Download)
+        const isDataLoaded = dashboardData && dashboardData.userInput && Object.keys(getSafe(() => dashboardData.userInput, {})).length > 0;
+         console.log("Data loaded:", isDataLoaded);
+
+
+        // Load from Drive button is visible when signed in
         if (loadFromDriveButton) loadFromDriveButton.style.display = isSignedIn ? 'inline-block' : 'none';
-        // Save button requires both sign-in AND data loaded
+
+        // Save to Drive button requires BOTH signed-in status AND data loaded
         if (saveToDriveButton) saveToDriveButton.style.display = (isSignedIn && isDataLoaded) ? 'inline-block' : 'none';
-        // Local download button is only visible when data is loaded (doesn't require sign-in)
+
+        // Local download button is visible whenever data is loaded (doesn't require sign-in)
         if (downloadLocalButton) downloadLocalButton.style.display = isDataLoaded ? 'inline-block' : 'none';
 
         // Display user info span only when signed in
