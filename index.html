@@ -817,6 +817,18 @@
     </div>
 
 <script>
+   // --- VERY EARLY NAVIGATION DEBUGGING ---
+console.log("Script execution started. Setting up early unload listener.");
+window.addEventListener('beforeunload', (event) => {
+    console.error("!!! EARLY BEFOREUNLOAD DETECTED - Potential unwanted navigation !!!");
+    // Prevent the unload to see if a dialog appears
+    event.preventDefault();
+    event.returnValue = 'Navigation attempted.'; // Message for dialog
+    return 'Navigation attempted.'; // Required for some browsers
+});
+console.log("Early beforeunload listener added.");
+// --- END EARLY DEBUGGING ---
+    
     // --- Globals ---
     let dashboardData = {}; // Holds the main data object
     let chatMessages = []; // Holds chat history for API calls
