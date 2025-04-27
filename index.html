@@ -1652,7 +1652,7 @@
             console.log("Calling initializeChat() from processAndDisplayData finally block.");
             initializeChat(); // This will read the updated chatMessages and user context
 
-            // --- The silent re-authentication code WAS HERE, BUT IT BELONGS IN initializeGIS ---
+            // --- The silent re-authentication code WAS HERE, BUT IT BELONGS IN  ---
             // --- It has been removed from THIS finally block ---
 
             // Update button visibility now that data is loaded
@@ -2717,7 +2717,7 @@
 
 
             // Initialize Google APIs (GIS and Gapi) - This will handle showing the sign-in button
-            loadGoogleAPIs(); // This calls initializeGIS and handles Gapi load
+            loadGoogleAPIs(); // This calls  and handles Gapi load
 
             // Initialize other features (buttons, modals, popups etc.) - These should run regardless of Supabase
             // Removed redundant initSaveButton, initUploadButton as listeners are added below or in DOMContentLoaded
@@ -2873,9 +2873,9 @@
              console.log("Gapi not immediately available, waiting for script load.");
         }
 
-         // GIS initialization is handled by the script's onload callback pointing to initializeGIS
+         // GIS initialization is handled by the script's onload callback pointing to 
          if (typeof google !== 'undefined' && typeof google.accounts !== 'undefined') {
-             initializeGIS(); // Call the handler if already loaded
+             (); // Call the handler if already loaded
          } else {
              console.log("GIS not immediately available, waiting for script load.");
          }
@@ -2917,7 +2917,7 @@ function handleGapiLoad() {
                 error_callback: (error) => { // Function called on error (e.g., popup blocked, user cancels, silent failure)
                     console.error("GIS initTokenClient error:", error);
                     // Handle specific common errors like user cancellation or silent failure
-                     if (error.type === 'popup_closed' || error.type === 'immediate_failed' || error.error === 'immediate_failed') {
+                                      if (error.type === 'popup_closed' || error.type === 'immediate_failed' || error.error === 'immediate_failed' || error.error === 'interaction_required') {
                          console.log("Google Sign-In attempt cancelled or failed silently.", error);
                          // Update status to prompt user if needed
                          setChatStatus("Sign-in needed", false);
