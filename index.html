@@ -13,7 +13,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Add Google API loader script tags -->
     <script src="https://accounts.google.com/gsi/client" async defer onload="initializeGIS()"></script>
-    <script src="https://apis.google.com/js/api.js" async defer></script>
+    <script src="https://apis.google.com/js/api.js" async defer onload="handleGapiLoad()"></script>
 
     <style>
         /* Base Styles */
@@ -2876,14 +2876,18 @@
          }
     }
 
-    // Handle Gapi library load (triggered by the script tag)
-    function handleGapiLoad() {
-        console.log("Gapi library loaded.");
-        // Now that the Gapi library is loaded, we can load the specific API modules
-        // The Drive API will be loaded *after* the user successfully signs in
-        // and we have an access token, within `handleGoogleTokenResponse`.
-        // No immediate action needed here other than logging.
-    }
+// Handle Gapi library load (triggered by the script tag)
+function handleGapiLoad() {
+    console.log("Gapi library loaded. Loading 'client' module...");
+    // Load the core client library, which is necessary before using gapi.client
+    gapi.load('client', () => {
+         console.log("Gapi 'client' module loaded and ready.");
+         // At this point, gapi.client should be available.
+         // We don't need to do anything else here immediately,
+         // the token setting and Drive API load happen in handleGoogleTokenResponse
+         // after a successful sign-in.
+    });
+}
 
 
     // Initialize GIS (Google Identity Services) - Triggered by the GIS script tag onload
