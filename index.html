@@ -987,7 +987,7 @@ console.log("Early beforeunload listener added (listener is present but not prev
             const number = parseFloat(cleaned);
              if (isNaN(number) || !isFinite(number)) {
                  console.warn(`Could not parse numeric value for key "${key}" from "${value}". Using default ${defaultValue}.`);
-                 return defaultValue;
+                 return number; // Return NaN/Infinity if parsing resulted in them, let getSafe handle it later
              }
             return number;
         };
@@ -1061,7 +1061,7 @@ console.log("Early beforeunload listener added (listener is present but not prev
         // Populate Debts Array - Check for existence and parse
         try {
              const creditCardDebt = parseNumeric('creditCardDebt');
-             if (creditCardDebt > 0) {
+             if (creditCardDebt > 0 && isFinite(creditCardDebt)) {
                  parsedData.userInput.debts.push({
                      type: "Credit Card",
                      balance: creditCardDebt,
@@ -1072,7 +1072,7 @@ console.log("Early beforeunload listener added (listener is present but not prev
              }
 
              const bankLoans = parseNumeric('bankLoans'); // Assuming a single 'bankLoans' param
-             if (bankLoans > 0) {
+             if (bankLoans > 0 && isFinite(bankLoans)) {
                  parsedData.userInput.debts.push({
                      type: "Bank Loan", // Singular 'Loan' might be better
                      balance: bankLoans,
@@ -1083,7 +1083,7 @@ console.log("Early beforeunload listener added (listener is present but not prev
              }
 
              const studentLoans = parseNumeric('studentLoanDebt'); // Corrected key from studentLoans based on assumption
-             if (studentLoans > 0) {
+             if (studentLoans > 0 && isFinite(studentLoans)) {
                  parsedData.userInput.debts.push({
                      type: "Student Loan", // Singular 'Loan' might be better
                      balance: studentLoans,
@@ -1094,7 +1094,7 @@ console.log("Early beforeunload listener added (listener is present but not prev
              }
 
              const carLoans = parseNumeric('carLoanBalance'); // Corrected key from carLoans based on assumption
-             if (carLoans > 0) {
+             if (carLoans > 0 && isFinite(carLoans)) {
                  parsedData.userInput.debts.push({
                      type: "Car Loan",
                      balance: carLoans,
@@ -1158,6 +1158,10 @@ console.log("Early beforeunload listener added (listener is present but not prev
                 // Make stack trace more readable
                 debugInfoElement.innerHTML += `<br><strong>Stack Trace:</strong><br><code style="font-size:10px; white-space: pre-wrap; display: block; line-height:1.2;">${error.stack.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</code>`;
             }
+             // Add more context like user ID, tier, data source
+             debugInfoElement.innerHTML += `<br><strong>User ID:</strong> ${currentUserId || 'N/A'}`;
+             debugInfoElement.innerHTML += `<br><strong>Effective Tier:</strong> ${effectiveTier || 'N/A'}`;
+             debugInfoElement.innerHTML += `<br><strong>Data Source:</strong> ${getSafe(() => dashboardData?.metadata?.source, 'N/A')}`;
         } else {
             console.error("Debug info element not found!");
         }
@@ -1475,7 +1479,7 @@ console.log("Early beforeunload listener added (listener is present but not prev
 
                     // Use the tier/model from initialUsageInfo if available, fallback to effectiveTier
                     // initialUsageInfo.tier and model are determined by effectiveTier in fetchInitialUsage
-                    tierText = initialUsageInfo.tier || effectiveTier;
+                    tierText = (initialUsageInfo.tier || effectiveTier).charAt(0).toUpperCase() + (initialUsageInfo.tier || effectiveTier).slice(1); // Capitalize tier
                     modelText = initialUsageInfo.model || 'N/A';
 
                     console.log("  Calculated raw values:", { usage, limit, tierText, modelText });
@@ -1501,9 +1505,9 @@ console.log("Early beforeunload listener added (listener is present but not prev
              }
         } else if (!currentUserId) {
             // No valid user ID available (XTL parsing failed or missing, and no data loaded)
-            tierText = 'NoUser'; // Indicate no user
-            modelText = 'NoUser';
-            usageText = 'NoUser';
+            tierText = 'No User'; // Indicate no user
+            modelText = 'N/A';
+            usageText = '- / -';
              console.log("  No currentUserId available.");
         } else {
              // initialUsageInfo is null/undefined, but user ID is present.
@@ -1560,6 +1564,8 @@ console.log("Early beforeunload listener added (listener is present but not prev
         dashboardData = data; // Update global reference
 
         // Update user context based on loaded data's metadata if available and valid
+        // This should potentially merge/prioritize URL/XTL context vs file metadata
+        // For now, stick to file metadata overriding, but ensure globals are set correctly
         if (dashboardData.metadata && typeof dashboardData.metadata.userId === 'string' && dashboardData.metadata.userId.length > 0) {
              console.log(`Updating user context from loaded data metadata: User ID = ${dashboardData.metadata.userId}, Tier = ${dashboardData.metadata.tier}`);
              currentUserId = dashboardData.metadata.userId;
@@ -1574,6 +1580,12 @@ console.log("Early beforeunload listener added (listener is present but not prev
         } else {
              console.warn("No user ID or tier found in loaded data metadata. Keeping current context (from XTL or default).");
              // If no metadata, rely on currentUserId/effectiveTier set by XTL or defaults
+             // Ensure the dashboardData object gets the current user context before saving
+             dashboardData.metadata = dashboardData.metadata || {};
+             dashboardData.metadata.userId = currentUserId;
+             dashboardData.metadata.tier = effectiveTier;
+             dashboardData.metadata.source = dashboardData.metadata.source || 'unknown'; // Keep existing source if present
+
              updateUIBasedOnAccess(); // Ensure UI reflects current user/tier/usage state
         }
 
@@ -2105,7 +2117,7 @@ console.log("Early beforeunload listener added (listener is present but not prev
             const incomeValues = [];
             Object.entries(incomeData).forEach(([key, value]) => {
                 const numValue = Number(getSafe(() => value, 0)); // Use getSafe for value with default 0
-                if (numValue > 0) {
+                if (numValue > 0 && isFinite(numValue)) {
                     let label = key.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase());
                     // Customize common labels
                     if (key === 'mainJobIncome') label = 'Main Job';
@@ -2123,7 +2135,7 @@ console.log("Early beforeunload listener added (listener is present but not prev
             const expenseValues = [];
             Object.entries(expenseData).forEach(([key, value]) => {
                 const numValue = Number(getSafe(() => value, 0)); // Use getSafe for value with default 0
-                if (numValue > 0) {
+                if (numValue > 0 && isFinite(numValue)) {
                     let label = key.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase());
                     // Customize common labels
                     if (key === 'groceriesEssentials') label = 'Groceries/Essentials';
@@ -2144,7 +2156,7 @@ console.log("Early beforeunload listener added (listener is present but not prev
              // Explicitly add total minimum debt payments if > 0, assuming they are part of expenses
              // Check if 'Debt Payments' label already exists or if we should add a new category
              // A common category name might be "Debt Payments" or "Minimum Debt Payments"
-             if (totalMinPayments > 0) {
+             if (totalMinPayments > 0 && isFinite(totalMinPayments)) {
                  const debtLabel = 'Debt Payments';
                  // Check if any existing expense label is similar, maybe combine? Or add as new?
                  // For simplicity, let's add as a new distinct category
@@ -2152,7 +2164,7 @@ console.log("Early beforeunload listener added (listener is present but not prev
                  expenseValues.push(totalMinPayments);
                  console.log(`  Added Total Minimum Debt Payments (${totalMinPayments}) to expense data.`);
              } else {
-                 console.log("  Total Minimum Debt Payments are zero, not adding to expense chart.");
+                 console.log("  Total Minimum Debt Payments are zero or not finite, not adding to expense chart.");
              }
 
              console.log("  Prepared expense data for chart:", { labels: expenseLabels, values: expenseValues });
@@ -2268,7 +2280,7 @@ console.log("Early beforeunload listener added (listener is present but not prev
             const incomeChartDiv = document.getElementById('incomeChart');
             const expenseChartDiv = document.getElementById('expenseChart');
              if(incomeChartDiv) incomeChartDiv.innerHTML = `<p class="text-red-600 text-center p-4">Error loading chart.</p>`;
-             if(expenseChartDiv) expenseChartDiv.innerHTML = `<p class="text-red-600 text-center p-4">Error loading chart.</p>`;
+             if(expenseChartDiv) expenseChartDiv.innerHTML = `<p class-="text-red-600 text-center p-4">Error loading chart.</p>`;
             // Rethrow the error so it can be caught by the caller in requestAnimationFrame
             // throw new Error(`Chart rendering failed: ${getSafe(() => chartError.message, 'Unknown error')}`); // Don't re-throw, just log
         }
@@ -2486,23 +2498,23 @@ console.log("Early beforeunload listener added (listener is present but not prev
          modelDisplay.style.display = isLoading ? 'none' : 'inline';
          usageDisplay.style.display = isLoading ? 'none' : 'inline';
 
+        // If a specific message is provided, display it temporarily or prominently?
+        // Based on current HTML, the message is part of the thinking indicator.
+        // Let's assume the message parameter isn't strictly needed here for the current HTML structure,
+        // as "Thinking..." is hardcoded in the indicator.
+        // If you add a dedicated span for dynamic messages, use the `message` parameter there.
 
          if (isLoading) {
               chatThinkingIndicator.style.display = 'inline-block'; // Show the indicator container
              // The "Thinking..." text is already part of the indicator HTML structure
-             // The specific loading message is hardcoded in the HTML structure currently.
-             // If you need dynamic loading messages, you'd need a dedicated span for it.
          } else {
               // When not loading, the indicator is hidden.
               // The static status display (Tier | Model | Usage) should remain visible.
               tierDisplay.style.display = 'inline';
               modelDisplay.style.display = 'inline';
               usageDisplay.style.display = 'inline';
-             console.log("Set chat status: ", message, isLoading ? "(Loading)" : "(Idle)");
          }
-         // Note: updateUIBasedOnAccess handles setting the *text* content of tierDisplay, modelDisplay, usageDisplay.
-         // setChatStatus only controls the *visibility* of the 'Thinking...' indicator vs the static status text.
-
+          console.log("Set chat status: ", message, isLoading ? "(Loading)" : "(Idle)");
      }
 
     // Function to initialize chat UI state and listeners
@@ -2582,7 +2594,12 @@ console.log("Early beforeunload listener added (listener is present but not prev
                  usageInfoError: initialUsageInfo?.error,
                  limitReached: initialUsageInfo && initialUsageInfo.limit !== undefined && initialUsageInfo.usage >= initialUsageInfo.limit
             });
-            if (chatInterfaceCardElement) chatInterfaceCardElement.style.display = 'none'; // Ensure hidden
+            // Note: If limit is reached, the chat card should still be visible but disabled
+            if (chatInterfaceCardElement) {
+                 const showCardIfLimitReached = initialUsageInfo?.limit !== undefined && initialUsageInfo.usage >= initialUsageInfo?.limit;
+                 chatInterfaceCardElement.style.display = showCardIfLimitReached ? 'block' : 'none';
+            }
+
             enableChatInput(false); // Disable input
 
             // Disable AI analysis/summary related buttons IF they exist
@@ -2602,8 +2619,7 @@ console.log("Early beforeunload listener added (listener is present but not prev
                  setChatStatus("Chat unavailable - Authentication needed", false); // User ID needed for Supabase functions
             } else if (initialUsageInfo.limit !== undefined && initialUsageInfo.usage >= initialUsageInfo.limit) {
                  setChatStatus("Weekly token limit reached", false);
-                 // Show the card but in a disabled state if limit is reached
-                 if (chatInterfaceCardElement) chatInterfaceCardElement.style.display = 'block';
+                 // Status is set above
             } else {
                   setChatStatus("Chat unavailable", false); // Generic fallback
             }
@@ -2692,6 +2708,8 @@ console.log("Early beforeunload listener added (listener is present but not prev
                      errorMessage = "Authentication error. Please ensure you are signed in correctly.";
                  } else if (error.message.includes("Error processing message")) {
                       errorMessage = "There was an error processing your request. Please try again.";
+                 } else if (error.message.includes("context too long")) {
+                     errorMessage = "The conversation context is too long. Please try starting a new chat.";
                  }
 
 
@@ -2708,6 +2726,7 @@ console.log("Early beforeunload listener added (listener is present but not prev
                  // Assuming the function returns an object like { reply: "AI response", usage: { total_tokens: 123 } }
                  const aiResponse = getSafe(() => data.reply, "No response received from AI.");
                  const tokenUsage = getSafe(() => data.usage?.total_tokens, null); // Get usage info
+
 
                 // Add AI response to chat history display
                 addMessageToChat("Assistant", aiResponse, false);
@@ -2773,7 +2792,7 @@ console.log("Early beforeunload listener added (listener is present but not prev
         const analysisText = dashboardData.aiOutput.analysis; // Get the raw analysis text
 
         // Prompt the user where to save (e.g., local download or Drive)
-        const saveOption = prompt("Save Summary:\n1. Download as Text File\n2. Save to Google Drive (as part of full report)\n\nEnter 1 or 2:", "1");
+        const saveOption = prompt("Save Summary:\n1. Download Analysis Text File\n2. Save Full Report (including analysis) to Google Drive\n\nEnter 1 or 2:", "1");
 
         if (saveOption === '1') {
             // Download as Text File
@@ -2858,7 +2877,19 @@ console.log("Early beforeunload listener added (listener is present but not prev
                  let errorMessage = error.message || "Unknown error from analysis function.";
                  if (errorMessage.includes("Token limit reached")) {
                     errorMessage = "Analysis generation token limit reached. Please wait or upgrade.";
+                 } else if (errorMessage.includes("Function not found")) {
+                     errorMessage = "AI processing function not found. Please contact support.";
+                 } else if (errorMessage.includes("Rate limit exceeded")) {
+                      errorMessage = "You are sending messages too quickly. Please wait a moment.";
+                 } else if (errorMessage.message.includes("Invalid user ID or tier")) {
+                     errorMessage = "Authentication error. Please ensure you are signed in correctly.";
+                 } else if (errorMessage.includes("Error processing message")) {
+                      errorMessage = "There was an error processing your request. Please try again.";
+                 } else if (errorMessage.includes("context too long")) {
+                    errorMessage = "The data for analysis is too complex or large.";
                  }
+
+
                  addMessageToChat("System", `Error generating analysis: ${errorMessage}`, true);
                  setChatStatus("Analysis failed", false);
 
@@ -2964,12 +2995,13 @@ console.log("Early beforeunload listener added (listener is present but not prev
             }
 
             // Cache Google Drive buttons and user display element (redundant but safe)
-            googleSignInButton = googleSignInButton || document.getElementById('googleSignInButton');
-            googleSignOutButton = googleSignOutButton || document.getElementById('googleSignOutButton');
-            loadFromDriveButton = loadFromDriveButton || document.getElementById('loadFromDriveButton');
-            saveToDriveButton = saveToDriveButton || document.getElementById('saveToDriveButton');
-            downloadLocalButton = downloadLocalButton || document.getElementById('downloadLocalButton');
-            signedInUserDisplayElement = signedInUserDisplayElement || document.getElementById('signedInUserDisplay');
+            // Caching here to ensure they are available for event listeners immediately
+            googleSignInButton = document.getElementById('googleSignInButton');
+            googleSignOutButton = document.getElementById('googleSignOutButton');
+            loadFromDriveButton = document.getElementById('loadFromDriveButton');
+            saveToDriveButton = document.getElementById('saveToDriveButton');
+            downloadLocalButton = document.getElementById('downloadLocalButton');
+            signedInUserDisplayElement = document.getElementById('signedInUserDisplay');
 
 
             // Initialize Google APIs (GIS and Gapi) - This will handle showing the sign-in button
@@ -3036,7 +3068,7 @@ console.log("Early beforeunload listener added (listener is present but not prev
              if (downloadLocalButton) {
                  downloadLocalButton.addEventListener('click', handleLocalDownload);
                  console.log("Local Download button listener added.");
-             } else { console.warn("Local Download button not found."); }
+            } else { console.warn("Local Download button not found."); }
 
 
             // Add chat input event listeners (add once here, manage disabled state via enableChatInput)
@@ -3056,88 +3088,25 @@ console.log("Early beforeunload listener added (listener is present but not prev
 
             // Initial fetch for usage info and then update UI based on that access
             // This also handles initializing the chat UI based on initial state
+            // NOTE: fetchInitialUsage is ASYNC. This call initiates the fetch, but the UI update
+            // based on the fetch result happens *inside* fetchInitialUsage's callbacks.
             fetchInitialUsage();
 
-
-            // Ensure spinner is hidden finally if not already handled
-            // This is also done by handleError and processAndDisplayData finally blocks,
-            // but a final check here can't hurt if logic somehow bypasses others.
-            // Removed this from here, let the specific flows manage the spinner.
 
         } catch (initError) {
             console.error("Error initializing Supabase/core features:", initError);
              // If core initialization fails, likely can't recover well. Use error handler.
              handleError("Core Initialization Failed", initError);
         }
-    }
+        // The spinner hiding is now managed by the specific display paths (processAndDisplayData, handleError, showInitialPromptOrMessage).
 
-    // Helper function to show initial message when no data is found
-    function showInitialPromptOrMessage(message = "Upload a PSR JSON file or sign in with Google Drive to load your dashboard.") { // Updated default message
-        console.log("Executing showInitialPromptOrMessage");
-        hideAllMainContentAreas(); // Hide everything else first
+        // Add the resize listener outside the try/catch/finally to ensure it's always added
+         window.addEventListener('resize', handleResize);
+         console.log("Window resize listener added.");
+    });
 
-        // Prefer showing the structured upload prompt if available
-        if (initialUploadPrompt) {
-            initialUploadPrompt.style.display = 'block';
-             // Ensure the upload button listener is active for this state
-            const initialUploadButton = document.getElementById('initialUploadButton');
-            if (initialUploadButton && fileInput) {
-                // Listener is added in initializeSupabaseAndCoreFeatures, just ensure button is visible if needed
-                 initialUploadButton.style.display = 'inline-block'; // Assuming it's part of the prompt div
-                 console.log("Initial upload prompt and button visible.");
-            } else {
-                 console.warn("Initial upload button or file input not found.");
-            }
 
-        } else if (initialMessageElement) {
-             // Fallback to simple message if prompt not found
-            initialMessageElement.textContent = message;
-            initialMessageElement.style.display = 'block';
-            console.log("Displayed fallback initial message element.");
-        } else {
-             console.warn("Could not find initial prompt or message elements.");
-        }
-
-        // Ensure chat is hidden if we revert to the initial state
-        if (chatInterfaceCardElement) { chatInterfaceCardElement.style.display = 'none'; }
-        enableChatInput(false); // Disable chat input as well
-         setChatStatus("No data loaded", false);
-         // Hide Drive buttons if signed out or not loaded, show Sign In
-         updateDriveButtonVisibility(!!googleAccessToken); // Use current token status to update visibility
-    }
-
-     // Helper to hide all potential main content/initial states
-     function hideAllMainContentAreas() {
-         if (loadingSpinner) loadingSpinner.style.display = 'none';
-         if (errorMessageElement) errorMessageElement.style.display = 'none';
-         if (mainContentElement) { mainContentElement.style.display = 'none'; mainContentElement.classList.add('hidden'); }
-         if (initialMessageElement) initialMessageElement.style.display = 'none';
-         if (initialUploadPrompt) initialUploadPrompt.style.display = 'none';
-         closeModal('driveLoadModal'); // Close the Drive load modal if open
-         closeModal('progressModal'); // Close other modals too
-         closeModal('infoModal');
-     }
-
-     // Handle window resize to potentially re-render charts for responsiveness
-     function handleResize() {
-         //console.log("Window resized. Attempting to relayout charts..."); // Commented out - too noisy
-         const incomeChartDiv = document.getElementById('incomeChart');
-         const expenseChartDiv = document.getElementById('expenseChart');
-
-         // Check if plotly is available and the divs exist and contain a chart
-         if (typeof Plotly !== 'undefined') {
-             if (incomeChartDiv && incomeChartDiv.data) { // Check if Plotly data is attached
-                 //console.log("Relayouting Income Chart...");
-                 Plotly.relayout(incomeChartDiv, { autosize: true });
-             }
-             if (expenseChartDiv && expenseChartDiv.data) { // Check if Plotly data is attached
-                  //console.log("Relayouting Expense Chart...");
-                 Plotly.relayout(expenseChartDiv, { autosize: true });
-             }
-         } // else { console.warn("Plotly not available for relayout on resize."); } // Commented out - too noisy
-     }
-
-     // --- Google API Loading and Initialization ---
+    // --- Google API Loading and Initialization ---
     // Load GIS (for authentication) and Gapi (for API calls) libraries
     function loadGoogleAPIs() {
         console.log("Loading Google APIs...");
@@ -3296,139 +3265,151 @@ console.log("Early beforeunload listener added (listener is present but not prev
         // This function should react to auth result, not hide the main dashboard content.
         // Hiding/showing main content is managed by the initial load logic and processAndDisplayData.
 
-        // Check if the response contains a valid access token (SUCCESS PATH)
-        if (tokenResponse && tokenResponse.access_token) {
-            console.log("Google token response successful. Access token obtained.");
-            googleAccessToken = tokenResponse.access_token; // Store the token globally
-            console.log("Access Token obtained (length:", googleAccessToken.length, ")."); // Log length, not full token for security
+        try { // Added try...catch inside handleGoogleTokenResponse
+            // Check if the response contains a valid access token (SUCCESS PATH)
+            if (tokenResponse && tokenResponse.access_token) {
+                console.log("Google token response successful. Access token obtained.");
+                googleAccessToken = tokenResponse.access_token; // Store the token globally
+                console.log("Access Token obtained (length:", googleAccessToken.length, ")."); // Log length, not full token for security
 
-            // Inject the obtained token into the gapi.client library for making API calls
-            // Check if gapi.client is available and has setToken method
-            if (typeof gapi !== 'undefined' && typeof gapi.client !== 'undefined' && typeof gapi.client.setToken === 'function') {
-                gapi.client.setToken({ access_token: googleAccessToken });
-                console.log("Token set in gapi.client.");
+                // Inject the obtained token into the gapi.client library for making API calls
+                // Check if gapi.client is available and has setToken method
+                if (typeof gapi !== 'undefined' && typeof gapi.client !== 'undefined' && typeof gapi.client.setToken === 'function') {
+                    gapi.client.setToken({ access_token: googleAccessToken });
+                    console.log("Token set in gapi.client.");
 
-                // Now that we have a token and it's set in gapi.client, load the Drive API library.
-                // gapi.client.load uses promises and handles idempotency (safe to call multiple times).
-                 gapi.client.load('drive', 'v3')
-                    .then(() => {
-                        console.log("Google Drive API v3 loaded successfully after sign-in.");
-                        // The Drive API (gapi.client.drive) is now ready to use.
-                        // Update button visibility to show Drive-related buttons (Load/Save), hide sign-in.
-                        updateDriveButtonVisibility(true);
-                        // Fetch user info for display (e.g., "Signed in as...")
-                        fetchGoogleUserInfo();
+                    // Now that we have a token and it's set in gapi.client, load the Drive API library.
+                    // gapi.client.load uses promises and handles idempotency (safe to call multiple times).
+                     gapi.client.load('drive', 'v3')
+                        .then(() => {
+                            console.log("Google Drive API v3 loaded successfully after sign-in.");
+                            // The Drive API (gapi.client.drive) is now ready to use.
+                            // Update button visibility to show Drive-related buttons (Load/Save), hide sign-in.
+                            updateDriveButtonVisibility(true);
+                            // Fetch user info for display (e.g., "Signed in as...")
+                            fetchGoogleUserInfo();
 
-                        // --- Determine what to do after successful sign-in ---
-                        // If dashboard data is NOT already loaded (e.g., from URL params),
-                        // attempt to automatically load the user's file from Drive.
-                         if (!dashboardData || !dashboardData.userInput || Object.keys(getSafe(() => dashboardData.userInput, {})).length === 0) {
-                             console.log("No data loaded from URL. Attempting auto-load from Drive after sign-in.");
-                             // Show spinner while loading from Drive
-                             hideAllMainContentAreas(); // Hide existing content before loading from Drive
-                             if (loadingSpinner) loadingSpinner.style.display = 'flex';
-                             setChatStatus("Loading from Drive...", true);
-                             // Call the function to initiate loading from Drive.
-                             // handleLoadFromDriveClick manages its own loading state and error display.
-                             handleLoadFromDriveClick(); // This function calls processAndDisplayData on success
+                            // --- Determine what to do after successful sign-in ---
+                            // If dashboard data is NOT already loaded (e.g., from URL params),
+                            // attempt to automatically load the user's file from Drive.
+                             if (!dashboardData || !dashboardData.userInput || Object.keys(getSafe(() => dashboardData.userInput, {})).length === 0) {
+                                 console.log("No data loaded from URL. Attempting auto-load from Drive after sign-in.");
+                                 // Show spinner while loading from Drive
+                                 hideAllMainContentAreas(); // Hide existing content before loading from Drive
+                                 if (loadingSpinner) loadingSpinner.style.display = 'flex';
+                                 setChatStatus("Loading from Drive...", true);
+                                 // Call the function to initiate loading from Drive.
+                                 // handleLoadFromDriveClick manages its own loading state and error display.
+                                 handleLoadFromDriveClick(); // This function calls processAndDisplayData on success
 
-                         } else {
-                             // If data was already loaded (e.g., from URL params),
-                             // just indicate signed-in status. The main dashboard should already be visible.
-                             console.log("Data already loaded from URL. Skipping auto-load from Drive.");
-                             // Ensure main content is visible if it wasn't already (e.g., if XTL loaded structure but no data)
-                              // This case might happen if the initial state was 'no data, but XTL valid'.
-                              // processAndDisplayData is NOT called here, so we manually ensure main content is shown.
-                             if (mainContentElement && mainContentElement.style.display === 'none') { // Check if it's currently hidden
-                                console.log("Main content was hidden, making it visible after successful sign-in.");
-                                mainContentElement.style.display = 'block';
-                                mainContentElement.classList.remove('hidden');
+                             } else {
+                                 // If data was already loaded (e.g., from URL params),
+                                 // just indicate signed-in status. The main dashboard should already be visible.
+                                 console.log("Data already loaded from URL. Skipping auto-load from Drive.");
+                                 // Ensure main content is visible if it wasn't already (e.g., if XTL loaded structure but no data)
+                                  // This case might happen if the initial state was 'no data, but XTL valid'.
+                                  // processAndDisplayData is NOT called here, so we manually ensure main content is shown.
+                                 if (mainContentElement && mainContentElement.style.display === 'none') { // Check if it's currently hidden
+                                    console.log("Main content was hidden, making it visible after successful sign-in.");
+                                    mainContentElement.style.display = 'block';
+                                    mainContentElement.classList.remove('hidden');
+                                 }
+                                 if (loadingSpinner) loadingSpinner.style.display = 'none'; // Hide spinner if it was on
+                                 setChatStatus("Signed in to Drive", false); // Indicate successful sign-in
+                                  // Ensure buttons are correctly visible (redundant but safe)
+                                  updateDriveButtonVisibility(true);
                              }
-                             if (loadingSpinner) loadingSpinner.style.display = 'none'; // Hide spinner if it was on
-                             setChatStatus("Signed in to Drive", false); // Indicate successful sign-in
-                              // Ensure buttons are correctly visible (redundant but safe)
-                              updateDriveButtonVisibility(true);
-                         }
 
-                    })
-                    .catch((loadError) => {
-                         console.error("Error loading Google Drive API after sign-in:", loadError);
-                         // This is a failure *after* authentication, but related to API access.
-                         // Treat as an error but ensure token/sign-in state is kept.
-                         // Don't clear googleAccessToken here.
-                         handleError("Google Drive API Load Failed", loadError); // Report the error using central handler
-                         // Ensure Drive buttons are hidden if the API failed to load
-                         updateDriveButtonVisibility(false); // SignedIn will be true, but Load/Save require API
-                         setChatStatus("Drive API Failed", false);
-                    });
+                        })
+                        .catch((loadError) => {
+                             console.error("Error loading Google Drive API after sign-in:", loadError);
+                             // This is a failure *after* authentication, but related to API access.
+                             // Treat as an error but ensure token/sign-in state is kept.
+                             // Don't clear googleAccessToken here.
+                             handleError("Google Drive API Load Failed", loadError); // Report the error using central handler
+                             // Ensure Drive buttons are hidden if the API failed to load
+                             updateDriveButtonVisibility(false); // SignedIn will be true, but Load/Save require API
+                             setChatStatus("Drive API Failed", false);
+                        });
 
-            } else {
-                // This case should ideally not happen if gapi.js loaded correctly via onload=handleGapiLoad()
-                // and handleGapiLoad successfully loaded the 'client' module.
-                // It means gapi.client is somehow not ready *even though* auth succeeded.
-                console.error("Gapi client not available to set token after successful response. Ensure api.js and 'client' module are loaded.");
-                 googleAccessToken = null; // Clear token as gapi.client is broken
-                 googleUser = null; // Clear user info
+                } else {
+                    // This case should ideally not happen if gapi.js loaded correctly via onload=handleGapiLoad()
+                    // and handleGapiLoad successfully loaded the 'client' module.
+                    // It means gapi.client is somehow not ready *even though* auth succeeded.
+                    console.error("Gapi client not available to set token after successful response. Ensure api.js and 'client' module are loaded.");
+                     googleAccessToken = null; // Clear token as gapi.client is broken
+                     googleUser = null; // Clear user info
+                     driveFolderId = null; // Clear cached folder ID
+                    handleError("Google API Client Setup Failed", new Error("Google API client not fully ready after authentication.")); // Report the error
+                    updateDriveButtonVisibility(false); // Hide Drive buttons
+                     setChatStatus("API Client Failed", false);
+                }
+
+            // --- Handle expected non-fatal error responses (interaction_required, access_denied, etc.) ---
+            // These are results where a token was NOT obtained, but it's a known state that doesn't
+            // necessarily indicate a critical application error needing the full handleError modal.
+            // This handles failures from both silent ('prompt:none') and interactive ('prompt:auto') requests.
+            } else if (tokenResponse && (tokenResponse.error === 'interaction_required' || tokenResponse.error === 'access_denied' || tokenResponse.error === 'popup_closed_by_user')) {
+                 console.warn("Google token response indicated interaction is required or access denied/cancelled:", tokenResponse.error, tokenResponse.error_description);
+                 googleAccessToken = null; // Ensure token is null as authentication was NOT successful
+                 googleUser = null; // Clear user info display
+                 // Clear token from gapi.client if it was somehow set previously
+                 if (typeof gapi !== 'undefined' && typeof gapi.client !== 'undefined' && typeof gapi.client.setToken === 'function') {
+                     gapi.client.setToken(null);
+                 }
                  driveFolderId = null; // Clear cached folder ID
-                handleError("Google API Client Setup Failed", new Error("Google API client not fully ready after authentication.")); // Report the error
-                updateDriveButtonVisibility(false); // Hide Drive buttons
-                 setChatStatus("API Client Failed", false);
-            }
 
-        // --- Handle expected non-fatal error responses (interaction_required, access_denied, etc.) ---
-        // These are results where a token was NOT obtained, but it's a known state that doesn't
-        // necessarily indicate a critical application error needing the full handleError modal.
-        // This handles failures from both silent ('prompt:none') and interactive ('prompt:auto') requests.
-        } else if (tokenResponse && (tokenResponse.error === 'interaction_required' || tokenResponse.error === 'access_denied' || tokenResponse.error === 'popup_closed_by_user')) {
-             console.warn("Google token response indicated interaction is required or access denied/cancelled:", tokenResponse.error, tokenResponse.error_description);
-             googleAccessToken = null; // Ensure token is null as authentication was NOT successful
-             googleUser = null; // Clear user info display
-             // Clear token from gapi.client if it was somehow set previously
+                 // Update UI to show the sign-in button and reflect not signed in status
+                 // Note: Main content visibility is *NOT* changed here. It should remain visible
+                 // if it was loaded from URL params, or remain hidden if it was initially hidden.
+                 updateDriveButtonVisibility(false); // Pass false because we are NOT signed in (no token)
+                 signedInUserDisplayElement = signedInUserDisplayElement || document.getElementById('signedInUserDisplay');
+                  if (signedInUserDisplayElement) {
+                      signedInUserDisplayElement.textContent = '';
+                      signedInUserDisplayElement.style.display = 'none';
+                  }
+
+                 // Set status message indicating user needs to click the button
+                 setChatStatus("Sign-in needed", false);
+
+            // --- Handle any other unexpected errors in the token response ---
+            } else if (tokenResponse && tokenResponse.error) {
+                console.error("Google token response contained an unexpected error:", tokenResponse);
+                googleAccessToken = null; // Ensure token is null
+                googleUser = null;
+                if (typeof gapi !== 'undefined' && typeof gapi.client !== 'undefined' && typeof gapi.client.setToken === 'function') {
+                    gapi.client.setToken(null);
+                }
+                driveFolderId = null;
+
+                // Treat these as more serious failures needing the central error handler
+                // This WILL call hideAllMainContentAreas(), which is appropriate for a critical error.
+                 handleError("Google Sign-In Response Error", new Error(`Unexpected error from Google: ${tokenResponse.error || 'No error code'}: ${tokenResponse.error_description || 'Unknown'}`));
+                 // Status and visibility will be set by handleError
+            } else {
+                 // --- Fallback for truly empty or unexpectedly structured responses ---
+                 console.warn("Google token response was empty or unexpectedly structured.", tokenResponse);
+                  googleAccessToken = null; // Ensure token is null
+                  googleUser = null;
+                  if (typeof gapi !== 'undefined' && typeof gapi.client !== 'undefined' && typeof gapi.client.setToken === 'function') {
+                      gapi.client.setToken(null);
+                  }
+                  driveFolderId = null;
+
+                  // This WILL call hideAllMainContentAreas(), appropriate for a critical error.
+                  handleError("Google Sign-In Response Error", new Error("Received empty or invalid response from Google."));
+                 // Status and visibility will be set by handleError
+            }
+        } catch (innerError) { // Catch any errors that occur within handleGoogleTokenResponse itself
+             console.error("ERROR WITHIN handleGoogleTokenResponse:", innerError);
+             // Ensure cleanup on internal error within this handler
+             googleAccessToken = null;
+             googleUser = null;
              if (typeof gapi !== 'undefined' && typeof gapi.client !== 'undefined' && typeof gapi.client.setToken === 'function') {
                  gapi.client.setToken(null);
              }
-             driveFolderId = null; // Clear cached folder ID
-
-             // Update UI to show the sign-in button and reflect not signed in status
-             // Note: Main content visibility is *NOT* changed here. It should remain visible
-             // if it was loaded from URL params, or remain hidden if it was initially hidden.
-             updateDriveButtonVisibility(false); // Pass false because we are NOT signed in (no token)
-             signedInUserDisplayElement = signedInUserDisplayElement || document.getElementById('signedInUserDisplay');
-              if (signedInUserDisplayElement) {
-                  signedInUserDisplayElement.textContent = '';
-                  signedInUserDisplayElement.style.display = 'none';
-              }
-
-             // Set status message indicating user needs to click the button
-             setChatStatus("Sign-in needed", false);
-
-        // --- Handle any other unexpected errors in the token response ---
-        } else if (tokenResponse && tokenResponse.error) {
-            console.error("Google token response contained an unexpected error:", tokenResponse);
-            googleAccessToken = null; // Ensure token is null
-            googleUser = null;
-            if (typeof gapi !== 'undefined' && typeof gapi.client !== 'undefined' && typeof gapi.client.setToken === 'function') {
-                gapi.client.setToken(null);
-            }
-            driveFolderId = null;
-
-            // Treat these as more serious failures needing the central error handler
-            // This WILL call hideAllMainContentAreas(), which is appropriate for a critical error.
-             handleError("Google Sign-In Response Error", new Error(`Unexpected error from Google: ${tokenResponse.error || 'No error code'}: ${tokenResponse.error_description || 'Unknown'}`));
-             // Status and visibility will be set by handleError
-        } else {
-             // --- Fallback for truly empty or unexpectedly structured responses ---
-             console.warn("Google token response was empty or unexpectedly structured.", tokenResponse);
-              googleAccessToken = null; // Ensure token is null
-              googleUser = null;
-              if (typeof gapi !== 'undefined' && typeof gapi.client !== 'undefined' && typeof gapi.client.setToken === 'function') {
-                  gapi.client.setToken(null);
-              }
-              driveFolderId = null;
-
-              // This WILL call hideAllMainContentAreas(), appropriate for a critical error.
-              handleError("Google Sign-In Response Error", new Error("Received empty or invalid response from Google."));
-             // Status and visibility will be set by handleError
+             driveFolderId = null;
+              handleError("Internal Google Auth Handler Error", innerError); // Report using central handler
         }
     }
 
@@ -3473,11 +3454,20 @@ console.log("Early beforeunload listener added (listener is present but not prev
                  signedInUserDisplayElement.textContent = ''; // Clear any old text
             }
 
+            // Update button visibility again now that user info is fetched (redundant but ensures display updates)
+            updateDriveButtonVisibility(!!googleAccessToken);
+
 
         } catch (error) {
             console.error("Error fetching Google user info:", error);
             // If fetching user info fails, it's not a critical app error, just log it.
             // The UI will proceed without the user's name displayed.
+             // Ensure display is hidden if fetch failed after a token was obtained
+             signedInUserDisplayElement = signedInUserDisplayElement || document.getElementById('signedInUserDisplay');
+             if (signedInUserDisplayElement) {
+                 signedInUserDisplayElement.textContent = '';
+                 signedInUserDisplayElement.style.display = 'none';
+             }
         }
     }
 
@@ -3564,7 +3554,7 @@ console.log("Early beforeunload listener added (listener is present but not prev
         if (googleSignOutButton) googleSignOutButton.style.display = isSignedIn ? 'inline-block' : 'none';
 
         // Determine if dashboard data is currently loaded (needed for Save/Download)
-        const isDataLoaded = dashboardData && dashboardData.userInput && Object.keys(getSafe(() => dashboardData.userInput, {})).length > 0;
+        const isDataLoaded = dashboardData && dashboardData.userInput && Object.keys(getSafe(() => dashboardData.userInput, {})).length > 0 && getSafe(() => dashboardData.userInput.personalInfo, 'N/A') !== 'N/A'; // Check for data presence AND basic info presence
          console.log("Data loaded:", isDataLoaded);
 
 
@@ -3577,12 +3567,10 @@ console.log("Early beforeunload listener added (listener is present but not prev
         // Local download button is visible whenever data is loaded (doesn't require sign-in)
         if (downloadLocalButton) downloadLocalButton.style.display = isDataLoaded ? 'inline-block' : 'none';
 
-        // Display user info span only when signed in
+        // Display user info span only when signed in AND user info is available
         if (signedInUserDisplayElement) {
-            // Only show the span if signed in AND we actually have user info to display
             const hasUserInfo = googleUser?.name;
             signedInUserDisplayElement.style.display = (isSignedIn && hasUserInfo) ? 'inline-block' : 'none';
-            // Ensure text is set or cleared correctly
             if (isSignedIn && hasUserInfo) {
                  signedInUserDisplayElement.textContent = `Signed in as: ${googleUser.name}`;
             } else {
@@ -3637,7 +3625,7 @@ console.log("Early beforeunload listener added (listener is present but not prev
                 console.log("Parsed file content:", parsedData);
 
                 // Validate loaded data structure - check for minimum required parts
-                if (parsedData && parsedData.userInput && typeof parsedData.userInput === 'object' && parsedData.userInput.personalInfo) {
+                if (parsedData && parsedData.userInput && typeof parsedData.userInput === 'object' && parsedData.userInput.personalInfo && Object.keys(parsedData.userInput.personalInfo).length > 0) { // Added check for personalInfo object not being empty
                     console.log("File content appears to be valid PSR data.");
                     // Data loaded from file overrides current context
                     // If metadata exists, use that for userId/tier, otherwise keep current
@@ -3666,14 +3654,17 @@ console.log("Early beforeunload listener added (listener is present but not prev
                     parsedData.metadata.tier = effectiveTier; // Ensure the data object has the current tier
                     parsedData.metadata.source = 'manual_upload'; // Add source info
 
+                    // Re-fetch usage info now that user context might have changed
+                    fetchInitialUsage(); // This will also call updateUIBasedOnAccess -> initializeChat
+
                     processAndDisplayData(parsedData); // Process and display the loaded data
                     setChatStatus("File loaded successfully", false);
                      // Update button visibility now that data is loaded
                      updateDriveButtonVisibility(!!googleAccessToken);
 
                 } else {
-                    console.error("File content does not match expected PSR format.", parsedData);
-                    throw new Error("Invalid file format. Please upload a valid SmartWealth Navigator PSR file.");
+                    console.error("File content does not match expected PSR format or is incomplete.", parsedData);
+                    throw new Error("Invalid file format or incomplete data. Please upload a valid SmartWealth Navigator PSR file.");
                 }
             } catch (parseError) {
                  console.error("Error processing uploaded file:", parseError);
@@ -4091,7 +4082,7 @@ console.log("Early beforeunload listener added (listener is present but not prev
              console.log("Processing loaded data from Drive file...");
 
              // Validate loaded data structure
-             if (fileContent && fileContent.userInput && typeof fileContent.userInput === 'object' && fileContent.userInput.personalInfo) {
+             if (fileContent && fileContent.userInput && typeof fileContent.userInput === 'object' && fileContent.userInput.personalInfo && Object.keys(fileContent.userInput.personalInfo).length > 0) { // Added check for non-empty personalInfo
                   console.log("Loaded file content is valid PSR data. Updating dashboard.");
                   // Data loaded from file overrides current context
                   // Prefer userId/tier from file metadata if present and valid
@@ -4112,19 +4103,21 @@ console.log("Early beforeunload listener added (listener is present but not prev
                        console.warn("File metadata has no valid tier. Keeping current tier context or defaulting to basic.");
                   }
 
-
                   // Add source metadata
                  fileContent.metadata = fileContent.metadata || {};
                  fileContent.metadata.userId = currentUserId; // Ensure data object has the current user ID
                  fileContent.metadata.tier = effectiveTier; // Ensure data object has the current tier
                  fileContent.metadata.source = 'google_drive_loaded';
 
+                  // Re-fetch usage info now that user context might have changed
+                 fetchInitialUsage(); // This will also call updateUIBasedOnAccess -> initializeChat
+
 
                  processAndDisplayData(fileContent); // This handles hiding spinner and showing main content
                  setChatStatus("Loaded from Drive", false);
 
              } else {
-                 console.error("Loaded file content does not match expected PSR format.", fileContent);
+                 console.error("Loaded file content does not match expected PSR format or is incomplete.", fileContent);
                  throw new Error("The file from Google Drive is not a valid SmartWealth Navigator report.");
              }
 
@@ -4212,6 +4205,7 @@ console.log("Early beforeunload listener added (listener is present but not prev
         downloadLocalButton = document.getElementById('downloadLocalButton');
         signedInUserDisplayElement = document.getElementById('signedInUserDisplay');
 
+        console.log("Cached DOM elements.");
 
         // --- 2. Set Initial UI State ---
         // Hide all main content areas first, then show spinner
@@ -4224,9 +4218,15 @@ console.log("Early beforeunload listener added (listener is present but not prev
              // Cannot show spinner, proceed with caution
         }
 
+        // Add the resize listener early
+         window.addEventListener('resize', handleResize);
+         console.log("Window resize listener added.");
+
 
         // --- 3. Initialization Flow ---
         try {
+            console.log("Starting main initialization try block...");
+
             // Get URL parameters once
             const params = parseUrlParams();
 
@@ -4239,27 +4239,40 @@ console.log("Early beforeunload listener added (listener is present but not prev
                 // Initialize other features (buttons, modals, maybe Supabase client, Google APIs)
                 // This will also trigger Google API loading and silent auth attempt
                 initializeSupabaseAndCoreFeatures();
+                console.log("Exiting main try block due to 'data=null'.");
                 return; // Stop main initialization flow
             }
 
             // Parse the xtl parameter FIRST to get userId and effectiveTier
             const xtlParsedSuccessfully = parseXtlParameter(params);
+            console.log(`XTL parsed successfully: ${xtlParsedSuccessfully}, currentUserId: ${currentUserId}, effectiveTier: ${effectiveTier}`);
+
 
             // Parse financial data from URL parameters regardless of XTL success
             // This sets initial dashboardData (might be null if no params except xtl/userID)
             dashboardData = parseDataFromUrlParams(params);
+            console.log("Dashboard data from URL:", dashboardData);
+
 
             // Initialize Supabase and core features (buttons, modals, Google APIs etc.)
             // This also triggers fetchInitialUsage and subsequent chat initialization,
             // AND initiates Google API loading (which will manage sign-in button visibility).
             // Google silent re-auth happens within initializeSupabaseAndCoreFeatures -> loadGoogleAPIs -> initializeGIS.
             initializeSupabaseAndCoreFeatures();
+            console.log("Core features initialization initiated.");
 
 
             // Determine which main content state to show based on data and auth status
-            if (dashboardData && dashboardData.userInput && Object.keys(getSafe(() => dashboardData.userInput, {})).length > 0 && dashboardData.userInput.personalInfo) {
+            console.log("Checking conditions for initial content display:");
+            const hasDataFromUrl = dashboardData && dashboardData.userInput && Object.keys(getSafe(() => dashboardData.userInput, {})).length > 0 && getSafe(() => dashboardData.userInput.personalInfo, 'N/A') !== 'N/A'; // Added check for basic info presence
+             console.log(`  hasDataFromUrl: ${hasDataFromUrl}`);
+             console.log(`  xtlParsedSuccessfully: ${xtlParsedSuccessfully}`);
+             console.log(`  currentUserId (after XTL): ${currentUserId}`);
+
+
+            if (hasDataFromUrl) {
                  // Data was successfully parsed from URL params
-                 console.log("Dashboard data parsed from URL. Processing and displaying.");
+                 console.log("Condition matched: hasDataFromUrl is true. Processing and displaying data from URL.");
                  // Update metadata source for loaded data (already done in parseDataFromUrlParams)
                  // User ID and Tier from XTL are already set globally by parseXtlParameter.
                  // Ensure dashboardData object reflects these if it didn't have metadata or was missing them.
@@ -4269,49 +4282,60 @@ console.log("Early beforeunload listener added (listener is present but not prev
                  // If metadata source wasn't set, set it
                  if (!dashboardData.metadata.source || dashboardData.metadata.source === 'unknown') dashboardData.metadata.source = 'url_params';
 
-
+                 // fetchInitialUsage will be called inside processAndDisplayData if user context changes
                  processAndDisplayData(dashboardData); // This handles showing mainContent and hiding spinner, and setting chat state
-                 // Note: processAndDisplayData also calls fetchInitialUsage which updates initialUsageInfo and calls updateUIBasedOnAccess -> initializeChat
+                 console.log("processAndDisplayData called.");
+
 
             } else if (xtlParsedSuccessfully && currentUserId) {
                  // No dashboard data from URL, but XTL was valid and provided a user ID.
                  // This user is logged in via XTL but has no data yet.
-                 // Show the main container structure as a shell, waiting for file upload/load from Drive.
-                 // This state should typically auto-trigger Load from Drive if the user is signed in via Google.
-                 console.log(`No dashboard data in URL, but XTL valid for user ${currentUserId} (Tier: ${effectiveTier}). Showing empty main content shell and waiting for user action or Drive auto-load.`);
+                 console.log(`Condition matched: XTL valid but no URL data. Showing empty main content shell for user ${currentUserId}.`);
                  hideAllMainContentAreas();
                  if (mainContentElement) {
                     mainContentElement.style.display = 'block';
                     mainContentElement.classList.remove('hidden');
+                    console.log("Main content shell made visible.");
                  } else {
                      console.error("Main content element not found!");
                      handleError("Critical: Main content element not found.", new Error("DOM element #mainContent is missing."));
+                     console.log("Exiting main try block due to missing mainContent element.");
                      return; // Cannot proceed without main content
                  }
                  // Update UI elements to show "N/A" or default states explicitly
                  // Create a minimal dashboardData structure to avoid errors in UI update functions
                  dashboardData = { userInput: { personalInfo: {}, income: {}, expenses: {}, savings: {}, debts: [], financials: {} }, aiOutput: {}, metadata: { userId: currentUserId, tier: effectiveTier, source: 'xtl_no_data' }, chatHistory: [] };
+
+                 // Need to call UI update functions with empty data
                  updateReportBasics(dashboardData, calculateTotals(dashboardData)); // Pass minimal data and calculated totals
                  updateRatiosDisplay(calculateRatios(dashboardData, calculateTotals(dashboardData)));
                  updateGoalsDisplay(dashboardData, calculateTotals(dashboardData));
                  updateDebtsDisplay(dashboardData, calculateTotals(dashboardData));
                  updateUIDisplayFromAI(dashboardData);
                  renderCharts(dashboardData, calculateTotals(dashboardData)); // Attempt to render empty charts or messages
+                 console.log("Empty dashboard shell UI updated.");
 
-                 if (loadingSpinner) loadingSpinner.style.display = 'none'; // Hide spinner
+
+                 if (loadingSpinner) loadingSpinner.style.display = 'none'; // Hide spinner now that shell is visible
+                 console.log("Spinner hidden.");
+
 
                  // Button visibility is handled by initializeSupabaseAndCoreFeatures -> loadGoogleAPIs -> initializeGIS
-                 // Auto-loading from Drive is attempted in handleGoogleTokenResponse after successful sign-in
+                 // Auto-loading from Drive is attempted in handleGoogleTokenResponse after successful sign-in if needed
 
             } else {
                  // No dashboard data from URL and no valid XTL (or XTL didn't provide a user ID).
-                 console.log("No dashboard data or valid XTL. Showing initial prompt/message.");
+                 console.log("Condition matched: No URL data and no valid XTL. Showing initial prompt/message.");
                  if (loadingSpinner) loadingSpinner.style.display = 'none'; // Hide spinner
+                 console.log("Spinner hidden.");
                  showInitialPromptOrMessage(); // Show the upload prompt or generic message
+                 console.log("Initial prompt shown.");
                  // Error message might already be showing if XTL parse failed (handleInvalidAccess)
                  // Button visibility handled by showInitialPromptOrMessage
                  // Supabase client is initialized, but fetchInitialUsage will report "No user ID" and chat will be disabled.
             }
+
+             console.log("Finished conditions check for initial content display.");
 
 
         } catch (error) {
@@ -4322,9 +4346,8 @@ console.log("Early beforeunload listener added (listener is present but not prev
             // The spinner hiding is now managed by the specific display paths (processAndDisplayData, handleError, showInitialPromptOrMessage).
             console.log("DOMContentLoaded finally block finished.");
         }
-         // Add the resize listener outside the try/catch/finally to ensure it's always added
-         window.addEventListener('resize', handleResize);
-         console.log("Window resize listener added.");
+        // The resize listener is added outside the try/catch/finally block above.
+
     });
 
 
