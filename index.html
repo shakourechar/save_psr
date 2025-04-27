@@ -6,10 +6,15 @@
     <title>SmartWealth Navigator - Enhanced Financial Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' cdn.tailwindcss.com cdn.plot.ly cdn.jsdelivr.net tfnwwpksieluzvxqdiiq.supabase.co; style-src 'self' 'unsafe-inline' fonts.googleapis.com fonts.gstatic.com; font-src 'self' fonts.gstatic.com; img-src 'self' static.wixstatic.com data:; connect-src 'self' tfnwwpksieluzvxqdiiq.supabase.co https://tfnwwpksieluzvxqdiiq.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self';">
+     <!-- Updated CSP for Google APIs -->
+     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' cdn.tailwindcss.com cdn.plot.ly cdn.jsdelivr.net tfnwwpksieluzvxqdiiq.supabase.co accounts.google.com apis.google.com; style-src 'self' 'unsafe-inline' fonts.googleapis.com fonts.gstatic.com; font-src 'self' fonts.gstatic.com; img-src 'self' static.wixstatic.com data:; connect-src 'self' tfnwwpksieluzvxqdiiq.supabase.co https://tfnwwpksieluzvxqdiiq.supabase.co accounts.google.com apis.google.com https://www.googleapis.com; object-src 'none'; base-uri 'self'; form-action 'self';">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="./plotly.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Add Google API loader script tags -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://apis.google.com/js/api.js" async defer></script>
+
     <style>
         /* Base Styles */
         body {
@@ -51,7 +56,7 @@
             margin-bottom: 2rem;
             padding-bottom: 1rem;
             border-bottom: 1px solid #e5e7eb;
-            flex-wrap: wrap;
+            flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
         }
         header img {
             height: 72px;
@@ -62,14 +67,16 @@
         header h1 {
             color: #4f46e5;
             margin: 0;
-            flex-grow: 1;
+            flex-grow: 1; /* Allow title to take available space */
             font-size: 2.2em;
             line-height: 1.2;
+             /* Add some spacing to the right if buttons are present */
+            margin-right: 10px;
         }
 
         /* Header Buttons */
         header button {
-            margin-left: 10px;
+            margin-left: 10px; /* Space between buttons */
             padding: 0.6rem 1.2rem;
             background-color: #4f46e5;
             color: white;
@@ -80,11 +87,57 @@
             transition: background-color 0.3s ease;
             font-family: 'Inter', sans-serif;
             font-weight: 500;
+            /* Add flex-shrink to prevent buttons from shrinking */
+            flex-shrink: 0;
         }
         header button#uploadButton { background-color: #059669; }
         header button:hover { background-color: #4338ca; }
         header button#uploadButton:hover { background-color: #047857; }
         #fileInput { display: none; }
+
+        /* Add specific styles for Google buttons */
+        #googleSignInButton {
+            background-color: #4285F4; /* Google blue */
+        }
+        #googleSignInButton:hover {
+            background-color: #3367D6;
+        }
+         #googleSignOutButton {
+             background-color: #d1d5db; /* Gray */
+             color: #374151;
+         }
+         #googleSignOutButton:hover {
+             background-color: #9ca3af;
+         }
+         #loadFromDriveButton {
+             background-color: #10b981; /* Green */
+         }
+         #loadFromDriveButton:hover {
+             background-color: #059669;
+         }
+          #saveToDriveButton {
+              background-color: #f59e0b; /* Amber/Orange */
+          }
+          #saveToDriveButton:hover {
+              background-color: #d97706;
+          }
+         #downloadLocalButton {
+             background-color: #6b7280; /* Darker Gray */
+         }
+         #downloadLocalButton:hover {
+             background-color: #4b5563;
+         }
+         #signedInUserDisplay {
+             margin-right: 10px;
+             font-size: 0.9em;
+             color: #4b5563;
+             white-space: nowrap; /* Prevent wrapping */
+             overflow: hidden;
+             text-overflow: ellipsis; /* Add ellipsis if text overflows */
+             max-width: 150px; /* Limit width */
+             display: inline-block; /* Allow max-width */
+         }
+
 
         /* Grid Layout */
         .grid-container {
@@ -148,20 +201,6 @@
             position: relative; /* Add relative positioning if needed for Plotly */
         }
 
-            #googleSignInButton {
-        background-color: #4285F4; /* Google blue */
-        color: white;
-        border: none;
-        padding: 10px 16px;
-        border-radius: 4px;
-        cursor: pointer;
-        font-weight: bold;
-        margin-right: 10px;
-    }
-
-    #googleSignInButton:hover {
-        background-color: #3367D6;
-    }
 
         /* Ratio Bar Styles */
         .ratio-item { margin-bottom: 12px; }
@@ -265,7 +304,7 @@
         #debtsTable td.balance-col { /* ... existing styles ... */ }
         #debtsTable td.rate-col { /* ... existing styles ... */ }
         #debtsTable td.min-pmt-col { /* ... existing styles ... */ }
-        
+
         /* Progress Bar Styles */
         .progress-bar-container { background-color: #e5e7eb; border-radius: 6px; overflow: hidden; height: 20px; margin-top: 5px; margin-bottom: 10px; }
         .progress-bar { background-color: #4f46e5; height: 100%; width: 0%; transition: width 0.5s ease-in-out; text-align: center; color: white; font-size: 0.8em; line-height: 20px; font-weight: 500; }
@@ -283,6 +322,9 @@
         .modal-content { background-color: #fefefe; margin: 5% auto; padding: 25px; border: 1px solid #888; width: 80%; max-width: 700px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
         .close-button { color: #aaa; float: right; font-size: 32px; line-height: 1; font-weight: bold; cursor: pointer; }
         .close-button:hover, .close-button:focus { color: black; text-decoration: none; }
+        #driveFileList a { cursor: pointer; color: #4f46e5; text-decoration: underline; }
+         #driveFileList a:hover { text-decoration: none; }
+
 
         /* Loading / Error / Initial Messages */
         #loadingSpinner, #errorMessage {
@@ -439,14 +481,35 @@
         @media (max-width: 768px) {
             header { flex-direction: column; align-items: flex-start; }
             header h1 { margin-top: 10px; font-size: 1.8em; }
-            header button { margin-left: 0; margin-top: 10px; }
+             /* Adjust margin for buttons on smaller screens */
+             /*header button { margin-left: 0; margin-top: 10px; margin-right: 10px; }*/
+             /* Remove right margin from the last button in the header */
+            /*header button:last-child { margin-right: 0; }*/
+
+            /* Ensure button container wraps */
+             header div {
+                 display: flex;
+                 flex-wrap: wrap;
+                 gap: 10px; /* Space between buttons */
+                 margin-top: 10px;
+                 width: 100%; /* Ensure container takes full width */
+             }
+             header button {
+                 margin: 0; /* Remove individual margins */
+                 flex-grow: 1; /* Allow buttons to share space */
+                 min-width: 120px; /* Minimum width for buttons */
+             }
+             #signedInUserDisplay {
+                 order: -1; /* Place above buttons */
+                 width: 100%;
+                 text-align: center;
+                 margin-bottom: 5px;
+                 margin-right: 0; /* Remove right margin */
+             }
+
+
             .grid-container { grid-template-columns: 1fr; }
             .main-container { margin: 1rem; padding: 1rem; }
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            /* ... existing mobile styles ... */
         }
 
         /* ADD THIS NEW MEDIA QUERY FOR EVEN SMALLER SCREENS */
@@ -456,6 +519,31 @@
                 grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Lower the minimum width */
                 gap: 15px; /* Reduce gap slightly */
             }
+             /* Further adjust header layout on very small screens */
+             header {
+                flex-direction: column;
+                align-items: stretch; /* Stretch items */
+            }
+             header img { margin-right: 0; margin-bottom: 10px; max-width: 100%; height: auto; }
+             header h1 { margin-right: 0; text-align: center; font-size: 1.6em; }
+             /* Make buttons stack or distribute space */
+             header div {
+                 display: flex;
+                 flex-wrap: wrap; /* Allow buttons container to wrap */
+                 justify-content: center; /* Center buttons if they wrap */
+                 gap: 10px; /* Space between wrapped buttons */
+                 width: 100%; /* Ensure container takes full width */
+                 margin-top: 10px;
+             }
+             header button { margin: 0; flex-grow: 1; min-width: 100px; padding: 0.5rem 1rem; font-size: 0.8em; } /* Allow buttons to grow slightly */
+             #signedInUserDisplay {
+                 order: -1; /* Place above buttons */
+                 width: 100%;
+                 text-align: center;
+                 margin-bottom: 5px;
+                 margin-right: 0; /* Remove right margin */
+             }
+        }
     </style>
 </head>
 
@@ -507,20 +595,24 @@
         <header>
             <img src="https://static.wixstatic.com/media/c3283f_a9271d9818ba414994d98950da749489~mv2.jpg" alt="SmartWealth Navigator Logo">
             <h1>SmartWealth Navigator</h1>
-            {/* Keep fileInput hidden for potential demo/fallback if needed later, but it's not the primary flow */}
-             <input type="file" id="fileInput" accept=".json" style="display: none;"> {/* Ensure hidden */}
+             <!-- Button Container for better wrapping on small screens -->
+            <div>
+                 <!-- Display area for signed-in user name -->
+                 <span id="signedInUserDisplay" style="display: none;"></span>
+                 <!-- Keep fileInput hidden -->
+                 <input type="file" id="fileInput" accept=".json" style="display: none;">
 
-            {/* Drive Authentication Buttons */}
-            <button id="googleSignInButton" style="display: none;">Sign in with Google</button> {/* Initially hidden */}
-            <button id="googleSignOutButton" style="display: none;">Sign Out</button> {/* Initially hidden */}
+                 <!-- Google Authentication Buttons -->
+                 <button id="googleSignInButton" style="display: none;">Sign in with Google</button>
+                 <button id="googleSignOutButton" style="display: none;">Sign Out</button>
 
-            {/* Drive File Management Buttons (initially hidden) */}
-            <button id="loadFromDriveButton" style="display: none;">Load from Drive</button>
-            <button id="saveToDriveButton" style="display: none;">Save to Drive</button> {/* Renamed/Replaced Save button */}
+                 <!-- Drive File Management Buttons (initially hidden, managed by JS) -->
+                 <button id="loadFromDriveButton" style="display: none;">Load from Drive</button>
+                 <button id="saveToDriveButton" style="display: none;">Save to Drive</button>
 
-            {/* Optional: Keep a local download button as fallback/alternative if desired */}
-             <button id="downloadLocalButton" style="display: none;">Download Local PSR</button> {/* Initially hidden */}
-
+                 <!-- Optional: Keep a local download button as fallback/alternative -->
+                 <button id="downloadLocalButton" style="display: none;">Download Local PSR</button>
+            </div>
         </header>
 
         <div class="grid-container">
@@ -632,9 +724,9 @@
                       <thead>
                             <tr>
                                 <th>Type</th>
-                                <th class="balance-header" data-desc="Total amount currently owed on this debt.">Balance</th> 
+                                <th class="balance-header" data-desc="Total amount currently owed on this debt.">Balance</th>
                                 <th data-desc="Annual interest rate for this debt.">Rate (%)</th>
-                                <th class="min-pmt-header" data-desc="Minimum monthly payment required for this debt.">Min. Pmt</th> 
+                                <th class="min-pmt-header" data-desc="Minimum monthly payment required for this debt.">Min. Pmt</th>
                             </tr>
                         </thead>
 
@@ -714,10 +806,17 @@
         </div>
     </div>
 
-<script>
-    // Ensure hidden if elements missing - this is already good, but rely on JS to manage
-    // if(chatInterfaceCard) chatInterfaceCard.style.display = 'none';
+    <!-- Modal for listing files from Drive -->
+    <div id="driveLoadModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal('driveLoadModal')">&times;</span>
+            <h2>Select File to Load</h2>
+            <div id="driveFileList">Loading files...</div>
+            <p id="driveLoadError" style="color: red;"></p>
+        </div>
+    </div>
 
+<script>
     // --- Globals ---
     let dashboardData = {}; // Holds the main data object
     let chatMessages = []; // Holds chat history for API calls
@@ -732,33 +831,37 @@
         modeBarButtonsToRemove: ['sendDataToCloud', 'select2d', 'lasso2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d', 'resetScale2d', 'hoverClosestPie', 'toggleSpikelines', 'hoverCompareCartesian']
     };
 
-    let currentUserId = null;
-    let effectiveTier = 'basic'; // Default to basic
+    let currentUserId = null; // User ID derived from XTL parameter or loaded file
+    let effectiveTier = 'basic'; // Tier derived from XTL parameter or loaded file
     let initialUsageInfo = null; // To store fetched usage/limit info for initial UI setup
 
     // --- Supabase Client (CONFIGURE THESE) ---
     // **IMPORTANT:** Ensure these are correct and your Supabase project is configured
-    // with RLS policies that allow anon key reads on 'users' for fetchInitialUsage
+    // with RLS policies that allow anon key reads on 'SWN_Users' (using the 'id' column matching XTL)
     // and service key access in your Edge Function.
     const SUPABASE_URL = 'https://tfnwwpksieluzvxqdiiq.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRmbnd3cGtzaWVsdXp2eHFkaWlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ1ODQ3MjgsImV4cCI6MjA2MDE2MDcyOH0.xbtjiQ65vCggjj35qtlCZ0S5mJa4muSZcHXhaU4qvrE';
     let supabase = null; // Initialize later
 
-        // --- Google Drive Integration Constants ---
+    // --- Google Drive Integration Constants ---
     const GOOGLE_CLIENT_ID = '351536963710-k1tqdl2v2ddnnb1hgda4r4gm40kpu2sa.apps.googleusercontent.com'; // Your Google Cloud Client ID
     // Scopes needed: Accessing userinfo (for display), reading/writing Drive files created by this app
+    // 'drive.file' limits access to files created/opened by this app.
     const GOOGLE_SCOPES = 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/drive.file';
     const PSR_MIME_TYPE = 'application/json'; // MIME type for your PSR file
     const PSR_FOLDER_NAME = 'SmartWealth Navigator Reports'; // Name of the folder to use in Drive
+    const PSR_FILE_NAME = 'my_financial_report.json'; // Standard file name to use
 
     // --- Google Drive Related Globals ---
     let googleAccessToken = null; // Store the current Google Access Token
     let googleTokenClient = null; // Store the GIS token client instance
     let googleUser = null; // Store basic user info (name, etc.)
+    let driveFolderId = null; // Store the ID of the designated Drive folder
 
     // --- Cached DOM Elements ---
     // Declare variables here, cache in DOMContentLoaded
     let loadingSpinner, errorMessageElement, mainContentElement, initialMessageElement, errorTextElement, debugInfoElement, fileInput, initialUploadPrompt, chatInterfaceCardElement;
+    let googleSignInButton, googleSignOutButton, loadFromDriveButton, saveToDriveButton, downloadLocalButton, signedInUserDisplayElement;
 
     // --- Utility Functions ---
     function getSafe(fn, defaultVal = 'N/A') {
@@ -778,7 +881,8 @@
     function formatCurrency(value, hideNA = false) {
         const number = Number(getSafe(() => value, NaN)); // Use getSafe internally
         if (isNaN(number) || !isFinite(number)) return hideNA ? '' : 'N/A';
-        return number.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 });
+        // Use maximumFractionDigits: 2 for cents unless specified otherwise
+        return number.toLocaleString('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 2 });
     }
 
     function formatPercentage(value, decimals = 1) {
@@ -818,14 +922,21 @@
         console.log("Parsing URL parameters...");
         try {
             const params = new URLSearchParams(window.location.search);
-             // Check for data=null parameter (special case)
+             // Check for data=null parameter (special case from Jotform redirect)
             if (params.has('data') && params.get('data') === 'null') {
                 console.warn("URL parameter 'data=null' detected. Showing initial upload prompt.");
                 // This case is handled by the main DOMContentLoaded flow after parsing
                 return null; // Indicates special state, not lack of params
             }
-            console.log("URL parameters found and parsed.");
-            return params;
+             // Check for any parameters indicating data is present
+            if (Array.from(params.keys()).length > 0) {
+                 console.log("URL parameters found and parsed.");
+                 return params;
+            } else {
+                 console.log("No URL parameters found.");
+                 return new URLSearchParams(); // Return empty params object
+            }
+
         } catch (e) {
             console.error("Error parsing URL parameters:", e);
             // Return empty params or re-throw? Let's return empty to allow auth check
@@ -836,9 +947,9 @@
     // Function to parse all financial data from URL parameters
     function parseDataFromUrlParams(params) {
         console.log("Attempting to parse financial data from URL params...");
-        if (!params || typeof params.get !== 'function') {
-             console.log("No valid URL params object provided.");
-             return null;
+        if (!params || typeof params.get !== 'function' || Array.from(params.keys()).length === 0) {
+             console.log("No valid URL params object or no params found to parse data from.");
+             return null; // Return null if no params are present
         }
 
         // Helper function to get and decode parameter values
@@ -870,16 +981,14 @@
         };
 
         // Log key parameters for debugging
-        console.log("Debugging URL parameter parsing:");
+        console.log("Debugging URL parameter parsing (first few):");
         console.log("  userName:", getParam('userName'));
         console.log("  age:", getParam('age'));
         console.log("  mainJobIncome:", getParam('mainJobIncome'));
         console.log("  housing:", getParam('housing'));
-        console.log("  groceriesessentials:", getParam('groceriesessentials'));
-        console.log("  creditCardDebt:", getParam('creditCardDebt'));
-         console.log("  aiAnalysis:", getParam('aiAnalysis'));
-         console.log("  xtl:", getParam('xtl')); // Log xtl for debug
-         console.log("  userID:", getParam('userID')); // Log userID for debug
+        console.log("  xtl:", getParam('xtl')); // Log xtl for debug
+        console.log("  userID:", getParam('userID')); // Log userID for debug (Note: XTL is preferred for auth)
+
 
         // Construct and return the data object based on URL parameters
         // Use getSafe or default values aggressively here
@@ -924,11 +1033,17 @@
                 recommendations: getParam('recommendations') || 'Recommendations not available.',
                 userProgress: getParam('userProgressHistory') || 'No progress history available.'
             },
-             // Add a field to store the parsed xtl and userID if needed later, but DON'T use userID for auth here
+             // Add metadata including the parsed user ID and tier for saving/loading
+             // Use the user ID and tier derived from XTL parsing, if successful.
+             // If XTL parsing failed, currentUserId and effectiveTier will be null/basic,
+             // which is fine - they might be populated later from a loaded file.
             metadata: {
-                 xtl: getParam('xtl'),
-                 rawUserIdParam: getParam('userID') // Store the raw userID param value
-            }
+                 userId: currentUserId,
+                 tier: effectiveTier,
+                 source: 'url_params' // Indicate data source
+            },
+             // Add chatMessages array to the data structure for saving/loading
+            chatHistory: [] // Initialize empty, will be populated if chat is used
         };
 
         // Populate Debts Array - Check for existence and parse
@@ -941,7 +1056,7 @@
                      interestRate: parseNumeric('creditCardRate', 22.5), // Default CC rate
                      minPayment: parseNumeric('creditCardMinPayment', Math.max(creditCardDebt * 0.03, 25)) // Default min payment logic
                  });
-                 console.log("Added Credit Card Debt from param:", creditCardDebt);
+                 //console.log("Added Credit Card Debt from param:", creditCardDebt);
              }
 
              const bankLoans = parseNumeric('bankLoans');
@@ -952,7 +1067,7 @@
                      interestRate: parseNumeric('bankLoanRate', 6.5), // Default Bank Loan rate
                      minPayment: parseNumeric('bankLoanMinPayment', Math.max(bankLoans * 0.015, 50)) // Default min payment logic
                  });
-                 console.log("Added Bank Loans from param:", bankLoans);
+                 //console.log("Added Bank Loans from param:", bankLoans);
              }
 
              const studentLoans = parseNumeric('studentLoanDebt');
@@ -963,7 +1078,7 @@
                      interestRate: parseNumeric('studentLoanRate', 5.5), // Default Student Loan rate
                      minPayment: parseNumeric('studentLoanMinPayment', Math.max(studentLoans * 0.01, 50)) // Default min payment logic
                  });
-                 console.log("Added Student Loans from param:", studentLoans);
+                 //console.log("Added Student Loans from param:", studentLoans);
              }
 
              const carLoans = parseNumeric('carLoanBalance');
@@ -974,10 +1089,10 @@
                      interestRate: parseNumeric('carLoanRate', 6.0), // Default Car Loan rate
                      minPayment: parseNumeric('carLoanMinPayment', Math.max(carLoans * 0.015, 100)) // Default min payment logic
                  });
-                 console.log("Added Car Loan from param:", carLoans);
+                 //console.log("Added Car Loan from param:", carLoans);
              }
         } catch (e) {
-             console.error("Error populating debt array:", e);
+             console.error("Error populating debt array from params:", e);
              // Continue with potentially empty or partially filled debts array
         }
 
@@ -1062,6 +1177,8 @@
         enableChatInput(false);
         setChatStatus("Error occurred", false);
          if (chatInterfaceCardElement) chatInterfaceCardElement.style.display = 'none'; // Ensure chat is hidden
+         // Hide Drive buttons on error
+         updateDriveButtonVisibility(false);
     }
 
     // --- Demo Data ---
@@ -1093,16 +1210,40 @@
                 analysis: "Cash flow is positive ($1120/month). Emergency fund covers ~2 months of core expenses (target is 3-6). High DTI ratio (31%) primarily due to student/car loans, but CC debt is high interest. Good retirement savings.",
                 recommendations: "- Prioritize paying off the 22.5% interest credit card.\n- Aim to increase emergency fund to $10,000 (3 months expenses).\n- Continue consistent retirement contributions.\n- Review subscription expenses for potential savings.",
                 userProgress: "2024-12-01: Initial report generated (Demo Data).\n2025-03-15: Credit card balance reduced by $500. Emergency fund increased by $1000."
-            }
+            },
+             // Add metadata for demo data - use a placeholder user ID
+            metadata: {
+                 userId: 'demo-user-123',
+                 tier: 'basic',
+                 source: 'demo_data'
+            },
+            chatHistory: [
+                 { role: 'assistant', content: "Hello! Ask me anything about the financial data shown on your dashboard." }
+            ]
         };
 
         // Use a timeout to simulate loading and ensure spinner is seen briefly
         setTimeout(() => {
-            dashboardData = demoData; // Set global data
-            chatMessages = []; // Clear chat history when loading demo data
+            // IMPORTANT: When using demo data, we *reset* the Supabase user context
+            currentUserId = demoData.metadata.userId;
+            effectiveTier = demoData.metadata.tier;
+            chatMessages = demoData.chatHistory; // Load demo chat history
+            initialUsageInfo = { // Simulate usage info for demo user
+                 usage: 0,
+                 limit: (effectiveTier === 'pro' ? 500000 : 15000), // Use realistic limits for demo tier
+                 model: (effectiveTier === 'pro' ? 'gpt-4o-mini' : 'gpt-3.5-turbo'), // Use realistic models for demo tier
+                 tier: effectiveTier,
+                 actualDbTier: 'demo', // Indicate it's demo data
+                 lastReset: new Date().toISOString(), // Simulate a recent reset
+                 resetDue: false,
+                 userFoundInDb: true // Simulate user exists (for chat enablement)
+            };
+
             console.log("Rendering demo data...");
-            processAndDisplayData(dashboardData); // Process the demo data
+            processAndDisplayData(demoData); // Process the demo data
             // Hide spinner is handled by processAndDisplayData finally block
+            // Button visibility updated by processAndDisplayData -> updateDriveButtonVisibility
+
         }, 500); // Simulate a small delay
     }
 
@@ -1111,7 +1252,9 @@
         console.log("Parsing XTL parameter...");
         if (!params || typeof params.get !== 'function') {
              console.warn("No URL params available for XTL parsing.");
-             handleInvalidAccess("Missing URL parameters."); // Treat as invalid access
+             // Do not treat missing params as invalid access here, just no XTL user
+             currentUserId = null;
+             effectiveTier = 'basic';
              return false; // Indicate failure
         }
 
@@ -1135,13 +1278,13 @@
                     // Set tier based on verification segment
                     if (verificationSegment === '16j59') {
                         tierFromXtl = 'pro';
-                        console.log("Verified pro tier access.");
+                        console.log("Verified pro tier access via XTL.");
                     } else if (verificationSegment === '83n45') {
                         tierFromXtl = 'basic';
-                        console.log("Verified basic tier access.");
+                        console.log("Verified basic tier access via XTL.");
                     } else {
-                        console.error("Unrecognized verification segment:", verificationSegment);
-                        handleInvalidAccess("Invalid Access Code Segment in XTL");
+                        console.error("Unrecognized verification segment in XTL:", verificationSegment);
+                        handleInvalidAccess("Invalid Access Code Segment in XTL"); // Treat as invalid access if segment is unknown
                         return false; // Indicate failure
                     }
 
@@ -1157,21 +1300,18 @@
 
                 } else {
                     console.error("Invalid XTL format: verification segment or user ID segment has wrong format");
-                    handleInvalidAccess("Invalid XTL Format");
+                    handleInvalidAccess("Invalid XTL Format"); // Treat as invalid access if format is wrong
                     return false; // Indicate failure
                 }
             } catch (e) {
                  console.error("Error processing XTL parameter:", e);
-                 handleInvalidAccess("Error Processing XTL Parameter");
+                 handleInvalidAccess("Error Processing XTL Parameter"); // Treat as invalid access on processing error
                  return false; // Indicate failure
             }
         } else {
-            console.warn("XTL parameter missing or wrong length.");
-            // This is not necessarily an *invalid access* scenario, but means no authenticated user
-            // handleInvalidAccess("Missing or Invalid XTL Parameter"); // Decide if missing XTL is an error or just no auth
-            console.log("No valid XTL parameter found. Proceeding without authenticated user.");
-            currentUserId = null; // Ensure no user ID is set
-            effectiveTier = 'basic'; // Default tier remains
+            console.warn("XTL parameter missing or wrong length. Proceeding without authenticated user via XTL.");
+            // This is not an invalid access, just means no XTL user context
+            // currentUserId and effectiveTier will remain null/basic from initial declaration
             return false; // Indicate no authenticated user was found via XTL
         }
     }
@@ -1199,7 +1339,7 @@
         }
 
         if (!currentUserId) {
-            console.log("Skipping initial usage fetch: No user ID available (XTL not parsed or invalid).");
+            console.log("Skipping initial usage fetch: No user ID available (XTL not parsed or invalid, or demo data not loaded).");
             initialUsageInfo = { error: "No valid user ID for access check." }; // Indicate why chat might not work
             updateUIBasedOnAccess(); // Update UI based on no user ID
             return; // Exit early
@@ -1209,13 +1349,12 @@
         console.log(`Attempting to fetch user data for ID: ${currentUserId}`);
 
         try {
-            // Using the ANON key here requires appropriate RLS on your 'users' table
-            // to allow reading 'token_usage', 'last_token_reset', 'tier' for the user matching 'auth.uid()'
-            // OR, if you're not using auth.uid() for matching, make sure RLS allows read access based on 'id' column
+            // Using the ANON key here requires appropriate RLS on your 'SWN_Users' table
+            // to allow reading 'token_usage', 'last_token_reset', 'tier' for the user matching 'id' column
             const { data, error } = await supabase
                 .from('SWN_Users')
                 .select('token_usage, last_token_reset, tier')
-                .eq('id', currentUserId) // Using the ID derived from XTL
+                .eq('id', currentUserId) // Using the ID derived from XTL or demo data
                 .maybeSingle();
 
             if (error && error.code !== 'PGRST116') { // PGRST116 is 'results in 0 rows'
@@ -1226,8 +1365,9 @@
                 console.log("Initial usage data fetched:", data);
                 // Note: The backend function is the source of truth for tier/limit/model based on header.
                 // This fetch is primarily for displaying client-side usage info.
-                // We'll use the tier determined by XTL for the frontend UI and backend header.
-                const determinedLimit = (effectiveTier === 'pro') ? 500000 : 15000;
+                // We'll use the tier determined by XTL (effectiveTier) for the frontend UI and backend header,
+                // but also show the DB tier for potential debugging if needed.
+                const determinedLimit = (effectiveTier === 'pro') ? 500000 : 15000; // Client-side assumption for display
 
                 const now = new Date();
                 const lastReset = data.last_token_reset ? new Date(data.last_token_reset) : null;
@@ -1237,18 +1377,16 @@
                 let needsReset = !lastReset || (now.getTime() - lastReset.getTime()) / (1000 * 60 * 60 * 24) >= 7;
 
                 // Reflect reset state for the frontend display calculation
-                if (needsReset) {
-                     console.log("Frontend usage calculation: Weekly reset detected.");
-                     currentUsage = 0; // Show 0 usage if reset is pending/needed
-                }
+                // Frontend display shows actual usage from DB, but notes if reset is pending/needed
+                // currentUsage = 0; // <-- Reverted this - show actual usage
 
 
                 initialUsageInfo = {
-                    usage: currentUsage, // Usage from DB (or 0 if reset due)
-                    limit: determinedLimit, // Limit based on frontend tier
-                    model: (effectiveTier === 'pro') ? 'gpt-4o-mini' : 'gpt-3.5-turbo', // Model based on frontend tier
-                    tier: effectiveTier, // Tier derived from XTL
-                    actualDbTier: data.tier, // Tier stored in DB (for comparison/debug if needed)
+                    usage: currentUsage, // Usage from DB
+                    limit: determinedLimit, // Limit based on frontend effective tier
+                    model: (effectiveTier === 'pro') ? 'gpt-4o-mini' : 'gpt-3.5-turbo', // Model based on frontend effective tier
+                    tier: effectiveTier, // Tier derived from XTL or loaded data (used for backend calls)
+                    actualDbTier: data.tier, // Tier stored in DB (for comparison/debug)
                     lastReset: data.last_token_reset,
                     resetDue: needsReset,
                     userFoundInDb: true // Flag indicating the user exists in the DB
@@ -1258,17 +1396,17 @@
 
             } else {
                 // data is null and error is PGRST116 - User ID not found in DB
-                console.warn(`User ID ${currentUserId} (from XTL) not found in users table during initial fetch.`);
+                console.warn(`User ID ${currentUserId} not found in SWN_Users table during initial fetch.`);
                 // This user will be registered on their first chat request by the updated backend.
                 // For frontend display, show 0 usage but indicate user not found in initial fetch.
                  initialUsageInfo = {
                     usage: 0, // Assume 0 usage for a new user
-                    limit: (effectiveTier === 'pro') ? 500000 : 10000,
-                    model: (effectiveTier === 'pro') ? 'gpt-4o-mini' : 'gpt-3.5-turbo',
-                    tier: effectiveTier,
+                    limit: (effectiveTier === 'pro') ? 500000 : 15000, // Use configured limits for display
+                    model: (effectiveTier === 'pro') ? 'gpt-4o-mini' : 'gpt-3.5-turbo', // Use configured models for display
+                    tier: effectiveTier, // Tier derived from XTL or loaded data
                     actualDbTier: null, // Not found in DB
                     lastReset: null,
-                    resetDue: true, // New user needs a reset timestamp set
+                    resetDue: true, // New user needs a reset timestamp set on first use
                     userFoundInDb: false // Flag indicating the user does NOT exist in the DB yet
                  };
                  console.log("Initial Usage Info (User Not Found in DB) Calculated:", initialUsageInfo);
@@ -1291,105 +1429,6 @@
         handleError(`Access Error: ${reason}`, new Error(reason), true); // Pass true for isAccessError
     }
 
-  // --- Chat Functionality ---
-    function initializeChat() { // Renamed from updateUIBasedOnAccess temporarily for clarity
-        console.log("--- initializeChat START ---");
-
-        // Cache chat elements here if not already done in DOMContentLoaded
-        chatInterfaceCardElement = chatInterfaceCardElement || document.getElementById('chatInterfaceCard');
-        const chatInput = document.getElementById('chatInput');
-        const chatSendButton = document.getElementById('chatSendButton');
-        const chatHistory = document.getElementById('chatHistory');
-
-        if (!chatInput || !chatSendButton || !chatHistory || !chatInterfaceCardElement) {
-            console.error("One or more Chat UI elements not found! Aborting chat initialization.");
-            if (chatInterfaceCardElement) chatInterfaceCardElement.style.display = 'none';
-            enableChatInput(false);
-            setChatStatus("Chat UI elements missing", false);
-            return;
-        }
-
-        // SIMPLIFIED CHECK: Ensure Supabase client exists and fetch is available
-        const isReadyForChat = supabase && typeof fetch === 'function';
-        console.log("Is environment ready for chat (Supabase client + fetch)?", isReadyForChat);
-
-        // Determine if chat CAN be enabled based on user/usage (from global state)
-        const canEnableChat = currentUserId && initialUsageInfo && !initialUsageInfo.error && (!initialUsageInfo.limit || initialUsageInfo.usage < initialUsageInfo.limit); // Check limit exists before comparing
-        console.log("Can chat be enabled based on user/usage state?", canEnableChat);
-
-        if (isReadyForChat && canEnableChat) {
-            chatInterfaceCardElement.style.display = 'block'; // Show the card
-            enableChatInput(true); // Enable input fields
-            setChatStatus("Ready to chat", false); // Set status
-
-            // Clear and rebuild chat history display based on chatMessages array
-            chatHistory.innerHTML = '';
-            if (chatMessages.length === 0) {
-                // Add initial assistant message only if chat history is empty
-                const initialMsgContent = "Hello! Ask me anything about the financial data shown on your dashboard.";
-                addMessageToChat("Assistant", initialMsgContent, false);
-                // Don't push initial greeting to history array unless you want it saved/resent
-                // chatMessages.push({ role: "assistant", content: initialMsgContent });
-            } else {
-                // Restore previous messages from history array
-                chatMessages.forEach(msg => addMessageToChat(msg.role.charAt(0).toUpperCase() + msg.role.slice(1), msg.content));
-            }
-            // Scroll to the latest message after loading history
-            if (chatHistory.scrollHeight) { // Check scrollHeight is available
-               chatHistory.scrollTop = chatHistory.scrollHeight;
-            }
-
-
-            // Ensure listeners are attached only once or re-attached correctly
-            chatSendButton.removeEventListener('click', handleChatSubmit);
-            chatInput.removeEventListener('keydown', handleChatEnterKey);
-            chatInput.removeEventListener('input', autoGrowTextarea);
-
-            chatSendButton.addEventListener('click', handleChatSubmit);
-            chatInput.addEventListener('keydown', handleChatEnterKey);
-            chatInput.addEventListener('input', autoGrowTextarea);
-            // Safely attempt initial height adjustment
-            try {
-               autoGrowTextarea({ target: chatInput }); // Adjust height initially
-            } catch(e) { console.warn("Initial autoGrowTextarea failed", e); }
-
-
-            console.log("Chat UI initialized and enabled.");
-
-        } else {
-            // Chat cannot be enabled - figure out why and set status
-            console.log("Chat setup skipped or disabled. Reasons:", {
-                 isReadyForChat: isReadyForChat,
-                 canEnableChat: canEnableChat,
-                 hasUserId: !!currentUserId,
-                 hasUsageInfo: !!initialUsageInfo,
-                 usageInfoError: initialUsageInfo?.error,
-                 limitReached: initialUsageInfo && initialUsageInfo.limit && initialUsageInfo.usage >= initialUsageInfo.limit, // Check limit exists
-            });
-            if (chatInterfaceCardElement) chatInterfaceCardElement.style.display = 'none'; // Ensure hidden
-            enableChatInput(false);
-
-            // Set appropriate status message
-            if (!initialUsageInfo) {
-                 setChatStatus("Loading access info...", true);
-            } else if (initialUsageInfo.error) {
-                 setChatStatus("Chat unavailable - Access Error", false);
-            } else if (!isReadyForChat) {
-                 setChatStatus("Chat unavailable - Service Offline", false);
-            } else if (!currentUserId) {
-                 setChatStatus("Chat unavailable - Authentication needed", false);
-            } else if (initialUsageInfo.limit && initialUsageInfo.usage >= initialUsageInfo.limit) { // Check limit exists
-                 setChatStatus("Weekly token limit reached", false);
-                 if (chatInterfaceCardElement) chatInterfaceCardElement.style.display = 'block'; // Show card but disabled
-            } else {
-                  setChatStatus("Chat unavailable", false); // Generic fallback
-            }
-        }
-        console.log("--- initializeChat END ---");
-    }
-
-    // This function now updates the chat status display info AND calls initializeChat
-    // This function now updates the chat status display info AND calls initializeChat
     // This function now updates the chat status display info AND calls initializeChat
     function updateUIBasedOnAccess() {
         console.log("Executing updateUIBasedOnAccess to update Tier/Usage display info START");
@@ -1423,8 +1462,9 @@
                     const limit = initialUsageInfo.limit !== undefined ? initialUsageInfo.limit : NaN;
 
                     // Use the tier/model from initialUsageInfo if available, fallback to effectiveTier
-                    tierText = getSafe(() => initialUsageInfo.tier, effectiveTier);
-                    modelText = getSafe(() => initialUsageInfo.model, 'N/A'); // Model is set by backend based on tier
+                    // initialUsageInfo.tier and model are determined by effectiveTier in fetchInitialUsage
+                    tierText = initialUsageInfo.tier || effectiveTier;
+                    modelText = initialUsageInfo.model || 'N/A';
 
                     console.log("  Calculated raw values:", { usage, limit, tierText, modelText });
 
@@ -1435,8 +1475,8 @@
                          usageText = 'ErrorCalculating'; // Indicate if usage/limit numbers are invalid
                     }
 
-                    if(initialUsageInfo.resetDue) usageText += " (Reset Pending)";
-                    if(!initialUsageInfo.userFoundInDb) tierText += " (New)"; // Append note if needed (e.g., 'basic (New)')
+                    if(initialUsageInfo.resetDue && initialUsageInfo.userFoundInDb) usageText += " (Reset Pending)"; // Only show reset pending if user is found
+                    if(!initialUsageInfo.userFoundInDb && currentUserId) tierText += " (New User)"; // Append note if needed (e.g., 'basic (New)')
 
                     console.log("  Formatted text values:", { tierText, modelText, usageText });
 
@@ -1448,7 +1488,7 @@
                     console.warn("  Displaying Error state due to initialUsageInfo.error:", initialUsageInfo.error);
              }
         } else if (!currentUserId) {
-            // No valid user ID available (XTL parsing failed or missing)
+            // No valid user ID available (XTL parsing failed or missing, and no data loaded)
             tierText = 'NoUser'; // Indicate no user
             modelText = 'NoUser';
             usageText = 'NoUser';
@@ -1495,7 +1535,7 @@
 
         console.log("Executing updateUIBasedOnAccess END");
     }
-    
+
     // --- Main Data Processing & Display Function ---
     function processAndDisplayData(data) {
         console.log("--- processAndDisplayData START ---", data);
@@ -1507,13 +1547,40 @@
         }
         dashboardData = data; // Update global reference
 
+        // Update user context based on loaded data's metadata if available and valid
+        if (dashboardData.metadata && typeof dashboardData.metadata.userId === 'string' && dashboardData.metadata.userId.length > 0) {
+             console.log(`Updating user context from loaded data metadata: User ID = ${dashboardData.metadata.userId}, Tier = ${dashboardData.metadata.tier}`);
+             currentUserId = dashboardData.metadata.userId;
+             effectiveTier = getSafe(() => dashboardData.metadata.tier, 'basic');
+             // Ensure tier is valid if provided, default to basic
+             if (!['basic', 'pro'].includes(effectiveTier)) {
+                 effectiveTier = 'basic';
+                 console.warn("Invalid tier found in file metadata. Defaulting to basic.");
+             }
+             // Re-fetch usage info for the newly set user ID
+             fetchInitialUsage(); // This will also call updateUIBasedOnAccess and initializeChat
+        } else {
+             console.warn("No user ID or tier found in loaded data metadata. Keeping current context (from XTL or default).");
+             // If no metadata, rely on currentUserId/effectiveTier set by XTL or defaults
+             updateUIBasedOnAccess(); // Ensure UI reflects current user/tier/usage state
+        }
+
+         // Load chat history from data if available
+         chatMessages = Array.isArray(getSafe(() => dashboardData.chatHistory)) ? dashboardData.chatHistory.filter(msg => msg && msg.role && msg.content) : []; // Filter valid messages
+         console.log(`Loaded ${chatMessages.length} chat messages from data.`);
+
+        // Recalculate totals and ratios after loading new data
+         const totals = calculateTotals(data);
+         const ratios = calculateRatios(data, totals);
+
+
         try {
             console.log("1. Calculating totals...");
-            const totals = calculateTotals(data);
+            // Totals already calculated above
             console.log("Totals calculated:", totals);
 
             console.log("2. Calculating ratios...");
-            const ratios = calculateRatios(data, totals);
+             // Ratios already calculated above
             console.log("Ratios calculated:", ratios);
 
             console.log("3. Updating basic info UI...");
@@ -1545,9 +1612,6 @@
                     // Display error within the chart divs
                     const incomeChartDiv = document.getElementById('incomeChart');
                     const expenseChartDiv = document.getElementById('expenseChart');
-                    incomeChartDiv.innerHTML  = '';
-                    expenseChartDiv.innerHTML = '';
-
                     if(incomeChartDiv) incomeChartDiv.innerHTML = `<p class="text-red-600 text-center p-4">Error loading income chart:<br>${getSafe(() => chartError.message, 'Unknown chart error')}</p>`;
                     if(expenseChartDiv) expenseChartDiv.innerHTML = `<p class="text-red-600 text-center p-4">Error loading expense chart:<br>${getSafe(() => chartError.message, 'Unknown chart error')}</p>`;
                 }
@@ -1557,11 +1621,9 @@
             updateUIDisplayFromAI(data);
             console.log("AI display UI updated.");
 
-             console.log("9. Re-checking chat access now that data is loaded…");
-       updateUIBasedOnAccess();      // <<< Add this crucial second call
-       console.log("Chat initialization (second pass) updated UI based on data.");
+            // Chat initialization happens via updateUIBasedOnAccess which is called after metadata processing or in finally block
 
-            console.log("10. Making main content visible...");
+            console.log("9. Making main content visible...");
             hideAllMainContentAreas(); // Hide other states
             if (mainContentElement) {
                 mainContentElement.style.display = 'block'; // Use block display (or grid if appropriate)
@@ -1584,6 +1646,11 @@
             } else {
                 console.warn("Spinner element not found in finally block.");
             }
+             // Ensure chat is initialized/updated after data processing is complete
+            console.log("Calling initializeChat() from processAndDisplayData finally block.");
+            initializeChat(); // This will read the updated chatMessages and user context
+             // Update button visibility now that data is loaded
+             updateDriveButtonVisibility(!!googleAccessToken);
             console.log("--- processAndDisplayData END ---");
         }
     }
@@ -1598,13 +1665,13 @@
         };
 
         try {
-            const income = getSafe(() => data.userInput.income, {});
-            const expenses = getSafe(() => data.userInput.expenses, {});
-            const savings = getSafe(() => data.userInput.savings, {});
-            const debts = getSafe(() => data.userInput.debts, []);
+            const income = getSafe(() => data.userInput?.income, {});
+            const expenses = getSafe(() => data.userInput?.expenses, {});
+            const savings = getSafe(() => data.userInput?.savings, {});
+            const debts = getSafe(() => data.userInput?.debts, []);
 
             // Income: Sum known income types
-            totals.totalIncome = (Number(getSafe(() => income.mainJobIncome)) || 0) + (Number(getSafe(() => income.secondJob)) || 0) + (Number(getSafe(() => income.otherIncome)) || 0);
+            totals.totalIncome = (Number(getSafe(() => income.mainJobIncome, 0)) || 0) + (Number(getSafe(() => income.secondJob, 0)) || 0) + (Number(getSafe(() => income.otherIncome, 0)) || 0);
 
             // Expenses & Core Expenses: Iterate through expenses object
             // Define core expenses - ADJUST THESE KEYS TO MATCH YOUR DATA EXACTLY
@@ -1612,7 +1679,7 @@
             const coreExpenseKeys = ['housing', 'utilities', 'transportation', 'groceriesEssentials', 'insurance', 'medical', 'care', 'subscriptions', 'taxes']; // Removed 'minPayments' here
 
             for (const key in expenses) {
-                const value = Number(getSafe(() => expenses[key])) || 0;
+                const value = Number(getSafe(() => expenses[key], 0)) || 0;
                 totals.totalExpenses += value;
                 // Check if the expense key is considered 'core'
                 if (coreExpenseKeys.includes(key)) {
@@ -1623,8 +1690,8 @@
             // Debts: Sum balance and minimum payments from the debts array
             if (Array.isArray(debts)) {
                 debts.forEach(debt => {
-                    totals.totalDebt += Number(getSafe(() => debt.balance)) || 0;
-                    const minPayment = Number(getSafe(() => debt.minPayment)) || 0;
+                    totals.totalDebt += Number(getSafe(() => debt.balance, 0)) || 0;
+                    const minPayment = Number(getSafe(() => debt.minPayment, 0)) || 0;
                     totals.totalMinPayments += minPayment;
                 });
             }
@@ -1636,7 +1703,7 @@
             totals.netFlow = totals.totalIncome - totals.totalExpenses;
 
             // Savings: Sum known savings types
-            totals.totalSavings = (Number(getSafe(() => savings.emergency)) || 0) + (Number(getSafe(() => savings.savings)) || 0) + (Number(getSafe(() => savings.retirement)) || 0);
+            totals.totalSavings = (Number(getSafe(() => savings.emergency, 0)) || 0) + (Number(getSafe(() => savings.savings, 0)) || 0) + (Number(getSafe(() => savings.retirement, 0)) || 0);
 
              console.log("Totals calculation successful.");
         } catch (e) {
@@ -1659,10 +1726,10 @@
          }
 
         try {
-            const savingsInput = getSafe(() => data.userInput.savings, {});
+            const savingsInput = getSafe(() => data.userInput?.savings, {});
 
             // Savings Rate: Use explicit monthly goal if available, otherwise use positive net flow proxy
-            const monthlySavingsGoal = Number(getSafe(() => savingsInput.monthlySavingsGoal));
+            const monthlySavingsGoal = Number(getSafe(() => savingsInput.monthlySavingsGoal, 0));
             // Use the goal if defined AND positive, otherwise use net flow (but cap at 0 if net flow is negative)
             const contribution = (monthlySavingsGoal > 0) ? monthlySavingsGoal : Math.max(0, totals.netFlow);
 
@@ -1674,7 +1741,7 @@
             }
 
             // Emergency Fund Coverage (Months based on CORE expenses)
-            const currentEmergencyFund = Number(getSafe(() => savingsInput.emergency)) || 0;
+            const currentEmergencyFund = Number(getSafe(() => savingsInput.emergency, 0)) || 0;
             if (totals.monthlyCoreExpenses > 0) {
                 ratios.emergencyCoverage = currentEmergencyFund / totals.monthlyCoreExpenses; // Result in months
             } else if (totals.totalExpenses > 0) {
@@ -1706,9 +1773,9 @@
     function updateReportBasics(data, totals) {
         console.log("Updating report basics UI...");
         try {
-            const personalInfo = getSafe(() => data.userInput.personalInfo, {});
-            const savings = getSafe(() => data.userInput.savings, {});
-            const financials = getSafe(() => data.userInput.financials, {});
+            const personalInfo = getSafe(() => data.userInput?.personalInfo, {});
+            const savings = getSafe(() => data.userInput?.savings, {});
+            const financials = getSafe(() => data.userInput?.financials, {});
 
             updateElementText('userName', getSafe(() => personalInfo.userName));
             updateElementText('age', getSafe(() => personalInfo.age)); // Assumes age is just a number
@@ -1776,11 +1843,11 @@
         }
     }
 
-        function updateGoalsDisplay(data, totals) {
+    function updateGoalsDisplay(data, totals) {
         console.log("Updating goals display UI...");
         try {
-            const savingsInput = getSafe(() => data.userInput.savings, {});
-            const financialsInput = getSafe(() => data.userInput.financials, {});
+            const savingsInput = getSafe(() => data.userInput?.savings, {});
+            const financialsInput = getSafe(() => data.userInput?.financials, {});
             const upcomingPurchaseString = getSafe(() => financialsInput.upcomingPurchase, '');
 
             const emergencyGoalDisplay = document.getElementById('emergencyGoalDisplay');
@@ -1789,9 +1856,9 @@
             let hasVisibleGoal = false;
 
             // --- Emergency Fund Goal ---
-            const emergencyCurrent = Number(getSafe(() => savingsInput.emergency)) || 0;
+            const emergencyCurrent = Number(getSafe(() => savingsInput.emergency, 0)) || 0;
             // Use target from data if available, otherwise default to 3 months CORE expenses
-            const emergencyGoalTargetExplicit = Number(getSafe(() => savingsInput.emergencyFundTarget));
+            const emergencyGoalTargetExplicit = Number(getSafe(() => savingsInput.emergencyFundTarget, 0));
             const emergencyGoalTargetCalculated = totals.monthlyCoreExpenses > 0 ? totals.monthlyCoreExpenses * 3 : 0;
             // Prefer explicit target if valid (>0), else use calculated (>0), else target is 0
             const emergencyGoalTarget = (emergencyGoalTargetExplicit > 0) ? emergencyGoalTargetExplicit : (emergencyGoalTargetCalculated > 0 ? emergencyGoalTargetCalculated : 0);
@@ -1807,7 +1874,7 @@
                 const statusEl = emergencyGoalDisplay.querySelector('.goal-status');
                 if (statusEl) statusEl.textContent = `Target: ${formatCurrency(emergencyGoalTarget)} (${formatPercentage(emergencyCurrent / emergencyGoalTarget, 0)} funded)`;
             } else if (emergencyGoalDisplay) {
-                emergencyGoalDisplay.style.display = 'none'; // Hide if target is not valid
+                emergencyGoalDisplay.style.display = 'none'; // Hide if target is not valid or 0
             } else { console.warn("Emergency goal elements not found."); }
 
 
@@ -1827,7 +1894,7 @@
                     const goalAmountStr = match[2].replace(/,/g, '');
                     const goalAmount = parseFloat(goalAmountStr);
                     // Use general savings for progress unless specific goal savings provided in data
-                    const generalSavings = Number(getSafe(() => savingsInput.savings)) || 0;
+                    const generalSavings = Number(getSafe(() => savingsInput.savings, 0)) || 0;
 
                     if (goalName && !isNaN(goalAmount) && goalAmount > 0) {
                         hasVisibleGoal = true;
@@ -1863,7 +1930,7 @@
             console.error("Error updating goals display UI:", e);
         }
     }
-    
+
      function updateDebtsDisplay(data, totals) {
         console.log("--- updateDebtsDisplay FUNCTION ENTERED ---"); // Very first log inside {}
 
@@ -1872,7 +1939,7 @@
             console.log("  Received data object:", data);
             console.log("  Received totals object:", totals);
 
-            const debts = getSafe(() => data.userInput.debts, []); // Get debts array safely
+            const debts = getSafe(() => data.userInput?.debts, []); // Get debts array safely
             console.log("  Parsed debts array:", debts);
             console.log("  Is debts an array?", Array.isArray(debts));
             console.log("  Debts array length:", debts.length);
@@ -1929,8 +1996,8 @@
 
                         // Use getSafe for potentially missing debt properties
                         const type = getSafe(() => debt.type, 'N/A');
-                        const balance = getSafe(() => debt.balance); // Use getSafe for balance
-                        const minPayment = getSafe(() => debt.minPayment); // Use getSafe for minPayment
+                        const balance = getSafe(() => debt.balance, 0); // Use getSafe for balance with default 0
+                        const minPayment = getSafe(() => debt.minPayment, 0); // Use getSafe for minPayment with default 0
                         const interestRate = getSafe(() => debt.interestRate, 0); // Default rate to 0 if missing
 
                         console.log(`      Values for row ${index}:`, { type, balance, minPayment, interestRate });
@@ -1986,8 +2053,8 @@
         }
         // Function implicitly ends here if no outer catch error, or returns above
          console.log("--- updateDebtsDisplay FUNCTION EXIT ---"); // Log right before the function truly exits
-    }    
-    
+    }
+
     function renderCharts(data) {
         console.log("--- renderCharts START ---");
         console.log("  Received data object for charts:", data);
@@ -2006,8 +2073,8 @@
 
 
         try {
-            const incomeData = getSafe(() => data.userInput.income, {});
-            const expenseData = getSafe(() => data.userInput.expenses, {});
+            const incomeData = getSafe(() => data.userInput?.income, {});
+            const expenseData = getSafe(() => data.userInput?.expenses, {});
 
             console.log("  Parsed income data:", incomeData);
             console.log("  Parsed expense data:", expenseData);
@@ -2017,7 +2084,7 @@
             const incomeLabels = [];
             const incomeValues = [];
             Object.entries(incomeData).forEach(([key, value]) => {
-                const numValue = Number(getSafe(() => value)); // Use getSafe for value
+                const numValue = Number(getSafe(() => value, 0)); // Use getSafe for value with default 0
                 if (numValue > 0) {
                     let label = key.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase());
                     incomeLabels.push(label);
@@ -2030,10 +2097,24 @@
             const expenseLabels = [];
             const expenseValues = [];
             Object.entries(expenseData).forEach(([key, value]) => {
-                const numValue = Number(getSafe(() => value)); // Use getSafe for value
+                const numValue = Number(getSafe(() => value, 0)); // Use getSafe for value with default 0
                 if (numValue > 0) {
                     let label = key.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase());
                     if (key === 'groceriesEssentials') label = 'Groceries/Essentials';
+                     // Add debt minimum payments from totals if they exist
+                    if (key === 'minPayments' && totals?.totalMinPayments > 0) {
+                         // Ensure minPayments is not duplicated if it was somehow in the original expense data
+                         // Also ensure we only add it if the calculated totalMinPayments is > 0
+                         // A better approach is to add a separate slice for debts if needed, but for now, assume minPayments key maps to total min payments if present.
+                         // Or better yet, don't include minPayments in the expense chart unless it was distinct data.
+                         // Let's skip the minPayments key from the expenseData loop and handle total min payments separately if necessary for the chart.
+                         // For simplicity, let's just chart the categories provided in expenseData for now.
+                         // If debt payments need to be explicitly shown, you'd structure the data differently or add them here.
+                         // For this iteration, only use keys present in the expenseData object from the source.
+                          console.warn(`Skipping expense key "${key}" with value ${value} in chart rendering.`);
+                          return; // Skip this iteration
+                    }
+
                     expenseLabels.push(label);
                     expenseValues.push(numValue);
                 }
@@ -2105,7 +2186,7 @@
                 } else {
                     console.log("  No income data to plot. Displaying message.");
                     incomeChartDiv.innerHTML = '<p class="text-center text-gray-500 pt-10">No income data to display.</p>';
-                    incomeChartDiv.innerHTML  = '';
+                    // incomeChartDiv.innerHTML  = ''; // Keep the empty message div
                 }
             } else { console.error("  Income chart div (#incomeChart) not found."); }
 
@@ -2140,7 +2221,7 @@
                 } else {
                     console.log("  No expense data to plot. Displaying message.");
                     expenseChartDiv.innerHTML = '<p class="text-center text-gray-500 pt-10">No expense data to display.</p>';
-                    expenseChartDiv.innerHTML = '';
+                     // expenseChartDiv.innerHTML = ''; // Keep the empty message div
                 }
             } else { console.error("  Expense chart div (#expenseChart) not found."); }
 
@@ -2172,7 +2253,7 @@
                 .replace(/\\n/g, '\n')   // literal “\n” → newline
                 .replace(/\n/g, '<br>'); // newline      → <br>
             if (analysisEl) updateElementHTML('aiAnalysis', formattedAnalysis);
-             else { console.warn("AI analysis element not found."); }
+             else { console.warn("AI analysis element (#aiAnalysis) not found."); }
 
 
             /* ---- Recommendations ---- */
@@ -2185,23 +2266,204 @@
                 recommendationsList.innerHTML = items.length
                     ? items.map(txt => `<li>${txt}</li>`).join('')
                     : '<li class="text-gray-500">No recommendations available.</li>';
-            } else { console.warn("Recommendations list element not found."); }
+            } else { console.warn("Recommendations list element (#recommendationsList) not found."); }
 
             /* ---- Progress history ---- */
             if (progressContentEl) {
                 const rawProgress = getSafe(() => aiOutput.userProgress, 'No progress history available.');
                  const formattedProgress = rawProgress.replace(/\\n/g, '\n'); // literal “\n” → newline for modal pre-wrap
                 progressContentEl.textContent = formattedProgress; // Use textContent for pre
-            } else { console.warn("Progress content element not found."); }
+            } else { console.warn("Progress content element (#progressContent) not found."); }
             console.log("AI display UI updated.");
         } catch (e) {
             console.error("Error updating AI display UI:", e);
         }
     }
 
+    // Helper function to show initial message when no data is found
+    function showInitialPromptOrMessage(message = "Upload a PSR JSON file or sign in with Google Drive to load your dashboard.") { // Updated default message
+        console.log("Executing showInitialPromptOrMessage");
+        hideAllMainContentAreas(); // Hide everything else first
+
+        // Prefer showing the structured upload prompt if available
+        if (initialUploadPrompt) {
+            initialUploadPrompt.style.display = 'block';
+             // Ensure the upload button listener is active for this state
+            const initialUploadButton = document.getElementById('initialUploadButton');
+            if (initialUploadButton && fileInput) {
+                // Listener is added in initializeSupabaseAndCoreFeatures, just ensure button is visible if needed
+                 initialUploadButton.style.display = 'inline-block'; // Assuming it's part of the prompt div
+                 console.log("Initial upload prompt and button visible.");
+            } else {
+                 console.warn("Initial upload button or file input not found.");
+            }
+
+        } else if (initialMessageElement) {
+             // Fallback to simple message if prompt not found
+            initialMessageElement.textContent = message;
+            initialMessageElement.style.display = 'block';
+            console.log("Displayed fallback initial message element.");
+        } else {
+             console.warn("Could not find initial prompt or message elements.");
+        }
+
+        // Ensure chat is hidden if we revert to the initial state
+        if (chatInterfaceCardElement) { chatInterfaceCardElement.style.display = 'none'; }
+        enableChatInput(false); // Disable chat input as well
+         setChatStatus("No data loaded", false);
+         // Hide Drive buttons if signed out or not loaded, show Sign In
+         updateDriveButtonVisibility(false); // This will make sure the sign-in button is visible if not signed in
+    }
+
+     // Helper to hide all potential main content/initial states
+     function hideAllMainContentAreas() {
+         if (loadingSpinner) loadingSpinner.style.display = 'none';
+         if (errorMessageElement) errorMessageElement.style.display = 'none';
+         if (mainContentElement) { mainContentElement.style.display = 'none'; mainContentElement.classList.add('hidden'); }
+         if (initialMessageElement) initialMessageElement.style.display = 'none';
+         if (initialUploadPrompt) initialUploadPrompt.style.display = 'none';
+         closeModal('driveLoadModal'); // Close the Drive load modal if open
+         closeModal('progressModal'); // Close other modals too
+         closeModal('infoModal');
+     }
+
+     // Handle window resize to potentially re-render charts for responsiveness
+     function handleResize() {
+         //console.log("Window resized. Attempting to relayout charts..."); // Commented out - too noisy
+         const incomeChartDiv = document.getElementById('incomeChart');
+         const expenseChartDiv = document.getElementById('expenseChart');
+
+         // Check if plotly is available and the divs exist and contain a chart
+         if (typeof Plotly !== 'undefined') {
+             if (incomeChartDiv && incomeChartDiv.data) { // Check if Plotly data is attached
+                 //console.log("Relayouting Income Chart...");
+                 Plotly.relayout(incomeChartDiv, { autosize: true });
+             }
+             if (expenseChartDiv && expenseChartDiv.data) { // Check if Plotly data is attached
+                  //console.log("Relayouting Expense Chart...");
+                 Plotly.relayout(expenseChartDiv, { autosize: true });
+             }
+         } // else { console.warn("Plotly not available for relayout on resize."); } // Commented out - too noisy
+     }
+
     // --- Chat Functionality ---
-    // --- Chat Functionality ---
-    function initializeChat() { // Renamed from updateUIBasedOnAccess temporarily for clarity
+    // handleChatEnterKey, autoGrowTextarea, enableChatInput, addMessageToChat, setChatStatus already defined above
+
+     // Function to handle the enter key press in the chat input
+     function handleChatEnterKey(event) {
+         if (event.key === 'Enter' && !event.shiftKey) { // Send on Enter, allow Shift+Enter for newline
+             event.preventDefault(); // Prevent default newline insertion
+             handleChatSubmit(); // Trigger send action
+         }
+     }
+
+     // Function to auto-grow the textarea height based on content
+     function autoGrowTextarea(event) {
+         const textarea = event.target;
+         textarea.style.height = 'auto'; // Temporarily shrink to base height
+         // Calculate the desired height: at least minHeight, based on scrollHeight, max maxHeight
+         const minHeight = 88; // Define minimum height here (matches CSS)
+         const maxHeight = 120; // Define maximum height here (matches CSS)
+         textarea.style.height = Math.min(Math.max(textarea.scrollHeight, minHeight), maxHeight) + 'px';
+         // Ensure scrollbar appears if scrollHeight exceeds maxHeight
+         textarea.style.overflowY = (textarea.scrollHeight > maxHeight) ? 'auto' : 'hidden';
+     }
+
+
+     // Function to enable/disable the chat input and send button
+     function enableChatInput(enabled) {
+         const chatInput = document.getElementById('chatInput');
+         const chatSendButton = document.getElementById('chatSendButton');
+         if (chatInput && chatSendButton) {
+             chatInput.disabled = !enabled;
+             chatSendButton.disabled = !enabled;
+             chatInput.placeholder = enabled ? "Ask about your finances..." : "Chat unavailable";
+             // Adjust visual state
+             chatInput.style.opacity = enabled ? '1' : '0.6';
+             chatSendButton.style.opacity = enabled ? '1' : '0.6';
+             chatSendButton.style.cursor = enabled ? 'pointer' : 'not-allowed';
+              //if (!enabled) chatInput.value = ''; // Clear input if disabling - maybe too aggressive?
+         } else {
+             console.warn("Could not find chat input or send button to enable/disable.");
+         }
+     }
+
+     // Function to add a message bubble to the chat history display
+     function addMessageToChat(sender, message, isError = false) {
+         const chatHistory = document.getElementById('chatHistory');
+         if (!chatHistory) {
+             console.error("Chat history element not found.");
+             return;
+         }
+
+         const messageContainer = document.createElement('div');
+         // Sanitize sender string for class name just in case
+         const senderClass = sender ? sender.toLowerCase().replace(/[^a-z0-9]/g, '') : 'system'; // Default to system
+         messageContainer.classList.add('chat-message', senderClass);
+
+         const bubble = document.createElement('div');
+         bubble.classList.add('message-bubble');
+
+         if (isError) { // Style error messages distinctly within the bubble
+             bubble.style.backgroundColor = '#fee2e2'; // Tailwind red-100
+             bubble.style.color = '#b91c1c'; // Tailwind red-700
+             bubble.style.borderColor = '#fca5a5'; // Tailwind red-300
+             bubble.style.borderWidth = '1px';
+             bubble.style.borderStyle = 'solid';
+         }
+
+         // Basic Markdown-like handling: [text](url) -> <a href="url">text</a>, **text** -> <strong>text</strong>
+         // Convert newlines to <br> for HTML display
+          // Basic sanitization: replace < and > to prevent simple injection
+         const safeMessage = message.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+         const formattedMessage = safeMessage
+             .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-indigo-600 hover:underline font-medium">$1</a>')
+             .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Handle bold
+             .replace(/\n/g, '<br>'); // Convert newlines
+
+         bubble.innerHTML = formattedMessage; // Assign the processed HTML
+         messageContainer.appendChild(bubble);
+         chatHistory.appendChild(messageContainer);
+
+         // Scroll to the bottom smoothly
+         chatHistory.scrollTo({ top: chatHistory.scrollHeight, behavior: 'smooth' });
+     }
+
+     // Function to set the chat status message (like "Thinking..." or "Ready")
+     function setChatStatus(message, isLoading = false) {
+         const chatStatusContainer = document.getElementById('chatStatusContainer'); // Use the container ID
+         const chatThinkingIndicator = document.getElementById('chatThinkingIndicator');
+
+         if (!chatStatusContainer || !chatThinkingIndicator) {
+             console.warn("Chat status elements not found.");
+             return;
+         }
+
+         // Hide thinking indicator by default
+         chatThinkingIndicator.style.display = 'none';
+
+         // Update main status text display (e.g., Tier | Model | Usage)
+         // This requires the spans inside chatStatusContainer to be updated separately
+         // The status message should probably be handled differently, perhaps in a dedicated span?
+         // Let's just show the thinking indicator and hide it when done.
+         // The message text could be part of the indicator or a separate span.
+
+         // Let's make the indicator *contain* the loading message
+         if (isLoading) {
+              chatThinkingIndicator.style.display = 'inline-block'; // Show the indicator container
+             // The "Thinking..." text is already part of the indicator HTML structure
+         } else {
+             // When not loading, the indicator is hidden.
+             // The static status display (Tier | Model | Usage) should remain visible.
+             // The message text can be displayed briefly somewhere else if needed, but the current structure doesn't have a dedicated spot for the message *when not loading*.
+             // For now, just managing the thinking indicator based on `isLoading` is sufficient based on the provided HTML structure.
+             // The main status text (Tier/Model/Usage) is updated by updateUIBasedOnAccess.
+             console.log("Set chat status: ", message, isLoading ? "(Loading)" : "(Idle)");
+         }
+     }
+
+    // Function to initialize chat UI state and listeners
+    function initializeChat() {
         console.log("--- initializeChat START ---");
 
         // Cache chat elements here if not already done
@@ -2223,22 +2485,23 @@
         console.log("Is environment ready for chat (Supabase client + fetch)?", isReadyForChat);
 
         // Determine if chat CAN be enabled based on user/usage (from global state)
-        const canEnableChat = currentUserId && initialUsageInfo && !initialUsageInfo.error && initialUsageInfo.usage < initialUsageInfo.limit;
+        // Check if initialUsageInfo is available and has a valid usage/limit property
+        const canEnableChat = currentUserId && initialUsageInfo && !initialUsageInfo.error && initialUsageInfo.usage !== undefined && initialUsageInfo.limit !== undefined && initialUsageInfo.usage < initialUsageInfo.limit;
         console.log("Can chat be enabled based on user/usage state?", canEnableChat);
 
         if (isReadyForChat && canEnableChat) {
             chatInterfaceCardElement.style.display = 'block'; // Show the card
             enableChatInput(true); // Enable input fields
-            setChatStatus("Ready to chat", false); // Set status
+            setChatStatus("", false); // Clear any previous status, ensure indicator is hidden
 
             // Clear and rebuild chat history display based on chatMessages array
             chatHistory.innerHTML = '';
-            if (chatMessages.length === 0) {
-                // Add initial assistant message only if chat history is empty
+            if (chatMessages.length === 0 || !chatMessages.some(msg => msg.role === 'assistant' && msg.content.includes("Hello! Ask me anything"))) {
+                // Add initial assistant message only if chat history is empty or doesn't contain the greeting
                 const initialMsgContent = "Hello! Ask me anything about the financial data shown on your dashboard.";
                 addMessageToChat("Assistant", initialMsgContent, false);
                 // Don't push initial greeting to history array unless you want it saved/resent
-                // chatMessages.push({ role: "assistant", content: initialMsgContent });
+                // chatMessages.push({ role: "assistant", content: initialMsgContent }); // Decide if greeting should be saved
             } else {
                 // Restore previous messages from history array
                 chatMessages.forEach(msg => addMessageToChat(msg.role.charAt(0).toUpperCase() + msg.role.slice(1), msg.content));
@@ -2247,6 +2510,7 @@
             chatHistory.scrollTop = chatHistory.scrollHeight;
 
             // Ensure listeners are attached only once or re-attached correctly
+            // Using a flag or removing/adding is safer
             chatSendButton.removeEventListener('click', handleChatSubmit);
             chatInput.removeEventListener('keydown', handleChatEnterKey);
             chatInput.removeEventListener('input', autoGrowTextarea);
@@ -2266,23 +2530,24 @@
                  hasUserId: !!currentUserId,
                  hasUsageInfo: !!initialUsageInfo,
                  usageInfoError: initialUsageInfo?.error,
-                 limitReached: initialUsageInfo && initialUsageInfo.usage >= initialUsageInfo.limit
+                 limitReached: initialUsageInfo && initialUsageInfo.limit !== undefined && initialUsageInfo.usage >= initialUsageInfo.limit
             });
             if (chatInterfaceCardElement) chatInterfaceCardElement.style.display = 'none'; // Ensure hidden
-            enableChatInput(false);
+            enableChatInput(false); // Disable input
 
-            // Set appropriate status message
+            // Set appropriate status message in the main status bar area
             if (!initialUsageInfo) {
-                 setChatStatus("Loading access info...", true);
+                 // Status already shows "Loading..." initially, let that handle it
+                 setChatStatus("Loading access info...", true); // Keep loading indicator if info isn't fetched
             } else if (initialUsageInfo.error) {
                  setChatStatus("Chat unavailable - Access Error", false);
             } else if (!isReadyForChat) {
                  setChatStatus("Chat unavailable - Service Offline", false);
             } else if (!currentUserId) {
-                 setChatStatus("Chat unavailable - Authentication needed", false);
-            } else if (initialUsageInfo.usage >= initialUsageInfo.limit) {
+                 setChatStatus("Chat unavailable - Authentication needed", false); // User ID needed for Supabase functions
+            } else if (initialUsageInfo.limit !== undefined && initialUsageInfo.usage >= initialUsageInfo.limit) {
                  setChatStatus("Weekly token limit reached", false);
-                 if (chatInterfaceCardElement) chatInterfaceCardElement.style.display = 'block'; // Show card but disabled
+                 if (chatInterfaceCardElement) chatInterfaceCardElement.style.display = 'block'; // Show card but disabled state
             } else {
                   setChatStatus("Chat unavailable", false); // Generic fallback
             }
@@ -2290,281 +2555,31 @@
         console.log("--- initializeChat END ---");
     }
 
-    function handleChatEnterKey(event) {
-        if (event.key === 'Enter' && !event.shiftKey) { // Send on Enter, allow Shift+Enter for newline
-            event.preventDefault(); // Prevent default newline insertion
-            handleChatSubmit(); // Trigger send action
-        }
-    }
-
-    function autoGrowTextarea(event) {
-        const textarea = event.target;
-        textarea.style.height = 'auto'; // Temporarily shrink to base height
-        // Calculate the desired height: at least 88px, based on scrollHeight, max 120px
-        const minHeight = 88; // Define minimum height here
-        const maxHeight = 120; // Define maximum height here (matches CSS)
-        textarea.style.height = Math.min(Math.max(textarea.scrollHeight, minHeight), maxHeight) + 'px'; // <-- MODIFIED CALCULATION
-    }
-
-    function enableChatInput(enabled) {
-        const chatInput = document.getElementById('chatInput');
-        const chatSendButton = document.getElementById('chatSendButton');
-        if (chatInput && chatSendButton) {
-            chatInput.disabled = !enabled;
-            chatSendButton.disabled = !enabled;
-            chatInput.placeholder = enabled ? "Ask about your finances..." : "Chat unavailable";
-            // Adjust visual state
-            chatInput.style.opacity = enabled ? '1' : '0.6';
-            chatSendButton.style.opacity = enabled ? '1' : '0.6';
-            chatSendButton.style.cursor = enabled ? 'pointer' : 'not-allowed';
-             if (!enabled) chatInput.value = ''; // Clear input if disabling
-        } else {
-            console.warn("Could not find chat input or send button to enable/disable.");
-        }
-    }
-
-    function addMessageToChat(sender, message, isError = false) {
-        const chatHistory = document.getElementById('chatHistory');
-        if (!chatHistory) {
-            console.error("Chat history element not found.");
-            return;
-        }
-
-        const messageContainer = document.createElement('div');
-        // Sanitize sender string for class name just in case
-        const senderClass = sender ? sender.toLowerCase().replace(/[^a-z0-9]/g, '') : 'system'; // Default to system
-        messageContainer.classList.add('chat-message', senderClass);
-
-        const bubble = document.createElement('div');
-        bubble.classList.add('message-bubble');
-
-        if (isError) { // Style error messages distinctly within the bubble
-            bubble.style.backgroundColor = '#fee2e2'; // Tailwind red-100
-            bubble.style.color = '#b91c1c'; // Tailwind red-700
-            bubble.style.borderColor = '#fca5a5'; // Tailwind red-300
-            bubble.style.borderWidth = '1px';
-            bubble.style.borderStyle = 'solid';
-        }
-
-        // Basic Markdown-like link handling: [text](url) -> <a href="url">text</a>
-        // Basic bold handling: **text** -> <strong>text</strong>
-        // Convert newlines to <br> for HTML display
-         // Basic sanitization: replace < and > to prevent simple injection
-        const safeMessage = message.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        const formattedMessage = safeMessage
-            .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-indigo-600 hover:underline font-medium">$1</a>')
-            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Handle bold
-            .replace(/\n/g, '<br>'); // Convert newlines
-
-        bubble.innerHTML = formattedMessage; // Assign the processed HTML
-        messageContainer.appendChild(bubble);
-        chatHistory.appendChild(messageContainer);
-
-        // Scroll to the bottom smoothly
-        chatHistory.scrollTo({ top: chatHistory.scrollHeight, behavior: 'smooth' });
-    }
-
-    function setChatStatus(message, isLoading = false) {
-        const chatStatus = document.getElementById('chatStatus');
-        if (!chatStatus) return;
-        if (isLoading) {
-            // Use the typing indicator HTML structure
-            chatStatus.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div> ${message || 'Thinking...'}`;
-        } else {
-            chatStatus.textContent = message; // Display simple text message
-            // Auto-clear status message after a few seconds unless it's an error or empty
-            if (message && !/error|failed|unavailable|limit/i.test(message)) { // Don't auto-clear error or limit messages
-                setTimeout(() => {
-                    // Only clear if the message hasn't changed in the meantime
-                    if (chatStatus.textContent === message) chatStatus.textContent = '';
-                }, 4000);
-            }
-        }
-    }
-
-   async function sendToBackendChatFunction() {
-        console.log("Attempting to send chat message to backend...");
-        // Ensure dashboard data is loaded before proceeding
-        if (!dashboardData?.userInput) {
-            addMessageToChat("System", "Error: Financial data seems incomplete. Cannot process chat request.", true);
-            setChatStatus("Error: Data missing", false);
-            return;
-        }
-        // Ensure Supabase client is ready and we have a user ID/tier
-         if (!supabase || typeof supabase.functions?.invoke !== 'function' || !currentUserId || !effectiveTier || !initialUsageInfo || initialUsageInfo.error || initialUsageInfo.usage >= initialUsageInfo.limit) {
-             console.error("Chat prerequisites not met:", { supabaseReady: !!supabase, hasInvoke: typeof supabase?.functions?.invoke === 'function', hasUserId: !!currentUserId, hasTier: !!effectiveTier, hasUsageInfo: !!initialUsageInfo, usageError: initialUsageInfo?.error, limitReached: initialUsageInfo?.usage >= initialUsageInfo?.limit });
-             addMessageToChat("System", "Error: Chat service is not available. Please check access or refresh the page.", true);
-             setChatStatus("Chat unavailable", false);
-             enableChatInput(false); // Ensure disabled
-             return;
-         }
-
-
-        setChatStatus("Thinking...", true); // Show loading indicator
-        enableChatInput(false); // Disable input while processing
-
-        // --- Prepare Context String (More Comprehensive) ---
-        let financialContext = `User: ${getSafe(() => dashboardData.userInput.personalInfo.userName)}, Age: ${getSafe(() => dashboardData.userInput.personalInfo.age)}\n`;
-        // Use cached totals/ratios if they exist, otherwise recalculate (safer to recalculate)
-        try {
-             const totals = calculateTotals(dashboardData); // Recalculate for fresh context
-             const ratios = calculateRatios(dashboardData, totals); // Calculate ratios for context
-             financialContext += `Monthly Totals: Income: ${formatCurrency(totals.totalIncome)}, Expenses: ${formatCurrency(totals.totalExpenses)}, Net Flow: ${formatCurrency(totals.netFlow)}\n`;
-             financialContext += `Savings Balances: Emergency: ${formatCurrency(getSafe(()=>dashboardData.userInput.savings.emergency))}, General: ${formatCurrency(getSafe(()=>dashboardData.userInput.savings.savings))}, Retirement: ${formatCurrency(getSafe(()=>dashboardData.userInput.savings.retirement))}\n`;
-             financialContext += `Debt: Total Balance: ${formatCurrency(totals.totalDebt)}, Total Min Payments: ${formatCurrency(totals.totalMinPayments)}\n`;
-             financialContext += `Ratios: Savings Rate: ${formatPercentage(ratios.savingsRate, 1)}, Emergency Coverage: ${ratios.emergencyCoverage === Infinity ? 'N/A' : ratios.emergencyCoverage.toFixed(1)} months, DTI: ${formatPercentage(ratios.dtiRatio, 1)}\n`;
-
-             if (dashboardData.userInput.debts && dashboardData.userInput.debts.length > 0) {
-                 financialContext += "Debts Breakdown:\n";
-                 dashboardData.userInput.debts.forEach(d => {
-                     financialContext += ` - ${getSafe(() => d.type, 'Debt')}: Bal ${formatCurrency(getSafe(() => d.balance))}, Rate ${getSafe(() => d.interestRate, 0)}%, Min Pmt ${formatCurrency(getSafe(() => d.minPayment))}\n`;
-                 });
-             }
-        } catch (e) {
-             console.error("Error generating financial context for chat:", e);
-             financialContext += "Error generating detailed financial context.\n";
-        }
-
-
-        const priorAnalysis = getSafe(() => dashboardData.aiOutput.analysis);
-        const priorRecs = getSafe(() => dashboardData.aiOutput.recommendations);
-
-        // Add prior analysis/recs if they are not just placeholders
-        if (priorAnalysis && !/not available|to be determined/i.test(priorAnalysis)) financialContext += `Prior Analysis Summary: ${priorAnalysis.substring(0, 500)}...\n`; // Limit length
-        if (priorRecs && !/not available|to be determined/i.test(priorRecs)) financialContext += `Prior Recommendations Summary: ${priorRecs.substring(0, 500)}...\n`; // Limit length
-
-
-        // --- Construct messages payload ---
-        const maxHistory = 6; // Keep recent messages + system message
-        // Ensure recentMessages are actual message objects with role and content
-        const recentMessages = chatMessages.slice(-maxHistory).filter(msg => msg && msg.role && msg.content);
-        const systemMessage = {
-            role: "system",
-            content: `You are SmartWealth AI, a helpful financial assistant. Use the provided financial context ONLY to answer the user's questions concisely and directly related to their financial situation. Do not provide generic financial advice unless asked. Financial Context:\n${financialContext}`
-        };
-        const messagesForBackend = [systemMessage, ...recentMessages];
-
-        const functionName = 'smooth-function'; // Ensure this matches your deployed Supabase function name
-
-        console.log(`Invoking Supabase function '${functionName}' for user ${currentUserId}, tier ${effectiveTier}.`);
-        console.log("Messages sent to backend:", messagesForBackend);
-
-
-        try {
-            // Invoke the Supabase Function using fetch with proper headers
-            const response = await fetch(`${SUPABASE_URL}/functions/v1/${functionName}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`, // Use ANON key for client-side function invocation
-                    'x-user-id': currentUserId, // Crucial header
-                    'x-user-tier': effectiveTier // Crucial header
-                },
-                body: JSON.stringify({
-                    messages: messagesForBackend,
-                    // model: CHAT_MODEL // Backend determines the model, don't send from client
-                })
-            }); // <<< fetch ends here
-
-            // --- ADDED RESPONSE HANDLING ---
-            if (!response.ok) {
-                // Try to parse error from backend, provide fallback message
-                let errorMsg = `Request failed with status ${response.status}`;
-                try {
-                    // Use .json() to get the error message sent from the Edge Function
-                    const errorData = await response.json();
-                    errorMsg = errorData?.error || errorMsg; // Use backend error message if available
-                } catch (e) {
-                    // If parsing error body fails, use the status text
-                    errorMsg = response.statusText || errorMsg;
-                    console.warn("Could not parse error response body:", e);
-                }
-                // Log the detailed error before throwing
-                console.error(`Backend returned error: ${response.status} - ${errorMsg}`);
-                throw new Error(errorMsg); // Throw error to be caught below
-            }
-
-            // Parse the successful response
-            const result = await response.json();
-
-            // Check the expected response structure from 'smooth-function'
-            if (result && result.assistantResponse && typeof result.assistantResponse.content === 'string') {
-                addMessageToChat("Assistant", result.assistantResponse.content);
-                // Add the assistant response to the history array as well
-                chatMessages.push({ role: "assistant", content: result.assistantResponse.content });
-                setChatStatus("", false); // Clear "Thinking..." status
-
-                // Re-fetch initial usage info after a successful chat message
-                // This updates the frontend usage display. Use a slight delay.
-                setTimeout(fetchInitialUsage, 1000); // Add small delay
-
-            } else {
-                // Handle cases where the response is OK (200) but the format isn't right
-                console.error("Invalid response format from backend:", result);
-                throw new Error("Received an invalid response format from the chat service.");
-            }
-            // --- END OF ADDED RESPONSE HANDLING ---
-
-        } catch (err) { // Catch errors from fetch() or the handling block above
-            console.error("Chat function invocation failed:", err);
-            // Display the error message from the caught error
-            addMessageToChat("System", "Error calling chat service: " + (err.message || "Unknown error"), true);
-            setChatStatus("Error sending message", false);
-        } finally {
-            enableChatInput(true); // Re-enable input
-            console.log("Chat request finished.");
-        }
-    }
-    // --- Event Handlers & Button Initializers ---
+    // Function to handle sending a chat message when the send button is clicked
     function handleChatSubmit() {
         const chatInput = document.getElementById('chatInput');
         if (!chatInput) return; // Safety check
 
         const userMessage = chatInput.value.trim();
-        if (!userMessage || chatInput.disabled) return; // Don't send empty messages or if disabled
+        if (!userMessage || chatInput.disabled) {
+             console.log("Attempted to send empty or disabled message.");
+            return; // Don't send empty messages or if disabled
+        }
 
         addMessageToChat("User", userMessage);
         chatMessages.push({ role: "user", content: userMessage }); // Add user message to history array
         chatInput.value = ''; // Clear input field
-        chatInput.style.height = 'auto'; // Reset height after send
-        chatInput.style.height = '44px'; // Force back to original size (or autoGrow) - autoGrow listener will handle it
+        chatInput.style.height = 'auto'; // Reset height after send - autoGrow listener will re-adjust
+        //chatInput.style.height = '88px'; // Force back to original size
 
         sendToBackendChatFunction(); // Call backend function
     }
 
-    // Helper function to show initial message when no data is found
-    function showInitialPromptOrMessage(message = "Please sign in with Google to load or save your financial dashboard.") { // Updated default message
-        console.log("Executing showInitialPromptOrMessage");
-        hideAllMainContentAreas(); // Hide everything else first
 
-        // Show the Google Sign-In button specifically
-        const signInButton = document.getElementById('googleSignInButton');
-         if (signInButton) {
-             signInButton.style.display = 'inline-block';
-         } else {
-             console.error("Google Sign-In button not found!");
-         }
+    // --- Updated sendToBackendChatFunction --- (See Part 2 for implementation)
+    // ... (function sendToBackendChatFunction is defined above) ...
 
 
-        // Prefer showing the structured upload prompt if available (maybe as fallback)
-        // if (initialUploadPrompt) { initialUploadPrompt.style.display = 'block'; console.log("Displayed initial upload prompt."); }
-        // else
-        if (initialMessageElement) {
-             // Fallback to simple message if prompt not found
-            initialMessageElement.textContent = message;
-            initialMessageElement.style.display = 'block';
-            console.log("Displayed fallback initial message element.");
-        } else {
-             console.warn("Could not find initial prompt or message elements.");
-        }
-
-
-        // Ensure chat is hidden if we revert to the initial state
-        if (chatInterfaceCardElement) { chatInterfaceCardElement.style.display = 'none'; }
-        enableChatInput(false); // Disable chat input as well
-         setChatStatus("Sign in required", false); // Update initial status
-    }
-      
     // --- Modals ---
     function initModals() {
         console.log("Initializing modals...");
@@ -2604,7 +2619,11 @@
                     const formattedProgress = rawProgress.replace(/\\n/g, '\n');
                     progressContentEl.textContent = formattedProgress; // Use textContent for pre
                 }
+            } else if (modalId === 'driveLoadModal') {
+                 // Content for driveLoadModal is populated by handleLoadFromDriveClick
+                 console.log("Opening driveLoadModal. Content should be populated by handler.");
             }
+
             modal.style.display = "block";
         } else { console.warn(`Modal with ID ${modalId} not found.`); }
     }
@@ -2617,319 +2636,11 @@
     }
 
     /* --- Save Summary workflow --- */
-    async function generateAndSaveSummary() {
-        console.log("Generating and saving summary...");
-        if (!dashboardData || !dashboardData.userInput) {
-            alert("Please load financial data before generating a summary.");
-            return;
-        }
-        // Check chat prerequisites for summary generation (uses same backend function)
-         if (!supabase || typeof supabase.functions?.invoke !== 'function' || !currentUserId || !effectiveTier || !initialUsageInfo || initialUsageInfo.error || initialUsageInfo.usage >= initialUsageInfo.limit) {
-             console.error("Summary generation prerequisites not met:", { supabaseReady: !!supabase, hasInvoke: typeof supabase?.functions?.invoke === 'function', hasUserId: !!currentUserId, hasTier: !!effectiveTier, hasUsageInfo: !!initialUsageInfo, usageError: initialUsageInfo?.error, limitReached: initialUsageInfo?.usage >= initialUsageInfo?.limit });
-             addMessageToChat("System", "Error: Cannot generate summary. Service is unavailable or limit reached.", true);
-             setChatStatus("Summary failed", false);
-             return;
-         }
+    // ... (function generateAndSaveSummary is defined above) ...
 
+    /* --- Generate New Analysis Workflow --- */
+    // ... (function generateAndDisplayNewSummary is defined above) ...
 
-        try {
-            setChatStatus("Generating & Saving Summary…", true);
-            enableChatInput(false); // Disable input during this operation
-
-            // --- Prepare context for summary generation ---
-            let summaryContext = `Generate a concise financial analysis summary (around 100-150 words) and 3-5 key recommendations based on the following user data. Focus on strengths, weaknesses (like debt or low savings), and actionable steps. Use simple language. Include a timestamp in the summary text.\n\nUser: ${getSafe(() => dashboardData.userInput.personalInfo.userName)}\n`;
-            // Use cached totals/ratios if they exist, otherwise recalculate (safer to recalculate)
-             try {
-                 const totals = calculateTotals(dashboardData);
-                 const ratios = calculateRatios(dashboardData, totals);
-                 summaryContext += `Income: ${formatCurrency(totals.totalIncome)}, Expenses: ${formatCurrency(totals.totalExpenses)}, Net: ${formatCurrency(totals.netFlow)}\n`;
-                 summaryContext += `Savings: ${formatCurrency(totals.totalSavings)}, Debt: ${formatCurrency(totals.totalDebt)}\n`;
-                 summaryContext += `Key Ratios: Savings Rate: ${formatPercentage(ratios.savingsRate)}, DTI: ${formatPercentage(ratios.dtiRatio)}, Emergency: ${ratios.emergencyCoverage === Infinity ? 'N/A' : ratios.emergencyCoverage.toFixed(1)} months\n`;
-                 summaryContext += `Challenges: ${getSafe(()=>dashboardData.userInput.financials.challenges)}\n`;
-                 summaryContext += `Goals: ${getSafe(()=>dashboardData.userInput.financials.upcomingPurchase)}\n`;
-                 summaryContext += `Full Data Object: ${JSON.stringify(dashboardData.userInput, null, 2)}\n`; // Provide full data for better analysis
-             } catch (e) {
-                 console.error("Error generating summary context:", e);
-                 summaryContext += "Error generating detailed financial context.\n";
-             }
-
-
-            // --- Call the specific Supabase function for SUMMARY ---
-            // NOTE: This assumes your backend function 'smooth-function' is capable
-            // of handling a specific instruction/message structure to trigger summary generation
-            // vs conversational chat. You might need a separate function for this,
-            // or modify 'smooth-function' to detect a 'generate_summary' flag or specific prompt.
-            // For this example, I'll structure the prompt to guide the AI.
-            // A dedicated function 'generate-financial-summary' would be cleaner if you have one.
-
-            const messagesForSummary = [
-                 { role: "system", content: summaryContext },
-                 { role: "user", content: "Generate the financial analysis summary and recommendations based on the data provided in the system message. Format the summary first, then list recommendations starting with '- '." }
-            ];
-
-            const functionName = 'smooth-function'; // Or your dedicated summary function name
-
-            console.log(`Invoking Supabase function '${functionName}' for summary generation.`);
-
-
-            const response = await fetch(`${SUPABASE_URL}/functions/v1/${functionName}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                    'x-user-id': currentUserId, // Crucial header
-                    'x-user-tier': effectiveTier // Crucial header
-                },
-                body: JSON.stringify({
-                    messages: messagesForSummary,
-                    // model: CHAT_MODEL // Backend determines model
-                })
-            });
-
-            const result = await response.json();
-
-            if (!response.ok) {
-                let errorMsg = `Summary generation failed with status ${response.status}`;
-                 try {
-                     const errorData = await response.json();
-                     errorMsg = errorData?.error || errorMsg;
-                 } catch (e) { /* ignore parse error */ }
-                throw new Error(errorMsg);
-            }
-
-            // --- Update UI and Data Object ---
-            if (result && result.assistantResponse && typeof result.assistantResponse.content === 'string') {
-                const fullText = result.assistantResponse.content;
-                // Attempt to split into analysis and recommendations
-                 const recsMarker = fullText.indexOf('- '); // Simple check for start of recommendations
-                 let analysis = fullText;
-                 let recommendations = '';
-
-                 if (recsMarker > -1) {
-                      analysis = fullText.substring(0, recsMarker).trim();
-                      recommendations = fullText.substring(recsMarker).trim();
-                 }
-                 // Ensure analysis isn't empty if split happened awkwardly
-                 if (analysis === '' && fullText.length > 0) analysis = fullText;
-
-
-                // Update the aiOutput section of your main data object
-                if (dashboardData && dashboardData.aiOutput) {
-                    dashboardData.aiOutput.analysis = analysis; // Use parsed analysis
-                    dashboardData.aiOutput.recommendations = recommendations; // Use parsed recommendations
-
-                    // Add a timestamp and note to progress history
-                    const now = new Date();
-                    const progressUpdate = `\n${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}: AI Summary generated.`;
-                    dashboardData.aiOutput.userProgress = (dashboardData.aiOutput.userProgress || '') + progressUpdate;
-
-                    updateUIDisplayFromAI(dashboardData); // Refresh the AI section display
-                    setChatStatus("Summary saved to report ✅", false);
-                    addMessageToChat("System", "A new AI summary has been generated and saved to the report data.");
-                } else {
-                     console.error("dashboardData or aiOutput structure missing for saving summary.");
-                     throw new Error("Could not save summary to internal data.");
-                }
-                 // Re-fetch usage after summary generation
-                 setTimeout(fetchInitialUsage, 1000); // Add small delay
-
-
-            } else {
-                console.error("Summary function returned an unexpected format:", result);
-                throw new Error("Received an invalid response format from the summary service.");
-            }
-
-        } catch (err) {
-            console.error("Summary generation/saving failed:", err);
-            addMessageToChat("System", "Couldn't generate or save summary: " + (err.message || "Unknown error"), true);
-            setChatStatus("Summary failed", false);
-        } finally {
-            enableChatInput(true); // Re-enable input
-             setChatStatus("", false); // Clear status message after a delay
-        }
-    }
-
-        /* --- Generate New Analysis Workflow --- */
-    async function generateAndDisplayNewSummary() {
-        console.log("Generating and displaying new analysis/recommendations...");
-
-        if (!dashboardData || !dashboardData.userInput) {
-            alert("Please load financial data before generating an analysis.");
-            return;
-        }
-
-        // Check chat prerequisites (same as chat/save summary)
-         if (!supabase || typeof supabase.functions?.invoke !== 'function' || !currentUserId || !effectiveTier || !initialUsageInfo || initialUsageInfo.error || initialUsageInfo.usage >= initialUsageInfo.limit) {
-             console.error("Analysis generation prerequisites not met:", { supabaseReady: !!supabase, hasInvoke: typeof supabase?.functions?.invoke === 'function', hasUserId: !!currentUserId, hasTier: !!effectiveTier, hasUsageInfo: !!initialUsageInfo, usageError: initialUsageInfo?.error, limitReached: initialUsageInfo?.usage >= initialUsageInfo?.limit });
-             addMessageToChat("System", "Error: Cannot generate analysis. Service is unavailable or limit reached.", true);
-             setChatStatus("Analysis failed", false);
-             return;
-         }
-
-        const generateButton = document.getElementById('generateAnalysisBtn');
-        const saveButton = document.getElementById('saveSummaryBtn'); // Also disable save while generating
-
-        try {
-            setChatStatus("Generating Analysis...", true);
-            enableChatInput(false); // Disable chat input during generation
-            if (generateButton) generateButton.disabled = true;
-            if (saveButton) saveButton.disabled = true; // Disable save button
-
-            // --- Prepare Comprehensive Context for AI ---
-            let fullContext = `Generate a financial analysis summary (around 100-150 words) and 3-5 key recommendations based on the following user's financial data AND their conversation history. Focus on strengths, weaknesses (like debt or low savings), actionable steps discussed in chat, and incorporate information from the prior analysis if relevant. Use simple language. Format the summary first, then list recommendations starting with '- '. Include a timestamp in the summary text.\n\n`;
-
-            // Add financial data context
-            fullContext += `--- Financial Data ---\n`;
-            try {
-                const totals = calculateTotals(dashboardData); // Recalculate for fresh context
-                const ratios = calculateRatios(dashboardData, totals); // Calculate ratios for context
-                fullContext += `User: ${getSafe(() => dashboardData.userInput.personalInfo.userName)}, Age: ${getSafe(() => dashboardData.userInput.personalInfo.age)}\n`;
-                fullContext += `Monthly Totals: Income: ${formatCurrency(totals.totalIncome)}, Expenses: ${formatCurrency(totals.totalExpenses)}, Net Flow: ${formatCurrency(totals.netFlow)}\n`;
-                fullContext += `Savings Balances: Emergency: ${formatCurrency(getSafe(()=>dashboardData.userInput.savings.emergency))}, General: ${formatCurrency(getSafe(()=>dashboardData.userInput.savings.savings))}, Retirement: ${formatCurrency(getSafe(()=>dashboardData.userInput.retirement))}\n`;
-                fullContext += `Debt: Total Balance: ${formatCurrency(totals.totalDebt)}, Total Min Payments: ${formatCurrency(totals.totalMinPayments)}\n`;
-                fullContext += `Ratios: Savings Rate: ${formatPercentage(ratios.savingsRate, 1)}, Emergency Coverage: ${ratios.emergencyCoverage === Infinity ? 'N/A' : ratios.emergencyCoverage.toFixed(1)} months, DTI: ${formatPercentage(ratios.dtiRatio, 1)}\n`;
-                 if (dashboardData.userInput.debts && dashboardData.userInput.debts.length > 0) {
-                     fullContext += "Debts Breakdown:\n";
-                     dashboardData.userInput.debts.forEach(d => {
-                         fullContext += ` - ${getSafe(() => d.type, 'Debt')}: Bal ${formatCurrency(getSafe(() => d.balance))}, Rate ${getSafe(() => d.interestRate, 0)}%, Min Pmt ${formatCurrency(getSafe(() => d.minPayment))}\n`;
-                     });
-                 }
-                 fullContext += `Challenges: ${getSafe(()=>dashboardData.userInput.financials.challenges)}\n`;
-                 fullContext += `Goals: ${getSafe(()=>dashboardData.userInput.financials.upcomingPurchase)}\n`;
-                 const priorAnalysis = getSafe(() => dashboardData.aiOutput.analysis);
-                 const priorRecs = getSafe(() => dashboardData.aiOutput.recommendations);
-                 if (priorAnalysis && !/not available|to be determined/i.test(priorAnalysis)) fullContext += `Prior Dashboard Analysis: ${priorAnalysis.substring(0, 500)}...\n`; // Include prior analysis
-                 if (priorRecs && !/not available|to be determined/i.test(priorRecs)) fullContext += `Prior Dashboard Recommendations: ${priorRecs.substring(0, 500)}...\n`; // Include prior recommendations
-
-            } catch (e) {
-                console.error("Error generating financial context for analysis:", e);
-                fullContext += "Error generating detailed financial context.\n";
-            }
-
-            // Add chat history context
-            fullContext += `\n--- Chat History ---\n`;
-            if (chatMessages.length > 0) {
-                 // Include relevant parts of chat history, possibly summarizing it if very long
-                 const chatHistoryContext = chatMessages
-                    .map(msg => `${msg.role.toUpperCase()}: ${msg.content}`) // Format messages
-                    .slice(-15) // Limit to last 15 messages to keep context manageable
-                    .join('\n');
-                 fullContext += chatHistoryContext;
-            } else {
-                 fullContext += "No chat history in this session.\n";
-            }
-             fullContext += `\n---\n`;
-
-
-            // --- Construct messages payload for backend (using the full context in a system message) ---
-            const messagesForBackend = [
-                 { role: "system", content: fullContext },
-                 // A user message prompting the AI to perform the task based on the system context
-                 { role: "user", content: "Generate the financial analysis summary and recommendations based on the provided financial data and chat history. Format the summary first, then list recommendations starting with '- '." }
-            ];
-
-
-            const functionName = 'smooth-function'; // Assuming smooth-function can handle this prompt structure
-
-            console.log(`Invoking Supabase function '${functionName}' for analysis generation.`);
-            console.log("Context sent to backend:", messagesForBackend[0].content); // Log context
-            console.log("Prompt sent to backend:", messagesForBackend[1].content); // Log prompt
-
-
-            const response = await fetch(`${SUPABASE_URL}/functions/v1/${functionName}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                    'x-user-id': currentUserId, // Crucial header
-                    'x-user-tier': effectiveTier // Crucial header
-                },
-                body: JSON.stringify({
-                    messages: messagesForBackend,
-                    // model: CHAT_MODEL // Backend determines model
-                })
-            });
-
-            // --- Handle Backend Response ---
-            if (!response.ok) {
-                let errorMsg = `Analysis generation failed with status ${response.status}`;
-                 try {
-                     const errorData = await response.json();
-                     errorMsg = errorData?.error || errorMsg;
-                 } catch (e) { /* ignore parse error */ }
-                console.error(`Backend returned error during analysis generation: ${response.status} - ${errorMsg}`);
-                throw new Error(errorMsg);
-            }
-
-            const result = await response.json();
-
-            // Expecting the backend to return the generated text in assistantResponse.content
-            if (result && result.assistantResponse && typeof result.assistantResponse.content === 'string') {
-                const fullText = result.assistantResponse.content;
-
-                // Attempt to split the AI's response into Analysis and Recommendations
-                const recsMarker = fullText.indexOf('- '); // Look for the start of recommendations
-                let analysis = fullText;
-                let recommendations = '';
-
-                if (recsMarker > -1) {
-                     // If '-' is found, split into analysis (before '-') and recommendations (from '-')
-                     analysis = fullText.substring(0, recsMarker).trim();
-                     recommendations = fullText.substring(recsMarker).trim();
-                }
-                // Fallback: If splitting resulted in an empty analysis but there was text, use the full text as analysis
-                if (analysis === '' && fullText.length > 0) {
-                     analysis = fullText;
-                     recommendations = ''; // Clear recommendations if splitting failed
-                }
-
-
-                console.log("AI Analysis Generated:", analysis);
-                console.log("AI Recommendations Generated:", recommendations);
-
-
-                // --- Update UI and Data Object ---
-                if (dashboardData && dashboardData.aiOutput) {
-                    dashboardData.aiOutput.analysis = analysis; // Update analysis
-                    dashboardData.aiOutput.recommendations = recommendations; // Update recommendations
-
-                    // Add a timestamp and note to user progress history
-                    const now = new Date();
-                    const progressUpdate = `\n${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}: New AI Analysis generated.`;
-                    dashboardData.aiOutput.userProgress = (dashboardData.aiOutput.userProgress || '').trim() + progressUpdate; // Append to existing history
-
-                    // Refresh the AI section display on the dashboard
-                    updateUIDisplayFromAI(dashboardData);
-
-                    setChatStatus("Analysis generated and updated ✅", false);
-                    // Add a system message to chat history indicating the update
-                    addMessageToChat("System", "A new financial analysis and recommendations have been generated and updated on your dashboard.");
-
-                } else {
-                     console.error("dashboardData or aiOutput structure missing for saving analysis/recs.");
-                     throw new Error("Could not update dashboard data with generated analysis.");
-                }
-
-                 // Re-fetch usage info after generation (as this costs tokens)
-                 setTimeout(fetchInitialUsage, 1000); // Add slight delay
-
-            } else {
-                console.error("Analysis function returned an unexpected format:", result);
-                throw new Error("Received an invalid response format from the analysis service.");
-            }
-
-        } catch (err) {
-            console.error("Analysis generation failed:", err);
-            addMessageToChat("System", "Couldn't generate analysis: " + (err.message || "Unknown error"), true);
-            setChatStatus("Analysis failed", false);
-        } finally {
-            enableChatInput(true); // Re-enable chat input
-             if (generateButton) generateButton.disabled = false; // Re-enable button
-             if (saveButton) saveButton.disabled = false; // Re-enable save button
-             // setChatStatus("", false); // Clear status message after a delay - done by setChatStatus itself
-        }
-    }
-    
     /* --- Info popup support --- */
     function showInfo(text) {
         const infoModalText = document.getElementById('infoModalText');
@@ -2983,22 +2694,69 @@
                  console.log("Supabase client already initialized.");
             }
 
+            // Cache Google Drive buttons and user display element
+            googleSignInButton = document.getElementById('googleSignInButton');
+            googleSignOutButton = document.getElementById('googleSignOutButton');
+            loadFromDriveButton = document.getElementById('loadFromDriveButton');
+            saveToDriveButton = document.getElementById('saveToDriveButton');
+            downloadLocalButton = document.getElementById('downloadLocalButton');
+            signedInUserDisplayElement = document.getElementById('signedInUserDisplay');
 
-            // Initialize buttons, modals, popups etc. - These should run regardless of Supabase
-            if (typeof initSaveButton === 'function') initSaveButton(); else console.warn("initSaveButton function not found.");
-            if (typeof initUploadButton === 'function') initUploadButton(); else console.warn("initUploadButton function not found.");
+
+            // Initialize Google APIs (GIS and Gapi) - This will handle showing the sign-in button
+            loadGoogleAPIs(); // This calls initializeGIS and handles Gapi load
+
+            // Initialize other features (buttons, modals, popups etc.) - These should run regardless of Supabase
+            // Removed redundant initSaveButton, initUploadButton as listeners are added below or in DOMContentLoaded
             if (typeof initModals === 'function') initModals(); else console.warn("initModals function not found.");
             if (typeof initInfoPopups === 'function') initInfoPopups(); else console.warn("initInfoPopups function not found.");
 
             // Add listeners for error message buttons
             document.getElementById('retryButton')?.addEventListener('click', () => { location.reload(); });
             document.getElementById('manualEntryButton')?.addEventListener('click', useDemoData);
+
              // Setup save summary button
             document.getElementById('saveSummaryBtn')?.addEventListener('click', generateAndSaveSummary);
-document.getElementById('generateAnalysisBtn')?.addEventListener('click', generateAndDisplayNewSummary);
+            document.getElementById('generateAnalysisBtn')?.addEventListener('click', generateAndDisplayNewSummary);
+
+            // Setup listeners for File Input (for manual upload)
+            if (fileInput) {
+                 fileInput.addEventListener('change', handleManualFileUpload);
+                 // Add listener for the initial upload button if it exists
+                 const initialUploadButton = document.getElementById('initialUploadButton');
+                 if(initialUploadButton) {
+                     initialUploadButton.addEventListener('click', () => fileInput.click());
+                 }
+                 console.log("Manual file upload listeners initialized.");
+            } else { console.warn("File input element not found."); }
+
+
+            // Setup listeners for Google Drive buttons (handlers implemented below)
+            if (loadFromDriveButton) {
+                 loadFromDriveButton.addEventListener('click', handleLoadFromDriveClick);
+                 console.log("Load from Drive button listener added.");
+            } else { console.warn("Load from Drive button not found."); }
+
+            if (saveToDriveButton) {
+                 saveToDriveButton.addEventListener('click', handleSaveToDriveClick);
+                 console.log("Save to Drive button listener added.");
+            } else { console.warn("Save to Drive button not found."); }
+
+            // Setup listener for Google Sign Out button
+             if (googleSignOutButton) {
+                 googleSignOutButton.addEventListener('click', handleGoogleSignOut);
+                 console.log("Sign Out button listener added.");
+             } else { console.warn("Sign Out button not found."); }
+
+            // Setup listener for local Download button
+             if (downloadLocalButton) {
+                 downloadLocalButton.addEventListener('click', handleLocalDownload);
+                 console.log("Local Download button listener added.");
+             } else { console.warn("Local Download button not found."); }
+
 
             // Initial fetch for usage info and then update UI based on that access
-            // This also handles initializing the chat UI
+            // This also handles initializing the chat UI based on initial state
             fetchInitialUsage();
 
 
@@ -3006,7 +2764,7 @@ document.getElementById('generateAnalysisBtn')?.addEventListener('click', genera
             // This is also done by handleError and processAndDisplayData finally blocks,
             // but a final check here can't hurt if logic somehow bypasses others.
             // Removed this from here, let the specific flows manage the spinner.
-            
+
         } catch (initError) {
             console.error("Error initializing Supabase/core features:", initError);
              // If core initialization fails, likely can't recover well. Use error handler.
@@ -3015,14 +2773,23 @@ document.getElementById('generateAnalysisBtn')?.addEventListener('click', genera
     }
 
     // Helper function to show initial message when no data is found
-    function showInitialPromptOrMessage(message = "Upload a PSR JSON file or parameter to view your dashboard.") {
+    function showInitialPromptOrMessage(message = "Upload a PSR JSON file or sign in with Google Drive to load your dashboard.") { // Updated default message
         console.log("Executing showInitialPromptOrMessage");
         hideAllMainContentAreas(); // Hide everything else first
 
         // Prefer showing the structured upload prompt if available
         if (initialUploadPrompt) {
             initialUploadPrompt.style.display = 'block';
-            console.log("Displayed initial upload prompt.");
+             // Ensure the upload button listener is active for this state
+            const initialUploadButton = document.getElementById('initialUploadButton');
+            if (initialUploadButton && fileInput) {
+                // Listener is added in initializeSupabaseAndCoreFeatures, just ensure button is visible if needed
+                 initialUploadButton.style.display = 'inline-block'; // Assuming it's part of the prompt div
+                 console.log("Initial upload prompt and button visible.");
+            } else {
+                 console.warn("Initial upload button or file input not found.");
+            }
+
         } else if (initialMessageElement) {
              // Fallback to simple message if prompt not found
             initialMessageElement.textContent = message;
@@ -3033,11 +2800,11 @@ document.getElementById('generateAnalysisBtn')?.addEventListener('click', genera
         }
 
         // Ensure chat is hidden if we revert to the initial state
-        if (chatInterfaceCardElement) {
-            chatInterfaceCardElement.style.display = 'none';
-        }
+        if (chatInterfaceCardElement) { chatInterfaceCardElement.style.display = 'none'; }
         enableChatInput(false); // Disable chat input as well
          setChatStatus("No data loaded", false);
+         // Hide Drive buttons if signed out or not loaded, show Sign In
+         updateDriveButtonVisibility(!!googleAccessToken); // Use current token status to update visibility
     }
 
      // Helper to hide all potential main content/initial states
@@ -3047,8 +2814,908 @@ document.getElementById('generateAnalysisBtn')?.addEventListener('click', genera
          if (mainContentElement) { mainContentElement.style.display = 'none'; mainContentElement.classList.add('hidden'); }
          if (initialMessageElement) initialMessageElement.style.display = 'none';
          if (initialUploadPrompt) initialUploadPrompt.style.display = 'none';
+         closeModal('driveLoadModal'); // Close the Drive load modal if open
+         closeModal('progressModal'); // Close other modals too
+         closeModal('infoModal');
      }
-    
+
+     // Handle window resize to potentially re-render charts for responsiveness
+     function handleResize() {
+         //console.log("Window resized. Attempting to relayout charts..."); // Commented out - too noisy
+         const incomeChartDiv = document.getElementById('incomeChart');
+         const expenseChartDiv = document.getElementById('expenseChart');
+
+         // Check if plotly is available and the divs exist and contain a chart
+         if (typeof Plotly !== 'undefined') {
+             if (incomeChartDiv && incomeChartDiv.data) { // Check if Plotly data is attached
+                 //console.log("Relayouting Income Chart...");
+                 Plotly.relayout(incomeChartDiv, { autosize: true });
+             }
+             if (expenseChartDiv && expenseChartDiv.data) { // Check if Plotly data is attached
+                  //console.log("Relayouting Expense Chart...");
+                 Plotly.relayout(expenseChartDiv, { autosize: true });
+             }
+         } // else { console.warn("Plotly not available for relayout on resize."); } // Commented out - too noisy
+     }
+
+       // --- Google API Loading and Initialization ---
+    // Load GIS (for authentication) and Gapi (for API calls) libraries
+    function loadGoogleAPIs() {
+        console.log("Loading Google APIs...");
+        // GIS script tag added directly in HTML head
+        // Gapi script tag added directly in HTML head
+
+        // Wait for Gapi client to load the auth2 library, which is needed for some methods
+        // Gapi `client` and `auth2` are loaded via the <script async defer src="https://apis.google.com/js/api.js"> tag.
+        // We need to wait for the 'client' and 'drive' module to load.
+        // The `handleGapiLoad` function attached to the script's onload can signal when the *library* is loaded,
+        // but not when specific modules are ready.
+        // The `gapi.client.init` or `gapi.load` pattern is more robust.
+
+        // Check if gapi is already available (might be if script loaded very fast)
+        if (typeof gapi !== 'undefined') {
+             handleGapiLoad(); // Call the handler if already loaded
+        } else {
+             // If gapi is not immediately available, the script's onload will call handleGapiLoad later.
+             console.log("Gapi not immediately available, waiting for script load.");
+        }
+
+         // GIS initialization is handled by the script's onload callback pointing to initializeGIS
+         if (typeof google !== 'undefined' && typeof google.accounts !== 'undefined') {
+             initializeGIS(); // Call the handler if already loaded
+         } else {
+             console.log("GIS not immediately available, waiting for script load.");
+         }
+    }
+
+    // Handle Gapi library load (triggered by the script tag)
+    function handleGapiLoad() {
+        console.log("Gapi library loaded.");
+        // Now that the Gapi library is loaded, we can load the specific API modules
+        // The Drive API will be loaded *after* the user successfully signs in
+        // and we have an access token, within `handleGoogleTokenResponse`.
+        // No immediate action needed here other than logging.
+    }
+
+
+    // Initialize GIS (Google Identity Services) - Triggered by the GIS script tag onload
+    function initializeGIS() {
+        console.log("GIS library loaded. Initializing token client...");
+        if (typeof google === 'undefined' || typeof google.accounts === 'undefined' || typeof google.accounts.oauth2 === 'undefined') {
+             console.error("GIS library not available after load.");
+             // Don't necessarily halt everything, but disable Google features
+             //handleError("Google Sign-In Failed", new Error("Google Identity Services library did not load.")); // Too aggressive for just GIS failing
+             console.warn("Google Identity Services library not available. Google Drive features disabled.");
+             updateDriveButtonVisibility(false); // Explicitly hide buttons if GIS failed
+             if (googleSignInButton) googleSignInButton.style.display = 'none'; // Hide the sign-in button if GIS fails
+             return;
+        }
+
+        try {
+            // Use initTokenClient for the new implicit flow
+            googleTokenClient = google.accounts.oauth2.initTokenClient({
+                client_id: GOOGLE_CLIENT_ID,
+                scope: GOOGLE_SCOPES,
+                callback: handleGoogleTokenResponse, // Function to call when a token is received
+                error_callback: (error) => {
+                    console.error("GIS initTokenClient error:", error);
+                    // Decide how to handle init errors vs auth errors
+                     if (error.type === 'popup_closed') {
+                         console.log("Google Sign-In popup closed by user during initial token request.");
+                         setChatStatus("Sign-in cancelled", false);
+                     } else {
+                         // Treat other errors more seriously
+                         handleError("Google Sign-In Failed", new Error(`Authentication error: ${error.message || 'Unknown error'}`));
+                         setChatStatus("Sign-in Failed", false);
+                     }
+                }
+            });
+            console.log("GIS token client initialized.");
+
+            // Once GIS is initialized, the Sign-In button listener is already added
+            // in initializeSupabaseAndCoreFeatures. Its visibility is managed by
+            // updateDriveButtonVisibility, which is called initially by fetchInitialUsage (indirectly)
+            // and after sign-in/sign-out events.
+             // Explicitly update button visibility here once GIS is ready
+             updateDriveButtonVisibility(!!googleAccessToken); // Show/hide based on initial token state (likely null)
+
+
+        } catch (e) {
+             console.error("Error initializing GIS token client:", e);
+             handleError("Google Sign-In Setup Failed", e);
+        }
+    }
+
+    // Handle the response from the Google Token Client (Authorization Response)
+    function handleGoogleTokenResponse(tokenResponse) {
+        console.log("Google token response received:", tokenResponse);
+        if (tokenResponse && tokenResponse.access_token) {
+            googleAccessToken = tokenResponse.access_token;
+            console.log("Access Token obtained (length:", googleAccessToken.length, ")."); // Log length, not full token
+
+            // Inject the token into the gapi.client library
+            if (typeof gapi !== 'undefined' && typeof gapi.client !== 'undefined') {
+                gapi.client.setToken({ access_token: googleAccessToken });
+                console.log("Token set in gapi.client.");
+
+                // Now that we have a token, load the Drive API library
+                // Use gapi.client.load pattern
+                 gapi.client.load('drive', 'v3')
+                    .then(() => {
+                        console.log("Google Drive API v3 loaded successfully.");
+                        // Drive API is ready to use now (gapi.client.drive)
+                        updateDriveButtonVisibility(true); // Show Drive buttons, hide sign-in
+                        fetchGoogleUserInfo(); // Fetch user info for display (optional but good UX)
+                        // Automatically try to load the user's file after successful sign-in
+                         // Only attempt auto-load if there's no data currently displayed
+                         if (!dashboardData || !dashboardData.userInput || Object.keys(dashboardData.userInput).length === 0) {
+                             console.log("No data loaded from URL. Attempting auto-load from Drive after sign-in.");
+                             handleLoadFromDriveClick(); // Automatically attempt to load the default file
+                         } else {
+                             console.log("Data already loaded from URL. Skipping auto-load from Drive.");
+                             setChatStatus("Signed in to Drive", false); // Indicate successful sign-in
+                             // Ensure buttons are correctly visible when data is loaded and signed in
+                              updateDriveButtonVisibility(true);
+                         }
+
+                    })
+                    .catch((loadError) => {
+                         console.error("Error loading Google Drive API:", loadError);
+                         handleError("Google Drive API Load Failed", loadError);
+                         updateDriveButtonVisibility(false); // Ensure Drive buttons are hidden if API fails
+                         setChatStatus("Drive API Failed", false);
+                    });
+
+
+            } else {
+                console.error("Gapi client not available to set token.");
+                handleError("Google API Error", new Error("Google API client not fully loaded."));
+                updateDriveButtonVisibility(false); // Hide Drive buttons
+                 setChatStatus("Google API Failed", false);
+            }
+
+        } else {
+            console.error("Google token response did not contain an access token or had an error.");
+             // If the user cancels the sign-in prompt, tokenResponse might be null or have an error.
+             // Don't treat user cancellation as a critical app error, but log it.
+            if (tokenResponse && tokenResponse.error) {
+                 console.warn("Google Sign-In error:", tokenResponse.error);
+                 if (tokenResponse.error !== 'popup_closed_by_user' && tokenResponse.error !== 'immediate_failed') {
+                     // Treat other auth errors as potentially problematic
+                     handleError("Google Sign-In Failed", new Error(`Authentication error: ${tokenResponse.error}`));
+                      setChatStatus("Sign-in Failed", false);
+                 } else {
+                    console.log("Google Sign-In popup closed or immediate failed (expected for first sign-in).");
+                     setChatStatus("Sign-in cancelled", false); // Indicate cancellation
+                 }
+            } else {
+                 console.warn("Google token response was empty or unexpected.");
+                  setChatStatus("Sign-in failed", false);
+            }
+            googleAccessToken = null; // Ensure token is null on failure
+            updateDriveButtonVisibility(false); // Ensure Drive buttons are hidden
+             // Keep showing the sign-in button
+        }
+    }
+
+    // Fetch basic Google User Info (optional, for displaying signed-in status)
+    async function fetchGoogleUserInfo() {
+        console.log("Fetching Google user info...");
+        // Need to load oauth2 API first if not already loaded
+        try {
+            if (typeof gapi === 'undefined' || typeof gapi.client === 'undefined' || !gapi.client.getToken()) {
+                console.warn("Gapi client not ready or no token to fetch user info.");
+                 return;
+            }
+             // Load the oauth2 API if it hasn't been loaded yet
+             // Use gapi.client.load pattern which handles idempotency
+            await gapi.client.load('oauth2', 'v2')
+                 .then(() => console.log("OAuth2 API v2 loaded for user info."))
+                 .catch(err => console.error("Error loading OAuth2 API for user info:", err));
+
+
+            const response = await gapi.client.oauth2.userinfo.get();
+            googleUser = response.result;
+            console.log("Google User Info:", googleUser);
+            // Optionally display user name
+            signedInUserDisplayElement = signedInUserDisplayElement || document.getElementById('signedInUserDisplay');
+            if (signedInUserDisplayElement && googleUser?.name) {
+                signedInUserDisplayElement.textContent = `Signed in as: ${googleUser.name}`;
+                signedInUserDisplayElement.style.display = 'inline-block'; // Make it visible
+                console.log(`Signed in user display updated: ${googleUser.name}`);
+            } else if (signedInUserDisplayElement) {
+                 // If element exists but no user name, hide it
+                 signedInUserDisplayElement.style.display = 'none';
+                 signedInUserDisplayElement.textContent = ''; // Clear text
+            }
+
+
+        } catch (error) {
+            console.error("Error fetching Google user info:", error);
+            // If fetching user info fails, it's not critical, just log
+        }
+    }
+
+
+    // Handle Google Sign Out
+    function handleGoogleSignOut() {
+        console.log("Signing out of Google...");
+        if (googleAccessToken && typeof google !== 'undefined' && typeof google.accounts !== 'undefined' && typeof google.accounts.oauth2 !== 'undefined') {
+            // Revoke the access token
+            // Revoke requires the access token itself
+            google.accounts.oauth2.revoke(googleAccessToken, (revokeResponse) => {
+                 console.log("Google access token revoke response:", revokeResponse); // Log revoke response
+                console.log("Google access token revoked.");
+                // Clear token and user info
+                googleAccessToken = null;
+                googleUser = null;
+                 if (typeof gapi !== 'undefined' && typeof gapi.client !== 'undefined') {
+                    gapi.client.setToken(null); // Clear token in gapi.client
+                    console.log("Token cleared in gapi.client.");
+                    // Optionally clear Drive API instance if needed, though typically not required
+                    // gapi.client.drive = undefined; // Or null
+                 }
+                console.log("Google sign out complete.");
+                updateDriveButtonVisibility(false); // Hide Drive buttons, show sign-in
+                 signedInUserDisplayElement = signedInUserDisplayElement || document.getElementById('signedInUserDisplay');
+                 if (signedInUserDisplayElement) {
+                     signedInUserDisplayElement.textContent = ''; // Clear display
+                     signedInUserDisplayElement.style.display = 'none'; // Hide display
+                 }
+
+                 // Clear Drive folder ID cache on sign out
+                 driveFolderId = null;
+                 console.log("Drive folder ID cache cleared.");
+
+                 // After signing out of Google, the user might want to load a local file or use demo data
+                 // Show the initial prompt state again
+                 showInitialPromptOrMessage();
+                 setChatStatus("Signed out of Drive", false);
+            });
+        } else {
+            console.log("No Google access token or GIS library not available to revoke. Clearing local state.");
+            // If we can't revoke, just clear local state and update UI
+            googleAccessToken = null;
+            googleUser = null;
+             if (typeof gapi !== 'undefined' && typeof gapi.client !== 'undefined') {
+                 gapi.client.setToken(null);
+             }
+             driveFolderId = null; // Clear cache
+            updateDriveButtonVisibility(false); // Just update visibility
+             signedInUserDisplayElement = signedInUserDisplayElement || document.getElementById('signedInUserDisplay');
+             if (signedInUserDisplayElement) {
+                 signedInUserDisplayElement.textContent = '';
+                 signedInUserDisplayElement.style.display = 'none';
+             }
+             // Show initial prompt state
+             showInitialPromptOrMessage();
+             setChatStatus("Signed out of Drive", false);
+        }
+    }
+
+    // Update visibility of Google Drive related buttons
+    function updateDriveButtonVisibility(isSignedIn) {
+        // Cache elements if not already done
+        googleSignInButton = googleSignInButton || document.getElementById('googleSignInButton');
+        googleSignOutButton = googleSignOutButton || document.getElementById('googleSignOutButton');
+        loadFromDriveButton = loadFromDriveButton || document.getElementById('loadFromDriveButton');
+        saveToDriveButton = saveToDriveButton || document.getElementById('saveToDriveButton');
+        downloadLocalButton = downloadLocalButton || document.getElementById('downloadLocalButton'); // Local download fallback
+        signedInUserDisplayElement = signedInUserDisplayElement || document.getElementById('signedInUserDisplay');
+
+
+        console.log("Updating Drive button visibility. Signed in:", isSignedIn);
+
+        if (googleSignInButton) googleSignInButton.style.display = isSignedIn ? 'none' : 'inline-block';
+        if (googleSignOutButton) googleSignOutButton.style.display = isSignedIn ? 'inline-block' : 'none';
+
+        // Load/Save buttons are only visible when signed in AND data is currently loaded (for save)
+        const isDataLoaded = dashboardData && dashboardData.userInput && Object.keys(dashboardData.userInput).length > 0;
+        if (loadFromDriveButton) loadFromDriveButton.style.display = isSignedIn ? 'inline-block' : 'none';
+        // Save button requires both sign-in AND data loaded
+        if (saveToDriveButton) saveToDriveButton.style.display = (isSignedIn && isDataLoaded) ? 'inline-block' : 'none';
+        // Local download button is only visible when data is loaded (doesn't require sign-in)
+        if (downloadLocalButton) downloadLocalButton.style.display = isDataLoaded ? 'inline-block' : 'none';
+
+        // Display user info span only when signed in
+        if (signedInUserDisplayElement) signedInUserDisplayElement.style.display = isSignedIn ? 'inline-block' : 'none';
+
+
+        console.log("Button states updated:", {
+             signIn: googleSignInButton?.style.display,
+             signOut: googleSignOutButton?.style.display,
+             load: loadFromDriveButton?.style.display,
+             save: saveToDriveButton?.style.display,
+             localDownload: downloadLocalButton?.style.display,
+             signedInUserDisplay: signedInUserDisplayElement?.style.display
+        });
+    }
+
+    // --- Manual File Upload Handler ---
+     function handleManualFileUpload(event) {
+         console.log("Manual file upload triggered.");
+        const file = event.target.files[0];
+        if (!file) {
+            console.log("No file selected.");
+             // Clear the file input even if no file was selected (e.g. user cancelled)
+            event.target.value = '';
+            return;
+        }
+
+        if (file.type !== 'application/json') {
+            alert('Please upload a valid JSON file.');
+            // Clear the file input so the same file can be selected again
+            event.target.value = '';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onloadstart = () => {
+            console.log("Reading file...");
+             hideAllMainContentAreas();
+             if (loadingSpinner) loadingSpinner.style.display = 'flex';
+             setChatStatus("Loading file...", true);
+        };
+        reader.onload = (e) => {
+            console.log("File read successfully.");
+            try {
+                const fileContent = e.target.result;
+                const parsedData = JSON.parse(fileContent);
+                console.log("Parsed file content:", parsedData);
+
+                // Validate loaded data structure - check for minimum required parts
+                if (parsedData && parsedData.userInput && typeof parsedData.userInput === 'object' && parsedData.userInput.personalInfo) {
+                    console.log("File content appears to be valid PSR data.");
+                    // Data loaded from file overrides current context
+                    // If metadata exists, use that for userId/tier, otherwise keep current
+                    const userIdFromMetadata = getSafe(() => parsedData.metadata?.userId);
+                    const tierFromMetadata = getSafe(() => parsedData.metadata?.tier);
+
+                    if (userIdFromMetadata !== 'N/A' && userIdFromMetadata !== currentUserId) {
+                        console.warn(`Overriding current user ID (${currentUserId}) with ID from file metadata: ${userIdFromMetadata}`);
+                        currentUserId = userIdFromMetadata;
+                    }
+                     if (tierFromMetadata !== 'N/A' && tierFromMetadata !== effectiveTier) {
+                         console.warn(`Overriding current tier (${effectiveTier}) with tier from file metadata: ${tierFromMetadata}`);
+                          effectiveTier = tierFromMetadata;
+                     }
+                     // Ensure tier is valid if provided, default to basic
+                    if (!['basic', 'pro'].includes(effectiveTier)) {
+                        effectiveTier = 'basic';
+                        console.warn("Invalid tier found in file metadata. Defaulting to basic.");
+                    }
+
+                     // Add source metadata
+                    parsedData.metadata = parsedData.metadata || {};
+                    parsedData.metadata.source = 'manual_upload';
+
+                    processAndDisplayData(parsedData); // Process and display the loaded data
+                    setChatStatus("File loaded successfully", false);
+                     // Update button visibility now that data is loaded
+                     updateDriveButtonVisibility(!!googleAccessToken);
+
+                } else {
+                    console.error("File content does not match expected PSR format.", parsedData);
+                    throw new Error("Invalid file format. Please upload a valid SmartWealth Navigator PSR file.");
+                }
+            } catch (parseError) {
+                 console.error("Error processing uploaded file:", parseError);
+                 handleError("Error processing file", parseError);
+            } finally {
+                 // Clear the file input so the same file can be selected again after error
+                 event.target.value = '';
+            }
+        };
+        reader.onerror = (error) => {
+            console.error("Error reading file:", error);
+             handleError("Error reading file", new Error("Could not read the selected file."));
+             // Clear the file input
+             event.target.value = '';
+        };
+        reader.readAsText(file); // Read the file as text
+     }
+
+     // --- Local Download Handler ---
+     function handleLocalDownload() {
+         console.log("Initiating local download...");
+         if (!dashboardData || !dashboardData.userInput) {
+             alert("No data to download.");
+             console.warn("Attempted local download with no dashboard data.");
+             return;
+         }
+
+         try {
+             // Ensure chat history is included in the data to be saved
+             dashboardData.chatHistory = chatMessages.filter(msg => msg && msg.role && msg.content);
+             // Ensure metadata is up-to-date, especially userId and tier
+             dashboardData.metadata = dashboardData.metadata || {};
+             dashboardData.metadata.userId = currentUserId;
+             dashboardData.metadata.tier = effectiveTier;
+             dashboardData.metadata.source = 'local_download_source'; // Add source info
+
+
+             const dataStr = JSON.stringify(dashboardData, null, 2); // Pretty-print JSON
+             const blob = new Blob([dataStr], { type: 'application/json' });
+             const url = URL.createObjectURL(blob);
+
+             const a = document.createElement('a');
+             a.href = url;
+             // Suggest a filename including user name and date
+             const userName = getSafe(() => dashboardData.userInput.personalInfo.userName, 'Report').replace(/\s+/g, '_');
+             const date = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+             a.download = `${userName}_PSR_${date}.json`;
+
+             // Append to body, click, and remove
+             document.body.appendChild(a);
+             a.click();
+             document.body.removeChild(a);
+
+             URL.revokeObjectURL(url); // Clean up the object URL
+
+             console.log("Local download initiated successfully.");
+             setChatStatus("Report downloaded locally.", false); // Update status
+             addMessageToChat("System", "Report downloaded locally.", false); // Add confirmation to chat
+
+         } catch (e) {
+             console.error("Error during local download:", e);
+             setChatStatus("Download failed.", false); // Update status
+             alert("Failed to download report: " + e.message);
+              addMessageToChat("System", "Failed to download report locally.", true); // Add error to chat
+         }
+     }
+
+
+    // --- Google Drive Handlers Implementation ---
+
+    /**
+     * Finds the designated SmartWealth Navigator Reports folder in Google Drive.
+     * Creates the folder if it doesn't exist.
+     * Stores the folder ID in the global `driveFolderId`.
+     * @returns {Promise<string>} A promise that resolves with the folder ID.
+     */
+    async function findOrCreateDriveFolder() {
+        console.log(`Attempting to find or create Drive folder: ${PSR_FOLDER_NAME}`);
+        if (!gapi || !gapi.client || !gapi.client.drive) {
+            console.error("Google Drive API client is not loaded for folder operation.");
+            throw new Error("Google Drive API is not ready.");
+        }
+
+        if (driveFolderId) {
+             console.log(`Folder ID already cached: ${driveFolderId}`);
+             return driveFolderId; // Return cached ID if available
+        }
+
+        try {
+            // 1. Search for the folder in the root
+            const searchResponse = await gapi.client.drive.files.list({
+                q: `name='${PSR_FOLDER_NAME}' and mimeType='application/vnd.google-apps.folder' and 'root' in parents and trashed=false`,
+                spaces: 'drive',
+                fields: 'files(id, name)',
+                pageSize: 1
+            });
+
+            const files = searchResponse.result.files;
+
+            if (files && files.length > 0) {
+                // Folder found
+                driveFolderId = files[0].id;
+                console.log(`Found existing Drive folder: ${PSR_FOLDER_NAME} (ID: ${driveFolderId})`);
+                return driveFolderId;
+            } else {
+                // 2. Folder not found, create it
+                console.log(`Drive folder "${PSR_FOLDER_NAME}" not found. Creating...`);
+                const fileMetadata = {
+                    'name': PSR_FOLDER_NAME,
+                    'mimeType': 'application/vnd.google-apps.folder',
+                    'parents': ['root'] // Create in the root folder
+                };
+                const createResponse = await gapi.client.drive.files.create({
+                    resource: fileMetadata,
+                    fields: 'id'
+                });
+
+                driveFolderId = createResponse.result.id;
+                console.log(`Created new Drive folder: ${PSR_FOLDER_NAME} (ID: ${driveFolderId})`);
+                return driveFolderId;
+            }
+        } catch (error) {
+            console.error("Error finding or creating Drive folder:", error);
+            throw new Error(`Failed to access or create Google Drive folder "${PSR_FOLDER_NAME}". Please check Google Drive permissions.`);
+        }
+    }
+
+    /**
+     * Lists PSR files within the designated folder.
+     * @returns {Promise<Array<Object>>} A promise that resolves with a list of files (id, name, modifiedTime).
+     */
+    async function listDriveFiles() {
+        console.log(`Listing files in folder ID: ${driveFolderId}`);
+        if (!gapi || !gapi.client || !gapi.client.drive || !driveFolderId) {
+             console.warn("Google Drive API not ready or folder ID missing for listing.");
+             throw new Error("Google Drive API is not ready or folder not accessible.");
+        }
+
+        try {
+            // Search for files by name and mimeType within the specific folder
+            const searchResponse = await gapi.client.drive.files.list({
+                q: `name='${PSR_FILE_NAME}' and mimeType='${PSR_MIME_TYPE}' and '${driveFolderId}' in parents and trashed=false`,
+                spaces: 'drive',
+                fields: 'files(id, name, modifiedTime)',
+                orderBy: 'modifiedTime desc', // Order by modification time descending
+                pageSize: 10 // Get up to 10 files with the same name (should ideally be only one)
+            });
+
+            const files = searchResponse.result.files;
+            console.log(`Found ${files ? files.length : 0} files matching "${PSR_FILE_NAME}".`, files);
+            return files || [];
+
+        } catch (error) {
+            console.error("Error listing Drive files:", error);
+             // Provide more specific error message based on Google API error structure
+            let userFacingError = "Failed to list files from Google Drive.";
+             if (error.result?.error?.message) {
+                 userFacingError = `Google Drive Error: ${error.result.error.message}`;
+             }
+            throw new Error(userFacingError);
+        }
+    }
+
+     /**
+     * Loads the content of a specific file from Google Drive.
+     * @param {string} fileId The ID of the file to load.
+     * @returns {Promise<Object>} A promise that resolves with the parsed JSON content of the file.
+     */
+    async function loadDriveFileContent(fileId) {
+        console.log(`Loading file content for file ID: ${fileId}`);
+        if (!gapi || !gapi.client || !gapi.client.drive) {
+             console.error("Google Drive API client is not loaded for content loading.");
+             throw new Error("Google Drive API is not ready.");
+        }
+
+        try {
+            // Use alt=media to download the file content
+            const response = await gapi.client.drive.files.get({
+                fileId: fileId,
+                alt: 'media'
+            });
+
+            // The response.result contains the file content (as text for JSON)
+            console.log("Raw file content received (first 200 chars):", String(response.body).substring(0, 200) + '...');
+
+            try {
+                const fileContent = JSON.parse(response.body); // Assuming the content is JSON
+                console.log("Parsed file content from Drive:", fileContent);
+                return fileContent;
+            } catch (parseError) {
+                 console.error("Error parsing file content as JSON:", parseError);
+                 throw new Error("Failed to parse the file content as JSON. It might be corrupted.");
+            }
+
+        } catch (error) {
+            console.error("Error loading file content from Drive:", error);
+             // Check if the error indicates permission issues (e.g., 403) or file not found (404)
+             let userFacingError = "Failed to load file from Google Drive.";
+             if (error.result?.error?.code === 403) {
+                 userFacingError = "Permission denied to access this file in Google Drive. Please check your Google account permissions.";
+             } else if (error.result?.error?.code === 404) {
+                 userFacingError = "File not found in Google Drive. It may have been moved or deleted.";
+             } else if (error.result?.error?.message) {
+                  userFacingError = `Google Drive Error: ${error.result.error.message}`;
+             } else if (error.message) {
+                  userFacingError = `Load Error: ${error.message}`;
+             }
+            throw new Error(userFacingError);
+        }
+    }
+
+
+    /**
+     * Saves the current dashboardData as a JSON file to the designated Drive folder.
+     * Updates the existing file if found, otherwise creates a new one.
+     * @returns {Promise<void>} A promise that resolves when the file is saved.
+     */
+    async function saveFileToDrive() {
+        console.log("Attempting to save file to Google Drive...");
+
+        if (!dashboardData || !dashboardData.userInput) {
+             throw new Error("No dashboard data available to save.");
+        }
+        if (!gapi || !gapi.client || !gapi.client.drive || !googleAccessToken) {
+             console.error("Google Drive API is not ready or user is not signed in for saving.");
+             throw new Error("Google Drive API is not ready or user is not signed in.");
+        }
+
+        // Ensure chat history is included in the data to be saved
+         dashboardData.chatHistory = chatMessages.filter(msg => msg && msg.role && msg.content);
+        // Ensure metadata is up-to-date, especially userId and tier
+        dashboardData.metadata = dashboardData.metadata || {};
+        dashboardData.metadata.userId = currentUserId;
+        dashboardData.metadata.tier = effectiveTier;
+        dashboardData.metadata.source = 'google_drive_source'; // Add source info
+
+
+        const fileContent = JSON.stringify(dashboardData, null, 2);
+        const blob = new Blob([fileContent], { type: PSR_MIME_TYPE });
+
+        let fileIdToUpdate = null;
+
+        try {
+            // 1. Ensure the folder exists and get its ID
+            const folderId = await findOrCreateDriveFolder();
+            console.log("Drive folder ID for saving:", folderId);
+
+            // 2. Search for an existing file with the standard name in this folder
+            const existingFiles = await listDriveFiles(); // listDriveFiles already filters by name/type/parent
+
+            if (existingFiles && existingFiles.length > 0) {
+                // Found existing file(s) - use the first one (most recent if list was ordered)
+                fileIdToUpdate = existingFiles[0].id;
+                console.log(`Found existing file "${PSR_FILE_NAME}" (ID: ${fileIdToUpdate}). Will update.`);
+            }
+
+            // 3. Prepare the request body (metadata is separate in multipart)
+            const fileMetadata = {
+                'name': PSR_FILE_NAME,
+                'mimeType': PSR_MIME_TYPE,
+                // Specify parents ONLY when creating (POST), not when updating (PATCH)
+                ...(fileIdToUpdate ? {} : { 'parents': [folderId] })
+            };
+
+            // Use multipart upload for file content
+            const form = new FormData();
+            form.append('metadata', new Blob([JSON.stringify(fileMetadata)], { type: 'application/json' }));
+            form.append('file', blob);
+
+            // Determine the API endpoint and method (update or create)
+            const path = fileIdToUpdate ? `/upload/drive/v3/files/${fileIdToUpdate}` : `/upload/drive/v3/files`;
+            const method = fileIdToUpdate ? 'PATCH' : 'POST'; // Use PATCH to update, POST to create
+
+            console.log(`Executing Drive file ${fileIdToUpdate ? 'update (PATCH)' : 'create (POST)'} request...`);
+
+            // 4. Execute the request using gapi.client.request
+            const response = await gapi.client.request({
+                path: path,
+                method: method,
+                params: { uploadType: 'multipart' }, // Indicate multipart upload
+                headers: { 'Authorization': `Bearer ${googleAccessToken}` }, // Ensure Authorization header is set
+                body: form
+            });
+
+            console.log(`Drive file ${fileIdToUpdate ? 'updated' : 'created'} successfully:`, response.result);
+            // The response.result will contain the file metadata including the ID
+
+        } catch (error) {
+            console.error("Error saving file to Drive:", error);
+             // Provide more specific error messages if possible
+            let userFacingError = "Failed to save file to Google Drive.";
+             if (error.message.includes("Google Drive API is not ready") || error.message.includes("not signed in")) {
+                 userFacingError = "Please sign in to Google Drive first.";
+             } else if (error.message.includes("Failed to access Google Drive folder")) {
+                 userFacingError = error.message; // Use the specific folder error message
+             } else if (error.result?.error?.message) {
+                 userFacingError = `Google Drive Error: ${error.result.error.message}`;
+             } else if (error.message) {
+                  userFacingError = `Save Error: ${error.message}`;
+             }
+            throw new Error(userFacingError);
+        }
+    }
+
+     /**
+      * Handles the click event for the "Load from Drive" button.
+      * Finds the folder, lists relevant files, and initiates loading the standard file.
+      * Opens a modal to select if multiple files with the same name are found (unlikely but possible).
+      */
+     async function handleLoadFromDriveClick() {
+         console.log("handleLoadFromDriveClick triggered.");
+         if (!gapi || !gapi.client || !gapi.client.drive || !googleAccessToken) {
+             console.warn("Google Drive not signed in or API not ready.");
+             alert("Please sign in to Google Drive first.");
+             return;
+         }
+
+         // Show loading state
+         hideAllMainContentAreas(); // Hide existing content
+         if (loadingSpinner) loadingSpinner.style.display = 'flex';
+         setChatStatus("Searching Drive for file...", true);
+
+         const driveLoadModal = document.getElementById('driveLoadModal');
+         const driveFileListDiv = document.getElementById('driveFileList');
+         const driveLoadErrorP = document.getElementById('driveLoadError');
+
+         if (driveFileListDiv) driveFileListDiv.innerHTML = 'Searching...';
+         if (driveLoadErrorP) driveLoadErrorP.textContent = '';
+
+
+         try {
+             // 1. Ensure the folder exists
+             const folderId = await findOrCreateDriveFolder();
+
+             // 2. List files in the folder matching the standard name
+             const files = await listDriveFiles();
+
+             if (!files || files.length === 0) {
+                 console.log("No PSR file found in Drive folder.");
+                 if (loadingSpinner) loadingSpinner.style.display = 'none'; // Hide spinner
+                 showInitialPromptOrMessage("No SmartWealth Navigator file found in your Google Drive. You can upload a local file or generate a new report.");
+                 setChatStatus("No file found in Drive", false);
+                 // Re-initialize chat (it will be disabled if no data is loaded but auth is ok)
+                 initializeChat(); // Ensure chat UI state is correct
+
+                 // Update button visibility (Load button should still be visible if signed in)
+                 updateDriveButtonVisibility(!!googleAccessToken);
+
+                 return; // Exit function
+             }
+
+             // 3. Handle multiple files or load the first one found
+             if (files.length > 1) {
+                 console.warn(`Found multiple files (${files.length}) named "${PSR_FILE_NAME}". Presenting options.`);
+                 // Sort files by modification time (most recent first)
+                 files.sort((a, b) => new Date(b.modifiedTime).getTime() - new Date(a.modifiedTime).getTime());
+
+                 if (driveFileListDiv) {
+                     driveFileListDiv.innerHTML = '<p class="mb-2">Multiple files found with the same name. Please select one (most recent first):</p>';
+                     files.forEach(file => {
+                         const modifiedDate = new Date(file.modifiedTime).toLocaleString();
+                         const fileLink = document.createElement('a');
+                         fileLink.href = '#';
+                         fileLink.textContent = `${file.name} (Modified: ${modifiedDate})`;
+                         fileLink.style.display = 'block';
+                         fileLink.style.marginBottom = '5px';
+                         // Use a data attribute or closure to pass the file ID to the click handler
+                         fileLink.dataset.fileId = file.id;
+                         fileLink.onclick = async (e) => {
+                             e.preventDefault();
+                             const selectedFileId = e.target.dataset.fileId; // Get ID from data attribute
+                             console.log(`User selected file ID: ${selectedFileId}`);
+                             closeModal('driveLoadModal'); // Close selection modal
+                             // Add a slight delay before starting the load process to ensure modal closes visually
+                             setTimeout(() => performFileLoad(selectedFileId), 100);
+                         };
+                         driveFileListDiv.appendChild(fileLink);
+                     });
+                 }
+                 if (driveLoadErrorP) driveLoadErrorP.textContent = ''; // Clear previous error message
+
+                 if (loadingSpinner) loadingSpinner.style.display = 'none'; // Hide spinner
+                 setChatStatus("Select file to load", false);
+                 openModal('driveLoadModal'); // Open modal for selection
+
+             } else {
+                 // Only one file found, load it directly
+                 const fileToLoad = files[0];
+                 console.log(`Found single file to load: "${fileToLoad.name}" (ID: ${fileToLoad.id}). Loading...`);
+                 closeModal('driveLoadModal'); // Ensure modal is closed if open
+                 // Add a slight delay before starting the load process
+                 setTimeout(() => performFileLoad(fileToLoad.id), 50);
+             }
+
+         } catch (error) {
+             console.error("Error during Load from Drive initial steps:", error);
+             if (loadingSpinner) loadingSpinner.style.display = 'none'; // Hide spinner
+             setChatStatus("Load failed", false);
+             // Update error message in modal if it's still open, otherwise use main error handler
+             if(driveLoadModal && driveLoadModal.style.display === 'block' && driveLoadErrorP) {
+                 driveLoadFileListDiv.innerHTML = ''; // Clear file list
+                 driveLoadErrorP.textContent = `Error: ${error.message || 'Unknown error'}`;
+                 setChatStatus("Error listing files", false);
+             } else {
+                 handleError("Failed to search or list files from Google Drive", error);
+             }
+         }
+         // Note: Spinner hiding and status are managed within performFileLoad or handleError
+     }
+
+     /**
+      * Performs the actual file loading and data processing after a file ID is selected/identified.
+      * @param {string} fileId The ID of the file to load.
+      */
+     async function performFileLoad(fileId) {
+         console.log(`Initiating file load for ID: ${fileId}`);
+         hideAllMainContentAreas(); // Ensure everything is hidden before showing spinner
+         if (loadingSpinner) loadingSpinner.style.display = 'flex';
+         setChatStatus("Loading file content...", true);
+
+         try {
+             const fileContent = await loadDriveFileContent(fileId);
+
+             console.log("Processing loaded data from Drive file...");
+
+             // Validate loaded data structure
+             if (fileContent && fileContent.userInput && typeof fileContent.userInput === 'object' && fileContent.userInput.personalInfo) {
+                  console.log("Loaded file content is valid PSR data. Updating dashboard.");
+                  // Data loaded from file overrides current context
+                  // Prefer userId/tier from file metadata if present and valid
+                 const userIdFromMetadata = getSafe(() => fileContent.metadata?.userId);
+                 const tierFromMetadata = getSafe(() => fileContent.metadata?.tier);
+
+                 if (userIdFromMetadata !== 'N/A' && userIdFromMetadata !== currentUserId) {
+                     console.warn(`Overriding current user ID (${currentUserId}) with ID from file metadata: ${userIdFromMetadata}`);
+                     currentUserId = userIdFromMetadata;
+                 }
+                  if (tierFromMetadata !== 'N/A' && tierFromMetadata !== effectiveTier) {
+                      console.warn(`Overriding current tier (${effectiveTier}) with tier from file metadata: ${tierFromMetadata}`);
+                       effectiveTier = tierFromMetadata;
+                  }
+                  // Ensure tier is valid if provided, default to basic
+                 if (!['basic', 'pro'].includes(effectiveTier)) {
+                     effectiveTier = 'basic';
+                     console.warn("Invalid tier found in file metadata. Defaulting to basic.");
+                 }
+
+
+                  // Add source metadata
+                 fileContent.metadata = fileContent.metadata || {};
+                 fileContent.metadata.source = 'google_drive_loaded';
+
+
+                 processAndDisplayData(fileContent); // This handles hiding spinner and showing main content
+                 setChatStatus("Loaded from Drive", false);
+
+             } else {
+                 console.error("Loaded file content does not match expected PSR format.", fileContent);
+                 throw new Error("The file from Google Drive is not a valid SmartWealth Navigator report.");
+             }
+
+         } catch (error) {
+             console.error("Error during file load process:", error);
+             if (loadingSpinner) loadingSpinner.style.display = 'none'; // Hide spinner
+             setChatStatus("Load failed", false);
+             handleError("Failed to load file from Google Drive", error);
+         } finally {
+             // Spinner hiding is done within try/catch or by handleError
+             // Button visibility is updated by processAndDisplayData or handleError
+         }
+     }
+
+
+     /**
+      * Handles the click event for the "Save to Drive" button.
+      * Initiates the process of saving the current dashboardData to the standard file.
+      */
+     async function handleSaveToDriveClick() {
+         console.log("handleSaveToDriveClick triggered.");
+
+         if (!dashboardData || !dashboardData.userInput) {
+             alert("No dashboard data to save.");
+             console.warn("Attempted Save to Drive with no dashboard data.");
+             return;
+         }
+         if (!gapi || !gapi.client || !gapi.client.drive || !googleAccessToken) {
+             alert("Please sign in to Google Drive first.");
+              console.warn("Google Drive not signed in or API not ready for saving.");
+             return;
+         }
+
+         // Provide immediate feedback to the user
+         setChatStatus("Saving to Drive...", true);
+         // Disable save button to prevent multiple clicks
+         if (saveToDriveButton) saveToDriveButton.disabled = true;
+         if (loadFromDriveButton) loadFromDriveButton.disabled = true; // Disable load during save
+
+
+         try {
+             await saveFileToDrive();
+             console.log("File saved to Drive successfully.");
+             setChatStatus("Saved to Drive ✅", false);
+             addMessageToChat("System", "Your report has been saved to Google Drive.", false); // Add confirmation to chat
+
+         } catch (error) {
+             console.error("Error during Save to Drive process:", error);
+             setChatStatus("Save failed", false);
+             addMessageToChat("System", "Failed to save report to Google Drive: " + (error.message || "Unknown error"), true); // Add error to chat
+             // Optionally show a more detailed error modal
+             // handleError("Failed to save to Google Drive", error); // Can call this for critical errors
+         } finally {
+             // Re-enable buttons
+             if (saveToDriveButton) saveToDriveButton.disabled = false;
+             if (loadFromDriveButton) loadFromDriveButton.disabled = false;
+             // Status message will auto-clear or stay if error
+         }
+     }
+
+
     // --- MAIN Document Ready Event ---
     document.addEventListener('DOMContentLoaded', function() {
         console.log("DOM fully loaded. Initializing application...");
@@ -3064,6 +3731,14 @@ document.getElementById('generateAnalysisBtn')?.addEventListener('click', genera
         debugInfoElement = document.getElementById('debugInfo');
         fileInput = document.getElementById('fileInput');
         chatInterfaceCardElement = document.getElementById('chatInterfaceCard'); // Cache chat card
+
+        // Cache Google Drive buttons and user display element
+        googleSignInButton = document.getElementById('googleSignInButton');
+        googleSignOutButton = document.getElementById('googleSignOutButton');
+        loadFromDriveButton = document.getElementById('loadFromDriveButton');
+        saveToDriveButton = document.getElementById('saveToDriveButton');
+        downloadLocalButton = document.getElementById('downloadLocalButton');
+        signedInUserDisplayElement = document.getElementById('signedInUserDisplay');
 
 
         // --- 2. Set Initial UI State ---
@@ -3083,13 +3758,13 @@ document.getElementById('generateAnalysisBtn')?.addEventListener('click', genera
             // Get URL parameters once
             const params = parseUrlParams();
 
-            // Check for the 'data=null' special case first
+            // Check for the 'data=null' special case first (from Jotform redirect without data)
             if (params === null) {
                 // parseUrlParams already logged warning.
-                // Hide spinner and show the initial prompt state
+                console.log("'data=null' param detected. Showing initial upload prompt.");
                 if (loadingSpinner) loadingSpinner.style.display = 'none';
                 showInitialPromptOrMessage();
-                initializeSupabaseAndCoreFeatures(); // Initialize other features (buttons, modals, maybe Supabase client)
+                initializeSupabaseAndCoreFeatures(); // Initialize other features (buttons, modals, maybe Supabase client, Google APIs)
                 return; // Stop main initialization flow
             }
 
@@ -3097,22 +3772,26 @@ document.getElementById('generateAnalysisBtn')?.addEventListener('click', genera
             const xtlParsedSuccessfully = parseXtlParameter(params);
 
             // Parse financial data from URL parameters regardless of XTL success
-            dashboardData = parseDataFromUrlParams(params) || {}; // Use || {} to ensure it's an object
+            // This sets initial dashboardData (might be null if no params except xtl/userID)
+            dashboardData = parseDataFromUrlParams(params);
 
-            // Initialize Supabase and core features (buttons, modals, etc.)
-            // This also triggers fetchInitialUsage and subsequent chat initialization
+            // Initialize Supabase and core features (buttons, modals, Google APIs etc.)
+            // This also triggers fetchInitialUsage and subsequent chat initialization,
+            // AND initiates Google API loading (which will manage sign-in button visibility).
             initializeSupabaseAndCoreFeatures();
 
 
             // Determine which main content state to show based on data and auth status
-            if (Object.keys(dashboardData.userInput || {}).length > 0 && dashboardData.userInput.personalInfo) {
+            if (dashboardData && dashboardData.userInput && Object.keys(dashboardData.userInput).length > 0 && dashboardData.userInput.personalInfo) {
                  // Data was successfully parsed from URL params
                  console.log("Dashboard data parsed from URL. Processing and displaying.");
-                 processAndDisplayData(dashboardData); // This handles showing mainContent and hiding spinner
+                 // Update metadata source for loaded data (already done in parseDataFromUrlParams)
+                 processAndDisplayData(dashboardData); // This handles showing mainContent and hiding spinner, and setting chat state
             } else if (xtlParsedSuccessfully && currentUserId) {
                  // No dashboard data from URL, but XTL was valid.
-                 // Show the main container structure as a shell, waiting for file upload.
-                 console.log("No dashboard data in URL, but XTL valid. Showing empty main content shell.");
+                 // Show the main container structure as a shell, waiting for file upload/load from Drive.
+                 // This state should typically auto-trigger Load from Drive if the user is signed in.
+                 console.log("No dashboard data in URL, but XTL valid. Showing empty main content shell and waiting for user action or Drive auto-load.");
                  hideAllMainContentAreas();
                  if (mainContentElement) {
                     mainContentElement.style.display = 'block';
@@ -3120,6 +3799,7 @@ document.getElementById('generateAnalysisBtn')?.addEventListener('click', genera
                  } else {
                      console.error("Main content element not found!");
                      handleError("Critical: Main content element not found.", new Error("DOM element #mainContent is missing."));
+                     return; // Cannot proceed without main content
                  }
                  // Update UI elements to show "N/A" or default states explicitly
                  updateReportBasics({}, {}); // Pass empty objects to reset UI
@@ -3130,6 +3810,8 @@ document.getElementById('generateAnalysisBtn')?.addEventListener('click', genera
                  renderCharts({}); // Attempt to render empty charts or messages
 
                  if (loadingSpinner) loadingSpinner.style.display = 'none'; // Hide spinner
+                 // Button visibility updated by initializeSupabaseAndCoreFeatures -> loadGoogleAPIs -> initializeGIS
+                 // Auto-loading from Drive is attempted in handleGoogleTokenResponse after successful sign-in
 
             } else {
                  // No dashboard data from URL and no valid XTL.
@@ -3137,6 +3819,7 @@ document.getElementById('generateAnalysisBtn')?.addEventListener('click', genera
                  if (loadingSpinner) loadingSpinner.style.display = 'none'; // Hide spinner
                  showInitialPromptOrMessage(); // Show the upload prompt or generic message
                  // Error message might already be showing if XTL parse failed (handleInvalidAccess)
+                 // Button visibility handled by showInitialPromptOrMessage
             }
 
 
@@ -3148,178 +3831,12 @@ document.getElementById('generateAnalysisBtn')?.addEventListener('click', genera
             // The spinner hiding is now managed by the specific display paths (processAndDisplayData, handleError, showInitialPromptOrMessage).
             console.log("DOMContentLoaded finally block finished.");
         }
-         window.addEventListener('resize', handleResize); // <-- ADD THIS LINE HERE
-         console.log("Window resize listener added."); // <-- ADD THIS LOG HERE
+         // Add the resize listener outside the try/catch/finally to ensure it's always added
+         window.addEventListener('resize', handleResize);
+         console.log("Window resize listener added.");
     });
 
-       // --- Google API Loading and Initialization ---
-    // Load GIS (for authentication) and Gapi (for API calls) libraries
-    function loadGoogleAPIs() {
-        console.log("Loading Google APIs...");
-        // Load GIS client library
-        const scriptGIS = document.createElement('script');
-        scriptGIS.src = 'https://accounts.google.com/gsi/client';
-        scriptGIS.async = true;
-        scriptGIS.defer = true;
-        scriptGIS.onload = initializeGIS; // Initialize GIS once loaded
-        document.head.appendChild(scriptGIS);
 
-        // Load Gapi client library
-        const scriptGapi = document.createElement('script');
-        scriptGapi.src = 'https://apis.google.com/js/api.js';
-        scriptGapi.async = true;
-        scriptGapi.defer = true;
-        scriptGapi.onload = handleGapiLoad; // Handle Gapi load
-        document.head.appendChild(scriptGapi);
-    }
-
-    // Handle Gapi library load
-    function handleGapiLoad() {
-        console.log("Gapi library loaded.");
-        // No immediate action here, gapi.client will be initialized later
-        // after the user signs in and we get a token.
-    }
-
-    // Initialize GIS (Google Identity Services)
-    function initializeGIS() {
-        console.log("GIS library loaded. Initializing token client...");
-        if (typeof google === 'undefined' || typeof google.accounts === 'undefined' || typeof google.accounts.oauth2 === 'undefined') {
-             console.error("GIS library not available after load.");
-             handleError("Google Sign-In Failed", new Error("Google Identity Services library did not load."));
-             return;
-        }
-
-        try {
-            googleTokenClient = google.accounts.oauth2.initTokenClient({
-                client_id: GOOGLE_CLIENT_ID,
-                scope: GOOGLE_SCOPES,
-                callback: handleGoogleTokenResponse, // Function to call when a token is received
-            });
-            console.log("GIS token client initialized.");
-
-            // Once GIS is initialized, show the Sign-In button
-             const signInButton = document.getElementById('googleSignInButton');
-            if (signInButton) {
-                 signInButton.style.display = 'inline-block'; // Show the sign-in button
-                 // Add event listener for the sign-in button
-                 signInButton.addEventListener('click', () => {
-                     console.log("Sign in button clicked. Requesting token...");
-                     if (googleTokenClient) {
-                         googleTokenClient.requestAccessToken({ prompt: '' }); // Request token silently if possible, or prompt
-                     } else {
-                         console.error("Google token client not initialized.");
-                         handleError("Google Sign-In Error", new Error("Google token client not ready."));
-                     }
-                 });
-                 console.log("Google Sign-In button listener added.");
-            } else {
-                 console.error("Google Sign-In button element not found!");
-            }
-
-        } catch (e) {
-             console.error("Error initializing GIS token client:", e);
-             handleError("Google Sign-In Setup Failed", e);
-        }
-    }
-
-    // Handle the response from the Google Token Client
-    function handleGoogleTokenResponse(tokenResponse) {
-        console.log("Google token response received:", tokenResponse);
-        if (tokenResponse && tokenResponse.access_token) {
-            googleAccessToken = tokenResponse.access_token;
-            console.log("Access Token obtained:", googleAccessToken);
-
-            // Inject the token into the gapi.client library
-            if (typeof gapi !== 'undefined' && typeof gapi.client !== 'undefined') {
-                gapi.client.setToken({ access_token: googleAccessToken });
-                console.log("Token set in gapi.client.");
-
-                // Now that we have a token, load the Drive API library
-                gapi.client.load('drive', 'v3', () => {
-                    console.log("Google Drive API v3 loaded.");
-                    // Drive API is ready to use now (gapi.client.drive)
-                    updateDriveButtonVisibility(true); // Show Drive buttons, hide sign-in
-                    fetchGoogleUserInfo(); // Fetch user info for display
-                     // The main dashboard is likely already displayed, but chat/features might need re-init based on user ID/state
-                    // The user ID for Supabase tracking is still managed by XTL or file upload data,
-                    // not directly by Google Sign-In unless you link them.
-                    // For now, keep Google sign-in separate from Supabase user ID for dashboard data/chat tracking.
-                });
-
-            } else {
-                console.error("Gapi client not available to set token.");
-                handleError("Google API Error", new Error("Google API client not fully loaded."));
-            }
-
-        } else {
-            console.error("Google token response did not contain an access token.");
-            handleError("Google Sign-In Failed", new Error("Could not obtain Google access token."));
-        }
-    }
-
-    // Fetch basic Google User Info (optional, for displaying signed-in status)
-    async function fetchGoogleUserInfo() {
-        console.log("Fetching Google user info...");
-        if (typeof gapi === 'undefined' || typeof gapi.client === 'undefined' || !gapi.client.getToken()) {
-            console.warn("Gapi client not ready or no token to fetch user info.");
-            return;
-        }
-        // Load the people API to get user info
-        await gapi.client.load('oauth2', 'v2'); // Load OAuth2 API to get user info
-        try {
-            const response = await gapi.client.oauth2.userinfo.get();
-            googleUser = response.result;
-            console.log("Google User Info:", googleUser);
-            // Optionally display user name
-            // You might add an element like <span id="signedInUserDisplay"></span> in your HTML header
-            const signedInUserDisplay = document.getElementById('signedInUserDisplay');
-            if (signedInUserDisplay && googleUser?.name) {
-                 signedInUserDisplay.textContent = `Signed in as: ${googleUser.name}`;
-            }
-
-        } catch (error) {
-            console.error("Error fetching Google user info:", error);
-        }
-    }
-
-
-    // Handle Google Sign Out
-    function handleGoogleSignOut() {
-        console.log("Signing out of Google...");
-        if (googleAccessToken) {
-            // Revoke the access token
-            google.accounts.oauth2.revoke(googleAccessToken, () => {
-                console.log("Google access token revoked.");
-                // Clear token and user info
-                googleAccessToken = null;
-                googleUser = null;
-                gapi.client.setToken(null); // Clear token in gapi.client
-                console.log("Google sign out complete.");
-                updateDriveButtonVisibility(false); // Hide Drive buttons, show sign-in
-                 const signedInUserDisplay = document.getElementById('signedInUserDisplay');
-                 if (signedInUserDisplay) signedInUserDisplay.textContent = ''; // Clear display
-            });
-        } else {
-            console.log("No Google access token to revoke.");
-            updateDriveButtonVisibility(false); // Just update visibility
-        }
-    }
-
-    // Update visibility of Google Drive related buttons
-    function updateDriveButtonVisibility(isSignedIn) {
-        const signInButton = document.getElementById('googleSignInButton');
-        const signOutButton = document.getElementById('googleSignOutButton');
-        const loadButton = document.getElementById('loadFromDriveButton');
-        const saveButton = document.getElementById('saveToDriveButton');
-        const downloadLocalButton = document.getElementById('downloadLocalButton'); // Local download fallback
-
-        if (signInButton) signInButton.style.display = isSignedIn ? 'none' : 'inline-block';
-        if (signOutButton) signOutButton.style.display = isSignedIn ? 'inline-block' : 'none';
-        if (loadButton) loadButton.style.display = isSignedIn ? 'inline-block' : 'none';
-        if (saveButton) saveButton.style.display = isSignedIn ? 'inline-block' : 'none';
-        // Optionally show local download button if signed in (as an alternative save)
-        if (downloadLocalButton) downloadLocalButton.style.display = isSignedIn ? 'inline-block' : 'none';
-    }
 </script>
 
 </body>
