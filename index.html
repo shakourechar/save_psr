@@ -986,42 +986,6 @@
         return parsedData;
     }
 
-    // Helper function to show initial message when no data is found
-    function showInitialPromptOrMessage(message = "Upload a PSR JSON file or parameter to view your dashboard.") {
-        console.log("Executing showInitialPromptOrMessage");
-        hideAllMainContentAreas(); // Hide everything else first
-
-        // Prefer showing the structured upload prompt if available
-        if (initialUploadPrompt) {
-            initialUploadPrompt.style.display = 'block';
-            console.log("Displayed initial upload prompt.");
-        } else if (initialMessageElement) {
-             // Fallback to simple message if prompt not found
-            initialMessageElement.textContent = message;
-            initialMessageElement.style.display = 'block';
-            console.log("Displayed fallback initial message element.");
-        } else {
-             console.warn("Could not find initial prompt or message elements.");
-        }
-
-        // Ensure chat is hidden if we revert to the initial state
-        if (chatInterfaceCardElement) {
-            chatInterfaceCardElement.style.display = 'none';
-        }
-        enableChatInput(false); // Disable chat input as well
-         setChatStatus("No data loaded", false);
-    }
-
-     // Helper to hide all potential main content/initial states
-     function hideAllMainContentAreas() {
-         if (loadingSpinner) loadingSpinner.style.display = 'none';
-         if (errorMessageElement) errorMessageElement.style.display = 'none';
-         if (mainContentElement) { mainContentElement.style.display = 'none'; mainContentElement.classList.add('hidden'); }
-         if (initialMessageElement) initialMessageElement.style.display = 'none';
-         if (initialUploadPrompt) initialUploadPrompt.style.display = 'none';
-     }
-
-
     // --- Debugging & Error Handling ---
     function debugURLParameters() {
         if (!debugInfoElement) return; // Check if element exists
@@ -3050,7 +3014,41 @@ document.getElementById('generateAnalysisBtn')?.addEventListener('click', genera
         }
     }
 
+    // Helper function to show initial message when no data is found
+    function showInitialPromptOrMessage(message = "Upload a PSR JSON file or parameter to view your dashboard.") {
+        console.log("Executing showInitialPromptOrMessage");
+        hideAllMainContentAreas(); // Hide everything else first
 
+        // Prefer showing the structured upload prompt if available
+        if (initialUploadPrompt) {
+            initialUploadPrompt.style.display = 'block';
+            console.log("Displayed initial upload prompt.");
+        } else if (initialMessageElement) {
+             // Fallback to simple message if prompt not found
+            initialMessageElement.textContent = message;
+            initialMessageElement.style.display = 'block';
+            console.log("Displayed fallback initial message element.");
+        } else {
+             console.warn("Could not find initial prompt or message elements.");
+        }
+
+        // Ensure chat is hidden if we revert to the initial state
+        if (chatInterfaceCardElement) {
+            chatInterfaceCardElement.style.display = 'none';
+        }
+        enableChatInput(false); // Disable chat input as well
+         setChatStatus("No data loaded", false);
+    }
+
+     // Helper to hide all potential main content/initial states
+     function hideAllMainContentAreas() {
+         if (loadingSpinner) loadingSpinner.style.display = 'none';
+         if (errorMessageElement) errorMessageElement.style.display = 'none';
+         if (mainContentElement) { mainContentElement.style.display = 'none'; mainContentElement.classList.add('hidden'); }
+         if (initialMessageElement) initialMessageElement.style.display = 'none';
+         if (initialUploadPrompt) initialUploadPrompt.style.display = 'none';
+     }
+    
     // --- MAIN Document Ready Event ---
     document.addEventListener('DOMContentLoaded', function() {
         console.log("DOM fully loaded. Initializing application...");
@@ -3323,9 +3321,6 @@ document.getElementById('generateAnalysisBtn')?.addEventListener('click', genera
         if (downloadLocalButton) downloadLocalButton.style.display = isSignedIn ? 'inline-block' : 'none';
     }
 </script>
-
-    <!-- Google Identity Services -->
-<script src="https://accounts.google.com/gsi/client" async defer></script>
 
 </body>
 </html>
