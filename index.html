@@ -2920,6 +2920,20 @@
             });
             console.log("GIS token client initialized.");
 
+                    // --- FIX START: Add the click listener to the sign-in button ---
+        googleSignInButton = googleSignInButton || document.getElementById('googleSignInButton'); // Ensure element is cached
+        if (googleSignInButton && googleTokenClient) {
+            googleSignInButton.addEventListener('click', () => {
+                console.log("Google Sign-In button clicked. Requesting access token...");
+                // Request an access token, which will trigger the popup
+                googleTokenClient.requestAccessToken();
+                setChatStatus("Waiting for sign-in...", true); // Optional: provide user feedback
+            });
+            console.log("Google Sign-In button listener added.");
+        } else {
+             console.warn("Google Sign-In button or token client not available to add listener.");
+        }
+        // --- FIX END ---
             // Once GIS is initialized, the Sign-In button listener is already added
             // in initializeSupabaseAndCoreFeatures. Its visibility is managed by
             // updateDriveButtonVisibility, which is called initially by fetchInitialUsage (indirectly)
