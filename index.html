@@ -12,8 +12,8 @@
     <script src="./plotly.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Add Google API loader script tags -->
-<script src="https://accounts.google.com/gsi/client" async defer onload="window.gisLoaded=true;"></script>
-<script src="https://apis.google.com/js/api.js" async defer onload="window.gapiLoaded=true;"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://apis.google.com/js/api.js" async defer></script>
 
     <style>
         /* Base Styles */
@@ -817,15 +817,6 @@
     </div>
 
 <script>
-   // Initialize Supabase client at the top of your script
-let supabase;
-if (!supabase) {
-  supabase = window.supabase.createClient(
-    'https://tfnwwpksieluzvxqdiiq.supabase.co', // <-- Replace with your actual Supabase URL
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRmbnd3cGtzaWVsdXp2eHFkaWlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ1ODQ3MjgsImV4cCI6MjA2MDE2MDcyOH0.xbtjiQ65vCggjj35qtlCZ0S5mJa4muSZcHXhaU4qvrE' // <-- Replace with your actual Supabase anon key
-  );
-}
-    
     // --- Globals ---
     let dashboardData = {}; // Holds the main data object
     let chatMessages = []; // Holds chat history for API calls
@@ -844,8 +835,6 @@ if (!supabase) {
     let effectiveTier = 'basic'; // Tier derived from XTL parameter or loaded file
     let initialUsageInfo = null; // To store fetched usage/limit info for initial UI setup
 
-
-    
     // --- Supabase Client (CONFIGURE THESE) ---
     // **IMPORTANT:** Ensure these are correct and your Supabase project is configured
     // with RLS policies that allow anon key reads on 'SWN_Users' (using the 'id' column matching XTL)
@@ -3734,13 +3723,6 @@ if (!supabase) {
          }
      }
 
-    function waitForGoogleAPIsAndInit() {
-    if (window.gisLoaded && window.gapiLoaded) {
-        initializeSupabaseAndCoreFeatures();
-    } else {
-        setTimeout(waitForGoogleAPIsAndInit, 100);
-    }
-}
 
     // --- MAIN Document Ready Event ---
     document.addEventListener('DOMContentLoaded', function() {
@@ -3804,7 +3786,7 @@ if (!supabase) {
             // Initialize Supabase and core features (buttons, modals, Google APIs etc.)
             // This also triggers fetchInitialUsage and subsequent chat initialization,
             // AND initiates Google API loading (which will manage sign-in button visibility).
-            waitForGoogleAPIsAndInit();
+            initializeSupabaseAndCoreFeatures();
 
 
             // Determine which main content state to show based on data and auth status
