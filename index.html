@@ -2895,115 +2895,106 @@ function handleGapiLoad() {
 }
 
 
-    // Initialize GIS (Google Identity Services) - Triggered by the GIS script tag onload
+       // Initialize GIS (Google Identity Services) - Triggered by the GIS script tag onload
     function initializeGIS() {
         console.log("GIS library loaded. Initializing token client...");
         // Check if the Google Identity Services library is available
-        if (typeof google === 'undefined' || typeof google.accounts === 'undefined' || typeof google.accounts.oauth2 === 'undefined') {
-             console.error("GIS library not available after load.");
-             console.warn("Google Identity Services library not available. Google Drive features disabled.");
-             // Explicitly hide buttons if GIS failed to load, show sign-in is pointless
-             updateDriveButtonVisibility(false);
-             if (googleSignInButton) googleSignInButton.style.display = 'none';
-             return;
-        }
+        // Use a short delay to potentially give the library a moment if needed, though onload should mean ready
+         setTimeout(() => { // Adding a small delay for resilience
+             if (typeof google === 'undefined' || typeof google.accounts === 'undefined' || typeof google.accounts.oauth2 === 'undefined') {
+                  console.error("GIS library not available after load timeout.");
+                  console.warn("Google Identity Services library not available. Google Drive features disabled.");
+                  // Explicitly hide buttons if GIS failed to load, show sign-in is pointless
+                  updateDriveButtonVisibility(false);
+                  if (googleSignInButton) googleSignInButton.style.display = 'none';
+                  setChatStatus("Google sign-in setup failed.", false);
+                  return; // Exit function if library isn't available
+             }
 
-        try {
-            // Initialize the Google Identity Services token client
-            // The callback handles success and 'interaction_required' responses.
-            // The error_callback handles other issues like popup blocked or invalid requests.
-            googleTokenClient = google.accounts.oauth2.initTokenClient({
-                client_id: GOOGLE_CLIENT_ID, // Should be your correct Client ID constant
-                scope: GOOGLE_SCOPES,
-                callback: handleGoogleTokenResponse, // <-- Success and 'interaction_required' responses go here
-                error_callback: (error) => { // <-- Other errors go here (e.g. popup blocked, invalid_request, etc.)
-                    console.error("GIS initTokenClient error:", error);
-                    // Handle errors that prevent the callback from even being called, like popup blockers.
-                    // 'immediate_failed' from prompt: 'none' might also end up here.
-                     if (error.type === 'popup_closed' || error.error === 'popup_closed_by_user') {
-                         console.log("Google Sign-In popup closed by user.");
-                         setChatStatus("Sign-in cancelled", false);
-                     } else if (error.error === 'immediate_failed') {
-                         // This typically comes from the silent prompt: 'none' attempt failing outright
-                         console.log("Silent Google Sign-In failed outright (immediate_failed).");
-                         setChatStatus("Sign-in needed", false); // Prompt user to click the button
-                     } else {
-                         // Handle other unexpected GIS errors more seriously, might need user info for handleError
-                         console.error("Other unexpected GIS error:", error); // Log the full error object
-                         // Pass the error to the central handler if it's not a known silent failure/cancellation
-                         handleError("Google Sign-In Process Error", new Error(`GIS error during request: ${error.message || error.error || 'Unknown error'}`));
+             try {
+                 // Initialize the Google Identity Services token client
+                 // The callback handles success and 'interaction_required' responses.
+                 // The error_callback handles other issues like popup blocked or invalid requests.
+                 googleTokenClient = google.accounts.oauth2.initTokenClient({
+                     client_id: GOOGLE_CLIENT_ID, // Should be your correct Client ID constant
+                     scope: GOOGLE_SCOPES,
+                     callback: handleGoogleTokenResponse, // <-- Success and 'interaction_required' responses go here
+                     error_callback: (error) => { // <-- Other errors go here (e.g. popup blocked, invalid_request, etc.)
+                         console.error("GIS initTokenClient error:", error);
+                         // Handle errors that prevent the callback from even being called, like popup blockers.
+                         // 'immediate_failed' from prompt: 'none' might also end up here.
+                          if (error.type === 'popup_closed' || error.error === 'popup_closed_by_user') {
+                              console.log("Google Sign-In popup closed by user.");
+                              setChatStatus("Sign-in cancelled", false);
+                          } else if (error.error === 'immediate_failed') {
+                              // This typically comes from the silent prompt: 'none' attempt failing outright
+                              console.log("Silent Google Sign-In failed outright (immediate_failed).");
+                              setChatStatus("Sign-in needed", false); // Prompt user to click the button
+                          } else {
+                              // Handle other unexpected GIS errors more seriously, might need user info for handleError
+                              console.error("Other unexpected GIS error:", error); // Log the full error object
+                              // Pass the error to the central handler if it's not a known silent failure/cancellation
+                              handleError("Google Sign-In Process Error", new Error(`GIS error during request: ${error.message || error.error || 'Unknown error'}`));
+                          }
+                          // In case of any error in the error_callback, ensure buttons reflect not signed in state
+                          updateDriveButtonVisibility(!!googleAccessToken); // Should evaluate to false here
                      }
-                     // In case of any error in the error_callback, ensure buttons reflect not signed in state
-                     updateDriveButtonVisibility(!!googleAccessToken); // Should evaluate to false here
-                }
-            });
-            console.log("GIS token client initialized.");
+                 });
+                 console.log("GIS token client initialized.");
 
-            // --- Add the click listener to the sign-in button ---
-            // Ensure the button element is cached before adding the listener
-            googleSignInButton = googleSignInButton || document.getElementById('googleSignInButton');
-            if (googleSignInButton && googleTokenClient) {
-                // Remove existing listener to prevent duplicates if initializeGIS is somehow called more than once
-                 googleSignInButton.removeEventListener('click', handleGoogleSignInClick); // Assuming handler name
-                 googleSignInButton.addEventListener('click', handleGoogleSignInClick); // Add the listener
-
-                 // Define the handler function (can be inline or separate)
-                 function handleGoogleSignInClick() {
-                    console.log("Google Sign-In button clicked. Requesting access token...");
-                    // Request an access token interactively. This will trigger the callback upon completion.
-                    googleTokenClient.requestAccessToken();
-                    setChatStatus("Waiting for sign-in...", true); // Provide user feedback
+                 // --- Add the click listener to the sign-in button ---
+                 // Ensure the button element is cached before adding the listener
+                 googleSignInButton = googleSignInButton || document.getElementById('googleSignInButton');
+                 if (googleSignInButton && googleTokenClient) {
+                     // Remove existing listener to prevent duplicates if initializeGIS is somehow called more than once
+                      // Using an inline function handler below, so no specific name to remove.
+                      // If you make handleGoogleSignInClick a separate named function, use removeEventListener.
+                      // For simplicity with inline: just add the listener; if initializeGIS runs twice, listener is added twice (harmless).
+                     googleSignInButton.addEventListener('click', () => {
+                         console.log("Google Sign-In button clicked. Requesting access token...");
+                         // Request an access token for user interaction. This will trigger the callback upon completion.
+                         googleTokenClient.requestAccessToken();
+                         setChatStatus("Waiting for sign-in...", true); // Provide user feedback
+                     });
+                     console.log("Google Sign-In button listener added.");
+                 } else {
+                      console.warn("Google Sign-In button element or token client not available to add listener.");
                  }
 
-                console.log("Google Sign-In button listener added.");
-            } else {
-                 console.warn("Google Sign-In button element or token client not available to add listener.");
-            }
-
-            // --- Attempt silent re-authentication on page load ---
-            // This should be called *after* the googleTokenClient is initialized.
-            // It checks if the user has a valid, recent session and attempts to get an access token silently.
-            // If successful, handleGoogleTokenResponse is called with the token.
-            // If not successful (no valid session, user needs to pick account, etc.), the callback (handleGoogleTokenResponse)
-            // is called with { error: 'interaction_required' }. The error_callback is for other errors.
-            if (googleTokenClient) { // Ensure the client object exists before calling its method
-                 console.log("Attempting silent Google re-authentication...");
-                 // Use prompt: 'none' for a silent check.
-                 googleTokenClient.requestAccessToken({ prompt: 'none' });
-                 // The response (success or interaction_required) goes to handleGoogleTokenResponse.
-                 // Other errors go to the error_callback defined above.
-            } else {
-                console.warn("Google Token client not available to attempt silent re-auth. Skipping silent check.");
-            }
-            // --- END Silent Re-auth ---
+                 // --- Attempt silent re-authentication on page load ---
+                 // This should be called *after* the googleTokenClient is initialized.
+                 // It checks if the user has a valid, recent session and attempts to get an access token silently.
+                 // If successful, handleGoogleTokenResponse is called with the token.
+                 // If not successful (no valid session, user needs to pick account, etc.), the callback (handleGoogleTokenResponse)
+                 // is called with { error: 'interaction_required' } or { error: 'access_denied' }.
+                 if (googleTokenClient) { // Ensure the client object exists before calling its method
+                      console.log("Attempting silent Google re-authentication...");
+                      // Use prompt: 'none' for a silent check.
+                      googleTokenClient.requestAccessToken({ prompt: 'none' });
+                      // The response (success or interaction_required/access_denied) goes to handleGoogleTokenResponse.
+                      // Other errors go to the error_callback defined above.
+                 } else {
+                     console.warn("Google Token client not available to attempt silent re-auth. Skipping silent check.");
+                 }
+                 // --- END Silent Re-auth ---
 
 
-             // Explicitly update button visibility here once GIS is initially ready.
-             // At this point, googleAccessToken is likely null, so this will show the sign-in button by default.
-             // The result of the silent re-auth attempt above will then update the UI via handleGoogleTokenResponse or the error_callback.
-             updateDriveButtonVisibility(!!googleAccessToken);
+                  // Explicitly update button visibility here once GIS is initially ready.
+                  // At this point, googleAccessToken is likely null (unless a token was cached somehow very early),
+                  // so this will typically show the sign-in button by default.
+                  // The result of the silent re-auth attempt above will then update the UI via handleGoogleTokenResponse or the error_callback.
+                  updateDriveButtonVisibility(!!googleAccessToken); // Show/hide based on initial token state
 
 
-        } catch (e) { // Catch errors during the GIS initialization itself (initTokenClient call fails)
-             console.error("Error initializing GIS token client:", e);
-             handleError("Google Sign-In Setup Failed", e); // Report the error using the central handler
-        }
+             } catch (e) { // Catch errors during the GIS initialization itself (initTokenClient call fails)
+                  console.error("Error initializing GIS token client:", e);
+                  handleError("Google Sign-In Setup Failed", e); // Report the error using the central handler
+             }
+         }, 100); // Add a small delay (100ms) before init as a precaution
+
     } // <-- End of initializeGIS function
 
-
-             // Explicitly update button visibility here once GIS is initially ready.
-             // At this point, googleAccessToken is likely null, so this will show the sign-in button.
-             // If the silent re-auth (attempted just above) succeeds, it will call handleGoogleTokenResponse
-             // which will then call updateDriveButtonVisibility(true).
-             updateDriveButtonVisibility(!!googleAccessToken); // Show/hide based on initial token state
-
-
-        } catch (e) {
-             console.error("Error initializing GIS token client:", e);
-             handleError("Google Sign-In Setup Failed", e);
-        }
-    } // <-- End of initializeGIS function
-
+           
     // Handle the response from the Google Token Client (Authorization Response)
     // This function is called by the Google GIS library after:
     // 1. A successful interactive sign-in (tokenResponse contains access_token).
@@ -3148,7 +3139,7 @@ function handleGapiLoad() {
               updateDriveButtonVisibility(false);
         }
     } // <-- End of handleGoogleTokenResponse function
-
+    
     // Fetch basic Google User Info (optional, for displaying signed-in status)
     // Called after a successful login/re-auth and Drive API load.
     async function fetchGoogleUserInfo() {
