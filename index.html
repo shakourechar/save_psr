@@ -3007,8 +3007,9 @@ function handleGapiLoad() {
     // 5. User closes the popup (tokenResponse contains error: 'popup_closed_by_user').
     function handleGoogleTokenResponse(tokenResponse) {
         console.log("Google token response received:", tokenResponse);
-        // Always ensure previous error state is cleared from UI before processing the response
-        hideAllMainContentAreas(); // Ensure error message modal is hidden if it was showing
+        // IMPORTANT: Do NOT call hideAllMainContentAreas() here.
+        // This function should react to auth result, not hide the main dashboard content.
+        // Hiding/showing main content is managed by the initial load logic and processAndDisplayData.
 
         // Check if the response contains a valid access token (SUCCESS PATH)
         if (tokenResponse && tokenResponse.access_token) {
@@ -3043,23 +3044,23 @@ function handleGapiLoad() {
                              setChatStatus("Loading from Drive...", true);
                              // Call the function to initiate loading from Drive.
                              // handleLoadFromDriveClick manages its own loading state and error display.
-                             handleLoadFromDriveClick();
+                             handleLoadFromDriveClick(); // This function calls processAndDisplayData on success
 
                          } else {
                              // If data was already loaded (e.g., from URL params),
-                             // just show the main dashboard with updated buttons and indicate signed-in status.
+                             // just indicate signed-in status. The main dashboard should already be visible.
                              console.log("Data already loaded from URL. Skipping auto-load from Drive.");
-                             // Ensure main content is visible if it wasn't already (e.g., if XTl loaded structure but no data)
-                              // Note: processAndDisplayData usually handles showing mainContent. If data was loaded
-                              // from URL *before* this, mainContent might already be visible.
-                              // This ensures it's visible if the initial state was 'no data, but XTL valid'.
-                             if (mainContentElement) {
+                             // Ensure main content is visible if it wasn't already (e.g., if XTL loaded structure but no data)
+                              // This case might happen if the initial state was 'no data, but XTL valid'.
+                              // processAndDisplayData is NOT called here, so we manually ensure main content is shown.
+                             if (mainContentElement && mainContentElement.style.display === 'none') { // Check if it's currently hidden
+                                console.log("Main content was hidden, making it visible after successful sign-in.");
                                 mainContentElement.style.display = 'block';
                                 mainContentElement.classList.remove('hidden');
                              }
                              if (loadingSpinner) loadingSpinner.style.display = 'none'; // Hide spinner if it was on
                              setChatStatus("Signed in to Drive", false); // Indicate successful sign-in
-                             // Ensure buttons are correctly visible when data is loaded and signed in (redundant but safe)
+                              // Ensure buttons are correctly visible (redundant but safe)
                               updateDriveButtonVisibility(true);
                          }
 
@@ -3103,6 +3104,8 @@ function handleGapiLoad() {
              driveFolderId = null; // Clear cached folder ID
 
              // Update UI to show the sign-in button and reflect not signed in status
+             // Note: Main content visibility is *NOT* changed here. It should remain visible
+             // if it was loaded from URL params, or remain hidden if it was initially hidden.
              updateDriveButtonVisibility(false); // Pass false because we are NOT signed in (no token)
              signedInUserDisplayElement = signedInUserDisplayElement || document.getElementById('signedInUserDisplay');
               if (signedInUserDisplayElement) {
@@ -3124,9 +3127,9 @@ function handleGapiLoad() {
             driveFolderId = null;
 
             // Treat these as more serious failures needing the central error handler
+            // This WILL call hideAllMainContentAreas(), which is appropriate for a critical error.
              handleError("Google Sign-In Response Error", new Error(`Unexpected error from Google: ${tokenResponse.error || 'No error code'}: ${tokenResponse.error_description || 'Unknown'}`));
-             setChatStatus("Sign-in Failed", false);
-             updateDriveButtonVisibility(false); // Ensure buttons reflect failure
+             // Status and visibility will be set by handleError
         } else {
              // --- Fallback for truly empty or unexpectedly structured responses ---
              console.warn("Google token response was empty or unexpectedly structured.", tokenResponse);
@@ -3137,9 +3140,9 @@ function handleGapiLoad() {
               }
               driveFolderId = null;
 
+              // This WILL call hideAllMainContentAreas(), appropriate for a critical error.
               handleError("Google Sign-In Response Error", new Error("Received empty or invalid response from Google."));
-              setChatStatus("Sign-in Failed", false);
-              updateDriveButtonVisibility(false);
+             // Status and visibility will be set by handleError
         }
     } // <-- End of handleGoogleTokenResponse function
     
