@@ -602,8 +602,8 @@
 
                  <!-- Google Drive Buttons (visibility managed by JS) -->
                  <!-- The click listeners for these initiate the Google flow if needed -->
-                 <button id="loadFromDriveButton" style="display: none;">Open PSR→G-Drive</button>
-                 <button id="saveToDriveButton" style="display: none;">Save PSR→G-Drive</button>
+                 <button id="loadFromDriveButton" style="display: none;">Open PSR</button>
+                 <button id="saveToDriveButton" style="display: none;">Save PSR</button>
                  <!-- Google Sign-In and Sign-Out buttons (Managed by JS, typically hidden if Load/Save are present) -->
                   <button id="googleSignInButton" style="display: none;">Sign in with Google</button>
                   <button id="googleSignOutButton" style="display: none;">Sign Out</button>
@@ -897,19 +897,21 @@ console.log("Early beforeunload listener added (logging only).");
     }
 
     function handleGapiLoad() {
-        console.log("GAPI script loaded, now loading client…");
+        console.log("GAPI script loaded, now loading client + Drive v3 …");
         if (!window.gapi) {
             console.error("gapi not present after script load.");
             return;
         }
         gapi.load('client', () => {
             gapi.client.init({}).then(() => {
-                console.log("gapi client initialised.");
+                return gapi.client.load('drive', 'v3');
+            }).then(() => {
+                console.log("gapi drive v3 loaded.");
                 if (googleAccessToken) {
                     gapi.client.setToken({ access_token: googleAccessToken });
                 }
             }).catch(err => {
-                console.error("gapi client init error:", err);
+                console.error("gapi client/drive init error:", err);
             });
         });
     }
@@ -920,6 +922,112 @@ console.log("Early beforeunload listener added (logging only).");
         if (googleSignOutButton) googleSignOutButton.style.display = isSignedIn ? 'inline-block' : 'none';
         if (loadFromDriveButton) loadFromDriveButton.style.display = isSignedIn ? 'inline-block' : 'none';
         if (saveToDriveButton)   saveToDriveButton.style.display   = isSignedIn ? 'inline-block' : 'none';
+    }
+
+    /* ------------------------------------------------------------
+       Google Drive helper functions (folder: SWN_[userName])
+    ------------------------------------------------------------*/
+    async function getOrCreateSwnFolder(userName, createIfMissing = true) {
+        const folderName = `SWN_${userName.replace(/\s+/g, '_')}`;
+        // 1) search for an existing folder
+        const q = `mimeType='application/vnd.google-apps.folder' and name='${folderName}' and trashed=false`;
+        const resp = await gapi.client.drive.files.list({ q, fields: 'files(id,name)' });
+        if (resp.result.files && resp.result.files.length) {
+            return resp.result.files[0].id;
+        }
+        if (!createIfMissing) return null;
+        // 2) create the folder
+        const meta = { name: folderName, mimeType: 'application/vnd.google-apps.folder' };
+        const createResp = await gapi.client.drive.files.create({ resource: meta, fields: 'id' });
+        return createResp.result.id;
+    }
+
+    async function savePsrToDrive() {
+        try {
+            if (!dashboardData || !dashboardData.userInput) {
+                alert('No dashboard data to save.');
+                return;
+            }
+            const userName = dashboardData.userInput.personalInfo.userName || 'User';
+            const folderId = await getOrCreateSwnFolder(userName, true);
+            const fileName = `SWN_PSR-${userName.replace(/\s+/g,'_')}-${new Date().toISOString().split('T')[0]}.json`;
+            const metadata = {
+                name: fileName,
+                parents: [folderId],
+                mimeType: 'application/json'
+            };
+            const fileContent = JSON.stringify(dashboardData, null, 2);
+            const boundary = '-------314159265358979323846';
+            const delimiter = `\r\n--${boundary}\r\n`;
+            const closeDelim = `\r\n--${boundary}--`;
+            const multipartRequestBody =
+                delimiter + 'Content-Type: application/json\r\n\r\n' +
+                JSON.stringify(metadata) +
+                delimiter + 'Content-Type: application/json\r\n\r\n' +
+                fileContent +
+                closeDelim;
+
+            const request = gapi.client.request({
+                path: '/upload/drive/v3/files?uploadType=multipart',
+                method: 'POST',
+                params: { fields: 'id' },
+                headers: { 'Content-Type': `multipart/related; boundary=${boundary}` },
+                body: multipartRequestBody
+            });
+            await request;
+            alert('PSR saved to Drive successfully.');
+        } catch (err) {
+            console.error('Save PSR error:', err);
+            alert('Failed to save PSR.');
+        }
+    }
+
+    async function loadLatestPsrFromDrive() {
+        try {
+            const userName = (dashboardData?.userInput?.personalInfo.userName)
+                             || googleUser?.name
+                             || 'User';
+            const folderId = await getOrCreateSwnFolder(userName, false);
+            if (!folderId) {
+                alert('No SmartWealth folder found in Drive.');
+                return;
+            }
+            const q = `'${folderId}' in parents and mimeType='application/json' and name contains 'SWN_PSR-' and trashed=false`;
+            const resp = await gapi.client.drive.files.list({
+                q,
+                orderBy: 'modifiedTime desc',
+                pageSize: 1,
+                fields: 'files(id,name,modifiedTime)'
+            });
+            if (!(resp.result.files && resp.result.files.length)) {
+                alert('No PSR file found in Drive folder.');
+                return;
+            }
+            const fileId = resp.result.files[0].id;
+            const dlResp = await gapi.client.drive.files.get({ fileId, alt: 'media' });
+            const psrJson = dlResp.body || dlResp.result;
+            const data = JSON.parse(psrJson);
+            processAndDisplayData(data);
+        } catch (err) {
+            console.error('Load PSR error:', err);
+            alert('Failed to load PSR.');
+        }
+    }
+
+    function handleLoadFromDriveClick() {
+        if (!googleAccessToken) {
+            googleTokenClient?.requestAccessToken({ prompt: 'consent' });
+            return;
+        }
+        loadLatestPsrFromDrive();
+    }
+
+    function handleSaveToDriveClick() {
+        if (!googleAccessToken) {
+            googleTokenClient?.requestAccessToken({ prompt: 'consent' });
+            return;
+        }
+        savePsrToDrive();
     }
 
     /* Basic click handlers for Sign‑In / Sign‑Out */
@@ -941,6 +1049,12 @@ console.log("Early beforeunload listener added (logging only).");
                 updateDriveButtonVisibility(false);
                 console.log("Signed out of Google Drive.");
             });
+        }
+        if (loadFromDriveButton) {
+            loadFromDriveButton.addEventListener('click', handleLoadFromDriveClick);
+        }
+        if (saveToDriveButton) {
+            saveToDriveButton.addEventListener('click', handleSaveToDriveClick);
         }
     });
 
