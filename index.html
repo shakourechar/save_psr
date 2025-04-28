@@ -3121,7 +3121,7 @@ console.log("Early beforeunload listener added (logging only).");
 
              } catch (e) { // Catch errors during the GIS initialization itself (initTokenClient call fails)
                   console.error("Error initializing GIS token client:", e);
-                  handleError("Google Sign-In Setup Failed", e); // Report the error using central handler
+                  handleError("Google Sign-In Setup Failed", e); // Report the error using the central handler
              }
          }, 100); // Add a small delay (100ms) before init as a precaution
 
