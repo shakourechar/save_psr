@@ -874,6 +874,41 @@ console.log("Early beforeunload listener added (logging only).");
     let uploadButtonHeader, downloadLocalButton, loadFromDriveButton, saveToDriveButton, googleSignInButton, googleSignOutButton, signedInUserDisplayElement, promptGoogleLoadButton;
 
 
+    // ------------------------------------------------------------
+    //  Core initialisation (must exist before DOMContentLoaded)
+    // ------------------------------------------------------------
+    async function initializeSupabaseAndCoreFeatures() {
+        try {
+            /* 1. Ensure Supabase client exists */
+            if (!supabase) {
+                if (window.supabase?.createClient) {
+                    const { createClient } = window.supabase;
+                    supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                } else {
+                    throw new Error('Supabase library not loaded');
+                }
+            }
+
+            /* 2. Pull initial usage / tier info */
+            if (typeof fetchInitialUsage === 'function') {
+                await fetchInitialUsage();
+            }
+
+            /* 3. Set up UI helpers */
+            if (typeof initModals === 'function') {
+                initModals();
+            }
+
+            /* 4. Attempt first‑run data load */
+            if (typeof attemptInitialDataLoad === 'function') {
+                await attemptInitialDataLoad();   // helper is defined later in the file
+            }
+
+            console.log('SmartWealth Navigator initialisation complete');
+        } catch (err) {
+            handleError('Initialisation failed', err);
+        }
+    }
     // --- Utility Functions ---
     function getSafe(fn, defaultVal = 'N/A') {
         try {
