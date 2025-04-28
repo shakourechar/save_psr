@@ -867,6 +867,13 @@ console.log("Early beforeunload listener added (logging only).");
     let googleUser = null; // Store basic user info (name, etc.)
     let driveFolderId = null; // Store the ID of the designated Drive folder
 
+    // --- Cached DOM Elements (declare early to avoid TDZ issues) ---
+    let googleSignInButton        = null;
+    let googleSignOutButton       = null;
+    let loadFromDriveButton       = null;
+    let saveToDriveButton         = null;
+    let signedInUserDisplayElement = null;
+
     // ------------------------------------------------------------
     //  Google OAuth & Drive helper setup
     // ------------------------------------------------------------
@@ -1070,11 +1077,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- Cached DOM Elements ---
-    // Declare variables here, cache in DOMContentLoaded
+    // --- Cached DOM Elements (initialized later) ---
     let loadingSpinner, errorMessageElement, mainContentElement, initialMessageElement, initialUploadPrompt, errorTextElement, debugInfoElement, fileInput, chatInterfaceCardElement;
-    // Drive related buttons
-    let uploadButtonHeader, downloadLocalButton, loadFromDriveButton, saveToDriveButton, googleSignInButton, googleSignOutButton, signedInUserDisplayElement, promptGoogleLoadButton;
+    // Drive‑prompt button
+    let promptGoogleLoadButton;
 
 
     // ------------------------------------------------------------
