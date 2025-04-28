@@ -364,10 +364,11 @@
         #mainContent { display: none; }
 
         /* Chat Interface Card */
-        #chatInterfaceCard { display: none; }
+        #chatInterfaceCard { grid-column: 1 / -1; }
 
         /* Chat Styles */
-        #chatInterfaceCard { grid-column: 1 / -1; }
+        #chatInterfaceCard { display: none; } /* Default hidden, managed by JS */
+
         .chat-container {
             display: flex; flex-direction: column; height: 550px;
             border: 1px solid #d1d5db; border-radius: 10px; overflow: hidden;
@@ -817,12 +818,11 @@
 console.log("Script execution started. Setting up early unload listener.");
 window.addEventListener('beforeunload', (event) => {
     console.error("!!! EARLY BEFOREUNLOAD DETECTED - Potential unwanted navigation !!!");
-    // Prevent the unload to see if a dialog appears
-    // event.preventDefault(); // Commented out to allow normal page navigation unless an error occurs
-    // event.returnValue = 'Navigation attempted.'; // Message for dialog
-    // return 'Navigation attempted.'; // Required for some browsers
+    // Keep console log, but do NOT prevent default navigation unless explicitly needed later.
+    // event.preventDefault();
+    // event.returnValue = '';
 });
-console.log("Early beforeunload listener added (listener is present but not preventing by default).");
+console.log("Early beforeunload listener added (logging only).");
 // --- END EARLY DEBUGGING ---
 
     // --- Globals ---
@@ -984,17 +984,37 @@ console.log("Early beforeunload listener added (listener is present but not prev
             return number;
         };
 
-        // Log key parameters for debugging
+        // Log key parameters for debugging - Use the exact keys from the example URL
         console.log("Debugging URL parameter parsing:");
         console.log("  userName:", getParam('userName'));
         console.log("  age:", getParam('age'));
         console.log("  mainJobIncome:", getParam('mainJobIncome'));
+        console.log("  secondJobIncome:", getParam('secondJobIncome')); // Corrected key name
+        console.log("  otherIncome:", getParam('otherIncome'));
         console.log("  housing:", getParam('housing'));
-        console.log("  groceriesessentials:", getParam('groceriesessentials'));
+        console.log("  transportation:", getParam('transportation'));
+        console.log("  utilities:", getParam('utilities'));
+        console.log("  groceriesessentials:", getParam('groceriesessentials')); // Corrected key name
+        console.log("  insurance:", getParam('insurance'));
+        console.log("  medical:", getParam('medical'));
+        console.log("  care:", getParam('care'));
+        console.log("  subscriptions:", getParam('subscriptions'));
+        console.log("  taxes:", getParam('taxes'));
+        console.log("  emergencySavings:", getParam('emergencySavings'));
+        console.log("  currentSavings:", getParam('currentSavings'));
+        console.log("  retirementFund:", getParam('retirementFund'));
         console.log("  creditCardDebt:", getParam('creditCardDebt'));
-         console.log("  aiAnalysis:", getParam('aiAnalysis'));
-         console.log("  xtl:", getParam('xtl')); // Log xtl for debug
-         console.log("  userID:", getParam('userID')); // Log userID for debug
+        console.log("  bankLoans:", getParam('bankLoans'));
+        console.log("  studentLoanDebt:", getParam('studentLoanDebt')); // Corrected key name
+        console.log("  carLoanBalance:", getParam('carLoanBalance')); // Corrected key name
+        console.log("  financialTools:", getParam('financialTools'));
+        console.log("  challenges:", getParam('challenges'));
+        console.log("  upcomingPurchases:", getParam('upcomingPurchases')); // Corrected key name
+        console.log("  aiAnalysis:", getParam('aiAnalysis'));
+        console.log("  recommendations:", getParam('recommendations'));
+        console.log("  userProgressHistory:", getParam('userProgressHistory')); // Corrected key name
+         console.log("  userID:", getParam('userID')); // Log raw userID param
+
 
         // Construct and return the data object based on URL parameters
         // Use getSafe or default values aggressively here
@@ -1006,14 +1026,14 @@ console.log("Early beforeunload listener added (listener is present but not prev
                 },
                 income: {
                     mainJobIncome: parseNumeric('mainJobIncome'),
-                    secondJob: parseNumeric('secondJobIncome'),
+                    secondJobIncome: parseNumeric('secondJobIncome'), // Use exact key
                     otherIncome: parseNumeric('otherIncome')
                 },
                 expenses: {
                     housing: parseNumeric('housing'),
                     transportation: parseNumeric('transportation'),
                     utilities: parseNumeric('utilities'),
-                    groceriesEssentials: parseNumeric('groceriesessentials'),
+                    groceriesessentials: parseNumeric('groceriesessentials'), // Use exact key
                     insurance: parseNumeric('insurance'),
                     medical: parseNumeric('medical'),
                     care: parseNumeric('care'),
@@ -1021,9 +1041,9 @@ console.log("Early beforeunload listener added (listener is present but not prev
                     taxes: parseNumeric('taxes')
                 },
                 savings: {
-                    emergency: parseNumeric('emergencySavings'),
-                    savings: parseNumeric('currentSavings'), // Assuming 'savings' is general savings
-                    retirement: parseNumeric('retirementFund'),
+                    emergencySavings: parseNumeric('emergencySavings'), // Use exact key
+                    currentSavings: parseNumeric('currentSavings'), // Use exact key
+                    retirementFund: parseNumeric('retirementFund'), // Use exact key
                     emergencyFundTarget: parseNumeric('emergencyFundTarget'), // Optional explicit target
                     monthlySavingsGoal: parseNumeric('monthlySavingsGoal') // Optional explicit monthly goal
                 },
@@ -1031,24 +1051,28 @@ console.log("Early beforeunload listener added (listener is present but not prev
                 financials: {
                     financialTools: getParam('financialTools'),
                     challenges: getParam('challenges'),
-                    upcomingPurchase: getParam('upcomingPurchases')
+                    upcomingPurchases: getParam('upcomingPurchases') // Use exact key
                 }
             },
             aiOutput: {
                 analysis: getParam('aiAnalysis') || 'Analysis not available.',
                 recommendations: getParam('recommendations') || 'Recommendations not available.',
-                userProgress: getParam('userProgressHistory') || 'No progress history available.'
+                userProgressHistory: getParam('userProgressHistory') || 'No progress history available.' // Use exact key
             },
-             // Add a field to store the parsed xtl and userID if needed later, but DON'T use userID for auth here
+             // Add a field to store the parsed xtl and userID if needed later, but DON'T use userID param for auth here
             metadata: {
                  xtl: getParam('xtl'),
-                 rawUserIdParam: getParam('userID') // Store the raw userID param value
+                 rawUserIdParam: getParam('userID'), // Store the raw userID param value
+                 // Add placeolders for userId and tier, to be populated by parseXtlParameter or file load
+                 userId: null,
+                 tier: 'basic',
+                 source: 'url_params' // Indicate data source
             }
         };
 
-        // Populate Debts Array - Check for existence and parse
+        // Populate Debts Array - Check for existence and parse - Use exact keys
         try {
-             const creditCardDebt = parseNumeric('creditCardDebt');
+             const creditCardDebt = parseNumeric('creditCardDebt'); // Use exact key
              if (creditCardDebt > 0 && isFinite(creditCardDebt)) {
                  parsedData.userInput.debts.push({
                      type: "Credit Card",
@@ -1059,7 +1083,7 @@ console.log("Early beforeunload listener added (listener is present but not prev
                  console.log("Added Credit Card Debt from param:", creditCardDebt);
              }
 
-             const bankLoans = parseNumeric('bankLoans');
+             const bankLoans = parseNumeric('bankLoans'); // Use exact key
              if (bankLoans > 0 && isFinite(bankLoans)) {
                  parsedData.userInput.debts.push({
                      type: "Bank Loans",
@@ -1070,26 +1094,26 @@ console.log("Early beforeunload listener added (listener is present but not prev
                  console.log("Added Bank Loans from param:", bankLoans);
              }
 
-             const studentLoans = parseNumeric('studentLoanDebt');
-             if (studentLoans > 0 && isFinite(studentLoans)) {
+             const studentLoanDebt = parseNumeric('studentLoanDebt'); // Use exact key
+             if (studentLoanDebt > 0 && isFinite(studentLoanDebt)) {
                  parsedData.userInput.debts.push({
                      type: "Student Loans",
-                     balance: studentLoans,
+                     balance: studentLoanDebt,
                      interestRate: parseNumeric('studentLoanRate', 5.5), // Default Student Loan rate
-                     minPayment: parseNumeric('studentLoanMinPayment', Math.max(studentLoans * 0.01, 50)) // Default min payment logic
+                     minPayment: parseNumeric('studentLoanMinPayment', Math.max(studentLoanDebt * 0.01, 50)) // Default min payment logic
                  });
-                 console.log("Added Student Loans from param:", studentLoans);
+                 console.log("Added Student Loans from param:", studentLoanDebt);
              }
 
-             const carLoans = parseNumeric('carLoanBalance');
-             if (carLoans > 0 && isFinite(carLoans)) {
+             const carLoanBalance = parseNumeric('carLoanBalance'); // Use exact key
+             if (carLoanBalance > 0 && isFinite(carLoanBalance)) {
                  parsedData.userInput.debts.push({
                      type: "Car Loan",
-                     balance: carLoans,
+                     balance: carLoanBalance,
                      interestRate: parseNumeric('carLoanRate', 6.0), // Default Car Loan rate
-                     minPayment: parseNumeric('carLoanMinPayment', Math.max(carLoans * 0.015, 100)) // Default min payment logic
+                     minPayment: parseNumeric('carLoanMinPayment', Math.max(carLoanBalance * 0.015, 100)) // Default min payment logic
                  });
-                 console.log("Added Car Loan from param:", carLoans);
+                 console.log("Added Car Loan from param:", carLoanBalance);
              }
         } catch (e) {
              console.error("Error populating debt array:", e);
@@ -1118,9 +1142,9 @@ console.log("Early beforeunload listener added (listener is present but not prev
             } else {
                  console.warn("Initial upload button or file input not found.");
             }
-             // Ensure the Google Load button in the prompt is visible if GIS client is ready
-             if (promptGoogleLoadButton && googleTokenClient) {
-                  promptGoogleLoadButton.style.display = 'inline-block';
+             // Ensure the Google Load button in the prompt is visible if GIS client is ready AND user is not signed in
+             if (promptGoogleLoadButton && googleTokenClient) { // Check if GIS client is ready
+                  promptGoogleLoadButton.style.display = googleAccessToken ? 'none' : 'inline-block'; // Show only when NOT signed in
              } else if (promptGoogleLoadButton) {
                   // Hide if GIS not ready yet
                   promptGoogleLoadButton.style.display = 'none';
@@ -1144,7 +1168,7 @@ console.log("Early beforeunload listener added (listener is present but not prev
         enableChatInput(false); // Disable chat input as well
          setChatStatus("No data loaded", false);
          // Update Drive button visibility based on current sign-in state
-         updateDriveButtonVisibility(!!googleAccessToken);
+         updateDriveButtonVisibility(!!googleAccessToken); // This will hide header Drive buttons if not signed in
     }
 
      // Helper to hide all potential main content/initial states
@@ -1255,24 +1279,24 @@ console.log("Early beforeunload listener added (listener is present but not prev
         const demoData = {
             userInput: {
                 personalInfo: { userName: "Demo User", age: 35 },
-                income: { mainJobIncome: 5500, secondJob: 1200, otherIncome: 300 },
-                expenses: { housing: 1800, utilities: 250, transportation: 450, groceriesEssentials: 600, insurance: 350, medical: 150, care: 100, subscriptions: 80, taxes: 1100 },
-                savings: { emergency: 8000, savings: 15000, retirement: 75000, emergencyFundTarget: 15000, monthlySavingsGoal: 500 },
+                income: { mainJobIncome: 5500, secondJobIncome: 1200, otherIncome: 300 },
+                expenses: { housing: 1800, utilities: 250, transportation: 450, groceriesessentials: 600, insurance: 350, medical: 150, care: 100, subscriptions: 80, taxes: 1100 },
+                savings: { emergencySavings: 8000, currentSavings: 15000, retirementFund: 75000, emergencyFundTarget: 15000, monthlySavingsGoal: 500 },
                 debts: [
                     { type: "Credit Card", balance: 4500, interestRate: 22.5, minPayment: 150 },
-                    { type: "Student Loan", balance: 25000, interestRate: 5.5, minPayment: 280 },
+                    { type: "Student Loans", balance: 25000, interestRate: 5.5, minPayment: 280 },
                     { type: "Car Loan", balance: 12000, interestRate: 6.5, minPayment: 300 }
                 ],
                 financials: {
                     financialTools: "Budgeting App (YNAB), Credit Monitor (Credit Karma)",
                     challenges: "Saving consistently for down payment, Reducing high-interest CC debt",
-                    upcomingPurchase: "#1) House Down Payment, $25000, 24 months" // Example matching regex
+                    upcomingPurchases: "#1) House Down Payment, $25000, 24 months" // Example matching regex
                 }
             },
             aiOutput: {
                 analysis: "Cash flow is positive ($1120/month). Emergency fund covers ~2 months of core expenses (target is 3-6). High DTI ratio (31%) primarily due to student/car loans, but CC debt is high interest. Good retirement savings.",
                 recommendations: "- Prioritize paying off the 22.5% interest credit card.\n- Aim to increase emergency fund to $10,000 (3 months expenses).\n- Continue consistent retirement contributions.\n- Review subscription expenses for potential savings.",
-                userProgress: "2024-12-01: Initial report generated (Demo Data).\n2025-03-15: Credit card balance reduced by $500. Emergency fund increased by $1000."
+                userProgressHistory: "2024-12-01: Initial report generated (Demo Data).\n2025-03-15: Credit card balance reduced by $500. Emergency fund increased by $1000."
             },
              // Add metadata for demo data - use a placeholder user ID
             metadata: {
@@ -1747,12 +1771,13 @@ console.log("Early beforeunload listener added (listener is present but not prev
             const debts = getSafe(() => data.userInput?.debts, []);
 
             // Income: Sum known income types
-            totals.totalIncome = (Number(getSafe(() => income.mainJobIncome, 0)) || 0) + (Number(getSafe(() => income.secondJob, 0)) || 0) + (Number(getSafe(() => income.otherIncome, 0)) || 0);
+            totals.totalIncome = (Number(getSafe(() => income.mainJobIncome, 0)) || 0) + (Number(getSafe(() => income.secondJobIncome, 0)) || 0) + (Number(getSafe(() => income.otherIncome, 0)) || 0); // Corrected key
+
 
             // Expenses & Core Expenses: Iterate through expenses object
             // Define core expenses - ADJUST THESE KEYS TO MATCH YOUR DATA EXACTLY
              // Assuming min payments from debts are *not* included in expenses object directly
-            const coreExpenseKeys = ['housing', 'utilities', 'transportation', 'groceriesEssentials', 'insurance', 'medical', 'care', 'subscriptions', 'taxes']; // Removed 'minPayments' here
+            const coreExpenseKeys = ['housing', 'utilities', 'transportation', 'groceriesessentials', 'insurance', 'medical', 'care', 'subscriptions', 'taxes']; // Corrected key
 
             for (const key in expenses) {
                 const value = Number(getSafe(() => expenses[key], 0)) || 0;
@@ -1779,7 +1804,7 @@ console.log("Early beforeunload listener added (listener is present but not prev
             totals.netFlow = totals.totalIncome - totals.totalExpenses;
 
             // Savings: Sum known savings types
-            totals.totalSavings = (Number(getSafe(() => savings.emergency, 0)) || 0) + (Number(getSafe(() => savings.savings, 0)) || 0) + (Number(getSafe(() => savings.retirement, 0)) || 0);
+            totals.totalSavings = (Number(getSafe(() => savings.emergencySavings, 0)) || 0) + (Number(getSafe(() => savings.currentSavings, 0)) || 0) + (Number(getSafe(() => savings.retirementFund, 0)) || 0); // Corrected keys
 
              console.log("Totals calculation successful.");
         } catch (e) {
@@ -1817,7 +1842,7 @@ console.log("Early beforeunload listener added (listener is present but not prev
             }
 
             // Emergency Fund Coverage (Months based on CORE expenses)
-            const currentEmergencyFund = Number(getSafe(() => savingsInput.emergency, 0)) || 0;
+            const currentEmergencyFund = Number(getSafe(() => savingsInput.emergencySavings, 0)) || 0; // Corrected key
             if (totals.monthlyCoreExpenses > 0) {
                 ratios.emergencyCoverage = currentEmergencyFund / totals.monthlyCoreExpenses; // Result in months
             } else if (totals.totalExpenses > 0) {
@@ -1859,14 +1884,14 @@ console.log("Early beforeunload listener added (listener is present but not prev
             updateElementText('netFlow', totals.netFlow, formatCurrency);
 
             // Update Savings Overview Card
-            updateElementText('emergencySavings', getSafe(() => savings.emergency), formatCurrency);
-            updateElementText('currentSavings', getSafe(() => savings.savings), formatCurrency); // Assumes 'savings' is general savings
-            updateElementText('retirementFund', getSafe(() => savings.retirement), formatCurrency);
+            updateElementText('emergencySavings', getSafe(() => savings.emergencySavings), formatCurrency); // Corrected key
+            updateElementText('currentSavings', getSafe(() => savings.currentSavings), formatCurrency); // Corrected key
+            updateElementText('retirementFund', getSafe(() => savings.retirementFund), formatCurrency); // Corrected key
 
             // Update Financial Tools & Goals Card (specific fields)
             updateElementText('financialTools', getSafe(() => financials.financialTools));
             updateElementText('challenges', getSafe(() => financials.challenges));
-            updateElementText('purchaseGoals', getSafe(() => financials.upcomingPurchase)); // Raw detail string here
+            updateElementText('purchaseGoals', getSafe(() => financials.upcomingPurchases)); // Corrected key
             console.log("Report basics UI updated.");
         } catch (e) {
             console.error("Error updating report basics UI:", e);
@@ -1923,7 +1948,7 @@ console.log("Early beforeunload listener added (listener is present but not prev
         try {
             const savingsInput = getSafe(() => data.userInput?.savings, {});
             const financialsInput = getSafe(() => data.userInput?.financials, {});
-            const upcomingPurchaseString = getSafe(() => financialsInput.upcomingPurchase, '');
+            const upcomingPurchaseString = getSafe(() => financialsInput.upcomingPurchases, ''); // Corrected key
 
             const emergencyGoalDisplay = document.getElementById('emergencyGoalDisplay');
             const purchaseGoalDisplay = document.getElementById('purchaseGoalDisplay');
@@ -1931,7 +1956,7 @@ console.log("Early beforeunload listener added (listener is present but not prev
             let hasVisibleGoal = false;
 
             // --- Emergency Fund Goal ---
-            const emergencyCurrent = Number(getSafe(() => savingsInput.emergency, 0)) || 0;
+            const emergencyCurrent = Number(getSafe(() => savingsInput.emergencySavings, 0)) || 0; // Corrected key
             // Use target from data if available, otherwise default to 3 months CORE expenses
             const emergencyGoalTargetExplicit = Number(getSafe(() => savingsInput.emergencyFundTarget, 0));
             const emergencyGoalTargetCalculated = totals.monthlyCoreExpenses > 0 ? totals.monthlyCoreExpenses * 3 : 0;
@@ -1969,7 +1994,7 @@ console.log("Early beforeunload listener added (listener is present but not prev
                     const goalAmountStr = match[2].replace(/,/g, '');
                     const goalAmount = parseFloat(goalAmountStr);
                     // Use general savings for progress unless specific goal savings provided in data
-                    const generalSavings = Number(getSafe(() => savingsInput.savings, 0)) || 0;
+                    const generalSavings = Number(getSafe(() => savingsInput.currentSavings, 0)) || 0; // Corrected key
 
                     if (goalName && !isNaN(goalAmount) && goalAmount > 0) {
                         hasVisibleGoal = true;
@@ -2164,7 +2189,7 @@ console.log("Early beforeunload listener added (listener is present but not prev
                     let label = key.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase());
                     // Customize common labels
                     if (key === 'mainJobIncome') label = 'Main Job';
-                    if (key === 'secondJob') label = 'Second Job';
+                    if (key === 'secondJobIncome') label = 'Second Job'; // Corrected key
                     if (key === 'otherIncome') label = 'Other Income';
 
                     incomeLabels.push(label);
@@ -2181,7 +2206,7 @@ console.log("Early beforeunload listener added (listener is present but not prev
                 if (numValue > 0 && isFinite(numValue)) {
                     let label = key.replace(/([A-Z])/g, ' $1').replace(/^./, c => c.toUpperCase());
                     // Customize common labels
-                    if (key === 'groceriesEssentials') label = 'Groceries/Essentials';
+                    if (key === 'groceriesessentials') label = 'Groceries/Essentials'; // Corrected key
                     if (key === 'taxes') label = 'Taxes'; // Assuming taxes from form are explicit taxes
                     if (key === 'housing') label = 'Housing';
                      if (key === 'transportation') label = 'Transportation';
@@ -2272,7 +2297,7 @@ console.log("Early beforeunload listener added (listener is present but not prev
                     console.log("  Income Trace:", incomeTrace);
                     Plotly.newPlot(incomeChartDiv, incomeTrace, { ...commonPieLayout, title: { text: 'Income Sources', y:0.98, font: { size: 14, family: 'EB Garamond, serif', color: '#111827' } } }, plotlyConfig)
                         .then(() => { console.log("  Income Chart plotted successfully."); })
-                        .catch((plotErr) => { console.error("  Error during Income Plotly.newPlot:", plotErr); incomeChartDiv.innerHTML = `<p class="text-red-600 text-center p-4">Error plotting income chart:<br>${getSafe(() => plotErr.message, 'Unknown plot error')}</p>`; });
+                        .catch((plotErr) => { console.error("  Error during Income Plotly.newPlot:", plotErr); incomeChartDiv.innerHTML = `<p class="text-red-600 text-center p-4">Error plotting income chart:<br>${getSafe(() => plotErr.message, 'Unknown chart error')}</p>`; });
 
                 } else {
                     console.log("  No income data to plot. Displaying message.");
@@ -2307,7 +2332,7 @@ console.log("Early beforeunload listener added (listener is present but not prev
                      console.log("  Expense Trace:", expenseTrace);
                     Plotly.newPlot(expenseChartDiv, expenseTrace, { ...commonPieLayout, title: { text: 'Expense Categories', y:0.98, font: { size: 14, family: 'EB Garamond, serif', color: '#111827' } } }, plotlyConfig)
                         .then(() => { console.log("  Expense Chart plotted successfully."); })
-                        .catch((plotErr) => { console.error("  Error during Expense Plotly.newPlot:", plotErr); expenseChartDiv.innerHTML = `<p class="text-red-600 text-center p-4">Error plotting expense chart:<br>${getSafe(() => plotErr.message, 'Unknown plot error')}</p>`; });
+                        .catch((plotErr) => { console.error("  Error during Expense Plotly.newPlot:", plotErr); expenseChartDiv.innerHTML = `<p class="text-red-600 text-center p-4">Error plotting expense chart:<br>${getSafe(() => plotErr.message, 'Unknown chart error')}</p>`; });
 
                 } else {
                     console.log("  No expense data to plot. Displaying message.");
@@ -2361,7 +2386,7 @@ console.log("Early beforeunload listener added (listener is present but not prev
 
             /* ---- Progress history ---- */
             if (progressContentEl) {
-                const rawProgress = getSafe(() => aiOutput.userProgress, 'No progress history available.');
+                const rawProgress = getSafe(() => aiOutput.userProgressHistory, 'No progress history available.'); // Corrected key
                  const formattedProgress = rawProgress.replace(/\\n/g, '\n'); // literal “\n” → newline for modal pre-wrap
                 progressContentEl.textContent = formattedProgress; // Use textContent for pre
             } else { console.warn("Progress content element not found."); }
@@ -2519,7 +2544,7 @@ console.log("Early beforeunload listener added (listener is present but not prev
         }
 
         // Basic Markdown-like link handling: [text](url) -> <a href="url">text</a>
-        // Basic bold handling: **text** -> <strong>text</strong>
+        // Basic bold handling: **text** -> <strong>text**
         // Convert newlines to <br> for HTML display
          // Basic sanitization: replace < and > to prevent simple injection
         const safeMessage = message.replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -2600,7 +2625,7 @@ console.log("Early beforeunload listener added (listener is present but not prev
              const totals = calculateTotals(dashboardData); // Recalculate for fresh context
              const ratios = calculateRatios(dashboardData, totals); // Calculate ratios for context
              financialContext += `Monthly Totals: Income: ${formatCurrency(totals.totalIncome)}, Expenses: ${formatCurrency(totals.totalExpenses)}, Net Flow: ${formatCurrency(totals.netFlow)}\n`;
-             financialContext += `Savings Balances: Emergency: ${formatCurrency(getSafe(()=>dashboardData.userInput.savings.emergency))}, General: ${formatCurrency(getSafe(()=>dashboardData.userInput.savings.savings))}, Retirement: ${formatCurrency(getSafe(()=>dashboardData.userInput.savings.retirement))}\n`;
+             financialContext += `Savings Balances: Emergency: ${formatCurrency(getSafe(()=>dashboardData.userInput.savings.emergencySavings))}, General: ${formatCurrency(getSafe(()=>dashboardData.userInput.savings.currentSavings))}, Retirement: ${formatCurrency(getSafe(()=>dashboardData.userInput.savings.retirementFund))}\n`; // Corrected keys
              financialContext += `Debt: Total Balance: ${formatCurrency(totals.totalDebt)}, Total Min Payments: ${formatCurrency(totals.totalMinPayments)}\n`;
              financialContext += `Ratios: Savings Rate: ${formatPercentage(ratios.savingsRate, 1)}, Emergency Coverage: ${ratios.emergencyCoverage === Infinity ? 'N/A' : ratios.emergencyCoverage.toFixed(1)} months, DTI: ${formatPercentage(ratios.dtiRatio, 1)}\n`;
 
@@ -2717,7 +2742,7 @@ console.log("Early beforeunload listener added (listener is present but not prev
         chatMessages.push({ role: "user", content: userMessage }); // Add user message to history array
         chatInput.value = ''; // Clear input field
         chatInput.style.height = 'auto'; // Reset height after send
-        chatInput.style.height = '44px'; // Force back to original size (or autoGrow) - autoGrow listener will handle it
+        // chatInput.style.height = '44px'; // Removed hardcoded reset, autoGrow listener handles it
 
         sendToBackendChatFunction(); // Call backend function
     }
@@ -2807,10 +2832,11 @@ console.log("Early beforeunload listener added (listener is present but not prev
 
 
                 // Process and display the financial data and AI output from the file
-                processAndDisplayData(dashboardData); // This updates the main dashboard UI
+                processAndDisplayData(dashboardData); // This updates the main dashboard UI and hides spinner
+
 
                 // *** IMPORTANT: NOW FETCH THE CURRENT USAGE FROM THE DATABASE ***
-                // This will update initialUsageInfo and trigger updateUIBasedOnAccess
+                // This will update initialUsageInfo and trigger updateUIBasedOnAccess -> initializeChat
                 console.log("File processed, fetching current usage from database based on determined user ID...");
                 fetchInitialUsage();
 
@@ -2842,47 +2868,6 @@ console.log("Early beforeunload listener added (listener is present but not prev
              updateUIBasedOnAccess(); // Update chat status based on whatever user info is currently set
         };
         reader.readAsText(file); // Read the file as text
-    }
-
-    function initSaveButton() {
-        const saveButton = document.getElementById('downloadLocalButton'); // Assuming saveButton is now downloadLocalButton
-        if (!saveButton) { console.warn("Local Download button not found."); return; }
-        saveButton.addEventListener('click', () => {
-            // Use the dedicated local download handler
-            handleLocalDownload();
-        });
-         console.log("Local Download button listener initialized.");
-    }
-
-    function initUploadButton() {
-        // This initializes BOTH the header upload button and the initial prompt button (if present)
-        // to trigger the same hidden file input.
-        const uploadButtonHeader = document.getElementById('uploadButton');
-        const initialUploadButtonPrompt = document.getElementById('initialUploadButton'); // Button in the prompt div
-        const fileInputElement = document.getElementById('fileInput'); // The hidden file input
-
-        if (!fileInputElement) {
-            console.error("File input element (#fileInput) not found! Upload will not work.");
-            return; // Can't proceed without file input
-        }
-
-        // Listener for the header button
-        if (uploadButtonHeader) {
-            uploadButtonHeader.addEventListener('click', () => { fileInputElement.click(); });
-        } else {
-            console.warn("Header upload button (#uploadButton) not found.");
-        }
-
-        // Listener for the button inside the initial prompt
-        if (initialUploadButtonPrompt) {
-            initialUploadButtonPrompt.addEventListener('click', () => { fileInputElement.click(); });
-        } else {
-            console.warn("Initial upload prompt button (#initialUploadButton) not found.");
-        }
-
-        // Listener for the actual file input change event
-        fileInputElement.addEventListener('change', handleFileUpload);
-         console.log("Upload buttons initialized.");
     }
 
     // --- Local Download Handler ---
@@ -2959,7 +2944,7 @@ console.log("Early beforeunload listener added (listener is present but not prev
                   console.warn("Google Identity Services library not available. Google Drive features disabled.");
                   // Explicitly hide buttons if GIS failed to load, show sign-in is pointless
                   updateDriveButtonVisibility(false); // Hide drive buttons
-                  if (googleSignInButton) googleSignInButton.style.display = 'none'; // Hide sign in button
+                  if (googleSignInButton) googleSignInButton.style.display = 'none'; // Hide generic sign in button
                   if (promptGoogleLoadButton) promptGoogleLoadButton.style.display = 'none'; // Hide prompt button
                   setChatStatus("Google sign-in setup failed.", false);
                   return; // Exit function if library isn't available
@@ -3031,6 +3016,8 @@ console.log("Early beforeunload listener added (listener is present but not prev
                  if (googleTokenClient) { // Ensure the client object exists before calling its method
                       console.log("Attempting silent Google re-authentication...");
                       // Use prompt: 'none' for a silent check.
+                      // This will NOT show a popup if no session exists, but will trigger handleGoogleTokenResponse
+                      // with error='interaction_required' or 'access_denied' if necessary.
                       googleTokenClient.requestAccessToken({ prompt: 'none' });
                       // The response (success or interaction_required/access_denied) goes to handleGoogleTokenResponse.
                       // Other errors go to the error_callback defined above.
@@ -3042,7 +3029,7 @@ console.log("Early beforeunload listener added (listener is present but not prev
 
                   // Explicitly update button visibility here once GIS is initially ready.
                   // At this point, googleAccessToken is likely null (unless a token was cached somehow very early),
-                  // so this will typically show the sign-in button by default.
+                  // so this will typically show the sign-in button on the prompt screen by default.
                   // The result of the silent re-auth attempt above will then update the UI via handleGoogleTokenResponse or the error_callback.
                   updateDriveButtonVisibility(!!googleAccessToken); // Show/hide based on initial token state
 
@@ -3053,7 +3040,7 @@ console.log("Early beforeunload listener added (listener is present but not prev
              }
          }, 100); // Add a small delay (100ms) before init as a precaution
 
-    } // <-- Corrected closing brace for initializeGIS function
+    }
 
 
     // Handle the response from the Google Token Client (Authorization Response)
@@ -3106,9 +3093,10 @@ console.log("Early beforeunload listener added (listener is present but not prev
                                  if (loadingSpinner) loadingSpinner.style.display = 'flex';
                                  setChatStatus("Loading from Drive...", true);
                                  // Call the function to initiate loading from Drive.
-                                 // handleLoadFromDriveClick manages its own loading state and error display.
-                                 // Pass a flag indicating this is an auto-load attempt after sign-in
-                                 performDriveLoadOrSignIn(true); // Calling internal load logic directly
+                                 // performDriveLoadOrSignIn already checks signed-in status.
+                                 // It might be called here *after* sign-in. Let's call the function
+                                 // that executes the load operation itself, as sign-in is confirmed.
+                                 performDriveLoadOperation(); // Function that does the actual Drive list/load
 
                              } else {
                                  // If data was already loaded (e.g., from URL params),
@@ -3366,7 +3354,7 @@ console.log("Early beforeunload listener added (listener is present but not prev
         downloadLocalButton = downloadLocalButton || document.getElementById('downloadLocalButton'); // Local download
         loadFromDriveButton = loadFromDriveButton || document.getElementById('loadFromDriveButton');
         saveToDriveButton = saveToDriveButton || document.getElementById('saveToDriveButton');
-        googleSignInButton = googleSignInButton || document.getElementById('googleSignInButton'); // Note: this is typically hidden
+        googleSignInButton = googleSignInButton || document.getElementById('googleSignInButton'); // Generic hidden button
         googleSignOutButton = googleSignOutButton || document.getElementById('googleSignOutButton');
         signedInUserDisplayElement = signedInUserDisplayElement || document.getElementById('signedInUserDisplay');
         promptGoogleLoadButton = promptGoogleLoadButton || document.getElementById('promptGoogleLoadButton'); // Button in the initial prompt
@@ -3422,367 +3410,6 @@ console.log("Early beforeunload listener added (listener is present but not prev
     }
 
     // --- Google Drive Handlers Implementation ---
-
-    /**
-     * Initiates the Google Sign-In/Authorization flow if needed, then calls the provided callback.
-     * @param {Function} callback - The function to call after successful sign-in/authorization.
-     * @param {string} actionDescription - A description of the action triggering the sign-in (e.g., "load", "save").
-     */
-    function initiateGoogleFlow(callback, actionDescription = 'action') {
-         console.log(`Initiating Google flow for ${actionDescription}. Signed in: ${!!googleAccessToken}. GIS Client: ${!!googleTokenClient}`);
-         if (!googleTokenClient) {
-              console.error("Google Identity Services client not initialized. Cannot initiate flow.");
-              // This should ideally not happen if initializeGIS ran, but as a safeguard
-              handleError(`Google sign-in services not ready. Cannot ${actionDescription}.`, new Error("GIS client is null."));
-              return;
-         }
-
-         if (googleAccessToken) {
-             console.log("Already signed in. Proceeding with callback.");
-             // Already signed in, proceed directly to the callback action (load or save)
-             callback();
-         } else {
-             console.log("Not signed in. Requesting Google access token interactively.");
-              // Not signed in, request access token (will trigger interactive flow via popup/redirect)
-             // The handleGoogleTokenResponse callback will be called after the user interacts.
-             // The handleGoogleTokenResponse callback will then check for success or failure,
-             // and on success, it will *automatically* call the originally intended action (load/save)
-             // by having stored the action in a temporary variable or by checking a flag.
-             // Let's modify handleGoogleTokenResponse to handle this.
-             // For now, requestAccessToken is enough to trigger the flow.
-             // The specific load/save *after* sign-in will be handled within handleGoogleTokenResponse.
-
-             // Set a flag or store the intended action so handleGoogleTokenResponse knows what to do on success
-             // A simpler approach is to just trigger the sign-in, and have handleGoogleTokenResponse
-             // check if data is loaded. If not, it auto-loads from Drive. If data IS loaded, it just signs in.
-             // This seems to align with the previous auto-load logic. The Save action, however, needs to be explicit.
-
-             // Alternative: Pass the action to handleGoogleTokenResponse somehow?
-             // GIS initTokenClient callback doesn't support custom parameters directly.
-             // Let's stick to the simpler approach: initiate sign-in, and on success, handleGoogleTokenResponse
-             // checks if data is loaded to decide whether to auto-load. The Save button
-             // will simply be enabled/disabled based on signed-in state AND data loaded state.
-
-             // Let's try triggering the interactive prompt.
-              setChatStatus(`Waiting for Google Sign-in to ${actionDescription}...`, true); // Give feedback
-              googleTokenClient.requestAccessToken({ prompt: 'consent' }); // Request consent explicitly if needed, or 'select_account'
-              // The outcome goes to handleGoogleTokenResponse.
-
-         }
-    }
-
-    /**
-     * Handles the click event for the "Open PSR→G-Drive" button.
-     * Checks sign-in status, initiates Google flow if needed, then attempts to load the file.
-     */
-    function handleLoadFromDriveClick() {
-         console.log("Load from Drive button clicked.");
-         // Initiate the Google flow. If signed in, it will immediately call performDriveLoadOrSignIn(false).
-         // If not signed in, it will trigger the Sign-In prompt, and handleGoogleTokenResponse will call performDriveLoadOrSignIn(true) on success.
-         initiateGoogleFlow(() => performDriveLoadOrSignIn(false), 'load from Drive');
-    }
-
-    /**
-     * Handles the click event for the "Save PSR→G-Drive" button.
-     * Checks sign-in status, initiates Google flow if needed, then attempts to save the file.
-     */
-    function handleSaveToDriveClick() {
-         console.log("Save to Drive button clicked.");
-         // Check if data is available BEFORE initiating Google flow for saving
-         const dataToSave = getDataForSave();
-         if (!dataToSave) {
-             alert("No dashboard data available to save.");
-             console.warn("Attempted Save to Drive with no dashboard data.");
-             return;
-         }
-
-         // Initiate the Google flow. If signed in, it will immediately call performDriveSave.
-         // If not signed in, it will trigger the Sign-In prompt, and handleGoogleTokenResponse will NOT auto-save,
-         // the user would need to click Save again (or maybe we need a flag? Let's avoid complex state for now).
-         // Let's simplify: The Save button is only *visible* when signed in and data is loaded.
-         // So, clicking it *should* always proceed directly to saving if it's clickable.
-          if (!googleAccessToken) {
-              console.warn("Save to Drive button clicked, but not signed in. This button should have been hidden.");
-               // This scenario should not happen if updateDriveButtonVisibility works correctly.
-              // As a fallback, initiate sign-in, but auto-save won't happen without extra state.
-              initiateGoogleFlow(() => {
-                  console.log("Sign-in succeeded after clicking Save. User needs to click Save again.");
-                   setChatStatus("Signed in. Click Save again.", false);
-              }, 'save to Drive (Sign-in)');
-          } else {
-              console.log("Signed in. Proceeding directly to saving.");
-              // Already signed in and button is visible (meaning data is loaded)
-              performDriveSave();
-          }
-    }
-
-
-    /**
-     * Performs the actual file loading process from Google Drive.
-     * This function is called *after* successful Google Sign-In/Auth.
-     * @param {boolean} isAutoLoad - True if this is an automatic load after sign-in, false if user clicked the button.
-     */
-    async function performDriveLoadOrSignIn(isAutoLoad = false) {
-        console.log(`Performing Drive Load (isAutoLoad: ${isAutoLoad}). Signed in: ${!!googleAccessToken}`);
-
-         if (!googleAccessToken) {
-             console.warn("Attempted performDriveLoadOrSignIn without access token.");
-             // This case should not happen if initiateGoogleFlow works correctly before calling this.
-             // But as a safeguard, log and exit.
-             if (!isAutoLoad) alert("Please sign in to Google Drive first."); // Only show alert if user clicked
-             setChatStatus("Load failed (not signed in)", false);
-             updateDriveButtonVisibility(false);
-             return;
-         }
-          if (isAutoLoad) {
-              hideAllMainContentAreas(); // Hide existing content before showing spinner for auto-load
-              if (loadingSpinner) loadingSpinner.style.display = 'flex';
-              setChatStatus("Loading from Drive...", true);
-          } else {
-              // User clicked Load button
-               hideAllMainContentAreas(); // Hide existing content
-               if (loadingSpinner) loadingSpinner.style.display = 'flex';
-               setChatStatus("Loading from Drive...", true);
-          }
-
-
-         const driveLoadModal = document.getElementById('driveLoadModal');
-         const driveFileListDiv = document.getElementById('driveFileList');
-         const driveLoadErrorP = document.getElementById('driveLoadError');
-
-         if (driveFileListDiv) driveFileListDiv.innerHTML = 'Searching...';
-         if (driveLoadErrorP) driveLoadErrorP.textContent = '';
-
-
-         try {
-             // 1. Ensure the folder exists (uses cached driveFolderId or finds/creates it)
-             const folderId = await findOrCreateDriveFolder();
-             console.log("Drive folder ID for loading:", folderId);
-
-             // 2. List files in the folder matching the standard name
-             const files = await listDriveFiles();
-
-             if (!files || files.length === 0) {
-                 console.log(`No PSR file (${PSR_FILE_NAME}) found in Drive folder (${getDriveFolderName()}).`);
-                 if (loadingSpinner) loadingSpinner.style.display = 'none'; // Hide spinner
-                 // If no file found, revert to showing the prompt but indicate Drive is connected
-                 showInitialPromptOrMessage(`No SmartWealth Navigator file found in your Google Drive folder "${getDriveFolderName()}". You can upload a local file or generate a new report.`);
-                 setChatStatus("No file found in Drive", false);
-                 // Update button visibility (Load button should still be visible as signed in)
-                 updateDriveButtonVisibility(!!googleAccessToken);
-                 // Ensure chat UI state is correct based on user context but no data
-                 initializeChat();
-
-                 return; // Exit function
-             }
-
-             // 3. Handle multiple files or load the first one found (most recent)
-             // The listDriveFiles function already sorts by modifiedTime desc, so files[0] is the latest
-             const fileToLoad = files[0];
-             console.log(`Found file to load: "${fileToLoad.name}" (ID: ${fileToLoad.id}). Loading content...`);
-
-             // Close the potential file list modal if it was open
-             closeModal('driveLoadModal');
-
-             // Load the content of the selected file
-             const fileContent = await loadDriveFileContent(fileToLoad.id);
-
-             console.log("Processing loaded data from Drive file...");
-
-             // Validate loaded data structure
-             if (fileContent && fileContent.userInput && typeof fileContent.userInput === 'object' && fileContent.userInput.personalInfo && Object.keys(getSafe(() => fileContent.userInput.personalInfo, {})).length > 0) { // Added check for non-empty personalInfo
-                  console.log("Loaded file content is valid PSR data. Updating dashboard.");
-
-                  // --- Restore User ID and Tier from file metadata ---
-                  // Prioritize explicit userId/tier from file metadata if available
-                 const fileUserId = getSafe(() => fileContent.metadata?.userId, null);
-                 const fileUserTier = getSafe(() => fileContent.metadata?.tier, null);
-
-                 if (fileUserId && fileUserId !== 'N/A' && fileUserId.length > 0) {
-                     if(fileUserId !== currentUserId) console.warn(`Overriding current user ID (${currentUserId}) with ID from file metadata: ${fileUserId}`);
-                     currentUserId = fileUserId;
-                 } else {
-                    // If file doesn't have userId, keep the current one (from XTL or previous state)
-                    console.warn("Loaded file metadata has no valid userId. Keeping current user context:", currentUserId);
-                 }
-
-                if (fileUserTier && ['basic', 'pro'].includes(fileUserTier)) {
-                     if(fileUserTier !== effectiveTier) console.warn(`Overriding current tier (${effectiveTier}) with tier from file metadata: ${fileUserTier}`);
-                     effectiveTier = fileUserTier;
-                } else {
-                    // If file doesn't have tier, keep the current one (from XTL or previous state)
-                    console.warn("Loaded file metadata has no valid tier. Keeping current tier context:", effectiveTier);
-                }
-
-                // Note: We do NOT restore initialUsageInfo from the file here.
-                // We will fetch the *current* usage from the DB next.
-                // Update dashboardData with the loaded content
-                dashboardData = fileContent;
-
-                // Restore chat history from the file
-                if (Array.isArray(getSafe(() => dashboardData.chatHistory))) { // Use getSafe for chatHistory check
-                    chatMessages = dashboardData.chatHistory.filter(msg => msg && msg.role && msg.content); // Filter valid messages
-                    console.log(`Restored ${chatMessages.length} chat messages from file.`);
-                } else {
-                    chatMessages = []; // Clear chat history if not found or invalid
-                    console.log("No valid chat history found in file, starting with empty chat.");
-                }
-
-                // Add source metadata if missing or update
-                 dashboardData.metadata = dashboardData.metadata || {};
-                 dashboardData.metadata.source = 'google_drive_loaded';
-
-
-                // Process and display the financial data and AI output from the file
-                processAndDisplayData(dashboardData); // This updates the main dashboard UI and hides spinner
-
-
-                // *** IMPORTANT: NOW FETCH THE CURRENT USAGE FROM THE DATABASE ***
-                // This will update initialUsageInfo and trigger updateUIBasedOnAccess -> initializeChat
-                console.log("File processed, fetching current usage from database based on determined user ID...");
-                fetchInitialUsage();
-
-
-             } else {
-                 console.error("Loaded file content does not match expected PSR format or is incomplete.", fileContent);
-                 throw new Error("The file from Google Drive is not a valid SmartWealth Navigator report.");
-             }
-
-         } catch (error) {
-             console.error("Error during Drive file load process:", error);
-             if (loadingSpinner) loadingSpinner.style.display = 'none'; // Hide spinner
-             setChatStatus("Load failed", false);
-             handleError("Failed to load file from Google Drive", error);
-             // Keep current user info from initial load if available.
-             updateDriveButtonVisibility(!!googleAccessToken); // Ensure buttons are updated based on current auth state
-             initializeChat(); // Update chat state based on current user/no data
-         }
-     }
-
-
-    /**
-     * Performs the actual file saving process to Google Drive.
-     * This function is called *after* successful Google Sign-In/Auth.
-     */
-    async function performDriveSave() {
-        console.log("Performing Drive Save. Signed in:", !!googleAccessToken);
-
-        const dataToSave = getDataForSave(); // Use the helper function
-
-        if (!dataToSave) {
-             console.warn("Attempted performDriveSave without valid dashboard data.");
-             // This case should not happen if Save button visibility is managed correctly.
-             alert("No dashboard data available to save.");
-             setChatStatus("Save failed (no data)", false);
-             return;
-        }
-         if (!googleAccessToken) {
-             console.warn("Attempted performDriveSave without access token.");
-             // This case should not happen if initiateGoogleFlow works correctly before calling this.
-             alert("Please sign in to Google Drive first.");
-             setChatStatus("Save failed (not signed in)", false);
-             return;
-         }
-         // Ensure user ID is set before attempting to create the folder name
-         if (!currentUserId) {
-              console.error("Attempted performDriveSave without a valid currentUserId.");
-              alert("Cannot save without a user ID. Please ensure you are authenticated correctly.");
-              setChatStatus("Save failed (no user ID)", false);
-              return;
-         }
-
-
-         // Provide immediate feedback to the user
-         setChatStatus("Saving to Drive...", true);
-         // Disable save button to prevent multiple clicks
-         if (saveToDriveButton) saveToDriveButton.disabled = true;
-         if (loadFromDriveButton) loadFromDriveButton.disabled = true; // Disable load during save
-         if (downloadLocalButton) downloadLocalButton.disabled = true;
-
-
-        const fileContent = JSON.stringify(dataToSave, null, 2);
-        const blob = new Blob([fileContent], { type: PSR_MIME_TYPE });
-
-        let fileIdToUpdate = null;
-
-        try {
-            // 1. Ensure the folder exists and get its ID (uses cached driveFolderId or finds/creates)
-            const folderId = await findOrCreateDriveFolder();
-            console.log("Drive folder ID for saving:", folderId);
-
-            // 2. Search for an existing file with the standard name in this folder
-            const existingFiles = await listDriveFiles(); // listDriveFiles already filters by name/type/parent/trashed
-
-            if (existingFiles && existingFiles.length > 0) {
-                // Found existing file(s) - use the first one (most recent if list was ordered)
-                fileIdToUpdate = existingFiles[0].id;
-                console.log(`Found existing file "${PSR_FILE_NAME}" (ID: ${fileIdToUpdate}). Will update.`);
-            }
-
-            // 3. Prepare the request body (metadata is separate in multipart)
-            const fileMetadata = {
-                'name': PSR_FILE_NAME,
-                'mimeType': PSR_MIME_TYPE,
-                // Specify parents ONLY when creating (POST), not when updating (PATCH)
-                ...(fileIdToUpdate ? {} : { 'parents': [folderId] })
-            };
-
-            // Use multipart upload for file content
-            const form = new FormData();
-            form.append('metadata', new Blob([JSON.stringify(fileMetadata)], { type: 'application/json' }));
-            form.append('file', blob);
-
-            // Determine the API endpoint and method (update or create)
-            const path = fileIdToUpdate ? `/upload/drive/v3/files/${fileIdToUpdate}` : `/upload/drive/v3/files`;
-            const method = fileIdToUpdate ? 'PATCH' : 'POST'; // Use PATCH to update, POST to create
-
-            console.log(`Executing Drive file ${fileIdToUpdate ? 'update (PATCH)' : 'create (POST)'} request...`);
-
-            // 4. Execute the request using gapi.client.request
-            // Need to ensure gapi.client is loaded BEFORE this request
-             if (typeof gapi === 'undefined' || typeof gapi.client === 'undefined' || typeof gapi.client.request !== 'function') {
-                 console.error("Google API client is not loaded for file request.");
-                 throw new Error("Google API client is not ready.");
-             }
-
-            const response = await gapi.client.request({
-                path: path,
-                method: method,
-                params: { uploadType: 'multipart' }, // Indicate multipart upload
-                headers: { 'Authorization': `Bearer ${googleAccessToken}` }, // Ensure Authorization header is set
-                body: form
-            });
-
-            console.log(`Drive file ${fileIdToUpdate ? 'updated' : 'created'} successfully:`, response.result);
-            // The response.result will contain the file metadata including the ID
-
-        } catch (error) {
-            console.error("Error during Save to Drive process:", error);
-             // Provide more specific error messages if possible
-            let userFacingError = "Failed to save file to Google Drive.";
-             if (error.message.includes("Google Drive API is not ready") || error.message.includes("not signed in")) {
-                 userFacingError = "Please sign in to Google Drive first.";
-             } else if (error.message.includes("Failed to access Google Drive folder")) {
-                 userFacingError = error.message; // Use the specific folder error message
-             } else if (error.result?.error?.message) {
-                 userFacingError = `Google Drive Error: ${error.result.error.message}`;
-             } else if (error.message) {
-                  userFacingError = `Save Error: ${error.message}`;
-             }
-            addMessageToChat("System", "Failed to save report to Google Drive: " + userFacingError, true); // Add error to chat
-            setChatStatus("Save failed", false);
-             // Optionally show a more detailed error modal
-             // handleError("Failed to save to Google Drive", error); // Can call this for critical errors
-        } finally {
-             // Re-enable buttons
-             if (saveToDriveButton) saveToDriveButton.disabled = false;
-             if (loadFromDriveButton) loadFromDriveButton.disabled = false;
-             if (downloadLocalButton) downloadLocalButton.disabled = false;
-             // Status message will auto-clear or stay if error
-             // setChatStatus("", false); // Already done by setChatStatus itself
-        }
-    }
-
 
     /**
      * Finds the designated SmartWealth Navigator Reports folder in Google Drive.
@@ -3965,6 +3592,15 @@ console.log("Early beforeunload listener added (listener is present but not prev
               throw new Error("User ID is required to save to Google Drive.");
          }
 
+
+         // Provide immediate feedback to the user
+         setChatStatus("Saving to Drive...", true);
+         // Disable save button to prevent multiple clicks
+         if (saveToDriveButton) saveToDriveButton.disabled = true;
+         if (loadFromDriveButton) loadFromDriveButton.disabled = true; // Disable load during save
+         if (downloadLocalButton) downloadLocalButton.disabled = true;
+
+
         const fileContent = JSON.stringify(dataToSave, null, 2);
         const blob = new Blob([fileContent], { type: PSR_MIME_TYPE });
 
@@ -4067,7 +3703,7 @@ console.log("Early beforeunload listener added (listener is present but not prev
              console.log("Not signed in. Initiating Google Sign-In process.");
              // If not signed in, request interactive sign-in.
              // The handleGoogleTokenResponse callback will be called upon completion.
-             // It will then check for success and, if successful, will call performDriveLoadOrSignIn(true).
+             // It will then check for success and, if successful, will call performDriveLoadOperation.
              setChatStatus("Waiting for Google Sign-in...", true);
              // Use 'select_account' to allow user to pick if multiple signed in
              googleTokenClient.requestAccessToken({ prompt: 'select_account' });
@@ -4333,280 +3969,6 @@ console.log("Early beforeunload listener added (listener is present but not prev
     }
 
 
-    /**
-     * Finds the designated SmartWealth Navigator Reports folder in Google Drive.
-     * Creates the folder if it doesn't exist.
-     * Stores the folder ID in the global `driveFolderId`.
-     * The folder name is derived from `currentUserId`.
-     * @returns {Promise<string>} A promise that resolves with the folder ID.
-     */
-    async function findOrCreateDriveFolder() {
-        const folderName = getDriveFolderName(); // Use the function to get the dynamic name
-        console.log(`Attempting to find or create Drive folder: "${folderName}"`);
-
-         if (!currentUserId) {
-              console.error("Cannot find or create Drive folder: currentUserId is not set.");
-              throw new Error("User ID is required to access Google Drive folder.");
-         }
-
-        if (!gapi || !gapi.client || !gapi.client.drive || !googleAccessToken) { // Check for token here too
-            console.error("Google Drive API client is not loaded or user not signed in for folder operation.");
-            throw new Error("Google Drive API is not ready or user is not signed in.");
-        }
-
-        if (driveFolderId) {
-             console.log(`Folder ID already cached: ${driveFolderId}`);
-             return driveFolderId; // Return cached ID if available
-        }
-
-        try {
-            // 1. Search for the folder in the root
-            const searchResponse = await gapi.client.drive.files.list({
-                q: `name='${folderName}' and mimeType='application/vnd.google-apps.folder' and 'root' in parents and trashed=false`,
-                spaces: 'drive',
-                fields: 'files(id, name)',
-                pageSize: 1
-            });
-
-            const files = searchResponse.result.files;
-
-            if (files && files.length > 0) {
-                // Folder found
-                driveFolderId = files[0].id;
-                console.log(`Found existing Drive folder: "${folderName}" (ID: ${driveFolderId})`);
-                return driveFolderId;
-            } else {
-                // 2. Folder not found, create it
-                console.log(`Drive folder "${folderName}" not found. Creating...`);
-                const fileMetadata = {
-                    'name': folderName,
-                    'mimeType': 'application/vnd.google-apps.folder',
-                    'parents': ['root'] // Create in the root folder
-                };
-                const createResponse = await gapi.client.drive.files.create({
-                    resource: fileMetadata,
-                    fields: 'id'
-                });
-
-                driveFolderId = createResponse.result.id;
-                console.log(`Created new Drive folder: "${folderName}" (ID: ${driveFolderId})`);
-                return driveFolderId;
-            }
-        } catch (error) {
-            console.error(`Error finding or creating Drive folder "${folderName}":`, error);
-             let userFacingError = `Failed to access or create Google Drive folder "${folderName}".`;
-             if (error.result?.error?.message) userFacingError += ` Google Error: ${error.result.error.message}`;
-             else if (error.message) userFacingError += ` Error: ${error.message}`;
-            throw new Error(userFacingError);
-        }
-    }
-
-    /**
-     * Lists PSR files within the designated folder.
-     * Searches for the standard filename `my_financial_report.json`.
-     * @returns {Promise<Array<Object>>} A promise that resolves with a list of files (id, name, modifiedTime).
-     */
-    async function listDriveFiles() {
-        const folderName = getDriveFolderName();
-        console.log(`Listing files named "${PSR_FILE_NAME}" in folder ID: ${driveFolderId} ("${folderName}")`);
-
-        if (!gapi || !gapi.client || !gapi.client.drive || !driveFolderId || !googleAccessToken) { // Check for token here too
-             console.warn("Google Drive not signed in or API not ready or folder ID missing for listing.");
-             throw new Error("Google Drive API is not ready, user not signed in, or folder not accessible.");
-        }
-
-        try {
-            // Search for files by name and mimeType within the specific folder
-            const searchResponse = await gapi.client.drive.files.list({
-                q: `name='${PSR_FILE_NAME}' and mimeType='${PSR_MIME_TYPE}' and '${driveFolderId}' in parents and trashed=false`,
-                spaces: 'drive',
-                fields: 'files(id, name, modifiedTime)',
-                orderBy: 'modifiedTime desc', // Order by modification time descending
-                pageSize: 10 // Get up to 10 files with the same name (should ideally be only one)
-            });
-
-            const files = searchResponse.result.files;
-            console.log(`Found ${files ? files.length : 0} files matching "${PSR_FILE_NAME}".`, files);
-            return files || [];
-
-        } catch (error) {
-            console.error("Error listing Drive files:", error);
-             // Provide more specific error message based on Google API error structure
-            let userFacingError = "Failed to list files from Google Drive.";
-             if (error.result?.error?.message) {
-                 userFacingError = `Google Drive Error: ${error.result.error.message}`;
-             } else if (error.message) {
-                  userFacingError = `Load Error: ${error.message}`;
-             }
-            throw new Error(userFacingError);
-        }
-    }
-
-     /**
-     * Loads the content of a specific file from Google Drive.
-     * @param {string} fileId The ID of the file to load.
-     * @returns {Promise<Object>} A promise that resolves with the parsed JSON content of the file.
-     */
-    async function loadDriveFileContent(fileId) {
-        console.log(`Loading file content for file ID: ${fileId}`);
-        if (!gapi || !gapi.client || !gapi.client.drive || !googleAccessToken) { // Check for token here too
-             console.error("Google Drive API client is not loaded or user not signed in for content loading.");
-             throw new Error("Google Drive API is not ready or user is not signed in.");
-        }
-
-        try {
-            // Use alt=media to download the file content
-            const response = await gapi.client.drive.files.get({
-                fileId: fileId,
-                alt: 'media'
-            });
-
-            // The response.result contains the file content (as text for JSON)
-            console.log("Raw file content received (first 200 chars):", String(response.body).substring(0, 200) + '...');
-
-            try {
-                const fileContent = JSON.parse(response.body); // Assuming the content is JSON
-                console.log("Parsed file content from Drive:", fileContent);
-                return fileContent;
-            } catch (parseError) {
-                 console.error("Error parsing file content as JSON:", parseError);
-                 throw new Error("Failed to parse the file content as JSON. It might be corrupted.");
-            }
-
-        } catch (error) {
-            console.error("Error loading file content from Drive:", error);
-             // Check if the error indicates permission issues (e.g., 403) or file not found (404)
-             let userFacingError = "Failed to load file from Google Drive.";
-             if (error.result?.error?.code === 403) {
-                 userFacingError = "Permission denied to access this file in Google Drive. Please check your Google account permissions.";
-             } else if (error.result?.error?.code === 404) {
-                 userFacingError = "File not found in Google Drive. It may have been moved or deleted.";
-             } else if (error.result?.error?.message) {
-                  userFacingError = `Google Drive Error: ${error.result.error.message}`;
-             } else if (error.message) {
-                  userFacingError = `Load Error: ${error.message}`;
-             }
-            throw new Error(userFacingError);
-        }
-    }
-
-
-    /**
-     * Saves the current dashboardData as a JSON file to the designated Drive folder.
-     * Updates the existing file if found, otherwise creates a new one.
-     * Uses the standard filename `my_financial_report.json`.
-     * @returns {Promise<void>} A promise that resolves when the file is saved.
-     */
-    async function saveFileToDrive() {
-        console.log("Attempting to save file to Google Drive...");
-
-         const dataToSave = getDataForSave(); // Use the helper function
-
-        if (!dataToSave) {
-             throw new Error("No dashboard data available to save.");
-        }
-        if (!gapi || !gapi.client || !gapi.client.drive || !googleAccessToken) {
-             console.error("Google Drive API is not ready or user is not signed in for saving.");
-             throw new Error("Google Drive API is not ready or user is not signed in.");
-        }
-         if (!currentUserId) {
-              console.error("Attempted to save to Drive without a valid currentUserId.");
-              throw new Error("User ID is required to save to Google Drive.");
-         }
-
-
-         // Provide immediate feedback to the user
-         setChatStatus("Saving to Drive...", true);
-         // Disable save button to prevent multiple clicks
-         if (saveToDriveButton) saveToDriveButton.disabled = true;
-         if (loadFromDriveButton) loadFromDriveButton.disabled = true; // Disable load during save
-         if (downloadLocalButton) downloadLocalButton.disabled = true;
-
-
-        const fileContent = JSON.stringify(dataToSave, null, 2);
-        const blob = new Blob([fileContent], { type: PSR_MIME_TYPE });
-
-        let fileIdToUpdate = null;
-
-        try {
-            // 1. Ensure the folder exists and get its ID (uses cached driveFolderId or finds/creates)
-            const folderId = await findOrCreateDriveFolder();
-            console.log("Drive folder ID for saving:", folderId);
-
-            // 2. Search for an existing file with the standard name in this folder
-            const existingFiles = await listDriveFiles(); // listDriveFiles already filters by name/type/parent/trashed
-
-            if (existingFiles && existingFiles.length > 0) {
-                // Found existing file(s) - use the first one (most recent if list was ordered)
-                fileIdToUpdate = existingFiles[0].id;
-                console.log(`Found existing file "${PSR_FILE_NAME}" (ID: ${fileIdToUpdate}). Will update.`);
-            }
-
-            // 3. Prepare the request body (metadata is separate in multipart)
-            const fileMetadata = {
-                'name': PSR_FILE_NAME,
-                'mimeType': PSR_MIME_TYPE,
-                // Specify parents ONLY when creating (POST), not when updating (PATCH)
-                ...(fileIdToUpdate ? {} : { 'parents': [folderId] })
-            };
-
-            // Use multipart upload for file content
-            const form = new FormData();
-            form.append('metadata', new Blob([JSON.stringify(fileMetadata)], { type: 'application/json' }));
-            form.append('file', blob);
-
-            // Determine the API endpoint and method (update or create)
-            const path = fileIdToUpdate ? `/upload/drive/v3/files/${fileIdToUpdate}` : `/upload/drive/v3/files`;
-            const method = fileIdToUpdate ? 'PATCH' : 'POST'; // Use PATCH to update, POST to create
-
-            console.log(`Executing Drive file ${fileIdToUpdate ? 'update (PATCH)' : 'create (POST)'} request...`);
-
-            // 4. Execute the request using gapi.client.request
-            // Need to ensure gapi.client is loaded BEFORE this request
-             if (typeof gapi === 'undefined' || typeof gapi.client === 'undefined' || typeof gapi.client.request !== 'function') {
-                 console.error("Google API client is not loaded for file request.");
-                 throw new Error("Google API client is not ready.");
-             }
-
-            const response = await gapi.client.request({
-                path: path,
-                method: method,
-                params: { uploadType: 'multipart' }, // Indicate multipart upload
-                headers: { 'Authorization': `Bearer ${googleAccessToken}` }, // Ensure Authorization header is set
-                body: form
-            });
-
-            console.log(`Drive file ${fileIdToUpdate ? 'updated' : 'created'} successfully:`, response.result);
-            // The response.result will contain the file metadata including the ID
-
-        } catch (error) {
-            console.error("Error during Save to Drive process:", error);
-             // Provide more specific error messages if possible
-            let userFacingError = "Failed to save file to Google Drive.";
-             if (error.message.includes("Google Drive API is not ready") || error.message.includes("not signed in")) {
-                 userFacingError = "Please sign in to Google Drive first.";
-             } else if (error.message.includes("Failed to access Google Drive folder")) {
-                 userFacingError = error.message; // Use the specific folder error message
-             } else if (error.result?.error?.message) {
-                 userFacingError = `Google Drive Error: ${error.result.error.message}`;
-             } else if (error.message) {
-                  userFacingError = `Save Error: ${error.message}`;
-             }
-            addMessageToChat("System", "Failed to save report to Google Drive: " + userFacingError, true); // Add error to chat
-            setChatStatus("Save failed", false);
-             // Optionally show a more detailed error modal
-             // handleError("Failed to save to Google Drive", error); // Can call this for critical errors
-        } finally {
-             // Re-enable buttons
-             if (saveToDriveButton) saveToDriveButton.disabled = false;
-             if (loadFromDriveButton) loadFromDriveButton.disabled = false;
-             if (downloadLocalButton) downloadLocalButton.disabled = false;
-             // Status message will auto-clear or stay if error
-             // setChatStatus("", false); // Already done by setChatStatus itself
-        }
-    }
-
-
     // --- MAIN Document Ready Event ---
     document.addEventListener('DOMContentLoaded', function() {
         console.log("DOM fully loaded. Initializing application...");
@@ -4661,11 +4023,14 @@ console.log("Early beforeunload listener added (listener is present but not prev
             // Check for the 'data=null' special case first
             if (params === null) {
                 // parseUrlParams already logged warning.
-                console.log("'data=null' param detected. Showing initial upload prompt.");
                 // Hide spinner and show the initial prompt state
+                console.log("'data=null' param detected. Showing initial upload prompt.");
                 if (loadingSpinner) loadingSpinner.style.display = 'none';
                 showInitialPromptOrMessage();
                 // Initialize core features including Supabase and Google APIs
+                // This also triggers fetchInitialUsage (using the determined currentUserId/effectiveTier)
+                // and subsequently updateUIBasedOnAccess -> initializeChat,
+                // AND initiates Google API loading and silent auth attempt.
                 initializeSupabaseAndCoreFeatures();
                 console.log("Exiting main try block due to 'data=null'.");
                 return; // Stop main initialization flow
@@ -4748,8 +4113,8 @@ console.log("Early beforeunload listener added (listener is present but not prev
                  console.log("Spinner hidden.");
 
                  // Google init runs automatically and silent auth is attempted.
-                 // If silent auth succeeds, handleGoogleTokenResponse will call performDriveLoadOrSignIn(true)
-                 // which will auto-load the file IF it exists.
+                 // If silent auth succeeds, handleGoogleTokenResponse will call performDriveLoadOperation()
+                 // which will auto-load the file IF it exists for this user ID.
                  // Button visibility will be updated by updateDriveButtonVisibility based on auth state.
 
             } else {
@@ -4776,6 +4141,7 @@ console.log("Early beforeunload listener added (listener is present but not prev
             console.log("DOMContentLoaded finally block finished.");
         }
     });
+
 
 </script>
 </body>
