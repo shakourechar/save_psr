@@ -918,10 +918,13 @@ console.log("Early beforeunload listener added (logging only).");
 
     /**  Update all Drive‑related button visibility based on sign‑in state. */
     function updateDriveButtonVisibility(isSignedIn) {
+        // Always show Open/Save; toggle only Sign‑In / Sign‑Out
         if (googleSignInButton)  googleSignInButton.style.display  = isSignedIn ? 'none'  : 'inline-block';
         if (googleSignOutButton) googleSignOutButton.style.display = isSignedIn ? 'inline-block' : 'none';
-        if (loadFromDriveButton) loadFromDriveButton.style.display = isSignedIn ? 'inline-block' : 'none';
-        if (saveToDriveButton)   saveToDriveButton.style.display   = isSignedIn ? 'inline-block' : 'none';
+
+        // User should always see the Drive action buttons
+        if (loadFromDriveButton) loadFromDriveButton.style.display = 'inline-block';
+        if (saveToDriveButton)   saveToDriveButton.style.display   = 'inline-block';
     }
 
     /* ------------------------------------------------------------
@@ -1031,7 +1034,16 @@ console.log("Early beforeunload listener added (logging only).");
     }
 
     /* Basic click handlers for Sign‑In / Sign‑Out */
-    document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => {
+        // ----- Cache DOM references now that the document is ready -----
+        googleSignInButton           = document.getElementById('googleSignInButton');
+        googleSignOutButton          = document.getElementById('googleSignOutButton');
+        loadFromDriveButton          = document.getElementById('loadFromDriveButton');
+        saveToDriveButton            = document.getElementById('saveToDriveButton');
+        signedInUserDisplayElement   = document.getElementById('signedInUserDisplay');
+
+        // Ensure correct initial visibility for the Drive/auth buttons
+        updateDriveButtonVisibility(!!googleAccessToken);
         if (googleSignInButton) {
             googleSignInButton.addEventListener('click', () => {
                 if (!googleTokenClient) {
