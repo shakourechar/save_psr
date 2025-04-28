@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1247,6 +1246,27 @@ console.log("Early beforeunload listener added (logging only).");
          closeModal('infoModal');
          // --- END closeModal calls ---
      }
+
+     // --- MOVED handleResize Definition ---
+     // Handle window resize to potentially re-render charts for responsiveness
+     function handleResize() {
+         //console.log("Window resized. Attempting to relayout charts..."); // Commented out - too noisy
+         const incomeChartDiv = document.getElementById('incomeChart');
+         const expenseChartDiv = document.getElementById('expenseChart');
+
+         // Check if plotly is available and the divs exist and contain a chart
+         if (typeof Plotly !== 'undefined') {
+             if (incomeChartDiv && incomeChartDiv.data) { // Check if Plotly data is attached
+                 //console.log("Relayouting Income Chart...");
+                 Plotly.relayout(incomeChartDiv, { autosize: true });
+             }
+             if (expenseChartDiv && expenseChartDiv.data) { // Check if Plotly data is attached
+                  //console.log("Relayouting Expense Chart...");
+                 Plotly.relayout(expenseChartDiv, { autosize: true });
+             }
+         } // else { console.warn("Plotly not available for relayout on resize."); } // Commented out - too noisy
+     }
+     // --- END MOVED handleResize Definition ---
 
 
     // --- Debugging & Error Handling ---
