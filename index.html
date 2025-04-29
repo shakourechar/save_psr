@@ -1073,14 +1073,6 @@ function updateDriveButtonVisibility(isSignedIn) {
         }
     }
 
-    function handleLoadFromDriveClick() {
-        if (!googleAccessToken) {
-            googleTokenClient?.requestAccessToken({ prompt: 'consent' });
-            return;
-        }
-        loadLatestPsrFromDrive();
-    }
-
     function handleSaveToDriveClick() {
         if (!googleAccessToken) {
             googleTokenClient?.requestAccessToken({ prompt: 'consent' });
@@ -1118,9 +1110,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log("Signed out of Google Drive.");
             });
         }
-        if (loadFromDriveButton) {
-            loadFromDriveButton.addEventListener('click', handleLoadFromDriveClick);
-        }
+        // Removed obsolete Drive-load handler (function deleted)
         if (saveToDriveButton) {
             saveToDriveButton.addEventListener('click', handleSaveToDriveClick);
         }
