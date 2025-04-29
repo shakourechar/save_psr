@@ -877,10 +877,28 @@ console.log("Early beforeunload listener added (logging only).");
     // ------------------------------------------------------------
 
     /**
+     * Fetch basic profile info (name, id) for the signed‑in Google user.
+     * Requires the OAuth scope "https://www.googleapis.com/auth/userinfo.profile".
+     * Returns an object like { sub: "...", name: "..." }  (OIDC /userinfo fields).
+     */
+    async function fetchGoogleUserInfo(accessToken) {
+        try {
+            const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+                headers: { Authorization: `Bearer ${accessToken}` }
+            });
+            if (!res.ok) throw new Error(`userinfo HTTP ${res.status}`);
+            return await res.json();
+        } catch (err) {
+            console.error('Failed to fetch Google userinfo:', err);
+            return null;
+        }
+    }
+
+/**
  * Central handler for Google Identity token responses.
  * Updates global access token and refreshes button visibility.
  */
-function handleGoogleTokenResponse(tokenResponse) {
+async function handleGoogleTokenResponse(tokenResponse) {
     try {
         if (!tokenResponse || tokenResponse.error || !tokenResponse.access_token) {
             console.error("GIS token error:", tokenResponse);
@@ -889,6 +907,15 @@ function handleGoogleTokenResponse(tokenResponse) {
             return;
         }
         googleAccessToken = tokenResponse.access_token;
+        // Fetch user profile to establish user ID
+        const uinfo = await fetchGoogleUserInfo(googleAccessToken);
+        if (uinfo) {
+            googleUser = { name: uinfo.name || '(unknown)' };
+            currentUserId = uinfo.sub;   // Use OIDC subject as unique folder suffix
+            console.log('Google user profile fetched:', uinfo);
+        } else {
+            console.warn('User profile fetch returned null; Drive folder name may fallback to "SmartWealth Navigator Reports".');
+        }
         console.log("Received Google access token");
         if (window.gapi?.client) {
             gapi.client.setToken({ access_token: googleAccessToken });
