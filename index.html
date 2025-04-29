@@ -1300,6 +1300,7 @@ function updateDriveButtonVisibility(isSignedIn) {
             }
             addMessageToChat("System", userFacingError, true);
             setChatStatus("Save failed", false);
+            handleError("Failed to save to Google Drive", err); // Call central error handler for modal display
              // Optionally use handleError for a modal display:
              // handleError("Failed to save to Google Drive", err);
         } finally {
@@ -1658,52 +1659,72 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Function to parse all financial data from URL parameters
-    function parseDataFromUrlParams(params) {
+    /**
+     * Parses financial data directly from the window's URL query string.
+     * Creates the URLSearchParams object internally for robustness.
+     * @returns {object | null} A structured object containing the parsed data, or null if parsing fails.
+     */
+    function parseDataFromUrlParams(/* No 'params' argument needed */) {
         console.log("Attempting to parse financial data from URL params...");
-        if (!params || typeof params.get !== 'function') {
-             console.log("No valid URL params object provided.");
-             return null;
+
+        // --- MODIFICATION: Create params object inside the function ---
+        let params;
+        try {
+             // Reads the query string directly from the current window location
+             params = new URLSearchParams(window.location.search);
+             console.log("Reading URL parameters from:", window.location.search); // Log the raw search string
+        } catch (e) {
+            console.error("Error creating URLSearchParams from window.location.search:", e);
+            return null; // Return null if search string itself is invalid
         }
+        // --- End modification ---
 
         // Helper function to get and decode parameter values
         const getParam = (key) => {
-            if (!params.has(key)) return null;
+            if (!params.has(key)) {
+                 // console.log(`URL Param Key "${key}" not found.`); // Optional: Log if key is missing
+                 return null;
+            }
             const rawValue = params.get(key);
+            // console.log(`Raw value for key "${key}":`, rawValue); // Optional: Log raw value
             if (rawValue === null || rawValue === undefined) return null;
             try {
                 // Replace '+' with space before decoding, then decode
                 return decodeURIComponent(rawValue.replace(/\+/g, ' ')).trim();
             } catch (e) {
-                console.warn(`Error decoding parameter ${key}:`, e);
+                console.warn(`Error decoding parameter ${key} (value: "${rawValue}"):`, e);
                 return rawValue.trim(); // Return raw value if decode fails
             }
         };
 
-        // Helper function to parse numeric values, returns defaultValue on error/empty
+        // Helper function to parse numeric values, returns defaultValue on error/empty/non-finite
         const parseNumeric = (key, defaultValue = 0) => {
              const value = getParam(key);
             if (value === null || value === undefined || value === '') return defaultValue;
             // Remove currency symbols, commas, etc. before parsing
             const cleaned = String(value).replace(/[^0-9.-]+/g, '');
             const number = parseFloat(cleaned);
+            // --- MODIFIED: Return defaultValue if result is NaN or not finite ---
              if (isNaN(number) || !isFinite(number)) {
-                 console.warn(`Could not parse numeric value for key "${key}" from "${value}". Using default ${defaultValue}.`);
-                 return number; // Return NaN/Infinity if parsing resulted in them, let getSafe handle it later
+                 console.warn(`Could not parse valid finite numeric value for key "${key}" from "${value}". Using default ${defaultValue}.`);
+                 return defaultValue; // Return default if not a valid finite number
              }
+             // --- End modification ---
             return number;
         };
 
         // Log key parameters for debugging - Use the exact keys from the example URL
-        console.log("Debugging URL parameter parsing:");
+        // These logs will now reflect values read directly from window.location.search
+        console.log("Debugging URL parameter parsing (reading directly):");
         console.log("  userName:", getParam('userName'));
         console.log("  age:", getParam('age'));
         console.log("  mainJobIncome:", getParam('mainJobIncome'));
-        console.log("  secondJobIncome:", getParam('secondJobIncome')); // Corrected key name
+        console.log("  secondJobIncome:", getParam('secondJobIncome'));
         console.log("  otherIncome:", getParam('otherIncome'));
         console.log("  housing:", getParam('housing'));
         console.log("  transportation:", getParam('transportation'));
         console.log("  utilities:", getParam('utilities'));
-        console.log("  groceriesessentials:", getParam('groceriesessentials')); // Corrected key name
+        console.log("  groceriesessentials:", getParam('groceriesessentials'));
         console.log("  insurance:", getParam('insurance'));
         console.log("  medical:", getParam('medical'));
         console.log("  care:", getParam('care'));
@@ -1714,19 +1735,19 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("  retirementFund:", getParam('retirementFund'));
         console.log("  creditCardDebt:", getParam('creditCardDebt'));
         console.log("  bankLoans:", getParam('bankLoans'));
-        console.log("  studentLoanDebt:", getParam('studentLoanDebt')); // Corrected key name
-        console.log("  carLoanBalance:", getParam('carLoanBalance')); // Corrected key name
+        console.log("  studentLoanDebt:", getParam('studentLoanDebt'));
+        console.log("  carLoanBalance:", getParam('carLoanBalance'));
         console.log("  financialTools:", getParam('financialTools'));
         console.log("  challenges:", getParam('challenges'));
-        console.log("  upcomingPurchases:", getParam('upcomingPurchases')); // Corrected key name
+        console.log("  upcomingPurchases:", getParam('upcomingPurchases'));
         console.log("  aiAnalysis:", getParam('aiAnalysis'));
         console.log("  recommendations:", getParam('recommendations'));
-        console.log("  userProgressHistory:", getParam('userProgressHistory')); // Corrected key name
-         console.log("  userID:", getParam('userID')); // Log raw userID param
+        console.log("  userProgressHistory:", getParam('userProgressHistory'));
+        console.log("  xtl:", getParam('xtl')); // Log xtl for reference
+        console.log("  userID:", getParam('userID')); // Log userID param for reference
 
 
         // Construct and return the data object based on URL parameters
-        // Use getSafe or default values aggressively here
         const parsedData = {
             userInput: {
                 personalInfo: {
@@ -1735,14 +1756,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 income: {
                     mainJobIncome: parseNumeric('mainJobIncome'),
-                    secondJobIncome: parseNumeric('secondJobIncome'), // Use exact key
+                    secondJobIncome: parseNumeric('secondJobIncome'),
                     otherIncome: parseNumeric('otherIncome')
                 },
                 expenses: {
                     housing: parseNumeric('housing'),
                     transportation: parseNumeric('transportation'),
                     utilities: parseNumeric('utilities'),
-                    groceriesessentials: parseNumeric('groceriesessentials'), // Use exact key
+                    groceriesessentials: parseNumeric('groceriesessentials'),
                     insurance: parseNumeric('insurance'),
                     medical: parseNumeric('medical'),
                     care: parseNumeric('care'),
@@ -1750,77 +1771,72 @@ document.addEventListener('DOMContentLoaded', () => {
                     taxes: parseNumeric('taxes')
                 },
                 savings: {
-                    emergencySavings: parseNumeric('emergencySavings'), // Use exact key
-                    currentSavings: parseNumeric('currentSavings'), // Use exact key
-                    retirementFund: parseNumeric('retirementFund'), // Use exact key
-                    emergencyFundTarget: parseNumeric('emergencyFundTarget'), // Optional explicit target
-                    monthlySavingsGoal: parseNumeric('monthlySavingsGoal') // Optional explicit monthly goal
+                    emergencySavings: parseNumeric('emergencySavings'),
+                    currentSavings: parseNumeric('currentSavings'),
+                    retirementFund: parseNumeric('retirementFund'),
+                    emergencyFundTarget: parseNumeric('emergencyFundTarget'), // Optional
+                    monthlySavingsGoal: parseNumeric('monthlySavingsGoal') // Optional
                 },
-                debts: [], // Debts will be populated below
+                debts: [], // Populated below
                 financials: {
                     financialTools: getParam('financialTools'),
                     challenges: getParam('challenges'),
-                    upcomingPurchases: getParam('upcomingPurchases') // Use exact key
+                    upcomingPurchases: getParam('upcomingPurchases')
                 }
             },
             aiOutput: {
                 analysis: getParam('aiAnalysis') || 'Analysis not available.',
                 recommendations: getParam('recommendations') || 'Recommendations not available.',
-                userProgressHistory: getParam('userProgressHistory') || 'No progress history available.' // Use exact key
+                userProgressHistory: getParam('userProgressHistory') || 'No progress history available.'
             },
-             // Add a field to store the parsed xtl and userID if needed later, but DON'T use userID param for auth here
             metadata: {
                  xtl: getParam('xtl'),
-                 rawUserIdParam: getParam('userID'), // Store the raw userID param value
-                 // Add placeolders for userId and tier, to be populated by parseXtlParameter or file load
-                 userId: null,
-                 tier: 'basic',
-                 source: 'url_params' // Indicate data source
+                 rawUserIdParam: getParam('userID'), // Store raw value if present
+                 userId: null, // Will be set later by XTL parse or Drive auth
+                 tier: 'basic', // Default, will be set later
+                 source: 'url_params' // Mark the source
             }
         };
 
         // Populate Debts Array - Check for existence and parse - Use exact keys
         try {
-             const creditCardDebt = parseNumeric('creditCardDebt'); // Use exact key
-             if (creditCardDebt > 0 && isFinite(creditCardDebt)) {
+             // Use the improved parseNumeric which handles non-finite results
+             const creditCardDebt = parseNumeric('creditCardDebt');
+             if (creditCardDebt > 0) { // Only add if positive value parsed
                  parsedData.userInput.debts.push({
-                     type: "Credit Card",
-                     balance: creditCardDebt,
-                     interestRate: parseNumeric('creditCardRate', 22.5), // Default CC rate
-                     minPayment: parseNumeric('creditCardMinPayment', Math.max(creditCardDebt * 0.03, 25)) // Default min payment logic
+                     type: "Credit Card", balance: creditCardDebt,
+                     interestRate: parseNumeric('creditCardRate', 22.5),
+                     minPayment: parseNumeric('creditCardMinPayment', Math.max(creditCardDebt * 0.03, 25))
                  });
                  console.log("Added Credit Card Debt from param:", creditCardDebt);
              }
 
-             const bankLoans = parseNumeric('bankLoans'); // Use exact key
-             if (bankLoans > 0 && isFinite(bankLoans)) {
+             const bankLoans = parseNumeric('bankLoans');
+             if (bankLoans > 0) {
                  parsedData.userInput.debts.push({
-                     type: "Bank Loans",
-                     balance: bankLoans,
-                     interestRate: parseNumeric('bankLoanRate', 6.5), // Default Bank Loan rate
-                     minPayment: parseNumeric('bankLoanMinPayment', Math.max(bankLoans * 0.015, 50)) // Default min payment logic
+                     type: "Bank Loans", balance: bankLoans,
+                     interestRate: parseNumeric('bankLoanRate', 6.5),
+                     minPayment: parseNumeric('bankLoanMinPayment', Math.max(bankLoans * 0.015, 50))
                  });
                  console.log("Added Bank Loans from param:", bankLoans);
              }
 
-             const studentLoanDebt = parseNumeric('studentLoanDebt'); // Use exact key
-             if (studentLoanDebt > 0 && isFinite(studentLoanDebt)) {
+             const studentLoanDebt = parseNumeric('studentLoanDebt');
+             if (studentLoanDebt > 0) {
                  parsedData.userInput.debts.push({
-                     type: "Student Loans",
-                     balance: studentLoanDebt,
-                     interestRate: parseNumeric('studentLoanRate', 5.5), // Default Student Loan rate
-                     minPayment: parseNumeric('studentLoanMinPayment', Math.max(studentLoanDebt * 0.01, 50)) // Default min payment logic
+                     type: "Student Loans", balance: studentLoanDebt,
+                     interestRate: parseNumeric('studentLoanRate', 5.5),
+                     minPayment: parseNumeric('studentLoanMinPayment', Math.max(studentLoanDebt * 0.01, 50))
                  });
                  console.log("Added Student Loans from param:", studentLoanDebt);
              }
 
-             const carLoanBalance = parseNumeric('carLoanBalance'); // Use exact key
-             if (carLoanBalance > 0 && isFinite(carLoanBalance)) {
+             const carLoanBalance = parseNumeric('carLoanBalance');
+             if (carLoanBalance > 0) {
                  parsedData.userInput.debts.push({
-                     type: "Car Loan",
-                     balance: carLoanBalance,
-                     interestRate: parseNumeric('carLoanRate', 6.0), // Default Car Loan rate
-                     minPayment: parseNumeric('carLoanMinPayment', Math.max(carLoanBalance * 0.015, 100)) // Default min payment logic
+                     type: "Car Loan", balance: carLoanBalance,
+                     interestRate: parseNumeric('carLoanRate', 6.0),
+                     minPayment: parseNumeric('carLoanMinPayment', Math.max(carLoanBalance * 0.015, 100))
                  });
                  console.log("Added Car Loan from param:", carLoanBalance);
              }
@@ -1832,8 +1848,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         console.log("Parsed data object created from URL params:", parsedData);
         return parsedData;
-    }
-
+    } // End of function parseDataFromUrlParams
     // --- Modals ---
     function initModals() {
         console.log("Initializing modals...");
@@ -4551,15 +4566,21 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log("Core features initialization initiated.");
 
 
-            // Determine which main content state to show based on data and auth status
+// Determine which main content state to show based on data and auth status
             console.log("Checking conditions for initial content display:");
-            // Check if dashboardData has valid userInput and personalInfo
-            const hasDataFromUrl = dashboardData && dashboardData.userInput && dashboardData.userInput.personalInfo && Object.keys(getSafe(() => dashboardData.userInput.personalInfo, {})).length > 0;
-             console.log(`  hasDataFromUrl: ${hasDataFromUrl}`);
-             console.log(`  xtlParsedSuccessfully: ${xtlParsedSuccessfully}`);
-             console.log(`  currentUserId (after XTL): ${currentUserId}`);
 
+            // --- REVISED CHECK for hasDataFromUrl ---
+            // Check if data was parsed AND if essential fields like userName actually have a value
+            const parsedUserName = getSafe(() => dashboardData?.userInput?.personalInfo?.userName, null);
+            // True only if userName is present in the parsed data and not just an empty string
+            const hasDataFromUrl = parsedUserName && String(parsedUserName).trim() !== '';
+            // --- END REVISED CHECK ---
 
+            console.log(`  hasDataFromUrl (based on valid userName): ${hasDataFromUrl}`); // Updated log message
+            console.log(`  xtlParsedSuccessfully: ${xtlParsedSuccessfully}`);
+            console.log(`  currentUserId (after XTL): ${currentUserId}`);
+
+            // The rest of the if/else if/else block that uses hasDataFromUrl follows immediately after this...
             if (hasDataFromUrl) {
                  // Data was successfully parsed from URL params
                  console.log("Condition matched: hasDataFromUrl is true. Processing and displaying data from URL.");
