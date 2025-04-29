@@ -876,56 +876,188 @@ console.log("Early beforeunload listener added (logging only).");
     //  Google OAuth & Drive helper setup
     // ------------------------------------------------------------
 
-    /**
-     * Fetch basic profile info (name, id) for the signed‑in Google user.
-     * Requires the OAuth scope "https://www.googleapis.com/auth/userinfo.profile".
-     * Returns an object like { sub: "...", name: "..." }  (OIDC /userinfo fields).
-     */
-    async function fetchGoogleUserInfo(accessToken) {
+    // Ensure fetchGoogleUserInfo is async (it already was, but updated for robustness)
+    async function fetchGoogleUserInfo() {
+        console.log("Fetching Google user info...");
         try {
-            const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-                headers: { Authorization: `Bearer ${accessToken}` }
-            });
-            if (!res.ok) throw new Error(`userinfo HTTP ${res.status}`);
-            return await res.json();
-        } catch (err) {
-            console.error('Failed to fetch Google userinfo:', err);
-            return null;
+            // Check gapi readiness
+            if (typeof gapi === 'undefined' || typeof gapi.client === 'undefined' || typeof gapi.client.getToken !== 'function' || !gapi.client.getToken()) {
+                console.warn("Gapi client not ready or no token available to fetch user info.");
+                currentUserId = null; // Ensure userId is null if we can't fetch
+                googleUser = null;
+                return; // Exit
+            }
+
+            // Load oauth2 API if needed
+            await gapi.client.load('oauth2', 'v2');
+
+            // Verify the userinfo endpoint is available
+            if (typeof gapi.client.oauth2?.userinfo?.get !== 'function') {
+                console.error("Google OAuth2 userinfo API not available after load attempt.");
+                currentUserId = null; googleUser = null;
+                return; // Exit
+            }
+
+            // Make the API request
+            const response = await gapi.client.oauth2.userinfo.get();
+            const uinfo = response.result;
+            console.log("Google User Info Raw:", uinfo);
+
+            // Set currentUserId and googleUser
+            if (uinfo && uinfo.sub) {
+                googleUser = { name: uinfo.name || '(unknown name)' };
+                currentUserId = uinfo.sub;
+                console.log(`Google user profile fetched and currentUserId SET: ${currentUserId}`);
+            } else {
+                console.warn('Google user profile fetch returned null or missing ID (sub). currentUserId not set.');
+                currentUserId = null;
+                googleUser = null;
+            }
+
+            // Update UI display
+            signedInUserDisplayElement = signedInUserDisplayElement || document.getElementById('signedInUserDisplay');
+            if (signedInUserDisplayElement && googleUser?.name) {
+                signedInUserDisplayElement.textContent = `Signed in as: ${googleUser.name}`;
+                signedInUserDisplayElement.style.display = 'inline-block';
+                console.log(`Signed in user display updated: ${googleUser.name}`);
+            } else if (signedInUserDisplayElement) {
+                signedInUserDisplayElement.textContent = '';
+                signedInUserDisplayElement.style.display = 'none';
+            }
+
+        } catch (error) {
+            console.error("Error fetching Google user info:", error);
+            currentUserId = null;
+            googleUser = null;
+            signedInUserDisplayElement = signedInUserDisplayElement || document.getElementById('signedInUserDisplay');
+            if (signedInUserDisplayElement) {
+                signedInUserDisplayElement.textContent = '';
+                signedInUserDisplayElement.style.display = 'none';
+            }
+            throw error; // Let caller handle
         }
     }
 
-/**
- * Central handler for Google Identity token responses.
- * Updates global access token and refreshes button visibility.
- */
-async function handleGoogleTokenResponse(tokenResponse) {
-    try {
-        if (!tokenResponse || tokenResponse.error || !tokenResponse.access_token) {
-            console.error("GIS token error:", tokenResponse);
-            updateDriveButtonVisibility(false);
-            handleError("Google authorization failed", tokenResponse);
-            return;
+    // Handle the response from the Google Token Client (Authorization Response)
+    // This function is called by the Google GIS library after sign‑in attempts.
+    async function handleGoogleTokenResponse(tokenResponse) { // Ensure function is async
+        console.log("Google token response received:", tokenResponse);
+
+        try {
+            // Check if the response contains a valid access token (SUCCESS PATH)
+            if (tokenResponse && tokenResponse.access_token) {
+                console.log("Google token response successful. Access token obtained.");
+                googleAccessToken = tokenResponse.access_token;
+                console.log("Access Token obtained (length:", googleAccessToken.length, ").");
+
+                // Inject token into gapi.client
+                if (typeof gapi !== 'undefined' && typeof gapi.client !== 'undefined' && typeof gapi.client.setToken === 'function') {
+                    gapi.client.setToken({ access_token: googleAccessToken });
+                    console.log("Token set in gapi.client.");
+                } else {
+                    console.error("Gapi client not available to set token after successful response.");
+                    googleAccessToken = null; googleUser = null; currentUserId = null; driveFolderId = null;
+                    handleError("Google API Client Setup Failed", new Error("Google API client not fully ready after authentication."));
+                    updateDriveButtonVisibility(false); setChatStatus("API Client Failed", false); initializeChat();
+                    return; // Exit
+                }
+
+                // --- CRITICAL FIX: Await fetchGoogleUserInfo ---
+                // Ensure user info (and currentUserId) is fetched BEFORE proceeding
+                try {
+                    await fetchGoogleUserInfo(); // Wait for user info to be fetched and currentUserId to be set
+                    console.log(`User info fetched. currentUserId is now: ${currentUserId}`);
+                } catch (userInfoError) {
+                    console.error("Error fetching Google user info after sign‑in:", userInfoError);
+                    // Handle error fetching user info ‑ maybe sign out? Or just prevent Drive ops?
+                    googleAccessToken = null; googleUser = null; currentUserId = null; driveFolderId = null;
+                    if (typeof gapi !== 'undefined' && typeof gapi.client !== 'undefined' && typeof gapi.client.setToken === 'function') { gapi.client.setToken(null); }
+                    handleError("Google User Info Error", new Error("Failed to retrieve user details after sign‑in."));
+                    updateDriveButtonVisibility(false); setChatStatus("User Info Failed", false); initializeChat();
+                    return; // Exit if user info fails
+                }
+                // --- END CRITICAL FIX ---
+
+                // Load Drive API, Fetch Usage, Handle Auto‑Load (Now safe to use currentUserId)
+                try {
+                    console.log("Loading Google Drive API v3...");
+                    await gapi.client.load('drive', 'v3');
+                    console.log("Google Drive API v3 loaded successfully after sign‑in.");
+
+                    // Fetch usage info now that we have the user ID
+                    console.log("Calling fetchInitialUsage() after successful sign‑in and setting userId.");
+                    await fetchInitialUsage(); // Use await if fetchInitialUsage is async
+
+                    updateDriveButtonVisibility(true); // Update buttons now Drive API is ready
+
+                    // --- Determine whether to auto‑load from Drive ---
+                    const isDataCurrentlyLoaded = dashboardData && dashboardData.userInput && dashboardData.userInput.personalInfo && Object.keys(getSafe(() => dashboardData.userInput.personalInfo, {})).length > 0;
+
+                    if (!isDataCurrentlyLoaded) {
+                        console.log("No data loaded from URL/Local. Attempting auto‑load from Drive after sign‑in.");
+                        if (currentUserId) { // Check user ID is valid before loading
+                            hideAllMainContentAreas();
+                            if (loadingSpinner) loadingSpinner.style.display = 'flex';
+                            setChatStatus("Loading from Drive...", true);
+                            await loadLatestPsrFromDrive(); // Use await for the load operation
+                        } else {
+                            // This case should be less likely now due to awaiting fetchGoogleUserInfo
+                            console.error("Cannot auto‑load from Drive: currentUserId was not set successfully.");
+                            handleError("Sign‑in Error", new Error("Could not retrieve user ID during sign‑in. Cannot load from Drive."));
+                        }
+                    } else {
+                        console.log("Data already loaded from URL/Local. Skipping auto‑load from Drive.");
+                        if (mainContentElement && mainContentElement.style.display === 'none') {
+                            mainContentElement.style.display = 'block';
+                            mainContentElement.classList.remove('hidden');
+                        }
+                        if (loadingSpinner) loadingSpinner.style.display = 'none';
+                        setChatStatus("Signed in to Drive", false);
+                        // initializeChat() was likely called by fetchInitialUsage
+                    }
+                } catch (postAuthError) {
+                    console.error("Error during post‑sign‑in processing (Drive API load, Usage Fetch, or Auto‑Load):", postAuthError);
+                    handleError("Google Post‑Sign‑In Error", postAuthError);
+                    updateDriveButtonVisibility(false); // Revert visibility on error
+                    setChatStatus("Post‑Sign‑In Failed", false);
+                    initializeChat(); // Ensure chat state is updated
+                }
+
+            // --- Handle expected non‑fatal error responses ---
+            } else if (tokenResponse && (tokenResponse.error === 'interaction_required' || tokenResponse.error === 'access_denied' || tokenResponse.error === 'popup_closed_by_user')) {
+                console.warn("Google token response indicated interaction is required or access denied/cancelled:", tokenResponse.error, tokenResponse.error_description);
+                googleAccessToken = null; googleUser = null; currentUserId = null; driveFolderId = null; // Clear state
+                if (typeof gapi !== 'undefined' && typeof gapi.client !== 'undefined' && typeof gapi.client.setToken === 'function') { gapi.client.setToken(null); }
+                updateDriveButtonVisibility(false);
+                signedInUserDisplayElement = signedInUserDisplayElement || document.getElementById('signedInUserDisplay');
+                if (signedInUserDisplayElement) { signedInUserDisplayElement.textContent = ''; signedInUserDisplayElement.style.display = 'none'; }
+                setChatStatus("Signed out of Drive", false);
+                initializeChat(); // Update chat state
+
+            // --- Handle any other unexpected errors in the token response ---
+            } else if (tokenResponse && tokenResponse.error) {
+                console.error("Google token response contained an unexpected error:", tokenResponse);
+                googleAccessToken = null; googleUser = null; currentUserId = null; driveFolderId = null; // Clear state
+                if (typeof gapi !== 'undefined' && typeof gapi.client !== 'undefined' && typeof gapi.client.setToken === 'function') { gapi.client.setToken(null); }
+                handleError("Google Sign‑In Response Error", new Error(`Unexpected error from Google: ${tokenResponse.error || 'No error code'}: ${tokenResponse.error_description || 'Unknown'}`));
+                initializeChat();
+
+            // --- Fallback for empty/unexpected responses ---
+            } else {
+                console.warn("Google token response was empty or unexpectedly structured.", tokenResponse);
+                googleAccessToken = null; googleUser = null; currentUserId = null; driveFolderId = null; // Clear state
+                if (typeof gapi !== 'undefined' && typeof gapi.client !== 'undefined' && typeof gapi.client.setToken === 'function') { gapi.client.setToken(null); }
+                handleError("Google Sign‑In Response Error", new Error("Received empty or invalid response from Google."));
+                initializeChat();
+            }
+        } catch (innerError) { // Catch any errors that occur within handleGoogleTokenResponse itself
+            console.error("ERROR WITHIN handleGoogleTokenResponse:", innerError);
+            googleAccessToken = null; googleUser = null; currentUserId = null; driveFolderId = null; // Clear state
+            if (typeof gapi !== 'undefined' && typeof gapi.client !== 'undefined' && typeof gapi.client.setToken === 'function') { gapi.client.setToken(null); }
+            handleError("Internal Google Auth Handler Error", innerError);
+            initializeChat();
         }
-        googleAccessToken = tokenResponse.access_token;
-        // Fetch user profile to establish user ID
-        const uinfo = await fetchGoogleUserInfo(googleAccessToken);
-        if (uinfo) {
-            googleUser = { name: uinfo.name || '(unknown)' };
-            currentUserId = uinfo.sub;   // Use OIDC subject as unique folder suffix
-            console.log('Google user profile fetched:', uinfo);
-        } else {
-            console.warn('User profile fetch returned null; Drive folder name may fallback to "SmartWealth Navigator Reports".');
-        }
-        console.log("Received Google access token");
-        if (window.gapi?.client) {
-            gapi.client.setToken({ access_token: googleAccessToken });
-        }
-        updateDriveButtonVisibility(true);
-    } catch (err) {
-        console.error("Error handling GIS token:", err);
-        updateDriveButtonVisibility(false);
     }
-}
  
 function initializeGIS() {
     try {
