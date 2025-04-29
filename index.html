@@ -1044,35 +1044,97 @@ function updateDriveButtonVisibility(isSignedIn) {
         }
     }
 
+
+    /* ------------------------------------------------------------
+       Modern Drive‑helper wrappers (folder, list, load)
+    ------------------------------------------------------------*/
+    /** Ensure driveFolderId is set to the user’s SWN folder, creating it if needed. */
+    async function findOrCreateDriveFolder() {
+        if (driveFolderId) return driveFolderId;
+
+        if (!currentUserId) throw new Error("Cannot resolve Drive folder: currentUserId is missing.");
+
+        const folderName = getDriveFolderName(); // uses currentUserId internally
+        const q = `mimeType='application/vnd.google-apps.folder' and name='${folderName}' and trashed=false`;
+        const resp = await gapi.client.drive.files.list({ q, fields: 'files(id,name)' });
+
+        if (resp.result.files && resp.result.files.length) {
+            driveFolderId = resp.result.files[0].id;
+            return driveFolderId;
+        }
+
+        // Create if it didn’t exist
+        const meta = { name: folderName, mimeType: 'application/vnd.google-apps.folder' };
+        const createResp = await gapi.client.drive.files.create({ resource: meta, fields: 'id' });
+        driveFolderId = createResp.result.id;
+        return driveFolderId;
+    }
+
+    /** List JSON PSR files in the user’s folder (newest first). */
+    async function listDriveFiles() {
+        if (!driveFolderId) await findOrCreateDriveFolder();
+        const q = `'${driveFolderId}' in parents and mimeType='application/json' and name='${PSR_FILE_NAME}' and trashed=false`;
+        const resp = await gapi.client.drive.files.list({
+            q,
+            orderBy: 'modifiedTime desc',
+            fields: 'files(id,name,modifiedTime)'
+        });
+        return resp.result.files || [];
+    }
+
+    /** Fetch and parse JSON content of a Drive file by ID. */
+    async function loadDriveFileContent(fileId) {
+        const dlResp = await gapi.client.drive.files.get({ fileId, alt: 'media' });
+        return JSON.parse(dlResp.body || dlResp.result);
+    }
+
+    // ----------------------------------------------------------------
+    //  Rewritten “Open PSR” flow (matches Gemini suggestion)
+    // ----------------------------------------------------------------
     async function loadLatestPsrFromDrive() {
+        console.log("Attempting to load latest PSR from Drive…");
         try {
-            const userName = (dashboardData?.userInput?.personalInfo.userName)
-                             || googleUser?.name
-                             || 'User';
-            const folderId = await getOrCreateSwnFolder(userName, false);
-            if (!folderId) {
-                alert('No SmartWealth folder found in Drive.');
+            if (!currentUserId) {
+                throw new Error("Cannot load from Drive: User ID not available.");
+            }
+            if (!gapi?.client?.drive) {
+                throw new Error("Cannot load from Drive: Google Drive API not ready.");
+            }
+
+            // 1) Ensure folder exists and we have its ID
+            await findOrCreateDriveFolder();
+            console.log(`Using Drive folder ID: ${driveFolderId}`);
+
+            // 2) List PSR files in that folder
+            const files = await listDriveFiles();
+            if (!files.length) {
+                alert(`No PSR file named "${PSR_FILE_NAME}" found in your SmartWealth Drive folder.`);
+                showInitialPromptOrMessage("No PSR file found in your Google Drive folder. Please save one first or upload locally.");
+                setChatStatus("No file found in Drive", false);
                 return;
             }
-            const q = `'${folderId}' in parents and mimeType='application/json' and name contains 'SWN_PSR-' and trashed=false`;
-            const resp = await gapi.client.drive.files.list({
-                q,
-                orderBy: 'modifiedTime desc',
-                pageSize: 1,
-                fields: 'files(id,name,modifiedTime)'
-            });
-            if (!(resp.result.files && resp.result.files.length)) {
-                alert('No PSR file found in Drive folder.');
-                return;
-            }
-            const fileId = resp.result.files[0].id;
-            const dlResp = await gapi.client.drive.files.get({ fileId, alt: 'media' });
-            const psrJson = dlResp.body || dlResp.result;
-            const data = JSON.parse(psrJson);
-            processAndDisplayData(data);
+
+            // 3) Load the most recent file
+            const fileToLoad = files[0];
+            console.log(`Found file: ${fileToLoad.name} (ID: ${fileToLoad.id}), Modified: ${fileToLoad.modifiedTime}`);
+            const fileContent = await loadDriveFileContent(fileToLoad.id);
+
+            // 4) Display the dashboard
+            processAndDisplayData(fileContent);
+            setChatStatus("Loaded from Drive ✅", false);
+            addMessageToChat("System", `Successfully loaded report "${fileToLoad.name}" from Google Drive.`, false);
+
         } catch (err) {
-            console.error('Load PSR error:', err);
-            alert('Failed to load PSR.');
+            console.error("Error during Load from Drive process:", err);
+            handleError("Failed to load file from Google Drive", err);
+            setChatStatus("Load failed", false);
+        } finally {
+            if (loadingSpinner && loadingSpinner.style.display === 'flex') {
+                loadingSpinner.style.display = 'none';
+                console.log("Spinner hidden by loadLatestPsrFromDrive finally block.");
+            }
+            if (loadFromDriveButton) loadFromDriveButton.disabled = false;
+            if (saveToDriveButton) saveToDriveButton.disabled = false;
         }
     }
 
