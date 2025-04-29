@@ -3744,26 +3744,51 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    /**
+ /**
      * Handles the click event for the "Open PSR→G-Drive" button.
      * Checks sign-in status, initiates Google flow if needed, then attempts to load the file.
      */
-    function handleLoadFromDriveClick() {
-         console.log("Load from Drive button clicked.");
-         // Initiate the Google flow. If signed in, it will immediately call performDriveLoadOperation.
-         // If not signed in, it will trigger the Sign-In prompt, and handleGoogleTokenResponse will call performDriveLoadOperation on success.
-         initiateGoogleFlow(performDriveLoadOperation, 'load from Drive');
-    }
+    function handleLoadFromDriveClick() { // Function definition starts here
+        console.log("Load from Drive button clicked.");
+        if (!googleAccessToken) {
+            // Not signed in, request access token (will trigger sign-in popup)
+            console.log("Not signed in. Requesting Google access token...");
+            if (googleTokenClient) {
+                googleTokenClient.requestAccessToken({ prompt: 'consent' });
+                // The handleGoogleTokenResponse callback will handle loading after successful sign-in
+            } else {
+                console.error("Google Token Client not initialized. Cannot request token.");
+                handleError("Google Sign-In Error", new Error("Google client not ready. Please refresh."));
+            }
+            return; // Stop here, wait for sign-in callback
+        }
+
+        // Already signed in, proceed directly to load operation
+        console.log("Already signed in. Proceeding with Drive load operation.");
+        // Show spinner/loading state before starting the async operation
+        hideAllMainContentAreas();
+        if (loadingSpinner) loadingSpinner.style.display = 'flex';
+        setChatStatus("Loading from Drive...", true);
+
+        // *** Calls the correct function to load the file ***
+        loadLatestPsrFromDrive();
+
+    } // Function definition ends here
 
     /**
      * Handles the click event for the "Save PSR→G-Drive" button.
      * Checks sign-in status, initiates Google flow if needed, then attempts to save the file.
      */
+     // NOTE: Definition for handleSaveToDriveClick is missing here, assumed defined elsewhere or added separately.
+     // If it's meant to be here, it would start with: function handleSaveToDriveClick() { ... }
+
 
     /**
      * Performs the actual file loading process from Google Drive.
      * This is the logic executed *after* it's confirmed the user is signed in.
      */
+     // NOTE: Definition for performDriveLoadOperation is missing here. The call was replaced above.
+
 
     /**
      * Performs the actual file saving process to Google Drive.
@@ -3831,6 +3856,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Specify parents ONLY when creating (POST), not when updating (PATCH)
                 ...(fileIdToUpdate ? {} : { 'parents': [folderId] })
             };
+
+// >>> This is the end of the snippet you provided <<<
+// (The rest of the performDriveSave function was cut off in your paste)
+// Ensure the full performDriveSave function exists below this point in your actual file.
 
             // Use multipart upload for file content
             const form = new FormData();
