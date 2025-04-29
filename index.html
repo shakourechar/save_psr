@@ -1547,6 +1547,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     // --- Utility Functions ---
+// --- Utility Functions ---
     function getSafe(fn, defaultVal = 'N/A') {
         try {
             const value = fn();
@@ -1598,6 +1599,42 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } // else { console.warn(`Element with ID ${id} not found for HTML update.`); }
     }
+
+    // --- NEWLY ADDED FUNCTION ---
+    /**
+     * Prepares the complete dashboard data object for saving or downloading.
+     * Ensures essential metadata and chat history are included.
+     * @returns {object | null} The complete dashboard data object, or null if essential data is missing.
+     */
+    function getDataForSave() {
+        console.log("Preparing data for save/download...");
+
+        // Check if dashboardData has the basic structure
+        if (!dashboardData || !dashboardData.userInput || !dashboardData.userInput.personalInfo) {
+            console.error("Cannot prepare data: dashboardData is missing essential structure.");
+            return null; // Return null if core data is missing
+        }
+
+        // Ensure metadata object exists
+        dashboardData.metadata = dashboardData.metadata || {};
+
+        // Update metadata with current user context (important if loaded from URL/demo)
+        dashboardData.metadata.userId = currentUserId || dashboardData.metadata.userId || null; // Prioritize current session ID
+        dashboardData.metadata.tier = effectiveTier || dashboardData.metadata.tier || 'basic'; // Prioritize current session tier
+
+        // Ensure chat history is correctly attached (uses global chatMessages)
+        // Filter for valid messages just in case
+        dashboardData.chatHistory = Array.isArray(chatMessages)
+            ? chatMessages.filter(msg => msg && msg.role && msg.content)
+            : [];
+
+        // Add a timestamp for when the data was saved/prepared
+        dashboardData.metadata.savedTimestamp = new Date().toISOString();
+
+        console.log("Data prepared:", dashboardData);
+        return dashboardData; // Return the complete object
+    }
+    // --- END OF NEWLY ADDED FUNCTION ---
 
     // Helper function to parse URL parameters
     function parseUrlParams() {
