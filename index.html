@@ -1122,9 +1122,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log("Signed out of Google Drive.");
             });
         }
-        // Removed obsolete Drive-load handler (function deleted)
         if (saveToDriveButton) {
             saveToDriveButton.addEventListener('click', handleSaveToDriveClick);
+        }
+
+        // Header “Open PSR” button
+        if (loadFromDriveButton) {
+            loadFromDriveButton.addEventListener('click', handleLoadFromDriveClick);
+        }
+
+        // Prompt “Sign in & Load from Drive” button
+        promptGoogleLoadButton = document.getElementById('promptGoogleLoadButton');
+        if (promptGoogleLoadButton) {
+            promptGoogleLoadButton.addEventListener('click', handleLoadFromDriveClick);
         }
     });
 
