@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
      <!-- Updated CSP for Google APIs -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; frame-src content.googleapis.com; script-src 'self' 'unsafe-inline' cdn.tailwindcss.com cdn.plot.ly cdn.jsdelivr.net tfnwwpksieluzvxqdiiq.supabase.co accounts.google.com apis.google.com; style-src 'self' 'unsafe-inline' fonts.googleapis.com fonts.gstatic.com; font-src 'self' fonts.gstatic.com; img-src 'self' static.wixstatic.com data:; connect-src 'self' tfnwwpksieluzvxqdiiq.supabase.co https://tfnwwpksieluzvxqdiiq.supabase.co accounts.google.com apis.google.com https://www.googleapis.com; object-src 'none'; base-uri 'self'; form-action 'self';">
-</head>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="./plotly.min.js"></script>
     <!-- Temporary stubs so GIS/gapi onload attributes never hit undefined -->
@@ -18,12 +18,6 @@
         function handleGapiLoad() {}
     </script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-</body>
-    <!-- Google Identity Services and Drive API -->
-    <script src="https://accounts.google.com/gsi/client" async defer onload="initializeGIS()"></script>
-    <script src="https://apis.google.com/js/api.js" async defer onload="handleGapiLoad()"></script>
-</html>
-
 
     <style>
         /* Base Styles */
@@ -3703,69 +3697,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Update visibility of Google Drive related buttons and the user display span.
-    // Called whenever the signed-in state or data loading state changes.
-    function updateDriveButtonVisibility(isSignedIn) {
-        // Ensure all relevant button and display elements are cached
-        uploadButtonHeader = uploadButtonHeader || document.getElementById('uploadButton'); // Local upload
-        downloadLocalButton = downloadLocalButton || document.getElementById('downloadLocalButton'); // Local download
-        loadFromDriveButton = loadFromDriveButton || document.getElementById('loadFromDriveButton');
-        saveToDriveButton = saveToDriveButton || document.getElementById('saveToDriveButton');
-        googleSignInButton = googleSignInButton || document.getElementById('googleSignInButton'); // Note: this is typically hidden
-        googleSignOutButton = googleSignOutButton || document.getElementById('googleSignOutButton');
-        signedInUserDisplayElement = signedInUserDisplayElement || document.getElementById('signedInUserDisplay');
-        promptGoogleLoadButton = promptGoogleLoadButton || document.getElementById('promptGoogleLoadButton'); // Button in the initial prompt
-
-        console.log("Updating Drive button visibility. Signed in:", isSignedIn);
-
-        // Manage visibility of Google-related buttons based on sign-in state and potentially data loaded state
-        if (googleSignInButton) googleSignInButton.style.display = 'none'; // Always keep the generic Sign In button hidden in this flow
-        if (googleSignOutButton) googleSignOutButton.style.display = isSignedIn ? 'inline-block' : 'none'; // Show Sign Out when signed in
-
-        // Determine if dashboard data is currently loaded (needed for Save/Download)
-        const isDataLoaded = dashboardData && dashboardData.userInput && dashboardData.userInput.personalInfo && Object.keys(getSafe(() => dashboardData.userInput.personalInfo, {})).length > 0;
-         console.log("Data loaded:", isDataLoaded);
-
-        // The primary Drive interaction buttons (Load/Save)
-        if (loadFromDriveButton) loadFromDriveButton.style.display = isSignedIn ? 'inline-block' : 'none';
-        if (saveToDriveButton) saveToDriveButton.style.display = (isSignedIn && isDataLoaded) ? 'inline-block' : 'none'; // Save requires data AND sign-in
-
-        // The Load from Drive button in the initial prompt screen
-         if (promptGoogleLoadButton && initialUploadPrompt && initialUploadPrompt.style.display !== 'none' && googleTokenClient) { // Only show if prompt is visible AND GIS is ready
-             promptGoogleLoadButton.style.display = isSignedIn ? 'none' : 'inline-block'; // Show this button only when NOT signed in, on the prompt screen
-         } else if (promptGoogleLoadButton) {
-             promptGoogleLoadButton.style.display = 'none'; // Hide otherwise
-         }
-
-
-        // Local file buttons (Upload is always available, Download requires data)
-        if (uploadButtonHeader) uploadButtonHeader.style.display = 'inline-block'; // Always show local upload in header
-        if (downloadLocalButton) downloadLocalButton.style.display = isDataLoaded ? 'inline-block' : 'none'; // Local download requires data
-
-
-        // Display user info span only when signed in AND user info is available
-        if (signedInUserDisplayElement) {
-            const hasUserInfo = googleUser?.name;
-            signedInUserDisplayElement.style.display = (isSignedIn && hasUserInfo) ? 'inline-block' : 'none';
-            if (isSignedIn && hasUserInfo) {
-                 signedInUserDisplayElement.textContent = `Signed in as: ${googleUser.name}`;
-            } else {
-                 signedInUserDisplayElement.textContent = '';
-            }
-        }
-
-
-        console.log("Button states updated:", {
-             localUpload: uploadButtonHeader?.style.display,
-             localDownload: downloadLocalButton?.style.display,
-             driveLoad: loadFromDriveButton?.style.display,
-             driveSave: saveToDriveButton?.style.display,
-             signOut: googleSignOutButton?.style.display,
-             promptGoogleLoad: promptGoogleLoadButton?.style.display,
-             signedInUserDisplay: signedInUserDisplayElement?.style.display
-        });
-    }
-
     // --- Google Drive Handlers Implementation ---
 
     /**
@@ -4549,5 +4480,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 </script>
+    <script src="https://accounts.google.com/gsi/client" async defer onload="initializeGIS()"></script>
+    <script src="https://apis.google.com/js/api.js" async defer onload="handleGapiLoad()"></script>
 </body>
 </html>
