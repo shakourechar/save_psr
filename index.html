@@ -946,9 +946,20 @@ function updateDriveButtonVisibility(isSignedIn) {
     if (googleSignInButton)  googleSignInButton.style.display  = isSignedIn ? 'none'        : 'inline-block';
     if (googleSignOutButton) googleSignOutButton.style.display = isSignedIn ? 'inline-block' : 'none';
 
-    // Show Drive action buttons only when the user is signed in
-    if (loadFromDriveButton) loadFromDriveButton.style.display = isSignedIn ? 'inline-block' : 'none';
-    if (saveToDriveButton)   saveToDriveButton.style.display   = isSignedIn ? 'inline-block' : 'none';
+    /* Drive action buttons must remain visible at all times — 
+       but we disable them until the user is signed in. */
+    if (loadFromDriveButton) {
+        loadFromDriveButton.style.display = 'inline-block';
+        loadFromDriveButton.disabled     = !isSignedIn;
+        loadFromDriveButton.style.opacity = isSignedIn ? '1' : '0.55';
+        loadFromDriveButton.style.cursor  = isSignedIn ? 'pointer' : 'not-allowed';
+    }
+    if (saveToDriveButton) {
+        saveToDriveButton.style.display  = 'inline-block';
+        saveToDriveButton.disabled       = !isSignedIn;
+        saveToDriveButton.style.opacity  = isSignedIn ? '1' : '0.55';
+        saveToDriveButton.style.cursor   = isSignedIn ? 'pointer' : 'not-allowed';
+    }
 }
 
     /* ------------------------------------------------------------
