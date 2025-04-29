@@ -11,10 +11,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="./plotly.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Add Google API loader script tags -->
-    <!-- The `onload` attributes are crucial here for controlling load order -->
-<script src="https://accounts.google.com/gsi/client" async defer onload="initializeGIS()"></script>
-<script src="https://apis.google.com/js/api.js" async defer onload="handleGapiLoad()"></script>
+</body>
+    <!-- Google Identity Services and Drive API -->
+    <script src="https://accounts.google.com/gsi/client" async defer onload="initializeGIS()"></script>
+    <script src="https://apis.google.com/js/api.js" async defer onload="handleGapiLoad()"></script>
+</html>
 
 
     <style>
@@ -534,6 +535,27 @@
 </head>
 
 <body>
+    <header>
+        <img src="https://static.wixstatic.com/media/c3283f_a9271d9818ba414994d98950da749489~mv2.jpg" alt="SmartWealth Navigator Logo">
+        <h1>SmartWealth Navigator</h1>
+        <!-- Button Container for better wrapping on small screens -->
+        <div>
+            <span id="signedInUserDisplay"></span>
+            <input type="file" id="fileInput" accept=".json">
+
+            <!-- Local File Buttons -->
+            <button id="uploadButton">Upload PSR</button>
+            <button id="downloadLocalButton">Download PSR</button>
+
+            <!-- Google Drive Buttons (visibility managed by JS) -->
+            <button id="loadFromDriveButton">Open PSR</button>
+            <button id="saveToDriveButton">Save PSR</button>
+
+            <!-- Google Sign-In and Sign-Out buttons (managed by JS) -->
+            <button id="googleSignInButton" style="display: none;">Sign in with Google</button>
+            <button id="googleSignOutButton" style="display: none;">Sign Out</button>
+        </div>
+    </header>
     <pre id="embeddedPsrData" style="display: none;">/* EMBEDDED_JSON_DATA_HERE */</pre>
 
     <div id="loadingSpinner" style="display: none;">
@@ -586,31 +608,6 @@
     </div>
 
     <div id="mainContent" class="main-container" style="display: none;">
-        <header>
-            <img src="https://static.wixstatic.com/media/c3283f_a9271d9818ba414994d98950da749489~mv2.jpg" alt="SmartWealth Navigator Logo">
-            <h1>SmartWealth Navigator</h1>
-             <!-- Button Container for better wrapping on small screens -->
-            <div>
-                 <!-- Display area for signed-in user name -->
-                 <span id="signedInUserDisplay"></span>
-                 <!-- Keep fileInput hidden -->
-                 <input type="file" id="fileInput" accept=".json">
-
-                 <!-- Local File Buttons -->
-                 <button id="uploadButton">Upload PSR</button>
-                 <button id="downloadLocalButton">Download PSR</button>
-
-                 <!-- Google Drive Buttons (visibility managed by JS) -->
-                 <!-- The click listeners for these initiate the Google flow if needed -->
-                 <button id="loadFromDriveButton">Open PSR</button>
-                 <button id="saveToDriveButton">Save PSR</button>
-                 <!-- Google Sign-In and Sign-Out buttons (Managed by JS, typically hidden if Load/Save are present) -->
-                  <button id="googleSignInButton" style="display: none;">Sign in with Google</button>
-                  <button id="googleSignOutButton" style="display: none;">Sign Out</button>
-
-
-            </div>
-        </header>
 
         <div class="grid-container">
             <div class="dashboard-card">
