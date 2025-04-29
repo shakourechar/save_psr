@@ -898,177 +898,68 @@ console.log("Early beforeunload listener added (logging only).");
  * Central handler for Google Identity token responses.
  * Updates global access token and refreshes button visibility.
  */
-// Replace the entire block from async function handleGoogleTokenResponse down to the end of handleGapiLoad (~lines 901-962)
-
 async function handleGoogleTokenResponse(tokenResponse) {
-    console.log("Google token response received:", tokenResponse); // Keep this log
     try {
-        // Handle Error cases first (no token, specific errors)
-        if (!tokenResponse || !tokenResponse.access_token || tokenResponse.error) {
-             // Handle expected non-fatal error responses cleanly
-             if (tokenResponse && (tokenResponse.error === 'interaction_required' || tokenResponse.error === 'access_denied' || tokenResponse.error === 'popup_closed_by_user')) {
-                 console.warn("Google token response indicated interaction is required or access denied/cancelled:", tokenResponse.error, tokenResponse.error_description);
-                 googleAccessToken = null; googleUser = null; currentUserId = null; driveFolderId = null; // Clear state
-                 if (typeof gapi !== 'undefined' && typeof gapi.client !== 'undefined' && typeof gapi.client.setToken === 'function') { gapi.client.setToken(null); }
-                 updateDriveButtonVisibility(false);
-                 signedInUserDisplayElement = signedInUserDisplayElement || document.getElementById('signedInUserDisplay');
-                  if (signedInUserDisplayElement) { signedInUserDisplayElement.textContent = ''; signedInUserDisplayElement.style.display = 'none'; }
-                 setChatStatus("Signed out of Drive", false);
-                 initializeChat(); // Update chat state
-                 return; // Exit function, no token obtained
-             } else {
-                 // Handle other unexpected errors in the response
-                 console.error("Google token response contained an unexpected error:", tokenResponse);
-                 googleAccessToken = null; googleUser = null; currentUserId = null; driveFolderId = null; // Clear state
-                 if (typeof gapi !== 'undefined' && typeof gapi.client !== 'undefined' && typeof gapi.client.setToken === 'function') { gapi.client.setToken(null); }
-                 handleError("Google Sign-In Response Error", new Error(`Unexpected error from Google: ${tokenResponse?.error || 'No error code'}: ${tokenResponse?.error_description || 'Unknown'}`));
-                 initializeChat();
-                 return; // Exit function
-             }
-        }
-
-        // --- SUCCESS PATH ---
-        console.log("Google token response successful. Access token obtained.");
-        googleAccessToken = tokenResponse.access_token; // Store the token globally
-        console.log("Access Token obtained (length:", googleAccessToken.length, ").");
-
-        // Set token in gapi.client (ensure gapi.client is ready)
-        if (typeof gapi !== 'undefined' && typeof gapi.client !== 'undefined' && typeof gapi.client.setToken === 'function') {
-            gapi.client.setToken({ access_token: googleAccessToken });
-            console.log("Token set in gapi.client.");
-        } else {
-            // This is a critical failure if gapi isn't ready after auth
-            console.error("Gapi client not available to set token after successful response.");
-            googleAccessToken = null; googleUser = null; currentUserId = null; driveFolderId = null; // Clear state
-            handleError("Google API Client Setup Failed", new Error("Google API client not fully ready after authentication."));
+        if (!tokenResponse || tokenResponse.error || !tokenResponse.access_token) {
+            console.error("GIS token error:", tokenResponse);
             updateDriveButtonVisibility(false);
-            setChatStatus("API Client Failed", false);
-            initializeChat();
-            return; // Exit
+            handleError("Google authorization failed", tokenResponse);
+            return;
         }
-
-        // Fetch user profile using await since the function is async
+        googleAccessToken = tokenResponse.access_token;
+        // Fetch user profile to establish user ID
         const uinfo = await fetchGoogleUserInfo(googleAccessToken);
-        if (uinfo && uinfo.sub) {
-            googleUser = { name: uinfo.name || '(unknown name)' };
-            currentUserId = uinfo.sub; // Assign Google User ID (subject) globally
-            console.log(`Google user profile fetched and currentUserId SET: ${currentUserId}`, uinfo);
-
-            // Update the signed-in display name
-            signedInUserDisplayElement = signedInUserDisplayElement || document.getElementById('signedInUserDisplay');
-            if (signedInUserDisplayElement && googleUser?.name) {
-                signedInUserDisplayElement.textContent = `Signed in as: ${googleUser.name}`;
-                signedInUserDisplayElement.style.display = 'inline-block';
-                console.log(`Signed in user display updated: ${googleUser.name}`);
-            } else if (signedInUserDisplayElement) {
-                signedInUserDisplayElement.style.display = 'none';
-                signedInUserDisplayElement.textContent = '';
-            }
+        if (uinfo) {
+            googleUser = { name: uinfo.name || '(unknown)' };
+            currentUserId = uinfo.sub;   // Use OIDC subject as unique folder suffix
+            console.log('Google user profile fetched:', uinfo);
         } else {
-            console.warn('Google user profile fetch returned null or missing ID (sub). currentUserId not set.');
-            currentUserId = null; // Ensure it's null if fetch failed
-            googleUser = null;
+            console.warn('User profile fetch returned null; Drive folder name may fallback to "SmartWealth Navigator Reports".');
         }
-
-        // *** ADDED/RESTORED POST-AUTH LOGIC ***
-        // Load Drive API, Fetch Usage, Handle Auto-Load
-        try {
-             console.log("Loading Google Drive API v3...");
-             await gapi.client.load('drive', 'v3');
-             console.log("Google Drive API v3 loaded successfully after sign-in.");
-
-             // Fetch usage info now that we have the (potentially new) user ID
-             console.log("Calling fetchInitialUsage() after successful sign-in and setting userId.");
-             await fetchInitialUsage(); // Use await if fetchInitialUsage is async
-
-             updateDriveButtonVisibility(true); // Update buttons now Drive API is ready
-
-             // --- Determine whether to auto-load from Drive ---
-             const isDataCurrentlyLoaded = dashboardData && dashboardData.userInput && dashboardData.userInput.personalInfo && Object.keys(getSafe(() => dashboardData.userInput.personalInfo, {})).length > 0;
-
-             if (!isDataCurrentlyLoaded) {
-                 console.log("No data loaded from URL/Local. Attempting auto-load from Drive after sign-in.");
-                 if (currentUserId) { // Check AGAIN just before loading
-                     hideAllMainContentAreas();
-                     if (loadingSpinner) loadingSpinner.style.display = 'flex';
-                     setChatStatus("Loading from Drive...", true);
-                     await loadLatestPsrFromDrive(); // Use await
-                 } else {
-                     console.error("Cannot auto-load from Drive: currentUserId was not set successfully.");
-                     handleError("Sign-in Error", new Error("Could not retrieve user ID during sign-in. Cannot load from Drive."));
-                 }
-             } else {
-                 console.log("Data already loaded from URL/Local. Skipping auto-load from Drive.");
-                 if (mainContentElement && mainContentElement.style.display === 'none') {
-                     mainContentElement.style.display = 'block';
-                     mainContentElement.classList.remove('hidden');
-                 }
-                 if (loadingSpinner) loadingSpinner.style.display = 'none';
-                 setChatStatus("Signed in to Drive", false);
-                 // initializeChat() was likely called by fetchInitialUsage
-             }
-        } catch (postAuthError) {
-             console.error("Error during post-sign-in processing (Drive API load, Usage Fetch, or Auto-Load):", postAuthError);
-             handleError("Google Post-Sign-In Error", postAuthError);
-             updateDriveButtonVisibility(false); // Revert visibility on error
-             setChatStatus("Post-Sign-In Failed", false);
-             initializeChat(); // Ensure chat state is updated
+        console.log("Received Google access token");
+        if (window.gapi?.client) {
+            gapi.client.setToken({ access_token: googleAccessToken });
         }
-        // *** END ADDED/RESTORED POST-AUTH LOGIC ***
-
-    } catch (outerError) { // Catch any unexpected errors in the main try block
-        console.error("Outer error in handleGoogleTokenResponse:", outerError);
-        googleAccessToken = null; googleUser = null; currentUserId = null; driveFolderId = null; // Clear state
-        if (typeof gapi !== 'undefined' && typeof gapi.client !== 'undefined' && typeof gapi.client.setToken === 'function') { gapi.client.setToken(null); }
-        handleError("Internal Google Auth Handler Error", outerError);
-        initializeChat();
+        updateDriveButtonVisibility(true);
+    } catch (err) {
+        console.error("Error handling GIS token:", err);
+        updateDriveButtonVisibility(false);
     }
-} // End of async function handleGoogleTokenResponse
-
+}
+ 
 function initializeGIS() {
     try {
         console.log("Initializing Google Identity Services token client…");
-        // Use a short delay to potentially give the library a moment if needed
-         setTimeout(() => {
-             if (typeof google === 'undefined' || typeof google.accounts === 'undefined' || typeof google.accounts.oauth2 === 'undefined') {
-                  console.error("GIS library not available after load timeout.");
-                  console.warn("Google Identity Services library not available. Google Drive features disabled.");
-                  updateDriveButtonVisibility(false);
-                  if (googleSignInButton) googleSignInButton.style.display = 'none';
-                  if (promptGoogleLoadButton) promptGoogleLoadButton.style.display = 'none';
-                  setChatStatus("Google sign-in setup failed.", false);
-                  return;
-             }
+        googleTokenClient = google.accounts.oauth2.initTokenClient({
+            client_id: GOOGLE_CLIENT_ID,
+            scope: GOOGLE_SCOPES,
+            prompt: '',
+            callback: handleGoogleTokenResponse
+        });
+    } catch (err) {
+        console.error("initializeGIS exception:", err);
+    }
+}
 
-             try {
-                 googleTokenClient = google.accounts.oauth2.initTokenClient({
-                     client_id: GOOGLE_CLIENT_ID,
-                     scope: GOOGLE_SCOPES,
-                     callback: handleGoogleTokenResponse, // Success/interaction_required responses
-                     error_callback: (error) => { // Other errors (popup blocked etc.)
-                         console.error("GIS initTokenClient error_callback:", error);
-                         if (error.type === 'popup_closed' || error.error === 'popup_closed_by_user') {
-                             console.log("Google Sign-In popup closed by user.");
-                             setChatStatus("Sign-in cancelled", false);
-                         } else if (error.error === 'immediate_failed') {
-                             console.log("Silent Google Sign-In failed (immediate_failed). User needs to click button.");
-                             setChatStatus("Sign-in needed", false);
-                         } else {
-                             handleError("Google Sign-In Process Error", new Error(`GIS error during request: ${error.message || error.error || 'Unknown error'}`));
-                         }
-                         updateDriveButtonVisibility(!!googleAccessToken); // Update based on current token state (likely false)
-                     }
-                 });
-                 console.log("GIS token client initialized.");
-
-                 // Listeners are added in DOMContentLoaded now
-
-                 // Attempt silent re-authentication
-                 if (googleTokenClient) {
-                     console.log("Attempting silent Google re-authentication...");
-                     googleTokenClient.requestAccessToken({ prompt: 'none' });
-                 } else {
-                     console.warn("Google Token client not available for silent re-auth
+    function handleGapiLoad() {
+        console.log("GAPI script loaded, now loading client + Drive v3 …");
+        if (!window.gapi) {
+            console.error("gapi not present after script load.");
+            return;
+        }
+        gapi.load('client', () => {
+            gapi.client.init({}).then(() => {
+                return gapi.client.load('drive', 'v3');
+            }).then(() => {
+                console.log("gapi drive v3 loaded.");
+                if (googleAccessToken) {
+                    gapi.client.setToken({ access_token: googleAccessToken });
+                }
+            }).catch(err => {
+                console.error("gapi client/drive init error:", err);
+            });
+        });
+    }
 
 /**  Update all Drive-related button visibility based on sign-in state. */
 function updateDriveButtonVisibility(isSignedIn) {
@@ -1153,97 +1044,35 @@ function updateDriveButtonVisibility(isSignedIn) {
         }
     }
 
-
-    /* ------------------------------------------------------------
-       Modern Drive‑helper wrappers (folder, list, load)
-    ------------------------------------------------------------*/
-    /** Ensure driveFolderId is set to the user’s SWN folder, creating it if needed. */
-    async function findOrCreateDriveFolder() {
-        if (driveFolderId) return driveFolderId;
-
-        if (!currentUserId) throw new Error("Cannot resolve Drive folder: currentUserId is missing.");
-
-        const folderName = getDriveFolderName(); // uses currentUserId internally
-        const q = `mimeType='application/vnd.google-apps.folder' and name='${folderName}' and trashed=false`;
-        const resp = await gapi.client.drive.files.list({ q, fields: 'files(id,name)' });
-
-        if (resp.result.files && resp.result.files.length) {
-            driveFolderId = resp.result.files[0].id;
-            return driveFolderId;
-        }
-
-        // Create if it didn’t exist
-        const meta = { name: folderName, mimeType: 'application/vnd.google-apps.folder' };
-        const createResp = await gapi.client.drive.files.create({ resource: meta, fields: 'id' });
-        driveFolderId = createResp.result.id;
-        return driveFolderId;
-    }
-
-    /** List JSON PSR files in the user’s folder (newest first). */
-    async function listDriveFiles() {
-        if (!driveFolderId) await findOrCreateDriveFolder();
-        const q = `'${driveFolderId}' in parents and mimeType='application/json' and name='${PSR_FILE_NAME}' and trashed=false`;
-        const resp = await gapi.client.drive.files.list({
-            q,
-            orderBy: 'modifiedTime desc',
-            fields: 'files(id,name,modifiedTime)'
-        });
-        return resp.result.files || [];
-    }
-
-    /** Fetch and parse JSON content of a Drive file by ID. */
-    async function loadDriveFileContent(fileId) {
-        const dlResp = await gapi.client.drive.files.get({ fileId, alt: 'media' });
-        return JSON.parse(dlResp.body || dlResp.result);
-    }
-
-    // ----------------------------------------------------------------
-    //  Rewritten “Open PSR” flow (matches Gemini suggestion)
-    // ----------------------------------------------------------------
     async function loadLatestPsrFromDrive() {
-        console.log("Attempting to load latest PSR from Drive…");
         try {
-            if (!currentUserId) {
-                throw new Error("Cannot load from Drive: User ID not available.");
-            }
-            if (!gapi?.client?.drive) {
-                throw new Error("Cannot load from Drive: Google Drive API not ready.");
-            }
-
-            // 1) Ensure folder exists and we have its ID
-            await findOrCreateDriveFolder();
-            console.log(`Using Drive folder ID: ${driveFolderId}`);
-
-            // 2) List PSR files in that folder
-            const files = await listDriveFiles();
-            if (!files.length) {
-                alert(`No PSR file named "${PSR_FILE_NAME}" found in your SmartWealth Drive folder.`);
-                showInitialPromptOrMessage("No PSR file found in your Google Drive folder. Please save one first or upload locally.");
-                setChatStatus("No file found in Drive", false);
+            const userName = (dashboardData?.userInput?.personalInfo.userName)
+                             || googleUser?.name
+                             || 'User';
+            const folderId = await getOrCreateSwnFolder(userName, false);
+            if (!folderId) {
+                alert('No SmartWealth folder found in Drive.');
                 return;
             }
-
-            // 3) Load the most recent file
-            const fileToLoad = files[0];
-            console.log(`Found file: ${fileToLoad.name} (ID: ${fileToLoad.id}), Modified: ${fileToLoad.modifiedTime}`);
-            const fileContent = await loadDriveFileContent(fileToLoad.id);
-
-            // 4) Display the dashboard
-            processAndDisplayData(fileContent);
-            setChatStatus("Loaded from Drive ✅", false);
-            addMessageToChat("System", `Successfully loaded report "${fileToLoad.name}" from Google Drive.`, false);
-
-        } catch (err) {
-            console.error("Error during Load from Drive process:", err);
-            handleError("Failed to load file from Google Drive", err);
-            setChatStatus("Load failed", false);
-        } finally {
-            if (loadingSpinner && loadingSpinner.style.display === 'flex') {
-                loadingSpinner.style.display = 'none';
-                console.log("Spinner hidden by loadLatestPsrFromDrive finally block.");
+            const q = `'${folderId}' in parents and mimeType='application/json' and name contains 'SWN_PSR-' and trashed=false`;
+            const resp = await gapi.client.drive.files.list({
+                q,
+                orderBy: 'modifiedTime desc',
+                pageSize: 1,
+                fields: 'files(id,name,modifiedTime)'
+            });
+            if (!(resp.result.files && resp.result.files.length)) {
+                alert('No PSR file found in Drive folder.');
+                return;
             }
-            if (loadFromDriveButton) loadFromDriveButton.disabled = false;
-            if (saveToDriveButton) saveToDriveButton.disabled = false;
+            const fileId = resp.result.files[0].id;
+            const dlResp = await gapi.client.drive.files.get({ fileId, alt: 'media' });
+            const psrJson = dlResp.body || dlResp.result;
+            const data = JSON.parse(psrJson);
+            processAndDisplayData(data);
+        } catch (err) {
+            console.error('Load PSR error:', err);
+            alert('Failed to load PSR.');
         }
     }
 
