@@ -8,8 +8,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
      <!-- Updated CSP for Google APIs -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; frame-src content.googleapis.com; script-src 'self' 'unsafe-inline' cdn.tailwindcss.com cdn.plot.ly cdn.jsdelivr.net tfnwwpksieluzvxqdiiq.supabase.co accounts.google.com apis.google.com; style-src 'self' 'unsafe-inline' fonts.googleapis.com fonts.gstatic.com; font-src 'self' fonts.gstatic.com; img-src 'self' static.wixstatic.com data:; connect-src 'self' tfnwwpksieluzvxqdiiq.supabase.co https://tfnwwpksieluzvxqdiiq.supabase.co accounts.google.com apis.google.com https://www.googleapis.com; object-src 'none'; base-uri 'self'; form-action 'self';">
+</head>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="./plotly.min.js"></script>
+    <!-- Temporary stubs so GIS/gapi onload attributes never hit undefined -->
+    <script>
+        /* These no‑op stubs are overwritten by the full definitions later. */
+        function initializeGIS() {}
+        function handleGapiLoad() {}
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </body>
     <!-- Google Identity Services and Drive API -->
@@ -899,32 +906,19 @@ function handleGoogleTokenResponse(tokenResponse) {
     }
 }
  
-    function initializeGIS() {
-        try {
-            console.log("Initializing Google Identity Services token client…");
-            googleTokenClient = google.accounts.oauth2.initTokenClient({
-                client_id: GOOGLE_CLIENT_ID,
-                scope: GOOGLE_SCOPES,
-                prompt: '',
-                    callback: handleGoogleTokenResponse
-});
-                    if (tokenResponse.error) {
-                        console.error("GIS token error:", tokenResponse);
-                        handleError("Google authorization failed", tokenResponse);
-                        return;
-                    }
-                    googleAccessToken = tokenResponse.access_token;
-                    console.log("Received Google access token");
-                    if (window.gapi?.client) {
-                        gapi.client.setToken({ access_token: googleAccessToken });
-                    }
-                    updateDriveButtonVisibility(true);
-                }
-            });
-        } catch (err) {
-            console.error("initializeGIS exception:", err);
-        }
+function initializeGIS() {
+    try {
+        console.log("Initializing Google Identity Services token client…");
+        googleTokenClient = google.accounts.oauth2.initTokenClient({
+            client_id: GOOGLE_CLIENT_ID,
+            scope: GOOGLE_SCOPES,
+            prompt: '',
+            callback: handleGoogleTokenResponse
+        });
+    } catch (err) {
+        console.error("initializeGIS exception:", err);
     }
+}
 
     function handleGapiLoad() {
         console.log("GAPI script loaded, now loading client + Drive v3 …");
