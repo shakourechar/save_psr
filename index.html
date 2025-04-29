@@ -1209,9 +1209,17 @@ function updateDriveButtonVisibility(isSignedIn) {
     }
 
     /**
- * Click handler for “Open PSR”.
- * Prompts Google sign-in if needed, otherwise loads the newest PSR JSON.
- */
+     * Click handler for the “Open PSR” button.
+     * If the user is not yet authenticated, trigger the Google consent flow;
+     * otherwise load (or create) the latest PSR file from Drive.
+     */
+    function handleLoadFromDriveClick() {
+        if (!googleAccessToken) {
+            googleTokenClient?.requestAccessToken({ prompt: 'consent' });
+            return;
+        }
+        loadLatestPsrFromDrive();
+    }
 
     // --- Legacy alias to keep older listener working -----------------------
     // Some older event‑listener code still calls initiateGoogleFlow().
@@ -1264,6 +1272,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Header “Open PSR” button
         if (loadFromDriveButton) {
+            loadFromDriveButton.addEventListener('click', handleLoadFromDriveClick);
         }
 
         // Prompt “Sign in & Load from Drive” button
