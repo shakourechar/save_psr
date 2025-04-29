@@ -3745,21 +3745,6 @@ document.addEventListener('DOMContentLoaded', () => {
      * Handles the click event for the "Save PSR→G-Drive" button.
      * Checks sign-in status, initiates Google flow if needed, then attempts to save the file.
      */
-    function handleSaveToDriveClick() {
-         console.log("Save to Drive button clicked.");
-         // Check if data is available BEFORE initiating Google flow for saving
-         const dataToSave = getDataForSave();
-         if (!dataToSave) {
-             alert("No dashboard data available to save.");
-             console.warn("Attempted Save to Drive with no dashboard data.");
-             return;
-         }
-
-         // Initiate the Google flow. If signed in, it will immediately call performDriveSave.
-         // If not signed in, it will trigger the Sign-In prompt. handleGoogleTokenResponse does NOT automatically save.
-         initiateGoogleFlow(performDriveSave, 'save to Drive');
-    }
-
 
     /**
      * Performs the actual file loading process from Google Drive.
