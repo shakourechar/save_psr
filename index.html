@@ -1073,6 +1073,18 @@ function updateDriveButtonVisibility(isSignedIn) {
         }
     }
 
+    /**
+ * Click handler for “Open PSR”.
+ * Prompts Google sign-in if needed, otherwise loads the newest PSR JSON.
+ */
+function handleLoadFromDriveClick() {
+    if (!googleAccessToken) {
+        googleTokenClient?.requestAccessToken({ prompt: 'consent' });
+        return;
+    }
+    loadLatestPsrFromDrive();
+}
+    
     function handleSaveToDriveClick() {
         if (!googleAccessToken) {
             googleTokenClient?.requestAccessToken({ prompt: 'consent' });
@@ -3714,39 +3726,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- Google Drive Handlers Implementation ---
-
-    /**
-     * Initiates the Google Sign-In/Authorization flow if needed, then calls the provided callback.
-     * @param {Function} callback - The function to call after successful sign-in/authorization.
-     * @param {string} actionDescription - A description of the action triggering the sign-in (e.g., "load", "save").
-     */
-    function initiateGoogleFlow(callback, actionDescription = 'action') {
-         console.log(`Initiating Google flow for ${actionDescription}. Signed in: ${!!googleAccessToken}. GIS Client: ${!!googleTokenClient}`);
-         if (!googleTokenClient) {
-              console.error("Google Identity Services client not initialized. Cannot initiate flow.");
-              // This should ideally not happen if initializeGIS ran, but as a safeguard
-              handleError(`Google sign-in services not ready. Cannot ${actionDescription}.`, new Error("GIS client is null."));
-              return;
-         }
-
-         if (googleAccessToken) {
-             console.log("Already signed in. Proceeding with callback.");
-             // Already signed in, proceed directly to the callback action (load or save)
-             callback();
-         } else {
-             console.log("Not signed in. Requesting Google access token interactively.");
-              // Not signed in, request access token (will trigger interactive flow via popup/redirect)
-             // Use 'select_account' to ensure user can choose if multiple accounts are logged in,
-             // or 'consent' if you want to force the consent screen again.
-             setChatStatus(`Waiting for Google Sign-in to ${actionDescription}...`, true); // Give feedback
-             googleTokenClient.requestAccessToken({ prompt: 'select_account' });
-             // The outcome goes to handleGoogleTokenResponse.
-             // handleGoogleTokenResponse is designed to call performDriveLoadOperation() on success
-             // if no data is currently loaded. Saving requires another click after sign-in.
-         }
-    }
-
     /**
      * Handles the click event for the "Open PSR→G-Drive" button.
      * Checks sign-in status, initiates Google flow if needed, then attempts to load the file.
@@ -3767,148 +3746,6 @@ document.addEventListener('DOMContentLoaded', () => {
      * Performs the actual file loading process from Google Drive.
      * This is the logic executed *after* it's confirmed the user is signed in.
      */
-    async function performDriveLoadOperation() {
-        console.log(`Performing Drive Load Operation. Signed in: ${!!googleAccessToken}`);
-
-         if (!googleAccessToken) {
-             console.warn("Attempted performDriveLoadOperation without access token.");
-             // This should not happen if initiateGoogleFlow works correctly.
-             alert("Please sign in to Google Drive first.");
-             setChatStatus("Load failed (not signed in)", false);
-             updateDriveButtonVisibility(false);
-             return;
-         }
-
-         // Show loading state
-         hideAllMainContentAreas(); // Hide existing content
-         if (loadingSpinner) loadingSpinner.style.display = 'flex';
-         setChatStatus("Loading from Drive...", true);
-
-
-         const driveLoadModal = document.getElementById('driveLoadModal');
-         const driveFileListDiv = document.getElementById('driveFileList');
-         const driveLoadErrorP = document.getElementById('driveLoadError');
-
-         if (driveFileListDiv) driveFileListDiv.innerHTML = 'Searching...';
-         if (driveLoadErrorP) driveLoadErrorP.textContent = '';
-
-         // Ensure user ID is available to construct the folder name
-         if (!currentUserId) {
-             console.error("Cannot load from Drive: currentUserId is not set.");
-             if (loadingSpinner) loadingSpinner.style.display = 'none';
-             setChatStatus("Load failed (no user ID)", false);
-             handleError("Cannot load from Drive", new Error("User ID is required to access Google Drive folder. Please ensure you are authenticated correctly."));
-             updateDriveButtonVisibility(!!googleAccessToken);
-             initializeChat();
-             return;
-         }
-
-
-         try {
-             // 1. Ensure the folder exists (uses cached driveFolderId or finds/creates it)
-             const folderId = await findOrCreateDriveFolder();
-             console.log("Drive folder ID for loading:", folderId);
-
-             // 2. List files in the folder matching the standard name
-             const files = await listDriveFiles();
-
-             if (!files || files.length === 0) {
-                 console.log(`No PSR file (${PSR_FILE_NAME}) found in Drive folder ("${getDriveFolderName()}").`);
-                 if (loadingSpinner) loadingSpinner.style.display = 'none'; // Hide spinner
-                 // If no file found, revert to showing the prompt but indicate Drive is connected
-                 showInitialPromptOrMessage(`No SmartWealth Navigator file found in your Google Drive folder "${getDriveFolderName()}". You can upload a local file or generate a new report.`);
-                 setChatStatus("No file found in Drive", false);
-                 // Update button visibility (Load button should still be visible as signed in)
-                 updateDriveButtonVisibility(!!googleAccessToken);
-                 // Ensure chat UI state is correct based on user context but no data
-                 initializeChat();
-
-                 return; // Exit function
-             }
-
-             // 3. Handle multiple files or load the first one found (most recent)
-             // The listDriveFiles function already sorts by modifiedTime desc, so files[0] is the latest
-             const fileToLoad = files[0];
-             console.log(`Found file to load: "${fileToLoad.name}" (ID: ${fileToLoad.id}). Loading content...`);
-
-             // Close the potential file list modal if it was open
-             closeModal('driveLoadModal');
-
-             // Load the content of the selected file
-             const fileContent = await loadDriveFileContent(fileToLoad.id);
-
-             console.log("Processing loaded data from Drive file...");
-
-             // Validate loaded data structure
-             if (fileContent && fileContent.userInput && typeof fileContent.userInput === 'object' && fileContent.userInput.personalInfo && Object.keys(getSafe(() => fileContent.userInput.personalInfo, {})).length > 0) { // Added check for non-empty personalInfo
-                  console.log("Loaded file content is valid PSR data. Updating dashboard.");
-
-                  // --- Restore User ID and Tier from file metadata ---
-                  // Prioritize explicit userId/tier from file metadata if available
-                 const fileUserId = getSafe(() => fileContent.metadata?.userId, null);
-                 const fileUserTier = getSafe(() => fileContent.metadata?.tier, null);
-
-                 if (fileUserId && fileUserId !== 'N/A' && fileUserId.length > 0) {
-                     if(fileUserId !== currentUserId) console.warn(`Overriding current user ID (${currentUserId}) with ID from file metadata: ${fileUserId}`);
-                     currentUserId = fileUserId;
-                 } else {
-                    // If file doesn't have userId, keep the current one (from XTL or previous state)
-                    console.warn("Loaded file metadata has no valid userId. Keeping current user context:", currentUserId);
-                 }
-
-                if (fileUserTier && ['basic', 'pro'].includes(fileUserTier)) {
-                     if(fileUserTier !== effectiveTier) console.warn(`Overriding current tier (${effectiveTier}) with tier from file metadata: ${fileUserTier}`);
-                     effectiveTier = fileUserTier;
-                } else {
-                    // If file doesn't have tier, keep the current one (from XTL or previous state)
-                    console.warn("Loaded file metadata has no valid tier. Keeping current tier context:", effectiveTier);
-                }
-
-                // Note: We do NOT restore initialUsageInfo from the file here.
-                // We will fetch the *current* usage from the DB next.
-                // Update dashboardData with the loaded content
-                dashboardData = fileContent;
-
-                // Restore chat history from the file
-                if (Array.isArray(getSafe(() => dashboardData.chatHistory))) { // Use getSafe for chatHistory check
-                    chatMessages = dashboardData.chatHistory.filter(msg => msg && msg.role && msg.content); // Filter valid messages
-                    console.log(`Restored ${chatMessages.length} chat messages from file.`);
-                } else {
-                    chatMessages = []; // Clear chat history if not found or invalid
-                    console.log("No valid chat history found in file, starting with empty chat.");
-                }
-
-                // Add source metadata if missing or update
-                 dashboardData.metadata = dashboardData.metadata || {};
-                 dashboardData.metadata.source = 'google_drive_loaded';
-
-
-                // Process and display the financial data and AI output from the file
-                processAndDisplayData(dashboardData); // This updates the main dashboard UI and hides spinner
-
-
-                // *** IMPORTANT: NOW FETCH THE CURRENT USAGE FROM THE DATABASE ***
-                // This will update initialUsageInfo and trigger updateUIBasedOnAccess -> initializeChat
-                console.log("File processed, fetching current usage from database based on determined user ID...");
-                fetchInitialUsage();
-
-
-             } else {
-                 console.error("Loaded file content does not match expected PSR format or is incomplete.", fileContent);
-                 throw new Error("The file from Google Drive is not a valid SmartWealth Navigator report.");
-             }
-
-         } catch (error) {
-             console.error("Error during Drive file load process:", error);
-             if (loadingSpinner) loadingSpinner.style.display = 'none'; // Hide spinner
-             setChatStatus("Load failed", false);
-             handleError("Failed to load file from Google Drive", error);
-             // Keep current user info from initial load if available.
-             updateDriveButtonVisibility(!!googleAccessToken); // Ensure buttons are updated based on current auth state
-             initializeChat(); // Update chat state based on current user/no data
-         }
-     }
-
 
     /**
      * Performs the actual file saving process to Google Drive.
