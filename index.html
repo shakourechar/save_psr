@@ -987,7 +987,10 @@ function updateDriveButtonVisibility(isSignedIn) {
        Google Drive helper functions (folder: SWN_[userName])
     ------------------------------------------------------------*/
     async function getOrCreateSwnFolder(userName, createIfMissing = true) {
-        const folderName = `SWN_${userName.replace(/\s+/g, '_')}`;
+        // Prefer a stable, unique folder based on the Google user‑ID (sub); fall back to cleaned userName.
+        const folderName = currentUserId
+            ? `SWN_${currentUserId}`                           // e.g. SWN_109876543210987654321
+            : `SWN_${(userName || 'User').replace(/\s+/g, '_')}`; // e.g. SWN_Shakoure_Char
         // 1) search for an existing folder
         const q = `mimeType='application/vnd.google-apps.folder' and name='${folderName}' and trashed=false`;
         const resp = await gapi.client.drive.files.list({ q, fields: 'files(id,name)' });
