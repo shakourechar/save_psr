@@ -1118,96 +1118,319 @@ function updateDriveButtonVisibility(isSignedIn) {
     /* ------------------------------------------------------------
        Google Drive helper functions (folder: SWN_[userName])
     ------------------------------------------------------------*/
+/**
+     * Finds or creates the designated SmartWealth Navigator folder in Google Drive.
+     * Folder name is based on the provided userName (e.g., SWN_User_Name).
+     * Stores the folder ID in the global `driveFolderId` upon successful find/create.
+     * @param {string} userName - The user name to base the folder name on.
+     * @param {boolean} [createIfMissing=true] - Whether to create the folder if not found.
+     * @returns {Promise<string|null>} A promise resolving with the folder ID, or null if not found and createIfMissing is false.
+     * @throws {Error} If Drive API is unavailable, user isn't signed in, or folder access fails.
+     */
     async function getOrCreateSwnFolder(userName, createIfMissing = true) {
-        // Prefer a stable, unique folder based on the Google user‑ID (sub); fall back to cleaned userName.
-        const folderName = currentUserId
-            ? `SWN_${currentUserId}`                           // e.g. SWN_109876543210987654321
-            : `SWN_${(userName || 'User').replace(/\s+/g, '_')}`; // e.g. SWN_Shakoure_Char
-        // 1) search for an existing folder
-        const q = `mimeType='application/vnd.google-apps.folder' and name='${folderName}' and trashed=false`;
-        const resp = await gapi.client.drive.files.list({ q, fields: 'files(id,name)' });
-        if (resp.result.files && resp.result.files.length) {
-            return resp.result.files[0].id;
+        // --- MODIFIED: Use userName for folder name ---
+        // Clean the provided user name and ensure a fallback.
+        const cleanedUserName = (userName || 'User').replace(/[^\w-]/g, '_'); // Replace non-word/hyphen chars with underscore
+        const folderName = `SWN_${cleanedUserName}`;
+        console.log(`Attempting to find or create Drive folder: "${folderName}"`);
+        // --- END MODIFICATION ---
+
+        // Check prerequisites (API ready, signed in)
+        if (!gapi || !gapi.client || !gapi.client.drive || !googleAccessToken) {
+            console.error("Google Drive API client is not loaded or user not signed in for folder operation.");
+            // Throwing an error here will be caught by the calling function (e.g., loadLatestPsrFromDrive)
+            throw new Error("Google Drive API is not ready or user is not signed in.");
         }
-        if (!createIfMissing) return null;
-        // 2) create the folder
-        const meta = { name: folderName, mimeType: 'application/vnd.google-apps.folder' };
-        const createResp = await gapi.client.drive.files.create({ resource: meta, fields: 'id' });
-        return createResp.result.id;
+
+        // Check if we already have a cached folder ID for *this specific folder name*
+        // Note: Simple caching by global ID might be incorrect if userName changes.
+        // For robustness, we should ideally search each time or refine caching.
+        // For now, we proceed assuming the global driveFolderId is either null or correct for the current session.
+        // if (driveFolderId) {
+        //     console.log(`Folder ID already cached: ${driveFolderId}`);
+        //     return driveFolderId;
+        // }
+        // ^^^ Removed simple caching check to ensure we find/create the correct folder based on name
+
+        try {
+            // 1) Search for the folder by name in root
+            // Using 'root' in parents explicitly searches the main "My Drive" area.
+            const q = `name='${folderName}' and mimeType='application/vnd.google-apps.folder' and 'root' in parents and trashed=false`;
+            console.log(`Searching Drive with query: ${q}`);
+            const resp = await gapi.client.drive.files.list({
+                q: q,
+                spaces: 'drive', // Ensure searching within Drive space
+                fields: 'files(id, name)' // Only need ID and name
+            });
+
+            if (resp.result.files && resp.result.files.length > 0) {
+                // Folder found
+                driveFolderId = resp.result.files[0].id; // Cache the found ID
+                console.log(`Found existing Drive folder: "${folderName}" (ID: ${driveFolderId})`);
+                return driveFolderId;
+            }
+
+            // Folder not found
+            if (!createIfMissing) {
+                console.log(`Folder "${folderName}" not found and createIfMissing is false.`);
+                return null; // Return null as requested by the calling context (load)
+            }
+
+            // 2) Create the folder if not found and createIfMissing is true
+            console.log(`Drive folder "${folderName}" not found. Creating...`);
+            const meta = {
+                name: folderName,
+                mimeType: 'application/vnd.google-apps.folder',
+                parents: ['root'] // Explicitly create in the root
+            };
+            const createResp = await gapi.client.drive.files.create({
+                resource: meta,
+                fields: 'id' // Only request the ID of the created folder
+            });
+
+            driveFolderId = createResp.result.id; // Cache the new ID
+            console.log(`Created new Drive folder: "${folderName}" (ID: ${driveFolderId})`);
+            return driveFolderId;
+
+        } catch (error) {
+            console.error(`Error finding or creating Drive folder "${folderName}":`, error);
+             // Create a more informative error message
+            let userFacingError = `Failed to access or create Google Drive folder "${folderName}".`;
+            // Check if the error object has Google API specific error details
+            if (error.result?.error?.message) {
+                userFacingError += ` Google Error: ${error.result.error.message}`;
+            } else if (error.message) {
+                 userFacingError += ` Error: ${error.message}`;
+            }
+             // Throw the detailed error to be handled by the calling function
+            throw new Error(userFacingError);
+        }
     }
 
+   /**
+     * Saves the current dashboardData as a JSON file to the designated Drive folder.
+     * Creates the folder SWN_[user-name] if needed.
+     * Saves the file as SWN_[user-name]-[date].json.
+     * This function is typically called by the 'Save PSR' button's click handler.
+     * Note: This version uses a unique filename with a date, implying it creates a new file each time.
+     * If updating a single standard file is preferred, refer back to the 'saveFileToDrive' logic.
+     * @returns {Promise<void>} A promise that resolves when the save attempt is complete.
+     */
     async function savePsrToDrive() {
+        console.log("Attempting to save PSR to Google Drive...");
+
+        // Get current data, ensuring user ID/tier/history are included
+        const dataToSave = getDataForSave(); // Assumes this function exists and prepares the data
+
+        if (!dataToSave || !dataToSave.userInput?.personalInfo) {
+             console.warn("No valid dashboard data available to save.");
+             addMessageToChat("System", "No dashboard data to save.", true);
+             setChatStatus("Save failed (no data)", false);
+             return; // Exit if no data
+        }
+
+        if (!googleAccessToken) {
+             console.warn("Attempted save without Google access token.");
+             addMessageToChat("System", "Please sign in to Google Drive first to save.", true);
+             setChatStatus("Save failed (not signed in)", false);
+             // Optionally trigger sign-in here if desired:
+             // handleLoadFromDriveClick(); // This function handles sign-in request
+             return;
+        }
+
+        // Disable buttons during save
+        if (saveToDriveButton) saveToDriveButton.disabled = true;
+        if (loadFromDriveButton) loadFromDriveButton.disabled = true;
+        if (downloadLocalButton) downloadLocalButton.disabled = true;
+        setChatStatus("Saving to Drive...", true);
+
         try {
-            if (!dashboardData || !dashboardData.userInput) {
-                alert('No dashboard data to save.');
-                return;
+            // Extract user name for folder and file naming
+            const userName = dataToSave.userInput.personalInfo.userName || 'User';
+            const cleanedUserName = userName.replace(/[^\w-]/g, '_'); // Clean name
+
+            // 1. Ensure the folder exists (using the updated getOrCreateSwnFolder)
+            const folderId = await getOrCreateSwnFolder(userName, true); // Creates if needed
+            if (!folderId) {
+                 // This case should not happen if getOrCreateSwnFolder throws errors correctly
+                 throw new Error("Failed to get or create the Google Drive folder.");
             }
-            const userName = dashboardData.userInput.personalInfo.userName || 'User';
-            const folderId = await getOrCreateSwnFolder(userName, true);
-            const fileName = `SWN_PSR-${userName.replace(/\s+/g,'_')}-${new Date().toISOString().split('T')[0]}.json`;
-            const metadata = {
+
+            // 2. Define the unique filename with date
+            const dateStr = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+            const fileName = `SWN_${cleanedUserName}-${dateStr}.json`;
+            console.log(`Saving file as: "${fileName}" in folder ID: ${folderId}`);
+
+            // 3. Prepare file metadata and content
+            const fileMetadata = {
                 name: fileName,
-                parents: [folderId],
+                parents: [folderId], // Always specify parent for creation
                 mimeType: 'application/json'
             };
-            const fileContent = JSON.stringify(dashboardData, null, 2);
-            const boundary = '-------314159265358979323846';
-            const delimiter = `\r\n--${boundary}\r\n`;
-            const closeDelim = `\r\n--${boundary}--`;
-            const multipartRequestBody =
-                delimiter + 'Content-Type: application/json\r\n\r\n' +
-                JSON.stringify(metadata) +
-                delimiter + 'Content-Type: application/json\r\n\r\n' +
-                fileContent +
-                closeDelim;
+            const fileContent = JSON.stringify(dataToSave, null, 2); // Pretty-print
+            const blob = new Blob([fileContent], { type: 'application/json' });
 
-            const request = gapi.client.request({
-                path: '/upload/drive/v3/files?uploadType=multipart',
+            // 4. Use FormData for multipart upload (Create Only - POST)
+            // This function now creates a new dated file each time.
+            const form = new FormData();
+            form.append('metadata', new Blob([JSON.stringify(fileMetadata)], { type: 'application/json' }));
+            form.append('file', blob);
+
+            console.log("Executing Drive file create (POST) request...");
+            const response = await gapi.client.request({
+                path: '/upload/drive/v3/files', // Create endpoint
                 method: 'POST',
-                params: { fields: 'id' },
-                headers: { 'Content-Type': `multipart/related; boundary=${boundary}` },
-                body: multipartRequestBody
+                params: { uploadType: 'multipart', fields: 'id,name' }, // Request ID and name back
+                headers: { 'Authorization': `Bearer ${googleAccessToken}` },
+                body: form
             });
-            await request;
-            alert('PSR saved to Drive successfully.');
+
+            console.log(`Drive file created successfully:`, response.result);
+            addMessageToChat("System", `Report "${response.result.name}" saved to Google Drive.`, false);
+            setChatStatus("Saved to Drive ✅", false);
+
         } catch (err) {
             console.error('Save PSR error:', err);
-            alert('Failed to save PSR.');
+            // Extract a user-friendly error message
+            let userFacingError = "Failed to save PSR to Google Drive.";
+            if (err.result?.error?.message) {
+                userFacingError = `Google Drive Error: ${err.result.error.message}`;
+            } else if (err.message) {
+                 userFacingError = `Save Error: ${err.message}`;
+            }
+            addMessageToChat("System", userFacingError, true);
+            setChatStatus("Save failed", false);
+             // Optionally use handleError for a modal display:
+             // handleError("Failed to save to Google Drive", err);
+        } finally {
+            // Re-enable buttons regardless of outcome
+            if (saveToDriveButton) saveToDriveButton.disabled = false;
+            if (loadFromDriveButton) loadFromDriveButton.disabled = false;
+            if (downloadLocalButton) downloadLocalButton.disabled = false;
+            // Status is already set above (success or fail)
+            console.log("Save PSR function finished.");
         }
     }
-
+   /**
+     * Loads the most recent PSR JSON file from the user's designated Google Drive folder.
+     * Creates the folder (SWN_[user-name]) if it doesn't exist.
+     * If the folder is empty, displays a message.
+     * If a file is found, loads its content and processes it.
+     * Handles errors and loading indicator visibility.
+     * @returns {Promise<void>} A promise that resolves when the load attempt is complete.
+     */
     async function loadLatestPsrFromDrive() {
+        // Ensure spinner element is cached/available
+        loadingSpinner = loadingSpinner || document.getElementById('loadingSpinner');
+
         try {
+            // Show spinner at the start if not already visible
+            // Note: The calling function (handleLoadFromDriveClick) might have already shown it
+            if (loadingSpinner && loadingSpinner.style.display !== 'flex') {
+                loadingSpinner.style.display = 'flex';
+            }
+            setChatStatus("Accessing Google Drive...", true); // Initial status
+
+            // Determine user name for folder lookup/creation
             const userName = (dashboardData?.userInput?.personalInfo.userName)
-                             || googleUser?.name
-                             || 'User';
-            const folderId = await getOrCreateSwnFolder(userName, false);
+                             || googleUser?.name // Use fetched Google name if available
+                             || 'User'; // Fallback
+
+            // 1. Get or Create the folder (Pass true to create if missing)
+            // This uses the updated getOrCreateSwnFolder which uses userName
+            const folderId = await getOrCreateSwnFolder(userName, true);
             if (!folderId) {
-                alert('No SmartWealth folder found in Drive.');
-                return;
+                // This should ideally not happen if getOrCreateSwnFolder throws errors,
+                // but handle defensively.
+                throw new Error("Could not access or create the required Google Drive folder.");
             }
-            const q = `'${folderId}' in parents and mimeType='application/json' and name contains 'SWN_PSR-' and trashed=false`;
+            setChatStatus("Searching for reports...", true); // Update status
+
+            // 2. Define the search query based on the NEW filename convention
+            // Files are named SWN_[user-name]-[date].json
+            const cleanedUserName = userName.replace(/[^\w-]/g, '_');
+            const fileNamePrefix = `SWN_${cleanedUserName}-`; // Prefix to search for
+            const q = `'${folderId}' in parents and mimeType='${PSR_MIME_TYPE}' and name contains '${fileNamePrefix}' and trashed=false`;
+
+            console.log(`Searching Drive folder ${folderId} with query: ${q}`);
+
+            // 3. List files matching the query, ordered by modification date
             const resp = await gapi.client.drive.files.list({
-                q,
-                orderBy: 'modifiedTime desc',
-                pageSize: 1,
-                fields: 'files(id,name,modifiedTime)'
+                q: q,
+                orderBy: 'modifiedTime desc', // Get newest first
+                pageSize: 1, // Only need the most recent one
+                fields: 'files(id,name,modifiedTime)' // Fields needed
             });
+
+            // 4. Handle case where no files are found (Folder is empty for PSRs)
             if (!(resp.result.files && resp.result.files.length)) {
-                alert('No PSR file found in Drive folder.');
-                return;
+                console.log(`No PSR files found matching prefix "${fileNamePrefix}" in folder ${folderId}.`);
+                // Hide spinner (handled by finally block)
+                // Show informational message - Use the function that displays the initial prompt area
+                // Make sure getDriveFolderName() exists and returns the expected folder name like SWN_User_Name
+                const userFriendlyFolderName = getDriveFolderName ? getDriveFolderName() : `SWN_${cleanedUserName}`; // Get folder name for message
+                showInitialPromptOrMessage(`Your SmartWealth folder (${userFriendlyFolderName}) is empty. Please save a report first.`); // Use the initial prompt/message function
+                setChatStatus("Drive folder is empty", false);
+                return; // Stop execution, user needs to save first
             }
-            const fileId = resp.result.files[0].id;
-            const dlResp = await gapi.client.drive.files.get({ fileId, alt: 'media' });
-            const psrJson = dlResp.body || dlResp.result;
-            const data = JSON.parse(psrJson);
+
+            // 5. File found - Proceed to load content
+            const fileToLoad = resp.result.files[0];
+            const fileId = fileToLoad.id;
+            console.log(`Most recent PSR file found: ${fileToLoad.name} (ID: ${fileId}), Modified: ${fileToLoad.modifiedTime}`);
+            setChatStatus(`Loading file: ${fileToLoad.name}...`, true);
+
+            const dlResp = await gapi.client.drive.files.get({ fileId: fileId, alt: 'media' });
+            const psrJson = dlResp.body || dlResp.result; // Content is in response.body for alt=media
+
+            // 6. Parse and process the data
+            let data;
+            try {
+                data = JSON.parse(psrJson);
+            } catch (parseError) {
+                 console.error("Error parsing JSON from Drive file:", parseError);
+                 throw new Error(`Failed to parse the content of file "${fileToLoad.name}". It might be corrupted.`);
+            }
+
+
+            // Add source metadata if missing, ensure user ID/tier from session are included
+            data.metadata = data.metadata || {};
+            data.metadata.source = 'google_drive_load';
+            if (!data.metadata.userId && currentUserId) data.metadata.userId = currentUserId;
+            if (!data.metadata.tier && effectiveTier) data.metadata.tier = effectiveTier;
+            // Restore chat history if present
+            if (Array.isArray(data.chatHistory)) {
+                chatMessages = data.chatHistory.filter(msg => msg && msg.role && msg.content);
+            } else {
+                 chatMessages = [];
+            }
+
+
+            // Process the loaded data - this function handles displaying content
+            // and hides the spinner in its own finally block.
             processAndDisplayData(data);
+            addMessageToChat("System", `Successfully loaded report "${fileToLoad.name}" from Google Drive.`, false);
+            // Status will be updated by subsequent operations (e.g., chat init)
+
         } catch (err) {
-            console.error('Load PSR error:', err);
-            alert('Failed to load PSR.');
+            // 7. Handle any errors during the process
+            console.error('Load PSR from Drive error:', err);
+            // Use the central error handler, which displays the error message UI
+            // and also hides the spinner.
+            handleError("Failed to load PSR from Google Drive", err);
+            setChatStatus("Error loading from Drive", false);
+            // Do not call showInitialPromptOrMessage here, handleError manages UI state.
+        } finally {
+            // 8. Ensure Spinner is Hidden in ALL cases
+            // This runs even if an error occurred before processAndDisplayData,
+            // or if the "folder empty" path was taken.
+            if (loadingSpinner && loadingSpinner.style.display === 'flex') {
+                console.log("Hiding spinner in loadLatestPsrFromDrive finally block.");
+                loadingSpinner.style.display = 'none';
+            }
+            console.log("Load PSR from Drive function finished.");
         }
     }
-
     /**
      * Click handler for the “Open PSR” button.
      * If the user is not yet authenticated, trigger the Google consent flow;
