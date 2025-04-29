@@ -1084,6 +1084,14 @@ function handleLoadFromDriveClick() {
     }
     loadLatestPsrFromDrive();
 }
+
+    // --- Legacy alias to keep older listener working -----------------------
+    // Some older event‑listener code still calls initiateGoogleFlow().
+    // Keep that backward‑compatible by delegating to the canonical handler.
+    function initiateGoogleFlow() {
+        handleLoadFromDriveClick();
+    }
+    // -----------------------------------------------------------------------
     
     function handleSaveToDriveClick() {
         if (!googleAccessToken) {
