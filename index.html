@@ -1218,6 +1218,15 @@ function updateDriveButtonVisibility(isSignedIn) {
      */
     async function savePsrToDrive() {
         console.log("Attempting to save PSR to Google Drive...");
+        // --- ENSURE A VALID USER NAME BEFORE SAVING ----------------
+        const userName = dashboardData?.userInput?.personalInfo?.userName;
+        if (!userName || String(userName).trim() === '') {
+            console.error("Save Error: Cannot determine user name from dashboard data.");
+            addMessageToChat("System", "Save Error: User name is missing in the report data.", true);
+            setChatStatus("Save failed (no user name)", false);
+            return;      // Abort save
+        }
+        const cleanedUserName = userName.replace(/[^\w-]/g, '_');
 
         // Get current data, ensuring user ID/tier/history are included
         const dataToSave = getDataForSave(); // Assumes this function exists and prepares the data
@@ -1245,10 +1254,6 @@ function updateDriveButtonVisibility(isSignedIn) {
         setChatStatus("Saving to Drive...", true);
 
         try {
-            // Extract user name for folder and file naming
-            const userName = dataToSave.userInput.personalInfo.userName || 'User';
-            const cleanedUserName = userName.replace(/[^\w-]/g, '_'); // Clean name
-
             // 1. Ensure the folder exists (using the updated getOrCreateSwnFolder)
             const folderId = await getOrCreateSwnFolder(userName, true); // Creates if needed
             if (!folderId) {
@@ -1332,25 +1337,22 @@ function updateDriveButtonVisibility(isSignedIn) {
             }
             setChatStatus("Accessing Google Drive...", true); // Initial status
 
-            // Determine user name for folder lookup/creation
-            const userName = (dashboardData?.userInput?.personalInfo.userName)
-                             || googleUser?.name // Use fetched Google name if available
-                             || 'User'; // Fallback
-
-            // 1. Get or Create the folder (Pass true to create if missing)
-            // This uses the updated getOrCreateSwnFolder which uses userName
-            const folderId = await getOrCreateSwnFolder(userName, true);
-            if (!folderId) {
-                // This should ideally not happen if getOrCreateSwnFolder throws errors,
-                // but handle defensively.
-                throw new Error("Could not access or create the required Google Drive folder.");
+            // --- DETERMINE USER NAME FOR FOLDER LOOKUP ------------------
+            const userName =
+                  dashboardData?.userInput?.personalInfo?.userName
+               || googleUser?.name
+               || null;
+            if (!userName || String(userName).trim() === '') {
+                handleError("Load Error",
+                  new Error("Could not determine a user name to locate the Google Drive folder. "
+                          + "Load data via URL or upload first, then try again."));
+                setChatStatus("Load failed (no user name)", false);
+                return;      // Abort load
             }
-            setChatStatus("Searching for reports...", true); // Update status
-
-            // 2. Define the search query based on the NEW filename convention
-            // Files are named SWN_[user-name]-[date].json
             const cleanedUserName = userName.replace(/[^\w-]/g, '_');
-            const fileNamePrefix = `SWN_${cleanedUserName}-`; // Prefix to search for
+
+            const folderId = await getOrCreateSwnFolder(userName, true);
+            const fileNamePrefix = `SWN_${cleanedUserName}-`;
             const q = `'${folderId}' in parents and mimeType='${PSR_MIME_TYPE}' and name contains '${fileNamePrefix}' and trashed=false`;
 
             console.log(`Searching Drive folder ${folderId} with query: ${q}`);
@@ -1445,13 +1447,6 @@ function updateDriveButtonVisibility(isSignedIn) {
         loadLatestPsrFromDrive();
     }
 
-    // --- Legacy alias to keep older listener working -----------------------
-    // Some older event‑listener code still calls initiateGoogleFlow().
-    // Keep that backward‑compatible by delegating to the canonical handler.
-    function initiateGoogleFlow() {
-        handleLoadFromDriveClick();
-    }
-    // -----------------------------------------------------------------------
     
     function handleSaveToDriveClick() {
         if (!googleAccessToken) {
@@ -1463,48 +1458,45 @@ function updateDriveButtonVisibility(isSignedIn) {
 
     /* Basic click handlers for Sign‑In / Sign‑Out */
 document.addEventListener('DOMContentLoaded', () => {
-        // ----- Cache DOM references now that the document is ready -----
-        googleSignInButton           = document.getElementById('googleSignInButton');
-        googleSignOutButton          = document.getElementById('googleSignOutButton');
-        loadFromDriveButton          = document.getElementById('loadFromDriveButton');
-        saveToDriveButton            = document.getElementById('saveToDriveButton');
-        signedInUserDisplayElement   = document.getElementById('signedInUserDisplay');
+    // ----- Cache DOM references now that the document is ready -----
+    googleSignInButton           = document.getElementById('googleSignInButton');
+    googleSignOutButton          = document.getElementById('googleSignOutButton');
+    loadFromDriveButton          = document.getElementById('loadFromDriveButton');
+    saveToDriveButton            = document.getElementById('saveToDriveButton');
+    signedInUserDisplayElement   = document.getElementById('signedInUserDisplay');
 
-        // Ensure correct initial visibility for the Drive/auth buttons
-        updateDriveButtonVisibility(!!googleAccessToken);
-        if (googleSignInButton) {
-            googleSignInButton.addEventListener('click', () => {
-                if (!googleTokenClient) {
-                    console.warn("GIS client not ready yet – trying again shortly.");
-                    initializeGIS(); // safety call
-                    return setTimeout(() => googleTokenClient?.requestAccessToken({ prompt: 'consent' }), 500);
-                }
-                googleTokenClient.requestAccessToken({ prompt: 'consent' });
-            });
-        }
-        if (googleSignOutButton) {
-            googleSignOutButton.addEventListener('click', () => {
-                googleAccessToken = null;
-                if (window.gapi?.client) gapi.client.setToken('');
-                updateDriveButtonVisibility(false);
-                console.log("Signed out of Google Drive.");
-            });
-        }
-        if (saveToDriveButton) {
-            saveToDriveButton.addEventListener('click', handleSaveToDriveClick);
-        }
-
-        // Header “Open PSR” button
-        if (loadFromDriveButton) {
-            loadFromDriveButton.addEventListener('click', handleLoadFromDriveClick);
-        }
-
-        // Prompt “Sign in & Load from Drive” button
-        promptGoogleLoadButton = document.getElementById('promptGoogleLoadButton');
-        if (promptGoogleLoadButton) {
-            promptGoogleLoadButton.addEventListener('click', handleLoadFromDriveClick);
-        }
-    });
+    // Ensure correct initial visibility for the Drive/auth buttons
+    updateDriveButtonVisibility(!!googleAccessToken);
+    if (googleSignInButton) {
+        googleSignInButton.addEventListener('click', () => {
+            if (!googleTokenClient) {
+                console.warn("GIS client not ready yet – trying again shortly.");
+                initializeGIS(); // safety call
+                return setTimeout(() => googleTokenClient?.requestAccessToken({ prompt: 'consent' }), 500);
+            }
+            googleTokenClient.requestAccessToken({ prompt: 'consent' });
+        });
+    }
+    if (googleSignOutButton) {
+        googleSignOutButton.addEventListener('click', () => {
+            googleAccessToken = null;
+            if (window.gapi?.client) gapi.client.setToken('');
+            updateDriveButtonVisibility(false);
+            console.log("Signed out of Google Drive.");
+        });
+    }
+    if (saveToDriveButton) {
+        saveToDriveButton.addEventListener('click', handleSaveToDriveClick);
+    }
+    if (loadFromDriveButton) {
+        loadFromDriveButton.addEventListener('click', handleLoadFromDriveClick);
+    }
+    // Prompt “Sign in & Load from Drive” button
+    promptGoogleLoadButton = document.getElementById('promptGoogleLoadButton');
+    if (promptGoogleLoadButton) {
+        promptGoogleLoadButton.addEventListener('click', handleLoadFromDriveClick);
+    }
+});
 
     // --- Cached DOM Elements (initialized later) ---
     let loadingSpinner, errorMessageElement, mainContentElement, initialMessageElement, initialUploadPrompt, errorTextElement, debugInfoElement, fileInput, chatInterfaceCardElement;
@@ -1512,33 +1504,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let promptGoogleLoadButton;
 
 
-    // ------------------------------------------------------------
-    //  Core initialisation (must exist before DOMContentLoaded)
-    // ------------------------------------------------------------
-    async function initializeSupabaseAndCoreFeatures() {
-        try {
-            /* 1. Ensure Supabase client exists */
-            if (!supabase) {
-                if (window.supabase?.createClient) {
-                    const { createClient } = window.supabase;
-                    supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                } else {
-                    throw new Error('Supabase library not loaded');
-                }
-            }
-
-            /* 2. Pull initial usage / tier info */
-            if (typeof fetchInitialUsage === 'function') {
-                await fetchInitialUsage();
-            }
-
-            /* 3. Set up UI helpers */
-            if (typeof initModals === 'function') {
-                initModals();
-            }
-
-            /* 4. Attempt first‑run data load */
-            if (typeof attemptInitialDataLoad === 'function') {
                 await attemptInitialDataLoad();   // helper is defined later in the file
             }
 
