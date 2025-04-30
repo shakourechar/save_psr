@@ -1504,7 +1504,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let promptGoogleLoadButton;
 
 
-                await attemptInitialDataLoad();   // helper is defined later in the file
+                attemptInitialDataLoad()          // helper is defined later in the file
+                    .then(() => console.log('SmartWealth Navigator initialisation complete'))
+                    .catch(err => handleError('Initialisation failed', err));
             }
 
             console.log('SmartWealth Navigator initialisation complete');
