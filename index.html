@@ -6,12 +6,10 @@
     <title>SmartWealth Navigator - Enhanced Financial Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-     <!-- Updated CSP for Google APIs -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; frame-src content.googleapis.com; script-src 'self' 'unsafe-inline' cdn.tailwindcss.com cdn.plot.ly cdn.jsdelivr.net tfnwwpksieluzvxqdiiq.supabase.co accounts.google.com apis.google.com; style-src 'self' 'unsafe-inline' fonts.googleapis.com fonts.gstatic.com; font-src 'self' fonts.gstatic.com; img-src 'self' static.wixstatic.com data:; connect-src 'self' tfnwwpksieluzvxqdiiq.supabase.co https://tfnwwpksieluzvxqdiiq.supabase.co accounts.google.com apis.google.com https://www.googleapis.com; object-src 'none'; base-uri 'self'; form-action 'self';">
+     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; frame-src content.googleapis.com; script-src 'self' 'unsafe-inline' cdn.tailwindcss.com cdn.plot.ly cdn.jsdelivr.net tfnwwpksieluzvxqdiiq.supabase.co accounts.google.com apis.google.com; style-src 'self' 'unsafe-inline' fonts.googleapis.com fonts.gstatic.com; font-src 'self' fonts.gstatic.com; img-src 'self' static.wixstatic.com data:; connect-src 'self' tfnwwpksieluzvxqdiiq.supabase.co https://tfnwwpksieluzvxqdiiq.supabase.co accounts.google.com apis.google.com https://www.googleapis.com; object-src 'none'; base-uri 'self'; form-action 'self';">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="./plotly.min.js"></script>
-    <!-- Temporary stubs so GIS/gapi onload attributes never hit undefined -->
     <script>
         /* These no‑op stubs are overwritten by the full definitions later. */
         function initializeGIS() {}
@@ -539,20 +537,16 @@
     <header>
         <img src="https://static.wixstatic.com/media/c3283f_a9271d9818ba414994d98950da749489~mv2.jpg" alt="SmartWealth Navigator Logo">
         <h1>SmartWealth Navigator</h1>
-        <!-- Button Container for better wrapping on small screens -->
         <div>
             <span id="signedInUserDisplay"></span>
             <input type="file" id="fileInput" accept=".json">
 
-            <!-- Local File Buttons -->
             <button id="uploadButton">Upload PSR</button>
             <button id="downloadLocalButton">Download PSR</button>
 
-            <!-- Google Drive Buttons (visibility managed by JS) -->
             <button id="loadFromDriveButton">Open PSR</button>
             <button id="saveToDriveButton">Save PSR</button>
 
-            <!-- Google Sign-In and Sign-Out buttons (managed by JS) -->
             <button id="googleSignInButton" style="display: none;">Sign in with Google</button>
             <button id="googleSignOutButton" style="display: none;">Sign Out</button>
         </div>
@@ -591,8 +585,6 @@
                  Upload PSR
              </button>
               <p class="text-gray-600 mt-6 mb-4">Or load from Google Drive:</p>
-              <!-- Add Google Sign-In/Load button for initial prompt -->
-              <!-- This button's click listener will trigger the Google Sign-In/Load flow -->
               <button id="promptGoogleLoadButton" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg text-lg transition duration-200 ease-in-out">
                   Sign in & Load from Drive
               </button>
@@ -744,14 +736,12 @@
         </div>
 
            <section id="chatInterfaceCard" class="dashboard-card" style="display: none;">
-            <!-- MODIFIED HEADER WITH FLEX AND BUTTON -->
             <h3 class="card-header flex items-center justify-between">
                 <span>Ask SmartWealth AI</span>
                 <button id="generateAnalysisBtn" class="bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-3 py-1 rounded">
                      Generate New Analysis
                 </button>
             </h3>
-            <!-- END MODIFIED HEADER -->
             <div class="chat-container">
                 <div class="chat-history" id="chatHistory">
                     </div>
@@ -766,7 +756,6 @@
                  <span class="ml-auto"> Usage: <strong id="chatUsageDisplay">- / -</strong>
                  </span>
             </div>
-            <!-- THIS IS THE CHAT INPUT AREA -->
             <div class="chat-input-area">
                 <textarea id="chatInput" placeholder="Ask about your finances..." rows="1" disabled></textarea>
                 <button id="chatSendButton" disabled>
@@ -776,9 +765,7 @@
                     <span class="sr-only">Send</span>
                 </button>
             </div>
-            <!-- END OF CHAT INPUT AREA -->
-            </div> <!-- This closes the chat-container div -->
-        </section>
+            </div> </section>
 
         <footer class="text-center text-gray-500 text-sm py-6 mt-4 border-t border-gray-200">
             <p>SmartWealth Navigator © 2025 | Built by Socialeap™️</p>
@@ -801,7 +788,6 @@
         </div>
     </div>
 
-    <!-- Modal for listing files from Drive -->
     <div id="driveLoadModal" class="modal">
         <div class="modal-content">
             <span class="close-button" onclick="closeModal('driveLoadModal')">&times;</span>
@@ -1093,7 +1079,7 @@ function initializeGIS() {
         });
     }
 
-/**  Update all Drive-related button visibility based on sign-in state. */
+/** Update all Drive-related button visibility based on sign-in state. */
 function updateDriveButtonVisibility(isSignedIn) {
     // Toggle Google auth buttons
     if (googleSignInButton)  googleSignInButton.style.display  = isSignedIn ? 'none'        : 'inline-block';
@@ -1257,7 +1243,7 @@ function updateDriveButtonVisibility(isSignedIn) {
             }
 
             // 2. Define the unique filename with date
-            const dateStr = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+            const dateStr = new Date().toISOString().split('T')[0]; 
             const fileName = `SWN_${cleanedUserName}-${dateStr}.json`;
             console.log(`Saving file as: "${fileName}" in folder ID: ${folderId}`);
 
@@ -1369,7 +1355,8 @@ function updateDriveButtonVisibility(isSignedIn) {
                 // Hide spinner (handled by finally block)
                 // Show informational message - Use the function that displays the initial prompt area
                 // Make sure getDriveFolderName() exists and returns the expected folder name like SWN_User_Name
-                const userFriendlyFolderName = getDriveFolderName ? getDriveFolderName() : `SWN_${cleanedUserName}`; // Get folder name for message
+                // NOTE: We updated getOrCreateSwnFolder to use userName, so getDriveFolderName needs updating too, or just reconstruct here.
+                const userFriendlyFolderName = `SWN_${cleanedUserName}`; // Reconstruct folder name for message
                 showInitialPromptOrMessage(`Your SmartWealth folder (${userFriendlyFolderName}) is empty. Please save a report first.`); // Use the initial prompt/message function
                 setChatStatus("Drive folder is empty", false);
                 return; // Stop execution, user needs to save first
@@ -1433,78 +1420,44 @@ function updateDriveButtonVisibility(isSignedIn) {
         }
     }
     /**
-     * Click handler for the “Open PSR” button.
-     * If the user is not yet authenticated, trigger the Google consent flow;
-     * otherwise load (or create) the latest PSR file from Drive.
+     * Click handler for the "Open PSR" button.
+     * Initiates sign-in if needed, otherwise calls the function to load from Drive.
      */
     function handleLoadFromDriveClick() {
+        console.log("Load from Drive button clicked."); // Log the click
         if (!googleAccessToken) {
-            googleTokenClient?.requestAccessToken({ prompt: 'consent' });
-            return;
+            // Not signed in, request access token (will trigger sign-in popup)
+            console.log("Not signed in. Requesting Google access token...");
+            if (googleTokenClient) {
+                // The handleGoogleTokenResponse callback handles loading AFTER successful sign-in
+                googleTokenClient.requestAccessToken({ prompt: 'consent' });
+            } else {
+                console.error("Google Token Client not initialized. Cannot request token.");
+                handleError("Google Sign-In Error", new Error("Google client not ready. Please refresh."));
+            }
+            return; // Stop here, wait for sign-in callback
         }
+
+        // --- CORRECTED: Call the actual loading function ---
+        console.log("Already signed in. Calling loadLatestPsrFromDrive().");
+        // No need to show spinner here, loadLatestPsrFromDrive handles it
         loadLatestPsrFromDrive();
+        // --- END CORRECTION ---
     }
 
-    // --- Legacy alias to keep older listener working -----------------------
-    // Some older event‑listener code still calls initiateGoogleFlow().
-    // Keep that backward‑compatible by delegating to the canonical handler.
-    function initiateGoogleFlow() {
-        handleLoadFromDriveClick();
-    }
-    // -----------------------------------------------------------------------
-    
+    // NOTE: Obsolete initiateGoogleFlow function has been removed.
+
     function handleSaveToDriveClick() {
         if (!googleAccessToken) {
             googleTokenClient?.requestAccessToken({ prompt: 'consent' });
             return;
         }
-        savePsrToDrive();
+        savePsrToDrive(); // Calls the correct async save function
     }
 
     /* Basic click handlers for Sign‑In / Sign‑Out */
-document.addEventListener('DOMContentLoaded', () => {
-        // ----- Cache DOM references now that the document is ready -----
-        googleSignInButton           = document.getElementById('googleSignInButton');
-        googleSignOutButton          = document.getElementById('googleSignOutButton');
-        loadFromDriveButton          = document.getElementById('loadFromDriveButton');
-        saveToDriveButton            = document.getElementById('saveToDriveButton');
-        signedInUserDisplayElement   = document.getElementById('signedInUserDisplay');
+    // NOTE: Event listeners are attached within DOMContentLoaded below
 
-        // Ensure correct initial visibility for the Drive/auth buttons
-        updateDriveButtonVisibility(!!googleAccessToken);
-        if (googleSignInButton) {
-            googleSignInButton.addEventListener('click', () => {
-                if (!googleTokenClient) {
-                    console.warn("GIS client not ready yet – trying again shortly.");
-                    initializeGIS(); // safety call
-                    return setTimeout(() => googleTokenClient?.requestAccessToken({ prompt: 'consent' }), 500);
-                }
-                googleTokenClient.requestAccessToken({ prompt: 'consent' });
-            });
-        }
-        if (googleSignOutButton) {
-            googleSignOutButton.addEventListener('click', () => {
-                googleAccessToken = null;
-                if (window.gapi?.client) gapi.client.setToken('');
-                updateDriveButtonVisibility(false);
-                console.log("Signed out of Google Drive.");
-            });
-        }
-        if (saveToDriveButton) {
-            saveToDriveButton.addEventListener('click', handleSaveToDriveClick);
-        }
-
-        // Header “Open PSR” button
-        if (loadFromDriveButton) {
-            loadFromDriveButton.addEventListener('click', handleLoadFromDriveClick);
-        }
-
-        // Prompt “Sign in & Load from Drive” button
-        promptGoogleLoadButton = document.getElementById('promptGoogleLoadButton');
-        if (promptGoogleLoadButton) {
-            promptGoogleLoadButton.addEventListener('click', handleLoadFromDriveClick);
-        }
-    });
 
     // --- Cached DOM Elements (initialized later) ---
     let loadingSpinner, errorMessageElement, mainContentElement, initialMessageElement, initialUploadPrompt, errorTextElement, debugInfoElement, fileInput, chatInterfaceCardElement;
@@ -1537,10 +1490,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 initModals();
             }
 
-            /* 4. Attempt first‑run data load */
-            if (typeof attemptInitialDataLoad === 'function') {
-                await attemptInitialDataLoad();   // helper is defined later in the file
-            }
+            // Attempt first-run data load is now handled within DOMContentLoaded main logic
 
             console.log('SmartWealth Navigator initialisation complete');
         } catch (err) {
@@ -1548,7 +1498,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     // --- Utility Functions ---
-// --- Utility Functions ---
     function getSafe(fn, defaultVal = 'N/A') {
         try {
             const value = fn();
@@ -1704,12 +1653,11 @@ document.addEventListener('DOMContentLoaded', () => {
             // Remove currency symbols, commas, etc. before parsing
             const cleaned = String(value).replace(/[^0-9.-]+/g, '');
             const number = parseFloat(cleaned);
-            // --- MODIFIED: Return defaultValue if result is NaN or not finite ---
+            // Return defaultValue if result is NaN or not finite
              if (isNaN(number) || !isFinite(number)) {
                  console.warn(`Could not parse valid finite numeric value for key "${key}" from "${value}". Using default ${defaultValue}.`);
                  return defaultValue; // Return default if not a valid finite number
              }
-             // --- End modification ---
             return number;
         };
 
@@ -2919,11 +2867,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         // Correctly map data to the appropriate columns and add CSS classes
                         row.innerHTML = `
-                            <td>${type}</td>                                          <!-- Column 1: Type -->
-                            <td class="balance-col">${formatCurrency(balance)}</td>    <!-- Column 2: Balance -->
-                            <td class="rate-col">${(Number(interestRate)).toFixed(1)}%</td>    <!-- Column 3: Rate -->
-                            <td class="min-pmt-col">${formatCurrency(minPayment)}</td>    <!-- Column 4: Min Payment -->
-                        `;
+                            <td>${type}</td>                                          <td class="balance-col">${formatCurrency(balance)}</td>    <td class="rate-col">${(Number(interestRate)).toFixed(1)}%</td>    <td class="min-pmt-col">${formatCurrency(minPayment)}</td>    `;
                          console.log(`      Row ${index} HTML set.`);
                     } catch (e) { // Existing inner catch block
                         console.error(`  Error adding debt row for item ${index}:`, debt, e);
@@ -3054,21 +2998,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Common layout adjustments for Pie charts
           const commonPieLayout = {
-    autosize: true,
-    margin: { l: 40, r: 40, b: 80, t: 80 },   // extra space, increased bottom margin for legend
-    showlegend: true,
-    legend: {
-        orientation: "h",
-        yanchor: "top",
-        y: -0.15,                              // legend below the chart
-        xanchor: "center",
-        x: 0.5
-    },
-    paper_bgcolor: "rgba(0,0,0,0)",
-    plot_bgcolor: "rgba(0,0,0,0)",
-    font: { family: "Inter, sans-serif", size: 12, color: "#374151" },
-    hoverlabel: { font: { family: "Inter, sans-serif", size: 12 } }
-};
+            autosize: true,
+            margin: { l: 40, r: 40, b: 80, t: 80 },   // extra space, increased bottom margin for legend
+            showlegend: true,
+            legend: {
+                orientation: "h",
+                yanchor: "top",
+                y: -0.15,                              // legend below the chart
+                xanchor: "center",
+                x: 0.5
+            },
+            paper_bgcolor: "rgba(0,0,0,0)",
+            plot_bgcolor: "rgba(0,0,0,0)",
+            font: { family: "Inter, sans-serif", size: 12, color: "#374151" },
+            hoverlabel: { font: { family: "Inter, sans-serif", size: 12 } }
+        };
 
              console.log("  Common Pie Layout:", commonPieLayout);
 
@@ -3141,7 +3085,7 @@ document.addEventListener('DOMContentLoaded', () => {
                      console.log("  Expense Trace:", expenseTrace);
                     Plotly.newPlot(expenseChartDiv, expenseTrace, { ...commonPieLayout, title: { text: 'Expense Categories', y:0.98, font: { size: 14, family: 'EB Garamond, serif', color: '#111827' } } }, plotlyConfig)
                         .then(() => { console.log("  Expense Chart plotted successfully."); })
-                        .catch((plotErr) => { console.error("  Error during Expense Plotly.newPlot:", plotErr); expenseChartDiv.innerHTML = `<p class="text-red-600 text-center p-4">Error plotting expense chart:<br>${getSafe(() => plotErr.message, 'Unknown chart error')}</p>`; });
+                        .catch((plotErr) => { console.error("  Error during Expense Plotly.newPlot:", plotErr); expenseChartDiv.innerHTML = `<p class="text-red-600 text-center p-4">Error plotting expense chart:<br>${getSafe(() => plotErr.message, 'Unknown plot error')}</p>`; });
 
                 } else {
                     console.log("  No expense data to plot. Displaying message.");
@@ -3205,7 +3149,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- Chat Functionality ---
     // --- Chat Functionality ---
     function initializeChat() { // Renamed from updateUIBasedOnAccess temporarily for clarity
         console.log("--- initializeChat START ---");
@@ -3738,477 +3681,45 @@ document.addEventListener('DOMContentLoaded', () => {
     // 3. A failed silent re-authentication where interaction is required (tokenResponse contains error: 'interaction_required').
     // 4. User denies permissions during interactive flow (tokenResponse contains error: 'access_denied').
     // 5. User closes the popup (tokenResponse contains error: 'popup_closed_by_user').
-    function handleGoogleTokenResponse(tokenResponse) {
-        console.log("Google token response received:", tokenResponse);
-        // IMPORTANT: Do NOT call hideAllMainContentAreas() here.
-        // This function should react to auth result, not hide the main dashboard content.
-        // Hiding/showing main content is managed by the initial load logic and processAndDisplayData.
-
-        try { // Added try...catch inside handleGoogleTokenResponse
-            // Check if the response contains a valid access token (SUCCESS PATH)
-            if (tokenResponse && tokenResponse.access_token) {
-                console.log("Google token response successful. Access token obtained.");
-                googleAccessToken = tokenResponse.access_token; // Store the token globally
-                console.log("Access Token obtained (length:", googleAccessToken.length, ")."); // Log length, not full token for security
-
-                // Inject the obtained token into the gapi.client library for making API calls
-                // Check if gapi.client is available and has setToken method
-                if (typeof gapi !== 'undefined' && typeof gapi.client !== 'undefined' && typeof gapi.client.setToken === 'function') {
-                    gapi.client.setToken({ access_token: googleAccessToken });
-                    console.log("Token set in gapi.client.");
-
-                    // Now that we have a token and it's set in gapi.client, load the Drive API library.
-                    // gapi.client.load uses promises and handles idempotency (safe to call multiple times).
-                     gapi.client.load('drive', 'v3')
-                        .then(() => {
-                            console.log("Google Drive API v3 loaded successfully after sign-in.");
-                            // The Drive API (gapi.client.drive) is now ready to use.
-                            // Update button visibility to show Drive-related buttons (Load/Save), hide sign-in.
-                            updateDriveButtonVisibility(true);
-                            // Fetch user info for display (e.g., "Signed in as...")
-                            fetchGoogleUserInfo();
-
-                            // --- Determine what to do after successful sign-in ---
-                            // If dashboard data is NOT already loaded (e.g., from URL params or local file),
-                            // attempt to automatically load the user's file from Drive.
-                            // Check if dashboardData has valid userInput with personalInfo
-                             const isDataCurrentlyLoaded = dashboardData && dashboardData.userInput && dashboardData.userInput.personalInfo && Object.keys(getSafe(() => dashboardData.userInput.personalInfo, {})).length > 0;
-
-                             if (!isDataCurrentlyLoaded) {
-                                 console.log("No data loaded from URL/Local. Attempting auto-load from Drive after sign-in.");
-                                 // Show spinner while loading from Drive
-                                 hideAllMainContentAreas(); // Hide existing content before loading from Drive
-                                 if (loadingSpinner) loadingSpinner.style.display = 'flex';
-                                 setChatStatus("Loading from Drive...", true);
-                                 // Call the function to initiate loading from Drive.
-                                 // performDriveLoadOrSignIn already checks signed-in status.
-                                 // It might be called here *after* sign-in. Let's call the function
-                                 // that executes the load operation itself, as sign-in is confirmed.
-                                 performDriveLoadOperation(); // Function that does the actual Drive list/load
-
-                             } else {
-                                 // If data was already loaded (e.g., from URL params),
-                                 // just indicate signed-in status. The main dashboard should already be visible.
-                                 console.log("Data already loaded from URL/Local. Skipping auto-load from Drive.");
-                                 // Ensure main content is visible if it wasn't already
-                                 if (mainContentElement && mainContentElement.style.display === 'none') {
-                                    console.log("Main content was hidden, making it visible after successful sign-in.");
-                                    mainContentElement.style.display = 'block';
-                                    mainContentElement.classList.remove('hidden');
-                                 }
-                                 if (loadingSpinner) loadingSpinner.style.display = 'none'; // Hide spinner if it was on
-                                 setChatStatus("Signed in to Drive", false); // Indicate successful sign-in
-                                  // Ensure buttons are correctly visible (redundant but safe)
-                                  updateDriveButtonVisibility(true);
-                                  // Ensure chat UI state is correct based on current user context
-                                 initializeChat();
-                             }
-
-                        })
-                        .catch((loadError) => {
-                             console.error("Error loading Google Drive API after sign-in:", loadError);
-                             // This is a failure *after* authentication, but related to API access.
-                             // Treat as an error but ensure token/sign-in state is kept.
-                             // Don't clear googleAccessToken here.
-                             handleError("Google Drive API Load Failed", loadError); // Report the error using central handler
-                             // Ensure Drive buttons are hidden if the API failed to load
-                             updateDriveButtonVisibility(false); // SignedIn will be true, but Load/Save require API
-                             setChatStatus("Drive API Failed", false);
-                             // Ensure chat UI state is correct even if Drive failed
-                             initializeChat();
-                        });
-
-                } else {
-                    // This case should ideally not happen if gapi.js loaded correctly via onload=handleGapiLoad()
-                    // and handleGapiLoad successfully loaded the 'client' module.
-                    // It means gapi.client is somehow not ready *even though* auth succeeded.
-                    console.error("Gapi client not available to set token after successful response. Ensure api.js and 'client' module are loaded.");
-                     googleAccessToken = null; // Clear token as gapi.client is broken
-                     googleUser = null; // Clear user info
-                     driveFolderId = null; // Clear cached folder ID
-                    handleError("Google API Client Setup Failed", new Error("Google API client not fully ready after authentication.")); // Report the error
-                    updateDriveButtonVisibility(false); // Hide Drive buttons
-                     setChatStatus("API Client Failed", false);
-                    // Ensure chat UI state is correct
-                    initializeChat();
-                }
-
-            // --- Handle expected non-fatal error responses (interaction_required, access_denied, etc.) ---
-            // These are results where a token was NOT obtained, but it's a known state that doesn't
-            // necessarily indicate a critical application error needing the full handleError modal.
-            // This handles failures from both silent ('prompt:none') and interactive ('prompt:auto') requests.
-            } else if (tokenResponse && (tokenResponse.error === 'interaction_required' || tokenResponse.error === 'access_denied' || tokenResponse.error === 'popup_closed_by_user')) {
-                 console.warn("Google token response indicated interaction is required or access denied/cancelled:", tokenResponse.error, tokenResponse.error_description);
-                 googleAccessToken = null; // Ensure token is null as authentication was NOT successful
-                 googleUser = null; // Clear user info display
-                 // Clear token from gapi.client if it was somehow set previously
-                 if (typeof gapi !== 'undefined' && typeof gapi.client !== 'undefined' && typeof gapi.client.setToken === 'function') {
-                     gapi.client.setToken(null);
-                 }
-                 driveFolderId = null; // Clear cached folder ID
-
-                 // Update UI to show the sign-in button and reflect not signed in status
-                 // Note: Main content visibility is *NOT* changed here. It should remain visible
-                 // if it was loaded from URL params, or remain hidden if it was initially hidden.
-                 updateDriveButtonVisibility(false); // Pass false because we are NOT signed in (no token)
-                 signedInUserDisplayElement = signedInUserDisplayElement || document.getElementById('signedInUserDisplay');
-                  if (signedInUserDisplayElement) {
-                      signedInUserDisplayElement.textContent = '';
-                      signedInUserDisplayElement.style.display = 'none';
-                  }
-
-                 // Set status message indicating user needs to click the button
-                 setChatStatus("Signed out of Drive", false); // Update status
-                 // Ensure chat UI state is correct
-                 initializeChat(); // Chat might become disabled if no user ID is set
-
-            // --- Handle any other unexpected errors in the token response ---
-            } else if (tokenResponse && tokenResponse.error) {
-                console.error("Google token response contained an unexpected error:", tokenResponse);
-                googleAccessToken = null; // Ensure token is null
-                googleUser = null;
-                if (typeof gapi !== 'undefined' && typeof gapi.client !== 'undefined' && typeof gapi.client.setToken === 'function') {
-                    gapi.client.setToken(null);
-                }
-                driveFolderId = null;
-
-                // Treat these as more serious failures needing the central error handler
-                // This WILL call hideAllMainContentAreas(), which is appropriate for a critical error.
-                 handleError("Google Sign-In Response Error", new Error(`Unexpected error from Google: ${tokenResponse.error || 'No error code'}: ${tokenResponse.error_description || 'Unknown'}`));
-                 // Status and visibility will be set by handleError
-                 // Ensure chat UI state is correct (likely disabled by handleError)
-                 initializeChat();
-            } else {
-                 // --- Fallback for truly empty or unexpectedly structured responses ---
-                 console.warn("Google token response was empty or unexpectedly structured.", tokenResponse);
-                  googleAccessToken = null; // Ensure token is null
-                  googleUser = null;
-                  if (typeof gapi !== 'undefined' && typeof gapi.client !== 'undefined' && typeof gapi.client.setToken === 'function') {
-                      gapi.client.setToken(null);
-                  }
-                  driveFolderId = null;
-
-                  // This WILL call hideAllMainContentAreas(), appropriate for a critical error.
-                  handleError("Google Sign-In Response Error", new Error("Received empty or invalid response from Google."));
-                 // Status and visibility will be set by handleError
-                 // Ensure chat UI state is correct
-                 initializeChat();
-            }
-        } catch (innerError) { // Catch any errors that occur within handleGoogleTokenResponse itself
-             console.error("ERROR WITHIN handleGoogleTokenResponse:", innerError);
-             // Ensure cleanup on internal error within this handler
-             googleAccessToken = null;
-             googleUser = null;
-             if (typeof gapi !== 'undefined' && typeof gapi.client !== 'undefined' && typeof gapi.client.setToken === 'function') {
-                 gapi.client.setToken(null);
-             }
-             driveFolderId = null;
-              handleError("Internal Google Auth Handler Error", innerError); // Report using central handler
-             // Ensure chat UI state is correct
-             initializeChat();
-        }
-    }
+    // NOTE: This function definition was moved higher up in the script for better organization.
 
 
     // Fetch basic Google User Info (optional, for displaying signed-in status)
     // Called after a successful login/re-auth and Drive API load.
-    async function fetchGoogleUserInfo() {
-        console.log("Fetching Google user info...");
-        // Need to load oauth2 API module if not already loaded
-        try {
-            // Check if gapi.client is available and has a token before attempting API call
-            if (typeof gapi === 'undefined' || typeof gapi.client === 'undefined' || typeof gapi.client.getToken !== 'function' || !gapi.client.getToken()) {
-                console.warn("Gapi client not ready or no token available to fetch user info.");
-                 return; // Exit if prerequisites are not met
-            }
-             // Load the oauth2 API module if it hasn't been loaded yet.
-             // gapi.client.load uses promises and handles idempotency.
-            await gapi.client.load('oauth2', 'v2')
-                 .then(() => console.log("OAuth2 API v2 loaded for user info."))
-                 .catch(err => console.error("Error loading OAuth2 API for user info:", err));
-
-            // Check again if the oauth2 API is available after attempting load
-             if (typeof gapi.client.oauth2 === 'undefined' || typeof gapi.client.oauth2.userinfo === 'undefined' || typeof gapi.client.oauth2.userinfo.get !== 'function') {
-                 console.error("Google OAuth2 userinfo API not available after load attempt.");
-                 return; // Exit if API is not available
-             }
-
-            // Make the API request to get user information
-            const response = await gapi.client.oauth2.userinfo.get();
-            googleUser = response.result; // Store user info globally
-            console.log("Google User Info:", googleUser);
-
-            // Display user name if element exists and user info is available
-            signedInUserDisplayElement = signedInUserDisplayElement || document.getElementById('signedInUserDisplay');
-            if (signedInUserDisplayElement && googleUser?.name) {
-                signedInUserDisplayElement.textContent = `Signed in as: ${googleUser.name}`;
-                signedInUserDisplayElement.style.display = 'inline-block'; // Make the span visible
-                console.log(`Signed in user display updated: ${googleUser.name}`);
-            } else if (signedInUserDisplayElement) {
-                 // If element exists but no user name (e.g., email only or error), hide it
-                 signedInUserDisplayElement.style.display = 'none';
-                 signedInUserDisplayElement.textContent = ''; // Clear any old text
-            }
-
-            // Update button visibility again now that user info is fetched (redundant but ensures display updates)
-            updateDriveButtonVisibility(!!googleAccessToken);
-
-
-        } catch (error) {
-            console.error("Error fetching Google user info:", error);
-            // If fetching user info fails, it's not a critical app error, just log it.
-            // The UI will proceed without the user's name displayed.
-             // Ensure display is hidden if fetch failed after a token was obtained
-             signedInUserDisplayElement = signedInUserDisplayElement || document.getElementById('signedInUserDisplay');
-             if (signedInUserDisplayElement) {
-                 signedInUserDisplayElement.textContent = '';
-                 signedInUserDisplayElement.style.display = 'none';
-             }
-        }
-    }
+    // NOTE: This function definition was moved higher up in the script for better organization.
 
 
     // Handle Google Sign Out
     // Revokes the access token and clears local Google-related state.
-    function handleGoogleSignOut() {
-        console.log("Signing out of Google...");
-        // Check if we have a token and the GIS library is available to revoke it
-        if (googleAccessToken && typeof google !== 'undefined' && typeof google.accounts !== 'undefined' && typeof google.accounts.oauth2 !== 'undefined' && typeof google.accounts.oauth2.revoke === 'function') {
-            // Revoke the access token to invalidate it on Google's side
-            google.accounts.oauth2.revoke(googleAccessToken, (revokeResponse) => {
-                 console.log("Google access token revoke response:", revokeResponse); // Log revoke response from Google
-                console.log("Google access token revoked successfully.");
-                // Clear local state after successful revocation
-                googleAccessToken = null;
-                googleUser = null;
-                 // Clear the token in gapi.client as well
-                 if (typeof gapi !== 'undefined' && typeof gapi.client !== 'undefined' && typeof gapi.client.setToken === 'function') {
-                    gapi.client.setToken(null);
-                    console.log("Token cleared in gapi.client.");
-                    // Optionally clear the Drive API instance if needed, though typically not strictly necessary
-                    // gapi.client.drive = undefined; // Or null
-                 }
-                console.log("Google sign out process complete.");
+    // NOTE: This function definition was moved higher up in the script for better organization.
 
-                // Update button visibility to hide Drive buttons and show sign-in button
-                updateDriveButtonVisibility(false);
-                 // Clear and hide the signed-in user display
-                 signedInUserDisplayElement = signedInUserDisplayElement || document.getElementById('signedInUserDisplay');
-                 if (signedInUserDisplayElement) {
-                     signedInUserDisplayElement.textContent = '';
-                     signedInUserDisplayElement.style.display = 'none';
-                 }
 
-                 // Clear the cached Drive folder ID as it's specific to the signed-in user/session
-                 driveFolderId = null;
-                 console.log("Drive folder ID cache cleared.");
-
-                 // After signing out of Google, the user is back to a state where they need to load data.
-                 // Show the initial upload prompt state again.
-                 showInitialPromptOrMessage();
-                 setChatStatus("Signed out of Drive", false); // Update chat status
-                 // Chat might become disabled if no user ID is set after sign-out
-                 initializeChat();
-            });
-        } else {
-            // If we don't have an access token or GIS is not available, we can't revoke.
-            // Just clear local state and update UI.
-            console.log("No Google access token or GIS library not available to revoke. Clearing local state only.");
-            googleAccessToken = null;
-            googleUser = null;
-             if (typeof gapi !== 'undefined' && typeof gapi.client !== 'undefined' && typeof gapi.client.setToken === 'function') {
-                 gapi.client.setToken(null);
-             }
-             driveFolderId = null; // Clear cache
-            // Update UI visibility
-            updateDriveButtonVisibility(false);
-             signedInUserDisplayElement = signedInUserDisplayElement || document.getElementById('signedInUserDisplay');
-             if (signedInUserDisplayElement) {
-                 signedInUserDisplayElement.textContent = '';
-                 signedInUserDisplayElement.style.display = 'none';
-             }
-             // Show initial prompt state
-             showInitialPromptOrMessage();
-             setChatStatus("Signed out of Drive", false);
-             initializeChat(); // Update chat state
-        }
-    }
-
- /**
+    /**
      * Handles the click event for the "Open PSR→G-Drive" button.
      * Checks sign-in status, initiates Google flow if needed, then attempts to load the file.
      */
-    function handleLoadFromDriveClick() { // Function definition starts here
-        console.log("Load from Drive button clicked.");
-        if (!googleAccessToken) {
-            // Not signed in, request access token (will trigger sign-in popup)
-            console.log("Not signed in. Requesting Google access token...");
-            if (googleTokenClient) {
-                googleTokenClient.requestAccessToken({ prompt: 'consent' });
-                // The handleGoogleTokenResponse callback will handle loading after successful sign-in
-            } else {
-                console.error("Google Token Client not initialized. Cannot request token.");
-                handleError("Google Sign-In Error", new Error("Google client not ready. Please refresh."));
-            }
-            return; // Stop here, wait for sign-in callback
-        }
+    // NOTE: This function definition was moved higher up in the script for better organization.
 
-        // Already signed in, proceed directly to load operation
-        console.log("Already signed in. Proceeding with Drive load operation.");
-        // Show spinner/loading state before starting the async operation
-        hideAllMainContentAreas();
-        if (loadingSpinner) loadingSpinner.style.display = 'flex';
-        setChatStatus("Loading from Drive...", true);
-
-        // *** Calls the correct function to load the file ***
-        loadLatestPsrFromDrive();
-
-    } // Function definition ends here
 
     /**
      * Handles the click event for the "Save PSR→G-Drive" button.
      * Checks sign-in status, initiates Google flow if needed, then attempts to save the file.
      */
-     // NOTE: Definition for handleSaveToDriveClick is missing here, assumed defined elsewhere or added separately.
-     // If it's meant to be here, it would start with: function handleSaveToDriveClick() { ... }
+     // NOTE: This function definition was moved higher up in the script for better organization.
 
 
     /**
      * Performs the actual file loading process from Google Drive.
      * This is the logic executed *after* it's confirmed the user is signed in.
      */
-     // NOTE: Definition for performDriveLoadOperation is missing here. The call was replaced above.
+     // NOTE: loadLatestPsrFromDrive performs this function now. Definition was moved higher up.
 
 
     /**
      * Performs the actual file saving process to Google Drive.
      * This function is called *after* successful Google Sign-In/Auth.
      */
-    async function performDriveSave() {
-        console.log("Performing Drive Save. Signed in:", !!googleAccessToken);
-
-        const dataToSave = getDataForSave(); // Use the helper function
-
-        if (!dataToSave) {
-             console.warn("Attempted performDriveSave without valid dashboard data.");
-             // This case should not happen if Save button visibility is managed correctly.
-             alert("No dashboard data available to save.");
-             setChatStatus("Save failed (no data)", false);
-             return;
-        }
-         if (!googleAccessToken) {
-             console.warn("Attempted performDriveSave without access token.");
-             // This case should not happen if initiateGoogleFlow works correctly before calling this.
-             alert("Please sign in to Google Drive first.");
-             setChatStatus("Save failed (not signed in)", false);
-             return;
-         }
-         // Ensure user ID is set before attempting to create the folder name
-         if (!currentUserId) {
-              console.error("Attempted performDriveSave without a valid currentUserId.");
-              alert("Cannot save without a user ID. Please ensure you are authenticated correctly.");
-              setChatStatus("Save failed (no user ID)", false);
-              return;
-         }
-
-
-         // Provide immediate feedback to the user
-         setChatStatus("Saving to Drive...", true);
-         // Disable save button to prevent multiple clicks
-         if (saveToDriveButton) saveToDriveButton.disabled = true;
-         if (loadFromDriveButton) loadFromDriveButton.disabled = true; // Disable load during save
-         if (downloadLocalButton) downloadLocalButton.disabled = true;
-
-
-        const fileContent = JSON.stringify(dataToSave, null, 2);
-        const blob = new Blob([fileContent], { type: PSR_MIME_TYPE });
-
-        let fileIdToUpdate = null;
-
-        try {
-            // 1. Ensure the folder exists and get its ID (uses cached driveFolderId or finds/creates)
-            const folderId = await findOrCreateDriveFolder();
-            console.log("Drive folder ID for saving:", folderId);
-
-            // 2. Search for an existing file with the standard name in this folder
-            const existingFiles = await listDriveFiles(); // listDriveFiles already filters by name/type/parent/trashed
-
-            if (existingFiles && existingFiles.length > 0) {
-                // Found existing file(s) - use the first one (most recent if list was ordered)
-                fileIdToUpdate = existingFiles[0].id;
-                console.log(`Found existing file "${PSR_FILE_NAME}" (ID: ${fileIdToUpdate}). Will update.`);
-            }
-
-            // 3. Prepare the request body (metadata is separate in multipart)
-            const fileMetadata = {
-                'name': PSR_FILE_NAME,
-                'mimeType': PSR_MIME_TYPE,
-                // Specify parents ONLY when creating (POST), not when updating (PATCH)
-                ...(fileIdToUpdate ? {} : { 'parents': [folderId] })
-            };
-
-// >>> This is the end of the snippet you provided <<<
-// (The rest of the performDriveSave function was cut off in your paste)
-// Ensure the full performDriveSave function exists below this point in your actual file.
-
-            // Use multipart upload for file content
-            const form = new FormData();
-            form.append('metadata', new Blob([JSON.stringify(fileMetadata)], { type: 'application/json' }));
-            form.append('file', blob);
-
-            // Determine the API endpoint and method (update or create)
-            const path = fileIdToUpdate ? `/upload/drive/v3/files/${fileIdToUpdate}` : `/upload/drive/v3/files`;
-            const method = fileIdToUpdate ? 'PATCH' : 'POST'; // Use PATCH to update, POST to create
-
-            console.log(`Executing Drive file ${fileIdToUpdate ? 'update (PATCH)' : 'create (POST)'} request...`);
-
-            // 4. Execute the request using gapi.client.request
-            // Need to ensure gapi.client is loaded BEFORE this request
-             if (typeof gapi === 'undefined' || typeof gapi.client === 'undefined' || typeof gapi.client.request !== 'function') {
-                 console.error("Google API client is not loaded for file request.");
-                 throw new Error("Google API client is not ready.");
-             }
-
-            const response = await gapi.client.request({
-                path: path,
-                method: method,
-                params: { uploadType: 'multipart' }, // Indicate multipart upload
-                headers: { 'Authorization': `Bearer ${googleAccessToken}` }, // Ensure Authorization header is set
-                body: form
-            });
-
-            console.log(`Drive file ${fileIdToUpdate ? 'updated' : 'created'} successfully:`, response.result);
-            // The response.result will contain the file metadata including the ID
-            setChatStatus("Saved to Drive ✅", false);
-            addMessageToChat("System", "Your report has been saved to Google Drive.", false); // Add confirmation to chat
-
-
-        } catch (error) {
-            console.error("Error during Save to Drive process:", error);
-             // Provide more specific error messages if possible
-            let userFacingError = "Failed to save file to Google Drive.";
-             if (error.message.includes("Google Drive API is not ready") || error.message.includes("not signed in")) {
-                 userFacingError = "Please sign in to Google Drive first.";
-             } else if (error.message.includes("Failed to access Google Drive folder")) {
-                 userFacingError = error.message; // Use the specific folder error message
-             } else if (error.result?.error?.message) {
-                 userFacingError = `Google Drive Error: ${error.result.error.message}`;
-             } else if (error.message) {
-                  userFacingError = `Save Error: ${error.message}`;
-             }
-            addMessageToChat("System", "Failed to save report to Google Drive: " + userFacingError, true); // Add error to chat
-            setChatStatus("Save failed", false);
-             // Optionally show a more detailed error modal
-             // handleError("Failed to save to Google Drive", error); // Can call this for critical errors
-        } finally {
-             // Re-enable buttons
-             if (saveToDriveButton) saveToDriveButton.disabled = false;
-             if (loadFromDriveButton) loadFromDriveButton.disabled = false;
-             if (downloadLocalButton) downloadLocalButton.disabled = false;
-             // Status message will auto-clear or stay if error
-             // setChatStatus("", false); // Already done by setChatStatus itself
-        }
-    }
+     // NOTE: savePsrToDrive performs this function now. Definition was moved higher up.
 
 
     /**
@@ -4218,155 +3729,22 @@ document.addEventListener('DOMContentLoaded', () => {
      * The folder name is derived from `currentUserId`.
      * @returns {Promise<string>} A promise that resolves with the folder ID.
      */
-    async function findOrCreateDriveFolder() {
-        const folderName = getDriveFolderName(); // Use the function to get the dynamic name
-        console.log(`Attempting to find or create Drive folder: "${folderName}"`);
-
-         if (!currentUserId) {
-              console.error("Cannot find or create Drive folder: currentUserId is not set.");
-              throw new Error("User ID is required to access Google Drive folder.");
-         }
-
-        if (!gapi || !gapi.client || !gapi.client.drive || !googleAccessToken) { // Check for token here too
-            console.error("Google Drive API client is not loaded or user not signed in for folder operation.");
-            throw new Error("Google Drive API is not ready or user is not signed in.");
-        }
-
-        if (driveFolderId) {
-             console.log(`Folder ID already cached: ${driveFolderId}`);
-             return driveFolderId; // Return cached ID if available
-        }
-
-        try {
-            // 1. Search for the folder in the root
-            const searchResponse = await gapi.client.drive.files.list({
-                q: `name='${folderName}' and mimeType='application/vnd.google-apps.folder' and 'root' in parents and trashed=false`,
-                spaces: 'drive',
-                fields: 'files(id, name)',
-                pageSize: 1
-            });
-
-            const files = searchResponse.result.files;
-
-            if (files && files.length > 0) {
-                // Folder found
-                driveFolderId = files[0].id;
-                console.log(`Found existing Drive folder: "${folderName}" (ID: ${driveFolderId})`);
-                return driveFolderId;
-            } else {
-                // 2. Folder not found, create it
-                console.log(`Drive folder "${folderName}" not found. Creating...`);
-                const fileMetadata = {
-                    'name': folderName,
-                    'mimeType': 'application/vnd.google-apps.folder',
-                    'parents': ['root'] // Create in the root folder
-                };
-                const createResponse = await gapi.client.drive.files.create({
-                    resource: fileMetadata,
-                    fields: 'id'
-                });
-
-                driveFolderId = createResponse.result.id;
-                console.log(`Created new Drive folder: "${folderName}" (ID: ${driveFolderId})`);
-                return driveFolderId;
-            }
-        } catch (error) {
-            console.error(`Error finding or creating Drive folder "${folderName}":`, error);
-             let userFacingError = `Failed to access or create Google Drive folder "${folderName}".`;
-             if (error.result?.error?.message) userFacingError += ` Google Error: ${error.result.error.message}`;
-             else if (error.message) userFacingError += ` Error: ${error.message}`;
-            throw new Error(userFacingError);
-        }
-    }
+     // NOTE: getOrCreateSwnFolder performs this function now. Definition was moved higher up.
 
     /**
      * Lists PSR files within the designated folder.
      * Searches for the standard filename `my_financial_report.json`.
      * @returns {Promise<Array<Object>>} A promise that resolves with a list of files (id, name, modifiedTime).
      */
-    async function listDriveFiles() {
-        const folderName = getDriveFolderName();
-        console.log(`Listing files named "${PSR_FILE_NAME}" in folder ID: ${driveFolderId} ("${folderName}")`);
+     // NOTE: This logic is now contained within loadLatestPsrFromDrive. Definition removed to avoid confusion.
 
-        if (!gapi || !gapi.client || !gapi.client.drive || !driveFolderId || !googleAccessToken) { // Check for token here too
-             console.warn("Google Drive not signed in or API not ready or folder ID missing for listing.");
-             throw new Error("Google Drive API is not ready, user not signed in, or folder not accessible.");
-        }
-
-        try {
-            // Search for files by name and mimeType within the specific folder
-            const searchResponse = await gapi.client.drive.files.list({
-                q: `name='${PSR_FILE_NAME}' and mimeType='${PSR_MIME_TYPE}' and '${driveFolderId}' in parents and trashed=false`,
-                spaces: 'drive',
-                fields: 'files(id, name, modifiedTime)',
-                orderBy: 'modifiedTime desc', // Order by modification time descending
-                pageSize: 10 // Get up to 10 files with the same name (should ideally be only one)
-            });
-
-            const files = searchResponse.result.files;
-            console.log(`Found ${files ? files.length : 0} files matching "${PSR_FILE_NAME}".`, files);
-            return files || [];
-
-        } catch (error) {
-            console.error("Error listing Drive files:", error);
-             // Provide more specific error message based on Google API error structure
-            let userFacingError = "Failed to list files from Google Drive.";
-             if (error.result?.error?.message) {
-                 userFacingError = `Google Drive Error: ${error.result.error.message}`;
-             } else if (error.message) {
-                  userFacingError = `Load Error: ${error.message}`;
-             }
-            throw new Error(userFacingError);
-        }
-    }
 
      /**
      * Loads the content of a specific file from Google Drive.
      * @param {string} fileId The ID of the file to load.
      * @returns {Promise<Object>} A promise that resolves with the parsed JSON content of the file.
      */
-    async function loadDriveFileContent(fileId) {
-        console.log(`Loading file content for file ID: ${fileId}`);
-        if (!gapi || !gapi.client || !gapi.client.drive || !googleAccessToken) { // Check for token here too
-             console.error("Google Drive API client is not loaded or user not signed in for content loading.");
-             throw new Error("Google Drive API is not ready or user is not signed in.");
-        }
-
-        try {
-            // Use alt=media to download the file content
-            const response = await gapi.client.drive.files.get({
-                fileId: fileId,
-                alt: 'media'
-            });
-
-            // The response.result contains the file content (as text for JSON)
-            console.log("Raw file content received (first 200 chars):", String(response.body).substring(0, 200) + '...');
-
-            try {
-                const fileContent = JSON.parse(response.body); // Assuming the content is JSON
-                console.log("Parsed file content from Drive:", fileContent);
-                return fileContent;
-            } catch (parseError) {
-                 console.error("Error parsing file content as JSON:", parseError);
-                 throw new Error("Failed to parse the file content as JSON. It might be corrupted.");
-            }
-
-        } catch (error) {
-            console.error("Error loading file content from Drive:", error);
-             // Check if the error indicates permission issues (e.g., 403) or file not found (404)
-             let userFacingError = "Failed to load file from Google Drive.";
-             if (error.result?.error?.code === 403) {
-                 userFacingError = "Permission denied to access this file in Google Drive. Please check your Google account permissions.";
-             } else if (error.result?.error?.code === 404) {
-                 userFacingError = "File not found in Google Drive. It may have been moved or deleted.";
-             } else if (error.result?.error?.message) {
-                  userFacingError = `Google Drive Error: ${error.result.error.message}`;
-             } else if (error.message) {
-                  userFacingError = `Load Error: ${error.message}`;
-             }
-            throw new Error(userFacingError);
-        }
-    }
+     // NOTE: This logic is now contained within loadLatestPsrFromDrive. Definition removed to avoid confusion.
 
 
     /**
@@ -4375,114 +3753,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * Uses the standard filename `my_financial_report.json`.
      * @returns {Promise<void>} A promise that resolves when the file is saved.
      */
-    async function saveFileToDrive() {
-        console.log("Attempting to save file to Google Drive...");
-
-         const dataToSave = getDataForSave(); // Use the helper function
-
-        if (!dataToSave) {
-             throw new Error("No dashboard data available to save.");
-        }
-        if (!gapi || !gapi.client || !gapi.client.drive || !googleAccessToken) {
-             console.error("Google Drive API is not ready or user is not signed in for saving.");
-             throw new Error("Google Drive API is not ready or user is not signed in.");
-        }
-         if (!currentUserId) {
-              console.error("Attempted to save to Drive without a valid currentUserId.");
-              throw new Error("User ID is required to save to Google Drive.");
-         }
-
-
-         // Provide immediate feedback to the user
-         setChatStatus("Saving to Drive...", true);
-         // Disable save button to prevent multiple clicks
-         if (saveToDriveButton) saveToDriveButton.disabled = true;
-         if (loadFromDriveButton) loadFromDriveButton.disabled = true; // Disable load during save
-         if (downloadLocalButton) downloadLocalButton.disabled = true;
-
-
-        const fileContent = JSON.stringify(dataToSave, null, 2);
-        const blob = new Blob([fileContent], { type: PSR_MIME_TYPE });
-
-        let fileIdToUpdate = null;
-
-        try {
-            // 1. Ensure the folder exists and get its ID (uses cached driveFolderId or finds/creates)
-            const folderId = await findOrCreateDriveFolder();
-            console.log("Drive folder ID for saving:", folderId);
-
-            // 2. Search for an existing file with the standard name in this folder
-            const existingFiles = await listDriveFiles(); // listDriveFiles already filters by name/type/parent/trashed
-
-            if (existingFiles && existingFiles.length > 0) {
-                // Found existing file(s) - use the first one (most recent if list was ordered)
-                fileIdToUpdate = existingFiles[0].id;
-                console.log(`Found existing file "${PSR_FILE_NAME}" (ID: ${fileIdToUpdate}). Will update.`);
-            }
-
-            // 3. Prepare the request body (metadata is separate in multipart)
-            const fileMetadata = {
-                'name': PSR_FILE_NAME,
-                'mimeType': PSR_MIME_TYPE,
-                // Specify parents ONLY when creating (POST), not when updating (PATCH)
-                ...(fileIdToUpdate ? {} : { 'parents': [folderId] })
-            };
-
-            // Use multipart upload for file content
-            const form = new FormData();
-            form.append('metadata', new Blob([JSON.stringify(fileMetadata)], { type: 'application/json' }));
-            form.append('file', blob);
-
-            // Determine the API endpoint and method (update or create)
-            const path = fileIdToUpdate ? `/upload/drive/v3/files/${fileIdToUpdate}` : `/upload/drive/v3/files`;
-            const method = fileIdToUpdate ? 'PATCH' : 'POST'; // Use PATCH to update, POST to create
-
-            console.log(`Executing Drive file ${fileIdToUpdate ? 'update (PATCH)' : 'create (POST)'} request...`);
-
-            // 4. Execute the request using gapi.client.request
-            // Need to ensure gapi.client is loaded BEFORE this request
-             if (typeof gapi === 'undefined' || typeof gapi.client === 'undefined' || typeof gapi.client.request !== 'function') {
-                 console.error("Google API client is not loaded for file request.");
-                 throw new Error("Google API client is not ready.");
-             }
-
-            const response = await gapi.client.request({
-                path: path,
-                method: method,
-                params: { uploadType: 'multipart' }, // Indicate multipart upload
-                headers: { 'Authorization': `Bearer ${googleAccessToken}` }, // Ensure Authorization header is set
-                body: form
-            });
-
-            console.log(`Drive file ${fileIdToUpdate ? 'updated' : 'created'} successfully:`, response.result);
-            // The response.result will contain the file metadata including the ID
-
-        } catch (error) {
-            console.error("Error during Save to Drive process:", error);
-             // Provide more specific error messages if possible
-            let userFacingError = "Failed to save file to Google Drive.";
-             if (error.message.includes("Google Drive API is not ready") || error.message.includes("not signed in")) {
-                 userFacingError = "Please sign in to Google Drive first.";
-             } else if (error.message.includes("Failed to access Google Drive folder")) {
-                 userFacingError = error.message; // Use the specific folder error message
-             } else if (error.result?.error?.message) {
-                 userFacingError = `Google Drive Error: ${error.result.error.message}`;
-             } else if (error.message) {
-                  userFacingError = `Save Error: ${error.message}`;
-             }
-            addMessageToChat("System", "Failed to save report to Google Drive: " + userFacingError, true); // Add error to chat
-            setChatStatus("Save failed", false);
-             // Optionally show a more detailed error modal
-             // handleError("Failed to save to Google Drive", error); // Can call this for critical errors
-        } finally {
-             // Re-enable buttons
-             if (saveToDriveButton) saveToDriveButton.disabled = false;
-             if (loadFromDriveButton) loadFromDriveButton.disabled = false;
-             if (downloadLocalButton) downloadLocalButton.disabled = false;
-             // Status message will auto-clear or stay if error
-             // setChatStatus("", false); // Already done by setChatStatus itself
-        }
-    }
+    // NOTE: async savePsrToDrive performs this function now. Definition was moved higher up.
 
 
     // --- MAIN Document Ready Event ---
@@ -4501,7 +3772,7 @@ document.addEventListener('DOMContentLoaded', () => {
             fileInput = document.getElementById('fileInput');
             chatInterfaceCardElement = document.getElementById('chatInterfaceCard'); // Cache chat card
 
-            // Cache Drive related buttons
+            // Cache Drive related buttons and other header buttons
             uploadButtonHeader = document.getElementById('uploadButton');
             downloadLocalButton = document.getElementById('downloadLocalButton');
             loadFromDriveButton = document.getElementById('loadFromDriveButton');
@@ -4511,39 +3782,128 @@ document.addEventListener('DOMContentLoaded', () => {
             signedInUserDisplayElement = document.getElementById('signedInUserDisplay');
             promptGoogleLoadButton = document.getElementById('promptGoogleLoadButton'); // Button in the initial prompt
 
+            // Cache error modal buttons
+            const retryButton = document.getElementById('retryButton');
+            const manualEntryButton = document.getElementById('manualEntryButton');
+
+
             console.log("Cached DOM elements.");
 
-            // --- 2. Set Initial UI State ---
-            // Hide all main content areas first, then show spinner
+            // --- 2. Set Initial UI State & Basic Listeners ---
             hideAllMainContentAreas();
             if (loadingSpinner) {
-                loadingSpinner.style.display = 'flex'; // Use flex for centering spinner
+                loadingSpinner.style.display = 'flex';
                 console.log("Spinner shown.");
             } else {
                  console.error("Loading spinner element not found!");
-                 // Cannot show spinner, proceed with caution
             }
 
-            // Add the resize listener early - MOVED DEFINITION ABOVE
+             // Add the resize listener early
              window.addEventListener('resize', handleResize);
              console.log("Window resize listener added.");
+
+             // Add listener for the manual file upload button(s)
+             if (fileInput) {
+                 fileInput.addEventListener('change', handleFileUpload);
+                 // Trigger file input click from header upload button
+                 if (uploadButtonHeader) {
+                     uploadButtonHeader.addEventListener('click', () => fileInput.click());
+                 } else { console.warn("Header Upload button not found."); }
+                 // Trigger file input click from initial prompt upload button
+                 const initialUploadButton = document.getElementById('initialUploadButton');
+                 if (initialUploadButton) {
+                     initialUploadButton.addEventListener('click', () => fileInput.click());
+                 } else { console.warn("Initial prompt Upload button not found."); }
+             } else { console.error("File input element (#fileInput) not found!"); }
+
+             // Add listener for the local download button
+             if (downloadLocalButton) {
+                 downloadLocalButton.addEventListener('click', handleLocalDownload);
+             } else { console.warn("Download Local button not found."); }
+
+              // Add listeners for error modal buttons
+              if (retryButton) {
+                  retryButton.addEventListener('click', () => window.location.reload()); // Simple retry: reload page
+              } else { console.warn("Retry button not found."); }
+              if (manualEntryButton) {
+                   manualEntryButton.addEventListener('click', useDemoData);
+              } else { console.warn("Manual Entry / Use Demo button not found."); }
+
+              // Add listeners for modal close buttons (handled globally by initModals)
+
+              // Add listeners for card header popups (handled globally by initModals or a separate function)
+              // Consider adding event delegation for these later if needed.
+
+             // Add listeners for Google Auth / Drive buttons (These are set up slightly differently)
+             if (googleSignInButton) {
+                 googleSignInButton.addEventListener('click', () => {
+                     console.log("Google Sign-In button clicked.");
+                     if (!googleTokenClient) {
+                         console.warn("GIS client not ready yet when Sign-In clicked – trying again shortly.");
+                         initializeGIS(); // Safety call
+                         // Use a small delay before requesting token if client wasn't ready
+                         return setTimeout(() => googleTokenClient?.requestAccessToken({ prompt: 'consent' }), 500);
+                     }
+                     googleTokenClient.requestAccessToken({ prompt: 'consent' });
+                 });
+             } else { console.warn("Google Sign-In button not found."); }
+
+             if (googleSignOutButton) {
+                 googleSignOutButton.addEventListener('click', handleGoogleSignOut);
+             } else { console.warn("Google Sign-Out button not found."); }
+
+             // Header “Open PSR” button
+             if (loadFromDriveButton) {
+                 loadFromDriveButton.addEventListener('click', handleLoadFromDriveClick);
+                 console.log("Load from Drive button listener added.");
+             } else { console.warn("Load from Drive button not found."); }
+
+             // Header “Save PSR” button
+             if (saveToDriveButton) {
+                 saveToDriveButton.addEventListener('click', handleSaveToDriveClick);
+                 console.log("Save to Drive button listener added.");
+             } else { console.warn("Save to Drive button not found."); }
+
+             // Prompt “Sign in & Load from Drive” button
+             if (promptGoogleLoadButton) {
+                 promptGoogleLoadButton.addEventListener('click', handleLoadFromDriveClick);
+                 console.log("Prompt Google Load button listener added.");
+             } else { console.warn("Prompt Google Load button not found."); }
+
+            // Initialize Google Sign-In attempt (silent re-auth) after listeners are set up
+             // The Google script onload attributes (initializeGIS, handleGapiLoad) will handle GIS/Gapi init.
+             // We need to attempt silent sign-in AFTER GIS client is initialized.
+             // Let's add a small delay or use a promise chain if needed, but often GIS init is fast.
+             // For simplicity, we can rely on the user clicking if silent fails.
+             // A robust way is to check googleTokenClient existence before attempting silent auth.
+             console.log("Attempting silent Google re-authentication...");
+             // Use setTimeout to ensure GIS init has likely run from script onload
+             setTimeout(() => {
+                 if (googleTokenClient) {
+                     googleTokenClient.requestAccessToken({ prompt: 'none' }); // Attempt silent
+                 } else {
+                     console.warn("Silent auth attempt skipped: GIS token client not ready yet.");
+                     // If token client isn't ready, silent auth won't work anyway. User will need to click.
+                     updateDriveButtonVisibility(false); // Ensure buttons reflect signed-out state initially
+                     // If silent auth fails/skipped, and no URL data, ensure initial prompt is shown.
+                     // This check happens below in the main logic flow.
+                 }
+             }, 500); // Small delay
 
 
             // --- 3. Initialization Flow ---
             console.log("Starting main initialization logic...");
 
             // Get URL parameters once
-            const params = parseUrlParams();
+            const params = parseUrlParams(); // This gets params for XTL check
 
             // Check for the 'data=null' special case first
             if (params === null) {
                 // parseUrlParams already logged warning.
                 console.log("'data=null' param detected. Showing initial upload prompt.");
-                // Hide spinner and show the initial prompt state
                 if (loadingSpinner) loadingSpinner.style.display = 'none';
                 showInitialPromptOrMessage();
-                // Initialize core features including Supabase and Google APIs
-                initializeSupabaseAndCoreFeatures();
+                initializeSupabaseAndCoreFeatures(); // Still init core features
                 console.log("Exiting main initialization due to 'data=null'.");
                 return; // Stop main initialization flow
             }
@@ -4553,98 +3913,77 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log(`XTL parsed successfully: ${xtlParsedSuccessfully}, currentUserId: ${currentUserId}, effectiveTier: ${effectiveTier}`);
 
 
-            // Parse financial data from URL parameters regardless of XTL success
-            // This sets initial dashboardData (might be null)
-            dashboardData = parseDataFromUrlParams(params) || {}; // Use || {} to ensure it's an object
+            // --- CORRECTED CALL: Use the MODIFIED parseDataFromUrlParams (reads window.location.search) ---
+            dashboardData = parseDataFromUrlParams() || {}; // Reads window.location.search inside
+            // --- END CORRECTION ---
 
 
             // Initialize core features including Supabase and Google APIs
             // This also triggers fetchInitialUsage (using the determined currentUserId/effectiveTier)
-            // and subsequently updateUIBasedOnAccess -> initializeChat,
-            // AND initiates Google API loading and silent auth attempt.
+            // and subsequently updateUIBasedOnAccess -> initializeChat.
             initializeSupabaseAndCoreFeatures();
             console.log("Core features initialization initiated.");
 
 
-// Determine which main content state to show based on data and auth status
+            // Determine which main content state to show based on data and auth status
             console.log("Checking conditions for initial content display:");
 
-            // --- REVISED CHECK for hasDataFromUrl ---
-            // Check if data was parsed AND if essential fields like userName actually have a value
+            // --- CORRECTED CHECK for hasDataFromUrl ---
             const parsedUserName = getSafe(() => dashboardData?.userInput?.personalInfo?.userName, null);
-            // True only if userName is present in the parsed data and not just an empty string
-            const hasDataFromUrl = parsedUserName && String(parsedUserName).trim() !== '';
-            // --- END REVISED CHECK ---
+            const hasDataFromUrl = parsedUserName && String(parsedUserName).trim() !== ''; // True only if userName is present and not empty
+            // --- END CORRECTION ---
 
-            console.log(`  hasDataFromUrl (based on valid userName): ${hasDataFromUrl}`); // Updated log message
+            console.log(`  hasDataFromUrl (based on valid userName): ${hasDataFromUrl}`);
             console.log(`  xtlParsedSuccessfully: ${xtlParsedSuccessfully}`);
             console.log(`  currentUserId (after XTL): ${currentUserId}`);
 
-            // The rest of the if/else if/else block that uses hasDataFromUrl follows immediately after this...
+
             if (hasDataFromUrl) {
                  // Data was successfully parsed from URL params
                  console.log("Condition matched: hasDataFromUrl is true. Processing and displaying data from URL.");
-                 // Update metadata source for loaded data
                  dashboardData.metadata = dashboardData.metadata || {};
-                 // If XTL provided user info, ensure data object has it for saving later
                  if (currentUserId && !dashboardData.metadata.userId) dashboardData.metadata.userId = currentUserId;
                  if (effectiveTier && !dashboardData.metadata.tier) dashboardData.metadata.tier = effectiveTier;
-                 // Set source if missing
                  if (!dashboardData.metadata.source || dashboardData.metadata.source === 'unknown') dashboardData.metadata.source = 'url_params';
-
-                 // fetchInitialUsage was already initiated by initializeSupabaseAndCoreFeatures
-                 processAndDisplayData(dashboardData); // This handles showing mainContent and hiding spinner, and updates UI elements
+                 processAndDisplayData(dashboardData); // Handles showing content, hiding spinner
 
             } else if (xtlParsedSuccessfully && currentUserId) {
-                 // No dashboard data from URL, but XTL was valid and provided a user ID.
-                 // This user is logged in via XTL but has no data yet.
+                 // No dashboard data from URL, but XTL was valid. Show empty shell.
                  console.log(`Condition matched: XTL valid but no URL data. Showing empty main content shell for user ${currentUserId}.`);
                  hideAllMainContentAreas();
                  if (mainContentElement) {
                     mainContentElement.style.display = 'block';
                     mainContentElement.classList.remove('hidden');
-                    console.log("Main content shell made visible.");
                  } else {
                      console.error("Main content element not found!");
                      handleError("Critical: Main content element not found.", new Error("DOM element #mainContent is missing."));
-                     console.log("Exiting main initialization due to missing mainContent element.");
-                     return; // Cannot proceed without main content
+                     return;
                  }
-                 // Create a minimal dashboardData structure with user context for saving/chat context
+                 // Create minimal data structure
                  dashboardData = {
                      userInput: { personalInfo: {}, income: {}, expenses: {}, savings: {}, debts: [], financials: {} },
                      aiOutput: {},
                      metadata: { userId: currentUserId, tier: effectiveTier, source: 'xtl_no_data' },
                      chatHistory: []
                  };
-
-                 // Update UI elements to show "N/A" or default states explicitly using the minimal data
+                 // Update UI with empty data
                  updateReportBasics(dashboardData, calculateTotals(dashboardData));
                  updateRatiosDisplay(calculateRatios(dashboardData, calculateTotals(dashboardData)));
                  updateGoalsDisplay(dashboardData, calculateTotals(dashboardData));
                  updateDebtsDisplay(dashboardData, calculateTotals(dashboardData));
                  updateUIDisplayFromAI(dashboardData);
-                 renderCharts(dashboardData, calculateTotals(dashboardData)); // Attempt to render empty charts or messages
+                 renderCharts(dashboardData, calculateTotals(dashboardData));
                  console.log("Empty dashboard shell UI updated.");
-
-                 if (loadingSpinner) loadingSpinner.style.display = 'none'; // Hide spinner now that shell is visible
-                 console.log("Spinner hidden.");
-
-                 // Google init runs automatically and silent auth is attempted.
-                 // If silent auth succeeds, handleGoogleTokenResponse will call performDriveLoadOperation()
-                 // which will auto-load the file IF it exists for this user ID.
-                 // Button visibility will be updated by updateDriveButtonVisibility based on auth state.
+                 if (loadingSpinner) loadingSpinner.style.display = 'none';
+                 // Silent auth attempt runs via setTimeout above. If successful, auto-load might trigger.
 
             } else {
-                 // No dashboard data from URL and no valid XTL (or XTL didn't provide a user ID).
+                 // No dashboard data from URL and no valid XTL user. Show initial prompt.
                  console.log("Condition matched: No URL data and no valid XTL user. Showing initial prompt/message.");
-                 if (loadingSpinner) loadingSpinner.style.display = 'none'; // Hide spinner
-                 console.log("Spinner hidden.");
-                 showInitialPromptOrMessage(); // Show the upload prompt or generic message
+                 if (loadingSpinner) loadingSpinner.style.display = 'none';
+                 showInitialPromptOrMessage();
                  console.log("Initial prompt shown.");
-                 // Error message might already be showing if XTL parse failed (handleInvalidAccess)
-                 // Button visibility will be updated by updateDriveButtonVisibility after Google init/silent auth attempt.
-                 // Supabase client is initialized, but fetchInitialUsage will report "No user ID" and chat will be disabled.
+                 // Silent auth attempt runs via setTimeout above. Button visibility updated based on its outcome.
             }
 
              console.log("Finished conditions check for initial content display.");
@@ -4652,10 +3991,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) { // Catch synchronous errors during setup
             console.error("CRITICAL Error during DOMContentLoaded synchronous setup:", error);
-            // Use the central error handler for any unexpected errors during setup
             handleError("Critical Initialization Error", error);
         } finally {
-            // The spinner hiding is now managed by the specific display paths (processAndDisplayData, handleError, showInitialPromptOrMessage).
+            // Spinner hiding is managed by the specific display paths.
             console.log("DOMContentLoaded finally block finished.");
         }
     });
@@ -4666,3 +4004,4 @@ document.addEventListener('DOMContentLoaded', () => {
     <script src="https://apis.google.com/js/api.js" async defer onload="handleGapiLoad()"></script>
 </body>
 </html>
+        
